@@ -1,4 +1,5 @@
 """The Level class: map data, borders and in-map messages."""
+
 from typing import List
 
 from constants import (
@@ -18,16 +19,16 @@ from entities import Enemy
 
 
 class Level:
-    map: List[List[str]]  # matrix representation of the level data
-    enemies: List[Enemy]
+    map: list[list[str]]  # matrix representation of the level data
+    enemies: list[Enemy]
     name: str
-    player_starting_position: List[int]
+    player_starting_position: tuple[int, int]
 
     def __init__(
         self,
         name: str,
-        enemies: List[Enemy],
-        player_starting_position: List[int] = [1, 1],
+        enemies: list[Enemy],
+        player_starting_position: tuple[int, int] = (1, 1),
     ):
         self.enemies = enemies
         self.name = name

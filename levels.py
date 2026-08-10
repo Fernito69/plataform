@@ -1,4 +1,5 @@
 """Level definitions (level layouts and enemy placements)."""
+
 from constants import CR, H, LR, UR, V
 from entities import Enemy
 from level import Level
@@ -9,20 +10,26 @@ def build_level1() -> Level:
         Enemy(
             enemy_type=1,
             enemy_speed=2,
-            movement_type=[1, 0],
-            position=[10, 5],
-            character="*",
+            movement_type=(1, 0),
+            position=(10, 5),
+            character_frames=["·", "-", "+", "x", "┼", "X", "o", "·"],
         ),
-        Enemy(1, 4, [1, 0], [15, 3], character="x"),
-        Enemy(1, 1, [0, 1], [2, 2], character="0"),
-        Enemy(1, 1, [0, 1], [32, 7], character="%"),
-        Enemy(1, 4, [1, 0], [6, 11], character="&"),
-        Enemy(1, 10, [-1, 1], [40, 11], character="*"),
+        Enemy(1, 4, (1, 0), (15, 3), character_frames=["x"]),
+        Enemy(
+            1,
+            1,
+            (0, 1),
+            (2, 2),
+            character_frames=["█", "▓", "▓", "▒", "▓", "▒", "░", "░", " ", "░","▒", "▒", "▒","▓", "▓", "█"],
+        ),
+        Enemy(1, 1, (0, 1), (32, 7), character_frames=["|", "/", "-", "\\"]),
+        Enemy(1, 4, (1, 0), (6, 11), character_frames=["&"]),
+        Enemy(1, 10, (-1, 1), (40, 11), character_frames=["|", "/", "-", "\\"]),
         # Jumpy enemies
-        Enemy(2, 8, [1, 0], [11, 23], character="@", color="cyan"),
-        Enemy(2, 1, [1, 0], [12, 23], character="@", color="blue"),
-        Enemy(2, -5, [1.2, 0], [12, 23], character="@", color="magenta"),
-        Enemy(2, 0, [2, 0], [65, 23], character="@", color="yellow"),
+        Enemy(2, 8, (1, 0), (11, 23), character_frames=["@"], color="cyan"),
+        Enemy(2, 1, (1, 0), (12, 23), character_frames=["@"], color="blue"),
+        Enemy(2, -5, (1.2, 0), (12, 23), character_frames=["@"], color="magenta"),
+        Enemy(2, 0, (2, 0), (65, 23), character_frames=["@"], color="yellow"),
     ]
 
     level1 = Level(name="Level 1", enemies=enemies_l1)

@@ -65,7 +65,7 @@ class Game:
 
         # we insert the player character
         player_x, player_y = self.player.position
-        screen_matrix[player_y][player_x] = self.player.get_char()
+        screen_matrix[int(player_y)][int(player_x)] = self.player.get_char()
 
         # we convert the screen matrix into a string, so we can print it
         matrix_string = ""

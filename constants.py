@@ -1,4 +1,5 @@
 """Shared constants: map glyphs, colors, physics tuning, and screen size."""
+
 from typing import Literal, Optional
 
 # map glyphs
@@ -17,7 +18,7 @@ CA = "╬"
 
 # physics / gameplay tuning
 IMMUNE_TIME = 30
-GRAVITY_ACCELERATION = 0.3
+GRAVITY_ACCELERATION = .1
 ENEMY_MOV_FACTOR = 0.1
 
 # screen
@@ -61,6 +62,8 @@ BG_COLOR_CODES = {
 RESET = "\033[0m"
 
 
-def colored(text: str, color: Color = "red", bg_color: Optional[Color] = None) -> str:
+def colored(
+    text: str, color: Optional[Color] = "red", bg_color: Optional[Color] = None
+) -> str:
     bg_code = BG_COLOR_CODES[bg_color] if bg_color else ""
-    return f"{COLOR_CODES[color]}{bg_code}{text}{RESET}"
+    return f"{COLOR_CODES[color or 'red']}{bg_code}{text}{RESET}"
