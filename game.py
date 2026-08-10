@@ -30,6 +30,7 @@ class Game:
 
         curr_level = self.levels[self.current_level]
         enemies = curr_level.enemies
+        exits = curr_level.exits
 
         # we make a matrix representation of the playfield
         screen_matrix: list[list[str]] = []
@@ -55,8 +56,19 @@ class Game:
 
             screen_matrix[y][x] = enemy.get_char()
 
+        # we insert the exits
+        for exit in exits:
+            y = math.floor(exit.position[1])
+            x = math.floor(exit.position[0])
+
+            # I feel like this doesn't belong here?
+            exit.advance_character_frame()
+
+            screen_matrix[y][x] = exit.get_char()
+
         # calculates effect of gravity in player
         self.player.apply_gravity()
+        self.player.advance_character_frame()
 
         # landscape collision when jumping
         self.player.collision_ls_jump()

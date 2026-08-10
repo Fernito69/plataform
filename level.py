@@ -1,24 +1,25 @@
 """The Level class: map data, borders and in-map messages."""
 
 from constants import (
-    CR,
     EMPTY_SPACE,
-    H,
     LL,
     LR,
     UL,
     UR,
-    V,
     X_RESOLUTION,
     Y_RESOLUTION,
+    H,
+    V,
 )
-from utils import colored
 from entities.enemy import Enemy
+from entities.things import Exit
+from utils import colored
 
 
 class Level:
     map: list[list[str]]  # matrix representation of the level data
     enemies: list[Enemy]
+    exits: list[Exit]
     name: str
     player_starting_position: tuple[int, int]
 
@@ -26,12 +27,14 @@ class Level:
         self,
         name: str,
         enemies: list[Enemy],
+        exits: list[Exit],
         player_starting_position: tuple[int, int] = (1, 1),
     ):
         self.enemies = enemies
         self.name = name
         self.map = []
         self.player_starting_position = player_starting_position
+        self.exits = exits
 
         # Init enemies
         for enemy in enemies:
@@ -58,7 +61,8 @@ class Level:
             self.map[0][i] = H
             self.map[Y_RESOLUTION - 1][i] = H
 
-    def print_message(self, message: str):
+    # TODO: this doesn't belong here
+    def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
         if len(message) <= 0:
             return
 
@@ -70,10 +74,10 @@ class Level:
         ending_message_x: int = int(mid_x + len(message) / 2)
 
         # Set up border
-        starting_border_x: int = starting_message_x - 2
-        ending_border_x: int = ending_message_x + 2
-        starting_border_y: int = mid_y - 2
-        ending_border_y: int = mid_y + 3
+        starting_border_x: int = starting_message_x - padding_x
+        ending_border_x: int = ending_message_x + padding_x
+        starting_border_y: int = mid_y - padding_y
+        ending_border_y: int = mid_y + padding_y + 1
 
         # Print border
         for x in range(starting_border_x, ending_border_x):

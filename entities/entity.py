@@ -2,6 +2,7 @@
 
 import math
 from typing import TYPE_CHECKING, Optional
+from utils import add_tuple
 
 from constants import (
     EMPTY_SPACE,
@@ -30,8 +31,15 @@ class Entity:
     def __init__(self, level: Optional["Level"] = None):
         # x and y coordinates
         self.curr_level = level
-        self.character_frames = [" "]
+        self.character_frames = [EMPTY_SPACE]
         self.character_frame_index = 0
+
+    def advance_character_frame(self):
+        self.character_frame_index = (
+            self.character_frame_index + 1
+            if self.character_frame_index < len(self.character_frames) - 1
+            else 0
+        )
 
     def apply_gravity(self):
         # detemines Y-position and distance to next piece of landscape
@@ -51,16 +59,29 @@ class Entity:
             self.falling_velocity = 0
 
         # increases velocity
-        try:
-            if y_dist > 0:
-                self.falling_velocity += GRAVITY_ACCELERATION
-        except Exception as _:
-            self.falling_velocity = 0
+        if y_dist > 0:
+            self.falling_velocity += GRAVITY_ACCELERATION
+        # IS THIS NECESSARY?
+        # else:
+        #     self.falling_velocity = 0
 
     def get_char(self):
         return colored(
             self.character_frames[self.character_frame_index], self.color, self.bg_color
         )
+
+    def move(self, vector: tuple[int | float, int | float]):
+        self.position = add_tuple(self.position, vector)
+
+    def is_same_position(self, entity: "Entity"):
+        a = self.position
+        b = entity.position
+
+        # Should this be math.floor or math.round?
+        return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
+        # return math.floor(a[0]) == math.floor(b[0]) and math.floor(a[1]) == math.floor(
+        #     b[1]
+        # )
 
     # checks collision with landscape elements
     def collision_ls(self, old_pos: tuple[float, float]):
@@ -79,6 +100,8 @@ class Entity:
 
     # calculates Y-axis distance DOWN to landscape
     # checks from current entity position to the bottom of the screen
+
+    # TODO: all of these methods are dumb as fuck, REFACTOR!
     def y_distance(self) -> tuple[int, int]:
         if self.curr_level is None:
             return (1, 1)

@@ -23,6 +23,8 @@ def main():
                     message = "GAME OVER"
                 case "quit":
                     message = "BYE BYE"
+                case "exit":
+                    message = "YOU WON!"
 
             level1.print_message(message)
             game.status = "gameover"

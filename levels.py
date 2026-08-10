@@ -2,6 +2,7 @@
 
 from constants import CR, H, LR, UR, V
 from entities.enemy import Enemy
+from entities.things import Exit
 from level import Level
 
 
@@ -49,9 +50,14 @@ def build_level1() -> Level:
         Enemy(2, 0, (2, 0), (65, 23), character_frames=["@"], color="yellow"),
     ]
 
-    level1 = Level(name="Level 1", enemies=enemies_l1)
+    exits_l1 = [
+        Exit((41, 4)),
+    ]
+
+    level1 = Level(name="Level 1", enemies=enemies_l1, exits=exits_l1)
 
     # level 1 landscape
+    # TODO: refactor "add_horizontal_line", etc into a level method
     level1.map[5][4] = UR
     level1.map[5][3] = H
     level1.map[5][2] = H

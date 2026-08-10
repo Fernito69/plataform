@@ -9,11 +9,16 @@ from constants import (
     Color,
 )
 from entities.entity import Entity
+from entities.things import Exit
 from terminal import is_pressed
+from utils import add_tuple
 
 if TYPE_CHECKING:
     from entities.enemy import Enemy
     from level import Level
+
+_PLAYER_COLOR = "green"
+_PLAYER_FRAMES = ["☺"]
 
 
 class Player(Entity):
@@ -23,17 +28,32 @@ class Player(Entity):
     def __init__(
         self,
         player_number,
-        character_frames: list[str] | None = None,
-        color: Color = "green",
+        character_frames: list[str] = _PLAYER_FRAMES,
+        color: Color = _PLAYER_COLOR,
     ):
         Entity.__init__(self)
         self.player_number = player_number
         self.health = 100
         self.points = 0
         self.lives = 3
-        self.character_frames = character_frames or ["☺"]
+        self.character_frames = character_frames
         self.color = color
-        self.status: Literal["alive", "dead", "quit"] = "alive"
+        # TODO: make an enum
+        self.status: Literal["alive", "dead", "quit", "exit"] = "alive"
+
+    # checks collision with everything
+    def collision(self):
+        self.collision_en()
+        self.collision_things()
+
+    # checks collision with everything
+    def collision_things(self):
+        if self.curr_level is None:
+            return
+
+        for exit in self.curr_level.exits:
+            if self.is_same_position(exit):
+                self.status = "exit"
 
     # checks collision with enemies
     def collision_en(self):
@@ -48,22 +68,17 @@ class Player(Entity):
             return
 
         self.character = "☺"
-        self.color = "green"
+        self.color = _PLAYER_COLOR
 
-        enemies: list[Enemy] = self.curr_level.enemies
+        if any(
+            self.is_same_position(enemy) for enemy in self.curr_level.enemies
+        ):  # player loses health and gains immunity!
+            self.health -= 20
+            self.immune_counter = IMMUNE_TIME
 
-        for enemy in enemies:
-            if self.position == (
-                math.floor(enemy.position[0]),
-                math.floor(enemy.position[1]),
-            ):  # player loses health and gains immunity!
-                self.health -= 20
-                self.position = (max(self.position[0] - 1, 0), self.position[1])
-                self.immune_counter = IMMUNE_TIME
-
-                if self.health <= 0:
-                    self.character = "🥴"
-                    self.status = "dead"
+            if self.health <= 0:
+                self.character = "🥴"
+                self.status = "dead"
 
     def player_movement(self):
         ########
@@ -72,38 +87,38 @@ class Player(Entity):
         if is_pressed(KeyCategory.MENU, MenuKeys.QUIT):
             self.status = "quit"
 
-        ########
-        # MENU #
-        ########
+        ############
+        # MOVEMENT #
+        ############
         if (
             is_pressed(KeyCategory.MOVEMENT, MovementKeys.JUMP)
             and self.y_distance()[0] == 0
         ):
             self.falling_velocity = -1
-            self.position = (self.position[0], self.position[1] - 1)
+            self.move((0, -1))
 
-            self.collision_en()
+            self.collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
-            self.position = (self.position[0] - 1, self.position[1])
+            self.move((-1, 0))
 
             self.collision_ls(old_position)
-            self.collision_en()
+            self.collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.RIGHT):
             old_position = (self.position[0], self.position[1])
-            self.position = (self.position[0] + 1, self.position[1])
+            self.move((1, 0))
 
             self.collision_ls(old_position)
-            self.collision_en()
+            self.collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.DOWN):
             old_position = (self.position[0], self.position[1])
-            self.position = (self.position[0], self.position[1] + 1)
+            self.move((0, 1))
 
             self.collision_ls(old_position)
-            self.collision_en()
+            self.collision()
 
     def set_curr_level(self, level: "Level"):
         self.curr_level = level

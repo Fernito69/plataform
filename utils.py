@@ -1,6 +1,5 @@
-from typing import Optional
 from constants import Color
-
+import math
 
 COLOR_CODES = {
     "black": "\033[30m",
@@ -28,7 +27,13 @@ RESET = "\033[0m"
 
 
 def colored(
-    text: str, color: Optional[Color] = "red", bg_color: Optional[Color] = None
+    text: str, color: Color | None = "red", bg_color: Color | None = None
 ) -> str:
     bg_code = BG_COLOR_CODES[bg_color] if bg_color else ""
     return f"{COLOR_CODES[color or 'red']}{bg_code}{text}{RESET}"
+
+
+def add_tuple(
+    orig: tuple[int | float, int | float], add: tuple[int | float, int | float]
+) -> tuple[int | float, int | float]:
+    return (orig[0] + add[0], orig[1] + add[1])
