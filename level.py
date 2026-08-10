@@ -13,8 +13,8 @@ from constants import (
     V,
     X_RESOLUTION,
     Y_RESOLUTION,
-    colored,
 )
+from utils import colored
 from entities import Enemy
 
 

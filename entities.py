@@ -12,8 +12,8 @@ from constants import (
     IMMUNE_TIME,
     X_RESOLUTION,
     Y_RESOLUTION,
-    colored,
 )
+from utils import colored
 from terminal import is_pressed
 
 if TYPE_CHECKING:
