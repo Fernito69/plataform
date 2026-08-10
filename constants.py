@@ -1,6 +1,6 @@
 """Shared constants: map glyphs, colors, physics tuning, and screen size."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 # map glyphs
 EMPTY_SPACE = " "
@@ -22,7 +22,7 @@ GRAVITY_ACCELERATION = 0.3
 ENEMY_MOV_FACTOR = 0.1
 
 # screen
-FPS = 30
+FPS = 20
 X_RESOLUTION = 80
 Y_RESOLUTION = 25
 

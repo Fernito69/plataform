@@ -1,7 +1,5 @@
 """The Level class: map data, borders and in-map messages."""
 
-from typing import List
-
 from constants import (
     CR,
     EMPTY_SPACE,
@@ -15,7 +13,7 @@ from constants import (
     Y_RESOLUTION,
 )
 from utils import colored
-from entities import Enemy
+from entities.enemy import Enemy
 
 
 class Level:

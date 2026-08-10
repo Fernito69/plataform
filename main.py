@@ -1,5 +1,6 @@
 """Entry point: wires up the player, levels and game loop."""
-from entities import Player
+
+from entities.player import Player
 from game import Game
 from levels import build_level1
 from terminal import clear

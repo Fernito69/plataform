@@ -1,7 +1,7 @@
 """Level definitions (level layouts and enemy placements)."""
 
 from constants import CR, H, LR, UR, V
-from entities import Enemy
+from entities.enemy import Enemy
 from level import Level
 
 
@@ -20,7 +20,24 @@ def build_level1() -> Level:
             1,
             (0, 1),
             (2, 2),
-            character_frames=["█", "▓", "▓", "▒", "▓", "▒", "░", "░", " ", "░","▒", "▒", "▒","▓", "▓", "█"],
+            character_frames=[
+                "█",
+                "▓",
+                "▓",
+                "▒",
+                "▓",
+                "▒",
+                "░",
+                "░",
+                " ",
+                "░",
+                "▒",
+                "▒",
+                "▒",
+                "▓",
+                "▓",
+                "█",
+            ],
         ),
         Enemy(1, 1, (0, 1), (32, 7), character_frames=["|", "/", "-", "\\"]),
         Enemy(1, 4, (1, 0), (6, 11), character_frames=["&"]),
