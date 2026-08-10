@@ -24,6 +24,7 @@ class Game:
         self.player = player
         self.player.set_curr_level(self.levels[self.current_level])
 
+    # TODO: refactor "game_loop" out of this
     def print_playfield(self):
         # delay FPS
         time.sleep(1 / FPS)
@@ -68,13 +69,15 @@ class Game:
 
         # calculates effect of gravity in player
         self.player.apply_gravity()
-        self.player.advance_character_frame()
 
         # landscape collision when jumping
         self.player.collision_ls_jump()
 
         # enemy collision
         self.player.collision_en()
+
+        # next frame of the animation
+        self.player.advance_character_frame()
 
         # we insert the player character
         player_x, player_y = self.player.position
