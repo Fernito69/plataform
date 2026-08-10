@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(py *)",
+      "PowerShell(winget *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\ferno\\\\AppData\\\\Local\\\\Programs\\\\Python\" -ErrorAction SilentlyContinue | Select-Object Name; echo \"---machine path check---\"; [Environment]::GetEnvironmentVariable\\('Path','Machine'\\) -split ';' | Select-String -Pattern 'python' -SimpleMatch; echo \"---user path check---\"; [Environment]::GetEnvironmentVariable\\('Path','User'\\) -split ';' | Select-String -Pattern 'python' -SimpleMatch)",
+      "PowerShell([Environment]::GetEnvironmentVariable\\('Path','Machine'\\); echo \"===USER===\"; [Environment]::GetEnvironmentVariable\\('Path','User'\\))",
+      "Bash(pip install:*)",
+      "Bash(pyenv versions *)",
+      "Bash(pyenv version *)",
+      "Read(//Users/fernandocalvo/.pyenv/**)",
+      "Bash(pyenv local *)",
+      "Bash(python -m pip show pynput)",
+      "Bash(pip --version)",
+      "Bash(python -m pip install pynput)",
+      "Bash(python -m py_compile constants.py terminal.py entities.py level.py game.py levels.py main.py)",
+      "Bash(pip show *)",
+      "Bash(py -0p)",
+      "Bash(py --version)",
+      "Bash(where python *)",
+      "Bash(where py *)",
+      "Bash(py -3.13 -c ' *)"
+    ]
+  }
+}
