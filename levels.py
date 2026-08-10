@@ -1,6 +1,4 @@
-"""Level definitions (level layouts and enemy placements)."""
-
-from constants import CR, H, LR, UR, V
+from constants import CR, LR, UR, H, V
 from entities.enemy import Enemy
 from entities.things import Exit
 from level import Level

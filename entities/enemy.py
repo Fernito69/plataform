@@ -1,5 +1,4 @@
 import random
-from utils import add_tuple
 
 from constants import (
     ENEMY_MOV_FACTOR,

@@ -1,5 +1,3 @@
-"""The Level class: map data, borders and in-map messages."""
-
 from constants import (
     EMPTY_SPACE,
     LL,

@@ -1,5 +1,4 @@
 from constants import Color
-import math
 
 COLOR_CODES = {
     "black": "\033[30m",

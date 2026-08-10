@@ -1,20 +1,11 @@
-"""Game entities: the base Entity, Player, Enemy and Item classes."""
-
-import math
-from model.keyboard import KeyCategory, MenuKeys, MovementKeys
 from typing import TYPE_CHECKING, Literal, Optional
 
-from constants import (
-    IMMUNE_TIME,
-    Color,
-)
+from constants import IMMUNE_TIME, Color
 from entities.entity import Entity
-from entities.things import Exit
+from model.keyboard import KeyCategory, MenuKeys, MovementKeys
 from terminal import is_pressed
-from utils import add_tuple
 
 if TYPE_CHECKING:
-    from entities.enemy import Enemy
     from level import Level
 
 _PLAYER_COLOR = "green"

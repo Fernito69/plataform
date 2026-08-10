@@ -1,4 +1,4 @@
-from model.keyboard import KeyCategory, KeyboardKeys, MenuKeys, MovementKeys
+from model.keyboard import KeyboardKeys, KeyCategory, MenuKeys, MovementKeys
 
 keyboard_mapping: dict[KeyCategory, dict[KeyboardKeys, str]] = {
     KeyCategory.MENU: {

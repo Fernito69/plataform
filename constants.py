@@ -1,5 +1,3 @@
-"""Shared constants: map glyphs, colors, physics tuning, and screen size."""
-
 from typing import Literal
 
 # map glyphs

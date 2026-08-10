@@ -2,7 +2,6 @@
 
 import math
 from typing import TYPE_CHECKING, Optional
-from utils import add_tuple
 
 from constants import (
     EMPTY_SPACE,
@@ -11,7 +10,7 @@ from constants import (
     Y_RESOLUTION,
     Color,
 )
-from utils import colored
+from utils import add_tuple, colored
 
 if TYPE_CHECKING:
     from level import Level

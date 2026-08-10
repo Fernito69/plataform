@@ -5,10 +5,10 @@ import time
 from typing import Literal
 
 from constants import EMPTY_SPACE, FPS, X_RESOLUTION, Y_RESOLUTION
-from utils import colored
 from entities.player import Player
 from level import Level
 from terminal import clear
+from utils import colored
 
 
 class Game:

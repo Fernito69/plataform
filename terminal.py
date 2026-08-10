@@ -2,8 +2,9 @@
 
 import os
 import platform
+
 from mappings.keyboard import keyboard_mapping
-from model.keyboard import KeyboardKeys, MenuKeys, KeyCategory, MovementKeys
+from model.keyboard import KeyboardKeys, KeyCategory
 
 if platform.system() == "Windows":
     import ctypes
