@@ -15,12 +15,16 @@ def main():
     game = Game(player=player, levels=[level1])
 
     while game.status == "playing":
-        if player.player_movement() == "q":
-            level1.print_message("BYE BYE")
-            game.status = "gameover"
+        player.player_movement()
 
-        if player.status == "dead":
-            level1.print_message("GAME OVER")
+        if player.status != "alive":
+            match player.status:
+                case "dead":
+                    message = "GAME OVER"
+                case "quit":
+                    message = "BYE BYE"
+
+            level1.print_message(message)
             game.status = "gameover"
 
         game.print_playfield()

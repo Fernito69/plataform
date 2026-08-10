@@ -1,12 +1,16 @@
 """Terminal I/O: keyboard polling and screen clearing."""
+
 import os
 import platform
+from mappings.keyboard import keyboard_mapping
+from model.keyboard import KeyboardKeys, MenuKeys, KeyCategory, MovementKeys
 
 if platform.system() == "Windows":
     import ctypes
 
-    def is_pressed(key):
-        return ctypes.windll.user32.GetAsyncKeyState(ord(key.upper())) & 0x8000
+    def is_pressed(category: KeyCategory, key: KeyboardKeys) -> bool:
+        value = keyboard_mapping[category][key]
+        return ctypes.windll.user32.GetAsyncKeyState(ord(value.upper())) & 0x8000
 else:
     from pynput import keyboard as _pynput_keyboard
 
@@ -28,8 +32,9 @@ else:
     _listener.daemon = True
     _listener.start()
 
-    def is_pressed(key):
-        return key.lower() in _pressed_keys
+    def is_pressed(category: KeyCategory, key: KeyboardKeys) -> bool:
+        value = keyboard_mapping[category][key]
+        return value.lower() in _pressed_keys
 
 
 if os.name == "nt":

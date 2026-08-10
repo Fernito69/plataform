@@ -1,25 +1,19 @@
 """Game entities: the base Entity, Player, Enemy and Item classes."""
 
 import math
-import random
-from typing import Literal, TYPE_CHECKING, Optional
-from entities.entity import Entity
+from model.keyboard import KeyCategory, MenuKeys, MovementKeys
+from typing import TYPE_CHECKING, Literal, Optional
 
 from constants import (
-    Color,
-    EMPTY_SPACE,
-    ENEMY_MOV_FACTOR,
-    GRAVITY_ACCELERATION,
     IMMUNE_TIME,
-    X_RESOLUTION,
-    Y_RESOLUTION,
+    Color,
 )
-from utils import colored
+from entities.entity import Entity
 from terminal import is_pressed
 
 if TYPE_CHECKING:
-    from level import Level
     from entities.enemy import Enemy
+    from level import Level
 
 
 class Player(Entity):
@@ -39,7 +33,7 @@ class Player(Entity):
         self.lives = 3
         self.character_frames = character_frames or ["☺"]
         self.color = color
-        self.status: Literal["alive", "dead"] = "alive"
+        self.status: Literal["alive", "dead", "quit"] = "alive"
 
     # checks collision with enemies
     def collision_en(self):
@@ -72,30 +66,39 @@ class Player(Entity):
                     self.status = "dead"
 
     def player_movement(self):
-        if is_pressed("q"):
-            return "q"
+        ########
+        # MENU #
+        ########
+        if is_pressed(KeyCategory.MENU, MenuKeys.QUIT):
+            self.status = "quit"
 
-        if is_pressed("w") and self.y_distance()[0] == 0:
+        ########
+        # MENU #
+        ########
+        if (
+            is_pressed(KeyCategory.MOVEMENT, MovementKeys.JUMP)
+            and self.y_distance()[0] == 0
+        ):
             self.falling_velocity = -1
             self.position = (self.position[0], self.position[1] - 1)
 
             self.collision_en()
 
-        if is_pressed("a"):
+        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
             self.position = (self.position[0] - 1, self.position[1])
 
             self.collision_ls(old_position)
             self.collision_en()
 
-        if is_pressed("d"):
+        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.RIGHT):
             old_position = (self.position[0], self.position[1])
             self.position = (self.position[0] + 1, self.position[1])
 
             self.collision_ls(old_position)
             self.collision_en()
 
-        if is_pressed("s"):
+        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.DOWN):
             old_position = (self.position[0], self.position[1])
             self.position = (self.position[0], self.position[1] + 1)
 
