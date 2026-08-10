@@ -19,7 +19,11 @@
       "Bash(py --version)",
       "Bash(where python *)",
       "Bash(where py *)",
-      "Bash(py -3.13 -c ' *)"
+      "Bash(py -3.13 -c ' *)",
+      "PowerShell(net localgroup *)",
+      "PowerShell(Get-LocalGroupMember *)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
     ]
   }
 }
