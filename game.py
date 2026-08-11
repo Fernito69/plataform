@@ -2,12 +2,13 @@
 
 import math
 import time
-from typing import Literal
 
 from constants import EMPTY_SPACE, FPS, X_RESOLUTION, Y_RESOLUTION
 from entities.entity import Entity
 from entities.player import Player
 from level import Level
+from model.game import GameStatus
+from model.player import PlayerStatus
 from terminal import clear
 from utils import colored
 
@@ -84,7 +85,7 @@ class Display:
 
 
 class Game:
-    status: Literal["playing", "paused", "gameover"] = "playing"
+    status: GameStatus = GameStatus.PLAYING
     player: Player
     levels: list[Level]
     current_level_index: int = 0
@@ -101,7 +102,24 @@ class Game:
         self.player.set_curr_level(levels[current_level_index])
         self.display = Display(levels[current_level_index])
 
+    def check_player_status(self):
+        if self.player.status != PlayerStatus.ALIVE:
+            match self.player.status:
+                case PlayerStatus.DEAD:
+                    message = "GAME OVER"
+                case PlayerStatus.QUIT:
+                    message = "BYE BYE"
+                case PlayerStatus.EXIT:
+                    message = "YOU WON!"
+
+            # TODO: refactor this message out of there
+            self.levels[self.current_level_index].print_message(message)
+            self.status = GameStatus.GAMEOVER
+
     def game_loop(self):
+        # Listen to player
+        self.player.player_input()
+
         # delay FPS
         time.sleep(1 / FPS)
 
@@ -110,20 +128,23 @@ class Game:
         # Init the matrix
         self.display.init_matrix(curr_level)
 
-        # we insert the enemies
+        # player actions
+        self.player.do_your_thing()
+        self.display.add_to_matrix(self.player)
+
+        # enemy actions
         for enemy in curr_level.enemies:
             enemy.do_your_thing()
             self.display.add_to_matrix(enemy)
 
-        # we insert the exits
+        # exit actions
         for exit in curr_level.exits:
             exit.do_your_thing()
             self.display.add_to_matrix(exit)
 
-        # we insert the player
-        self.player.do_your_thing()
-        self.display.add_to_matrix(self.player)
-
         # Print the shit
         self.display.print_game()
         self.display.print_hud(self.player)
+
+        # Check player status
+        self.check_player_status()

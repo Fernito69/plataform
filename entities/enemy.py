@@ -1,33 +1,32 @@
 import random
 
-from constants import (
-    ENEMY_MOV_FACTOR,
-    Color,
-)
-from entities.entity import Entity
+from constants import ENEMY_MOV_FACTOR, Color
+from entities.entity import LivingEntity
+from model.enemy import EnemyType
 
-_BOUNCE_FRAMES = ["_", ",", "o", "O", "o", "O"]
+_BOUNCE_FRAMES = ["_", "_", "o", "o", "O", "O"]
 _MIN_BOUNCING_RANDOMNESS = 8
 _MAX_BOUNCING_RANDOMNESS = 12
 
 _STANDARD_FRAMES = ["X"]
 
 
-class Enemy(Entity):
+class Enemy(LivingEntity):
     _orig_character_frames: list[str]
 
     def __init__(
         self,
-        enemy_type: int,
-        enemy_speed: float,
+        enemy_type: EnemyType,
+        speed: float,
         movement_type: tuple[float, float],
         position: tuple[float, float],
+        health: int,
         character_frames: list[str] = _STANDARD_FRAMES,
         color: Color = "red",
     ):
-        Entity.__init__(self)
+        LivingEntity.__init__(self, health=health)
         self.enemy_type = enemy_type
-        self.enemy_speed = enemy_speed
+        self.speed = speed
         self.position = position
         self.movement_type = movement_type
         self.character_frames = character_frames
@@ -47,7 +46,7 @@ class Enemy(Entity):
 
         if colliding_x or colliding_y:
             # Just dumbly turn around
-            self.enemy_speed *= -1
+            self.speed *= -1
             return True
 
         return False
@@ -61,7 +60,7 @@ class Enemy(Entity):
 
         # Bounce enemy
         # TODO: do proper polymorphism
-        if self.enemy_type == 2:
+        if self.enemy_type == EnemyType.DUMB_BOUNCING:
             # Go back to original characters after bouncing animation is finished
             if (
                 self.character_frames == _BOUNCE_FRAMES
@@ -77,35 +76,20 @@ class Enemy(Entity):
             self.collision_jump()
 
             if self.y_distance()[0] == 0:
+                random_factor = 0.1 * random.randrange(
+                    _MIN_BOUNCING_RANDOMNESS, _MAX_BOUNCING_RANDOMNESS
+                )
                 self.character_frames = _BOUNCE_FRAMES
                 self.character_frame_index = 0
-                self.falling_velocity = (
-                    (-1)
-                    * self.movement_type[0]
-                    * (
-                        0.1
-                        * random.randrange(
-                            _MIN_BOUNCING_RANDOMNESS, _MAX_BOUNCING_RANDOMNESS
-                        )
-                    )
-                )
+                self.falling_velocity = (-1) * self.movement_type[0] * random_factor
                 self.move_to((0, -0.5))
                 self.collision_jump()
 
-        # movement types: 0 = horizontal, 1 = vertical
-        # position0 = (
-        #     self.position[0]
-        #     + self.movement_type[0] * ENEMY_MOV_FACTOR * self.enemy_speed
-        # )
-        # position1 = (
-        #     self.position[1]
-        #     + self.movement_type[1] * ENEMY_MOV_FACTOR * self.enemy_speed
-        # )
-        # self.position = (position0, position1)
+        # Standard movement for all enemies
         self.move_to(
             (
-                self.movement_type[0] * ENEMY_MOV_FACTOR * self.enemy_speed,
-                self.movement_type[1] * ENEMY_MOV_FACTOR * self.enemy_speed,
+                self.movement_type[0] * ENEMY_MOV_FACTOR * self.speed,
+                self.movement_type[1] * ENEMY_MOV_FACTOR * self.speed,
             )
         )
 

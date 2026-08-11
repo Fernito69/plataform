@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Optional
 
 from constants import IMMUNE_TIME, Color
-from entities.entity import Entity
+from entities.entity import LivingEntity
 from model.keyboard import KeyCategory, MenuKeys, MovementKeys
+from model.player import PlayerStatus
 from terminal import is_pressed
 
 if TYPE_CHECKING:
@@ -12,25 +13,27 @@ _PLAYER_COLOR = "green"
 _PLAYER_FRAMES = ["☺"]
 
 
-class Player(Entity):
+class Player(LivingEntity):
     curr_level: Optional["Level"] = None
-    immune_counter: int = 0
+    immune_counter: int
+    lives: int
+    character_frames: list[str]
+    color: Color
+    points: int
+    status: PlayerStatus
 
     def __init__(
         self,
         player_number,
-        character_frames: list[str] = _PLAYER_FRAMES,
-        color: Color = _PLAYER_COLOR,
     ):
-        Entity.__init__(self)
+        LivingEntity.__init__(self, health=100)
         self.player_number = player_number
-        self.health = 100
+        self.immune_counter: int = 0
+        self.lives: int = 3
+        self.character_frames = _PLAYER_FRAMES
+        self.color = _PLAYER_COLOR
         self.points = 0
-        self.lives = 3
-        self.character_frames = character_frames
-        self.color = color
-        # TODO: make an enum
-        self.status: Literal["alive", "dead", "quit", "exit"] = "alive"
+        self.status = PlayerStatus.ALIVE
 
     def do_your_thing(self):
         self.apply_gravity()
@@ -50,7 +53,7 @@ class Player(Entity):
 
         for exit in self.curr_level.exits:
             if self.is_same_position(exit):
-                self.status = "exit"
+                self.status = PlayerStatus.EXIT
 
     # checks collision with enemies
     def collision_enemies(self):
@@ -75,14 +78,14 @@ class Player(Entity):
 
             if self.health <= 0:
                 self.character = "🥴"
-                self.status = "dead"
+                self.status = PlayerStatus.DEAD
 
-    def player_movement(self):
+    def player_input(self):
         ########
         # MENU #
         ########
         if is_pressed(KeyCategory.MENU, MenuKeys.QUIT):
-            self.status = "quit"
+            self.status = PlayerStatus.QUIT
 
         ############
         # MOVEMENT #

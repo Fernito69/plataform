@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from level import Level
 
 
+# TODO: rename methods properly
 class Entity:
     curr_level: Optional["Level"] = None
     position: tuple[float, float] = (0, 0)
@@ -175,3 +176,11 @@ class Entity:
 
     def set_curr_level(self, level: "Level"):
         self.curr_level = level
+
+
+class LivingEntity(Entity):
+    health: int
+
+    def __init__(self, health: int):
+        Entity.__init__(self)
+        self.health = health

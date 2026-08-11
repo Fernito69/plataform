@@ -1,5 +1,6 @@
 """Entry point: wires up the player, levels and game loop."""
 
+from model.player import PlayerStatus
 from entities.player import Player
 from game import Game
 from levels import build_level1
@@ -15,20 +16,6 @@ def main():
     game = Game(player=player, levels=[level1])
 
     while game.status == "playing":
-        player.player_movement()
-
-        if player.status != "alive":
-            match player.status:
-                case "dead":
-                    message = "GAME OVER"
-                case "quit":
-                    message = "BYE BYE"
-                case "exit":
-                    message = "YOU WON!"
-
-            level1.print_message(message)
-            game.status = "gameover"
-
         game.game_loop()
 
 
