@@ -29,7 +29,7 @@ def main():
             level1.print_message(message)
             game.status = "gameover"
 
-        game.print_playfield()
+        game.game_loop()
 
 
 if __name__ == "__main__":

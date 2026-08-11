@@ -69,7 +69,11 @@ class Entity:
             self.character_frames[self.character_frame_index], self.color, self.bg_color
         )
 
-    def move(self, vector: tuple[int | float, int | float]):
+    def do_your_thing(self):
+        # This method should be overwritten by the inheriting classes
+        pass
+
+    def move_to(self, vector: tuple[int | float, int | float]):
         self.position = add_tuple(self.position, vector)
 
     def is_same_position(self, entity: "Entity"):
@@ -83,7 +87,7 @@ class Entity:
         # )
 
     # checks collision with landscape elements
-    def collision_ls(self, old_pos: tuple[float, float]):
+    def collision_landscape(self, old_pos: tuple[float, float]):
         if (
             self.curr_level
             and self.curr_level.map[int(self.position[1])][int(self.position[0])]
@@ -92,7 +96,7 @@ class Entity:
             self.position = old_pos
 
     # checks collision with landscape elements
-    def collision_ls_jump(self):
+    def collision_jump(self):
         if self.y_distance_neg()[0] == -1:  # and self.gravity <= 0
             self.position = (self.position[0], self.y_distance_neg()[1] + 1)
             self.falling_velocity = 0

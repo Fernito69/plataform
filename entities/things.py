@@ -29,3 +29,6 @@ class Exit(Entity):
         self.character_frames = _EXIT_FRAMES
         self.color = _EXIT_COLOR
         self.bg_color = _EXIT_BG_COLOR
+
+    def do_your_thing(self):
+        self.advance_character_frame()

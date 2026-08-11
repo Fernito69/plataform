@@ -5,90 +5,54 @@ import time
 from typing import Literal
 
 from constants import EMPTY_SPACE, FPS, X_RESOLUTION, Y_RESOLUTION
+from entities.entity import Entity
 from entities.player import Player
 from level import Level
 from terminal import clear
 from utils import colored
 
+_GOOD_HEALTH_LIMIT = 75
+_BAD_HEALTH_LIMIT = 25
 
-class Game:
-    status: Literal["playing", "paused", "gameover"] = "playing"
-    player: Player
-    levels: list[Level]
-    current_level: int = 0
+_GOOD_HEALTH_COLOR = "green"
+_BAD_HEALTH_COLOR = "red"
+_MID_HEALTH_COLOR = "yellow"
 
-    def __init__(self, player: Player, levels: list[Level]):
-        self.levels = levels
-        self.current_level = 0
 
-        self.player = player
-        self.player.set_curr_level(self.levels[self.current_level])
+class Display:
+    # we use a matrix representation of the playfield
+    _screen_matrix: list[list[str]]
+    _curr_level: Level
 
-    # TODO: refactor "game_loop" out of this
-    def print_playfield(self):
-        # delay FPS
-        time.sleep(1 / FPS)
+    def __init__(self, curr_level: Level):
+        self.init_matrix(curr_level)
 
-        curr_level = self.levels[self.current_level]
-        enemies = curr_level.enemies
-        exits = curr_level.exits
-
-        # we make a matrix representation of the playfield
-        screen_matrix: list[list[str]] = []
+    def init_matrix(self, curr_level: Level):
+        self._screen_matrix = []
+        self._curr_level = curr_level
 
         for i in range(Y_RESOLUTION):
-            screen_matrix.append([])
+            self._screen_matrix.append([])
             for j in range(X_RESOLUTION):
-                screen_matrix[i].append(EMPTY_SPACE)
+                self._screen_matrix[i].append(EMPTY_SPACE)
 
         # we insert the level design into the matrix
         for i in range(Y_RESOLUTION):
             for j in range(X_RESOLUTION):
-                screen_matrix[i][j] = curr_level.map[i][j]
+                self._screen_matrix[i][j] = curr_level.map[i][j]
 
-        # we insert the enemies
-        for enemy in enemies:
-            # enemies move
-            enemy.movement()
+    def add_to_matrix(self, entity: Entity):
+        y = math.floor(entity.position[1])
+        x = math.floor(entity.position[0])
 
-            # depends on the type of enemy:
-            y = math.floor(enemy.position[1])
-            x = math.floor(enemy.position[0])
+        self._screen_matrix[y][x] = entity.get_char()
 
-            screen_matrix[y][x] = enemy.get_char()
-
-        # we insert the exits
-        for exit in exits:
-            y = math.floor(exit.position[1])
-            x = math.floor(exit.position[0])
-
-            # I feel like this doesn't belong here?
-            exit.advance_character_frame()
-
-            screen_matrix[y][x] = exit.get_char()
-
-        # calculates effect of gravity in player
-        self.player.apply_gravity()
-
-        # landscape collision when jumping
-        self.player.collision_ls_jump()
-
-        # enemy collision
-        self.player.collision_en()
-
-        # next frame of the animation
-        self.player.advance_character_frame()
-
-        # we insert the player character
-        player_x, player_y = self.player.position
-        screen_matrix[int(player_y)][int(player_x)] = self.player.get_char()
-
-        # we convert the screen matrix into a string, so we can print it
+    def print_game(self):
         matrix_string = ""
 
         for i in range(Y_RESOLUTION):
             for j in range(X_RESOLUTION):
-                matrix_string += screen_matrix[i][j]
+                matrix_string += self._screen_matrix[i][j]
             if i < Y_RESOLUTION - 1:
                 matrix_string += "\n"
 
@@ -96,24 +60,70 @@ class Game:
 
         print(matrix_string)
 
-        # HUD
-        health = str(self.player.health)
+    def print_hud(self, player: Player):
+        health = str(player.health)
 
-        if self.player.health <= 25:
-            health = colored(health, "red")
-        elif 75 < self.player.health <= 100:
-            health = colored(health, "green")
-        elif 25 < self.player.health <= 75:
-            health = colored(health, "yellow")
+        if player.health <= _BAD_HEALTH_LIMIT:
+            health = colored(health, _BAD_HEALTH_COLOR)
+        elif _BAD_HEALTH_LIMIT < player.health <= _GOOD_HEALTH_LIMIT:
+            health = colored(health, _MID_HEALTH_COLOR)
+        elif player.health > _GOOD_HEALTH_LIMIT:
+            health = colored(health, _GOOD_HEALTH_COLOR)
 
-        hud = "Score: " + str(self.player.points) + " | Health: " + health
+        hud = "Score: " + str(player.points) + " | Health: " + health
         hud += (
             " | Pos: ("
-            + str(self.player.position[0])
+            + str(player.position[0])
             + ", "
-            + str(self.player.position[1])
+            + str(player.position[1])
             + ") | Vy: "
         )
-        hud += str(round(self.player.falling_velocity, 3))
+        hud += str(round(player.falling_velocity, 3))
 
         print(hud)
+
+
+class Game:
+    status: Literal["playing", "paused", "gameover"] = "playing"
+    player: Player
+    levels: list[Level]
+    current_level_index: int = 0
+
+    display: Display
+
+    def __init__(
+        self, player: Player, levels: list[Level], current_level_index: int = 0
+    ):
+        self.levels = levels
+        self.current_level_index = 0
+
+        self.player = player
+        self.player.set_curr_level(levels[current_level_index])
+        self.display = Display(levels[current_level_index])
+
+    def game_loop(self):
+        # delay FPS
+        time.sleep(1 / FPS)
+
+        curr_level = self.levels[self.current_level_index]
+
+        # Init the matrix
+        self.display.init_matrix(curr_level)
+
+        # we insert the enemies
+        for enemy in curr_level.enemies:
+            enemy.do_your_thing()
+            self.display.add_to_matrix(enemy)
+
+        # we insert the exits
+        for exit in curr_level.exits:
+            exit.do_your_thing()
+            self.display.add_to_matrix(exit)
+
+        # we insert the player
+        self.player.do_your_thing()
+        self.display.add_to_matrix(self.player)
+
+        # Print the shit
+        self.display.print_game()
+        self.display.print_hud(self.player)

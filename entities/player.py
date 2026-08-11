@@ -32,10 +32,16 @@ class Player(Entity):
         # TODO: make an enum
         self.status: Literal["alive", "dead", "quit", "exit"] = "alive"
 
+    def do_your_thing(self):
+        self.apply_gravity()
+        self.calc_collision()
+        self.advance_character_frame()
+
     # checks collision with everything
-    def collision(self):
-        self.collision_en()
+    def calc_collision(self):
+        self.collision_enemies()
         self.collision_things()
+        self.collision_jump()
 
     # checks collision with everything
     def collision_things(self):
@@ -47,7 +53,7 @@ class Player(Entity):
                 self.status = "exit"
 
     # checks collision with enemies
-    def collision_en(self):
+    def collision_enemies(self):
         if self.curr_level is None:
             return
 
@@ -86,30 +92,30 @@ class Player(Entity):
             and self.y_distance()[0] == 0
         ):
             self.falling_velocity = -1
-            self.move((0, -1))
+            self.move_to((0, -1))
 
-            self.collision()
+            self.calc_collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
-            self.move((-1, 0))
+            self.move_to((-1, 0))
 
-            self.collision_ls(old_position)
-            self.collision()
+            self.collision_landscape(old_position)
+            self.calc_collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.RIGHT):
             old_position = (self.position[0], self.position[1])
-            self.move((1, 0))
+            self.move_to((1, 0))
 
-            self.collision_ls(old_position)
-            self.collision()
+            self.collision_landscape(old_position)
+            self.calc_collision()
 
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.DOWN):
             old_position = (self.position[0], self.position[1])
-            self.move((0, 1))
+            self.move_to((0, 1))
 
-            self.collision_ls(old_position)
-            self.collision()
+            self.collision_landscape(old_position)
+            self.calc_collision()
 
     def set_curr_level(self, level: "Level"):
         self.curr_level = level

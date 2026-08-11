@@ -52,6 +52,9 @@ class Enemy(Entity):
 
         return False
 
+    def do_your_thing(self):
+        self.movement()
+
     def movement(self):
         if self.curr_level is None:
             return
@@ -70,8 +73,8 @@ class Enemy(Entity):
             # Has gravity and jumps!
             old_position = (self.position[0], self.position[1])
             self.apply_gravity()
-            self.collision_ls(old_position)
-            self.collision_ls_jump()
+            self.collision_landscape(old_position)
+            self.collision_jump()
 
             if self.y_distance()[0] == 0:
                 self.character_frames = _BOUNCE_FRAMES
@@ -86,8 +89,8 @@ class Enemy(Entity):
                         )
                     )
                 )
-                self.move((0, -0.5))
-                self.collision_ls_jump()
+                self.move_to((0, -0.5))
+                self.collision_jump()
 
         # movement types: 0 = horizontal, 1 = vertical
         # position0 = (
@@ -99,7 +102,7 @@ class Enemy(Entity):
         #     + self.movement_type[1] * ENEMY_MOV_FACTOR * self.enemy_speed
         # )
         # self.position = (position0, position1)
-        self.move(
+        self.move_to(
             (
                 self.movement_type[0] * ENEMY_MOV_FACTOR * self.enemy_speed,
                 self.movement_type[1] * ENEMY_MOV_FACTOR * self.enemy_speed,
