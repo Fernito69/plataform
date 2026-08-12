@@ -77,8 +77,13 @@ class Enemy(LivingEntity):
             self.collision_jump()
 
             if self.y_distance()[0] == 0:
-                random_factor = 0.1 * random.randrange(
-                    _MIN_BOUNCING_RANDOMNESS, _MAX_BOUNCING_RANDOMNESS
+                random_factor = (
+                    0.1
+                    * random.randrange(
+                        _MIN_BOUNCING_RANDOMNESS, _MAX_BOUNCING_RANDOMNESS
+                    )
+                    if _MIN_BOUNCING_RANDOMNESS < _MAX_BOUNCING_RANDOMNESS
+                    else 1
                 )
                 self._character_frames = _BOUNCE_FRAMES
                 self._character_frame_index = 0
