@@ -1,18 +1,19 @@
-from constants import CR, LR, UR, H, V
 from entities.things import Exit
 from factories.enemy import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
+from factories.theme import JungleTheme
 from level import Level
+from model.level import Direction
 
 
 def build_level1() -> Level:
     enemies = [
         DumbFloatingEnemy(movement_type=(1, 0), position=(10, 5), speed=2),
-        DumbFireFloatingEnemy(movement_type=(1, 0), position=(15, 3), speed=4),
         DumbFloatingEnemy(movement_type=(0, 1), position=(2, 9), speed=6),
-        DumbFireFloatingEnemy(movement_type=(0, 1), position=(2, 2), speed=4),
         DumbFloatingEnemy(movement_type=(0, 1), position=(32, 7)),
         DumbFloatingEnemy(movement_type=(1, 0), position=(6, 11), speed=4),
         DumbFloatingEnemy(movement_type=(1, -1), position=(50, 11), speed=10),
+        DumbFireFloatingEnemy(movement_type=(1, 0), position=(15, 3), speed=4),
+        DumbFireFloatingEnemy(movement_type=(0, 1), position=(2, 2), speed=4),
         # Jumpy enemies
         DumbBouncingEnemy(
             movement_type=(1, 0), position=(11, 23), color="cyan", speed=8
@@ -33,69 +34,39 @@ def build_level1() -> Level:
         Exit((41, 4)),
     ]
 
-    level = Level(name="Level 1", enemies=enemies, exits=exits)
+    level = Level(
+        name="Level 1",
+        enemies=enemies,
+        exits=exits,
+        theme=JungleTheme,
+    )
 
     # level 1 terrain
-    # TODO: refactor "add_horizontal_line", etc into a level method
-    level.map[5][4] = UR
-    level.map[5][3] = H
-    level.map[5][2] = H
-    level.map[5][1] = H
+    l = level.theme.line_type
+    level.add_char(l.UR, (4, 5))
 
-    level.map[21][8] = H
-    level.map[21][7] = H
-    level.map[21][6] = H
+    level.add_line(initial_position=(1, 5))
+    level.add_line((6, 21))
+    level.add_line((9, 19))
+    level.add_line((5, 17))
+    level.add_line((10, 15))
+    level.add_line((16, 13))
+    level.add_line((22, 14))
+    level.add_line((9, 19))
+    level.add_line((29, 11))
+    level.add_line((31, 9))
+    level.add_line((36, 8))
+    level.add_line((39, 5))
+    level.add_line((31, 4))
+    level.add_line((31, 4))
 
-    level.map[19][9] = H
-    level.map[19][10] = H
-    level.map[19][11] = H
+    level.add_char(l.CR, (0, 5))
 
-    level.map[17][5] = H
-    level.map[17][6] = H
-    level.map[17][7] = H
+    level.add_line((4, 6), 17, Direction.VERTICAL)
+    level.add_line((1, 22))
 
-    level.map[15][10] = H
-    level.map[15][11] = H
-    level.map[15][12] = H
-
-    level.map[13][16] = H
-    level.map[13][17] = H
-    level.map[13][18] = H
-
-    level.map[14][22] = H
-    level.map[14][23] = H
-    level.map[14][24] = H
-
-    level.map[11][29] = H
-    level.map[11][30] = H
-    level.map[11][31] = H
-
-    level.map[9][31] = H
-    level.map[9][32] = H
-    level.map[9][33] = H
-
-    level.map[8][36] = H
-    level.map[8][37] = H
-    level.map[8][38] = H
-
-    level.map[5][39] = H
-    level.map[5][40] = H
-    level.map[5][41] = H
-
-    level.map[4][31] = H
-    level.map[4][32] = H
-    level.map[4][33] = H
-
-    level.map[5][0] = CR
-
-    for i in range(6, 23):
-        level.map[i][4] = V
-
-    level.map[22][4] = LR
-    level.map[22][3] = H
-    level.map[22][2] = H
-    level.map[22][1] = H
-    level.map[22][0] = CR
-    level.map[17][4] = CR
+    level.add_char(l.CR, (0, 22))
+    level.add_char(l.CR, (4, 17))
+    level.add_char(l.LR, (4, 22))
 
     return level

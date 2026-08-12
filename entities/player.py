@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from constants import IMMUNE_TIME, Color
+from constants import IMMUNE_TIME
 from entities.entity import LivingEntity
 from model.keyboard import KeyCategory, MenuKeys, MovementKeys
 from model.player import PlayerStatus
+from model.theme import Color, Theme
 from terminal import is_pressed
 
 if TYPE_CHECKING:
@@ -11,13 +12,14 @@ if TYPE_CHECKING:
 
 _PLAYER_COLOR = "green"
 _PLAYER_FRAMES = ["☺"]
+_PLAYER_FLASHING_FRAMES = ["☻"]
 
 
 class Player(LivingEntity):
     curr_level: Optional["Level"] = None
     immune_counter: int
     lives: int
-    character_frames: list[str]
+    _character_frames: list[str]
     color: Color
     points: int
     status: PlayerStatus
@@ -30,8 +32,10 @@ class Player(LivingEntity):
         self.player_number = player_number
         self.immune_counter: int = 0
         self.lives: int = 3
-        self.character_frames = _PLAYER_FRAMES
-        self.color = _PLAYER_COLOR
+        self._character_frames = _PLAYER_FRAMES
+        self._default_character_frames = _PLAYER_FRAMES
+
+        self.theme = Theme(color=_PLAYER_COLOR)
         self.points = 0
         self.status = PlayerStatus.ALIVE
 
@@ -61,14 +65,16 @@ class Player(LivingEntity):
             return
 
         if self.immune_counter > 0:
-            self.color = "cyan" if self.immune_counter % 2 == 0 else "white"
-            self.bg_color = "white" if self.immune_counter % 2 == 0 else None
-            self.character = "☻"
+            self.theme.color = "cyan" if self.immune_counter % 2 == 0 else "white"
+            self.theme.bg_color = "white" if self.immune_counter % 2 == 0 else None
+
+            self.set_char_frames(_PLAYER_FLASHING_FRAMES)
             self.immune_counter -= 1
             return
-
-        self.character = "☺"
-        self.color = _PLAYER_COLOR
+        elif self.immune_counter == 0 and self._character_frames != _PLAYER_FRAMES:
+            self.set_char_frames()
+            self._character_frame_index = 0
+            self.theme.color = _PLAYER_COLOR
 
         if any(
             self.is_same_position(enemy) for enemy in self.curr_level.enemies
@@ -99,6 +105,7 @@ class Player(LivingEntity):
 
             self.calc_collision()
 
+        # These are a bit dumb, refactor
         if is_pressed(KeyCategory.MOVEMENT, MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
             self.move_to((-1, 0))

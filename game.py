@@ -3,7 +3,7 @@
 import math
 import time
 
-from constants import EMPTY_SPACE, FPS, LL, LR, UL, UR, X_RESOLUTION, Y_RESOLUTION, H, V
+from constants import EMPTY_SPACE, FPS, X_RESOLUTION, Y_RESOLUTION, DoubleLines
 from entities.entity import Entity
 from entities.player import Player
 from level import Level
@@ -72,20 +72,20 @@ class Display:
 
                 if y == starting_border_y:
                     if x == starting_border_x:
-                        char = colored(UL)
+                        char = colored(DoubleLines.UL, "red")
                     elif x == ending_border_x - 1:
-                        char = colored(UR)
+                        char = colored(DoubleLines.UR, "red")
                     else:
-                        char = colored(H)
+                        char = colored(DoubleLines.H, "red")
                 elif y == ending_border_y - 1:
                     if x == starting_border_x:
-                        char = colored(LL)
+                        char = colored(DoubleLines.LL, "red")
                     elif x == ending_border_x - 1:
-                        char = colored(LR)
+                        char = colored(DoubleLines.LR, "red")
                     else:
-                        char = colored(H)
+                        char = colored(DoubleLines.H, "red")
                 elif x == starting_border_x or x == ending_border_x - 1:
-                    char = colored(V)
+                    char = colored(DoubleLines.V, "red")
 
                 self._screen_matrix[y][x] = char
 

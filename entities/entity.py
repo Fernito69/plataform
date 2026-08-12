@@ -1,5 +1,3 @@
-"""Game entities: the base Entity, Player, Enemy and Item classes."""
-
 import math
 from typing import TYPE_CHECKING, Optional
 
@@ -8,8 +6,8 @@ from constants import (
     GRAVITY_ACCELERATION,
     X_RESOLUTION,
     Y_RESOLUTION,
-    Color,
 )
+from model.theme import Theme
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
@@ -22,24 +20,30 @@ class Entity:
     position: tuple[float, float] = (0, 0)
     falling_velocity: float = 0
 
-    character_frames: list[str]
-    character_frame_index: int
+    _character_frames: list[str]
+    _default_character_frames: list[str]
+    _character_frame_index: int
 
-    color: Color | None = None
-    bg_color: Color | None = None
+    theme: Theme
 
-    def __init__(self, level: Optional["Level"] = None):
+    def __init__(self, level: Optional["Level"] = None, theme: Theme | None = None):
         # x and y coordinates
         self.curr_level = level
-        self.character_frames = [EMPTY_SPACE]
-        self.character_frame_index = 0
+        self._character_frames = [EMPTY_SPACE]
+        self._default_character_frames = [EMPTY_SPACE]
+        self._character_frame_index = 0
+        self.theme = theme or Theme()
 
     def advance_character_frame(self):
-        self.character_frame_index = (
-            self.character_frame_index + 1
-            if self.character_frame_index < len(self.character_frames) - 1
+        self._character_frame_index = (
+            self._character_frame_index + 1
+            if self._character_frame_index < len(self._character_frames) - 1
             else 0
         )
+
+    def set_char_frames(self, new_char_frames: list[str] | None = None):
+        self._character_frame_index = 0
+        self._character_frames = new_char_frames or self._default_character_frames
 
     def apply_gravity(self):
         # detemines Y-position and distance to next piece of landscape
@@ -67,7 +71,9 @@ class Entity:
 
     def get_char(self):
         return colored(
-            self.character_frames[self.character_frame_index], self.color, self.bg_color
+            self._character_frames[self._character_frame_index],
+            self.theme.color,
+            self.theme.bg_color,
         )
 
     def do_your_thing(self):
@@ -81,7 +87,7 @@ class Entity:
         a = self.position
         b = entity.position
 
-        # Should this be math.floor or math.round?
+        # Should this be math.floor or round?
         return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
         # return math.floor(a[0]) == math.floor(b[0]) and math.floor(a[1]) == math.floor(
         #     b[1]
@@ -106,6 +112,7 @@ class Entity:
     # checks from current entity position to the bottom of the screen
 
     # TODO: all of these methods are dumb as fuck, REFACTOR!
+    # TODO: all these tuples should be data classes
     def y_distance(self) -> tuple[int, int]:
         if self.curr_level is None:
             return (1, 1)

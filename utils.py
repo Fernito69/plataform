@@ -1,4 +1,4 @@
-from constants import Color
+from model.theme import Color
 
 COLOR_CODES = {
     "black": "\033[30m",
@@ -26,10 +26,13 @@ RESET = "\033[0m"
 
 
 def colored(
-    text: str, color: Color | None = "red", bg_color: Color | None = None
+    text: str, color: Color | None = None, bg_color: Color | None = None
 ) -> str:
     bg_code = BG_COLOR_CODES[bg_color] if bg_color else ""
-    return f"{COLOR_CODES[color or 'red']}{bg_code}{text}{RESET}"
+    fg_code = COLOR_CODES[color] if color else ""
+    reset_code = RESET if color or bg_color else ""
+
+    return f"{fg_code}{bg_code}{text}{reset_code}"
 
 
 def add_tuple(
