@@ -11,7 +11,6 @@ from constants import (
 )
 from entities.enemy import Enemy
 from entities.things import Exit
-from utils import colored
 
 
 class Level:
@@ -58,49 +57,3 @@ class Level:
         for i in range(1, X_RESOLUTION - 1):
             self.map[0][i] = H
             self.map[Y_RESOLUTION - 1][i] = H
-
-    # TODO: this doesn't belong here
-    def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
-        if len(message) <= 0:
-            return
-
-        mid_x: int = int(X_RESOLUTION / 2)
-        mid_y: int = int(Y_RESOLUTION / 2)
-
-        # Message position
-        starting_message_x: int = int(mid_x - len(message) / 2)
-        ending_message_x: int = int(mid_x + len(message) / 2)
-
-        # Set up border
-        starting_border_x: int = starting_message_x - padding_x
-        ending_border_x: int = ending_message_x + padding_x
-        starting_border_y: int = mid_y - padding_y
-        ending_border_y: int = mid_y + padding_y + 1
-
-        # Print border
-        for x in range(starting_border_x, ending_border_x):
-            for y in range(starting_border_y, ending_border_y):
-                char = EMPTY_SPACE
-
-                if y == starting_border_y:
-                    if x == starting_border_x:
-                        char = colored(UL)
-                    elif x == ending_border_x - 1:
-                        char = colored(UR)
-                    else:
-                        char = colored(H)
-                elif y == ending_border_y - 1:
-                    if x == starting_border_x:
-                        char = colored(LL)
-                    elif x == ending_border_x - 1:
-                        char = colored(LR)
-                    else:
-                        char = colored(H)
-                elif x == starting_border_x or x == ending_border_x - 1:
-                    char = colored(V)
-
-                self.map[y][x] = char
-
-        # Print message
-        for x, index in enumerate(range(starting_message_x, ending_message_x)):
-            self.map[mid_y][index] = colored(message[x], "yellow")

@@ -3,7 +3,7 @@
 import math
 import time
 
-from constants import EMPTY_SPACE, FPS, X_RESOLUTION, Y_RESOLUTION
+from constants import EMPTY_SPACE, FPS, LL, LR, UL, UR, X_RESOLUTION, Y_RESOLUTION, H, V
 from entities.entity import Entity
 from entities.player import Player
 from level import Level
@@ -47,6 +47,53 @@ class Display:
         x = math.floor(entity.position[0])
 
         self._screen_matrix[y][x] = entity.get_char()
+
+    def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
+        if len(message) <= 0:
+            return
+
+        mid_x: int = int(X_RESOLUTION / 2)
+        mid_y: int = int(Y_RESOLUTION / 2)
+
+        # Message position
+        starting_message_x: int = int(mid_x - len(message) / 2)
+        ending_message_x: int = int(mid_x + len(message) / 2)
+
+        # Set up border
+        starting_border_x: int = starting_message_x - padding_x
+        ending_border_x: int = ending_message_x + padding_x
+        starting_border_y: int = mid_y - padding_y
+        ending_border_y: int = mid_y + padding_y + 1
+
+        # Print border
+        for x in range(starting_border_x, ending_border_x):
+            for y in range(starting_border_y, ending_border_y):
+                char = EMPTY_SPACE
+
+                if y == starting_border_y:
+                    if x == starting_border_x:
+                        char = colored(UL)
+                    elif x == ending_border_x - 1:
+                        char = colored(UR)
+                    else:
+                        char = colored(H)
+                elif y == ending_border_y - 1:
+                    if x == starting_border_x:
+                        char = colored(LL)
+                    elif x == ending_border_x - 1:
+                        char = colored(LR)
+                    else:
+                        char = colored(H)
+                elif x == starting_border_x or x == ending_border_x - 1:
+                    char = colored(V)
+
+                self._screen_matrix[y][x] = char
+
+        # Display message
+        for x, index in enumerate(range(starting_message_x, ending_message_x)):
+            self._screen_matrix[mid_y][index] = colored(message[x], "yellow")
+
+        self.print_game()
 
     def print_game(self):
         matrix_string = ""
@@ -112,8 +159,7 @@ class Game:
                 case PlayerStatus.EXIT:
                     message = "YOU WON!"
 
-            # TODO: refactor this message out of there
-            self.levels[self.current_level_index].print_message(message)
+            self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
     def game_loop(self):
