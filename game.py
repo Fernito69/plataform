@@ -26,21 +26,23 @@ class Display:
     _curr_level: Level
 
     def __init__(self, curr_level: Level):
-        self.init_matrix(curr_level)
-
-    def init_matrix(self, curr_level: Level):
-        self._screen_matrix = []
         self._curr_level = curr_level
+        self.populate_level_into_matrix()
+
+    def populate_level_into_matrix(self):
+        self._screen_matrix = []
 
         for i in range(Y_RESOLUTION):
             self._screen_matrix.append([])
-            for j in range(X_RESOLUTION):
+            for _ in range(X_RESOLUTION):
                 self._screen_matrix[i].append(EMPTY_SPACE)
 
         # we insert the level design into the matrix
         for i in range(Y_RESOLUTION):
             for j in range(X_RESOLUTION):
-                self._screen_matrix[i][j] = curr_level.map[i][j]
+                # self._screen_matrix[i][j] = self._curr_level.map[i][j]
+                # for _ in range(X_RESOLUTION):
+                self._screen_matrix[i].append(self._curr_level.map[i][j] or EMPTY_SPACE)
 
     def add_to_matrix(self, entity: Entity):
         y = math.floor(entity.position[1])
@@ -52,12 +54,12 @@ class Display:
         if len(message) <= 0:
             return
 
-        mid_x: int = int(X_RESOLUTION / 2)
-        mid_y: int = int(Y_RESOLUTION / 2)
+        mid_x = int(X_RESOLUTION / 2)
+        mid_y = int(Y_RESOLUTION / 2)
 
         # Message position
-        starting_message_x: int = int(mid_x - len(message) / 2)
-        ending_message_x: int = int(mid_x + len(message) / 2)
+        starting_message_x = int(mid_x - len(message) / 2)
+        ending_message_x = int(mid_x + len(message) / 2)
 
         # Set up border
         starting_border_x: int = starting_message_x - padding_x
@@ -169,14 +171,14 @@ class Game:
         # delay FPS
         time.sleep(1 / FPS)
 
-        curr_level = self.levels[self.current_level_index]
-
         # Init the matrix
-        self.display.init_matrix(curr_level)
+        self.display.populate_level_into_matrix()
 
         # player actions
         self.player.do_your_thing()
         self.display.add_to_matrix(self.player)
+
+        curr_level = self.levels[self.current_level_index]
 
         # enemy actions
         for enemy in curr_level.enemies:
