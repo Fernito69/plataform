@@ -32,17 +32,10 @@ class Display:
     def populate_level_into_matrix(self):
         self._screen_matrix = []
 
-        for i in range(Y_RESOLUTION):
+        for y in range(Y_RESOLUTION):
             self._screen_matrix.append([])
-            for _ in range(X_RESOLUTION):
-                self._screen_matrix[i].append(EMPTY_SPACE)
-
-        # we insert the level design into the matrix
-        for i in range(Y_RESOLUTION):
-            for j in range(X_RESOLUTION):
-                # self._screen_matrix[i][j] = self._curr_level.map[i][j]
-                # for _ in range(X_RESOLUTION):
-                self._screen_matrix[i].append(self._curr_level.map[i][j] or EMPTY_SPACE)
+            for x in range(X_RESOLUTION):
+                self._screen_matrix[y].append(self._curr_level.map[y][x] or EMPTY_SPACE)
 
     def add_to_matrix(self, entity: Entity):
         y = math.floor(entity.position[1])
