@@ -1,9 +1,9 @@
 import random
 
 from constants import ENEMY_MOV_FACTOR
-from model.theme import Theme
 from entities.entity import LivingEntity
 from model.enemy import EnemyType
+from model.theme import Theme
 
 _BOUNCE_FRAMES = ["_", "_", "o", "o", "O", "O"]
 _MIN_BOUNCING_RANDOMNESS = 8
