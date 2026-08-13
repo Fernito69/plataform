@@ -86,7 +86,7 @@ class Player(LivingEntity):
                 self.character = "🥴"
                 self.status = PlayerStatus.DEAD
 
-    def player_input(self):
+    def handle_player_input(self):
         ########
         # MENU #
         ########
