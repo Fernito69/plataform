@@ -75,6 +75,20 @@ JungleTheme = Theme(
     custom_line_type="random",
 )
 
+BloodTheme = Theme(
+    color=MakeColor(.5, (255, 0, 0)),
+    bg_color=MakeColor(.7, (255, 12, 32)),
+    custom_line_chars=[
+        "▓",
+        "█",
+        "▓",
+        "▒",
+        "░",
+        "░",
+        " ",
+    ],  # "#", "@", "§", "$", "&"],
+    custom_line_type="random",
+)
 
 CandyTheme = Theme(
     color=Red(),

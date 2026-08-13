@@ -4,7 +4,15 @@ from factories.enemy2d import (
     DumbFireFloatingEnemy,
     DumbFloatingEnemy,
 )
-from factories.theme import Cyan, DoubleLines, CandyTheme, Magenta, Yellow
+from factories.theme import (
+    Cyan,
+    DoubleLines,
+    CandyTheme,
+    BloodTheme,
+    JungleTheme,
+    Magenta,
+    Yellow,
+)
 from level_2d import Level2D
 from model.shared import Orientation
 
@@ -44,7 +52,7 @@ def build_level1() -> Level2D:
         name="Level 1",
         enemies=enemies,
         exits=exits,
-        theme=CandyTheme,
+        theme=BloodTheme,
     )
 
     # level 1 terrain
