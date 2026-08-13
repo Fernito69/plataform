@@ -1,4 +1,5 @@
 from model.theme import Color
+from model.shared import Number
 
 COLOR_CODES = {
     "black": "\033[30m",
@@ -36,6 +37,6 @@ def colored(
 
 
 def add_tuple(
-    orig: tuple[int | float, int | float], add: tuple[int | float, int | float]
-) -> tuple[int | float, int | float]:
+    orig: tuple[Number, Number], add: tuple[Number, Number]
+) -> tuple[Number, Number]:
     return (orig[0] + add[0], orig[1] + add[1])

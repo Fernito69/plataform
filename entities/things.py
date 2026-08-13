@@ -1,5 +1,6 @@
 from entities.entity import Entity
 from model.theme import Theme
+from model.shared import Coord
 
 _EXIT_COLOR = "yellow"
 _EXIT_BG_COLOR = "red"
@@ -24,7 +25,7 @@ _EXIT_FRAMES = [
 
 
 class Exit(Entity):
-    def __init__(self, position: tuple[int, int]):
+    def __init__(self, position: Coord):
         Entity.__init__(self)
         self.position = position
         self._char_frames = _EXIT_FRAMES

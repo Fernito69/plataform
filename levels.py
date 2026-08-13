@@ -2,7 +2,7 @@ from entities.things import Exit
 from factories.enemy import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
 from factories.theme import JungleTheme
 from level import Level
-from model.level import Direction
+from model.shared import Direction
 
 
 def build_level1() -> Level:

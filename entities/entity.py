@@ -8,6 +8,7 @@ from constants import (
     Y_RESOLUTION,
 )
 from model.theme import Theme
+from model.shared import Vector, Coord
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
@@ -47,11 +48,11 @@ class Entity:
             else 0
         )
 
-    def _set_char_frames(self, new_char_frames: list[str] | None = None):
+    def _set_char_frames(self, new_char_frames: list[str] | None = None) -> None:
         self._curr_char_frame_index = 0
         self._char_frames = new_char_frames or self._default_char_frames
 
-    def _apply_gravity(self):
+    def _apply_gravity(self) -> None:
         y_dist, y_coor = self.y_distance()
 
         # moves entity down because of gravity
@@ -71,19 +72,19 @@ class Entity:
         if y_dist > 0:
             self.falling_velocity += GRAVITY_ACCELERATION
 
-    def get_char(self):
+    def get_char(self) -> str:
         return colored(
             self._char_frames[self._curr_char_frame_index],
             self.theme.color,
             self.theme.bg_color,
         )
 
-    def do_your_thing(self):
+    def do_your_thing(self) -> None:
         # This method should be overwritten by the inheriting classes
         pass
 
     # TODO: this should calculate player collision before moving ()
-    def _move_by(self, vector: tuple[int | float, int | float]):
+    def _move_by(self, vector: Vector) -> None:
         self.position = add_tuple(self.position, vector)
 
     def is_same_position(self, entity: "Entity") -> bool:
@@ -93,7 +94,7 @@ class Entity:
         return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
 
     # checks collision with landscape elements
-    def _collision_landscape(self, old_pos: tuple[float, float]) -> None:
+    def _collision_landscape(self, old_pos: Coord) -> None:
         if (
             self._curr_level
             and self._curr_level.map[int(self.position[1])][int(self.position[0])]

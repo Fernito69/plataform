@@ -8,7 +8,7 @@ from constants import (
 from entities.enemy import Enemy
 from entities.things import Exit
 from factories.theme import DefaultTheme
-from model.level import Direction
+from model.shared import Direction, Coord
 from model.theme import Color, Theme
 from utils import colored
 
@@ -18,7 +18,7 @@ class Level:
     enemies: list[Enemy]
     exits: list[Exit]
     name: str
-    player_starting_position: tuple[int, int]
+    player_starting_position: Coord
     theme: Theme
 
     def __init__(
@@ -27,7 +27,7 @@ class Level:
         enemies: list[Enemy],
         exits: list[Exit],
         theme: Theme | None,
-        player_starting_position: tuple[int, int] = (1, 1),
+        player_starting_position: Coord = (1, 1),
     ):
         self.enemies = enemies
         self.name = name
@@ -78,14 +78,17 @@ class Level:
     def add_char(
         self,
         char: str,
-        position: tuple[int, int],
+        position: Coord,
         color: Color | None = None,
         bg_color: Color | None = None,
     ):
         char = self.get_custom_theme_char(char[0])
         color = color or self.theme.color
         bg_color = bg_color or self.theme.bg_color
-        self.map[position[1]][position[0]] = self._color(char, color, bg_color)
+        # TODO: check whether round or math.floor works better here
+        self.map[round(position[1])][round(position[0])] = self._color(
+            char, color, bg_color
+        )
 
     _curr_custom_char_index: int = 0
     _directions = (1, -1)
@@ -135,7 +138,7 @@ class Level:
     # TODO: implement animated map parts :O with a self.do_your_thing() method
     def add_line(
         self,
-        initial_position: tuple[int, int],
+        initial_position: Coord,
         length: int = 3,
         direction: Direction = Direction.HORIZONTAL,
         color: Color | None = None,
@@ -162,7 +165,7 @@ class Level:
                 if direction == Direction.HORIZONTAL
                 else self.get_custom_theme_char(self.theme.line_type.V)
             )
-            self.map[y][x] = self._color(
+            self.map[int(y)][int(x)] = self._color(
                 char=char,
                 color=color or self.theme.color,
                 bg_color=bg_color or self.theme.bg_color,

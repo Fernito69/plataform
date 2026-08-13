@@ -1,5 +1,6 @@
 from entities.enemy import Enemy
 from model.enemy import EnemyType
+from model.shared import Coord, Vector
 from model.theme import Color, Theme
 
 _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_FRAMES = ["@"]
@@ -7,8 +8,8 @@ _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_COLOR = "blue"
 
 
 def DumbBouncingEnemy(
-    position: tuple[int, int],
-    movement_type: tuple[int | float, int | float],
+    position: Coord,
+    movement_type: Vector,
     speed: int = 1,
     health: int = 40,
     character_frames: list[str] = _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_FRAMES,
@@ -31,8 +32,8 @@ _DEFAULT_DUMB_FLOATING_ENEMY_CHARACTER_COLOR = "red"
 
 
 def DumbFloatingEnemy(
-    position: tuple[int, int],
-    movement_type: tuple[int, int],
+    position: Coord,
+    movement_type: Vector,
     speed: int = 1,
     health: int = 50,
     character_frames: list[str] = _DEFAULT_DUMB_FLOATING_ENEMY_CHARACTER_FRAMES,
@@ -72,8 +73,8 @@ _DEFAULT_FIRE_FLOATING_ENEMY_CHARACTER_FRAMES = [
 
 
 def DumbFireFloatingEnemy(
-    position: tuple[int, int],
-    movement_type: tuple[int, int],
+    position: Coord,
+    movement_type: Vector,
     health: int = 60,
     speed: int = 4,
     character_frames: list[str] = _DEFAULT_FIRE_FLOATING_ENEMY_CHARACTER_FRAMES,
