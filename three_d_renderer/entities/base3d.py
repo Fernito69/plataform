@@ -1,9 +1,8 @@
 import math
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Any, Optional
 
-from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION, Y_RESOLUTION
-from model.entity import Collision2X, Collision2Y
-from model.shared import Coord2, Orientation, Vector3
+from constants import EMPTY_SPACE
+from model.shared import Vector3
 from model.theme import Theme
 from utils import add_triplet, colored
 

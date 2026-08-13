@@ -2,12 +2,12 @@
 
 import math
 
-from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION
+from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import Green, Red, Yellow
-from model.theme import DoubleLines
 from level2d import Level2D
+from model.theme import DoubleLines
 from terminal import clear
 from utils import colored
 
@@ -27,21 +27,35 @@ class Display:
     _screen_matrix: list[list[str]]
     _curr_level_2D: Level2D
 
+    _curr_x_resolution: int
+    _curr_y_resolution: int
+
     # _curr_level_3D: Level3D
 
-    def __init__(self, curr_level: Level2D):
+    def __init__(
+        self,
+        curr_level: Level2D,
+        curr_x_resolution: int = X_RESOLUTION_2D,
+        curr_y_resolution: int = Y_RESOLUTION_2D,
+    ):
         self._curr_level_2D = curr_level
+        self._curr_x_resolution = curr_x_resolution
+        self._curr_y_resolution = curr_y_resolution
         self.populate_level_into_matrix()
 
     def populate_level_into_matrix(self):
         self._screen_matrix = []
 
-        for y in range(Y_RESOLUTION):
+        for y in range(self._curr_y_resolution):
             self._screen_matrix.append([])
-            for x in range(X_RESOLUTION):
+            for x in range(self._curr_x_resolution):
                 self._screen_matrix[y].append(
                     self._curr_level_2D.map[y][x] or EMPTY_SPACE
                 )
+
+    def set_resolution(self, x: int, y: int) -> None:
+        self._curr_x_resolution = x
+        self._curr_y_resolution = y
 
     def add_to_matrix(self, entity: Entity2D):
         y = math.floor(entity.position[1])
@@ -53,8 +67,8 @@ class Display:
         if len(message) <= 0:
             return
 
-        mid_x = int(X_RESOLUTION / 2)
-        mid_y = int(Y_RESOLUTION / 2)
+        mid_x = int(self._curr_x_resolution / 2)
+        mid_y = int(self._curr_y_resolution / 2)
 
         # Message position
         starting_message_x = int(mid_x - len(message) / 2)
@@ -99,10 +113,10 @@ class Display:
     def print_curr_screen(self, player: Player2D | None = None):
         matrix_string = ""
 
-        for i in range(Y_RESOLUTION):
-            for j in range(X_RESOLUTION):
+        for i in range(self._curr_y_resolution):
+            for j in range(self._curr_x_resolution):
                 matrix_string += self._screen_matrix[i][j]
-            if i < Y_RESOLUTION - 1:
+            if i < self._curr_y_resolution - 1:
                 matrix_string += "\n"
 
         clear()

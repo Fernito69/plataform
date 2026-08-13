@@ -13,6 +13,7 @@ from three_d_renderer.scenario.level3d import Level3D
 from three_d_renderer.scenario.levels3d import build_level_3d_1
 
 
+# TODO: this should reuse display and set_resolution()
 class ThreeDeeRenderer:
     # for now a fixed camera
     player: Player3D

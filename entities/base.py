@@ -1,7 +1,12 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION, Y_RESOLUTION
+from constants import (
+    EMPTY_SPACE,
+    GRAVITY_ACCELERATION,
+    X_RESOLUTION_2D,
+    Y_RESOLUTION_2D,
+)
 from model.entity import Collision2X, Collision2Y
 from model.shared import Coord2, Orientation, Vector2
 from model.theme import Theme
@@ -121,7 +126,7 @@ class Entity2D:
 
         y_dist = -1
 
-        for i in range(math.floor(self.position[1]), Y_RESOLUTION):
+        for i in range(math.floor(self.position[1]), Y_RESOLUTION_2D):
             # checks all the way down in player's current X-position
             if self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE:
                 y_dist += 1
@@ -162,7 +167,7 @@ class Entity2D:
 
         x_dist = -1
 
-        for i in range(math.floor(self.position[0]), X_RESOLUTION):
+        for i in range(math.floor(self.position[0]), X_RESOLUTION_2D):
             # checks all the way to the right in entity's current Y-position
             if self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
                 x_dist += 1

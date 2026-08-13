@@ -1,6 +1,5 @@
 import time
 
-from typing import cast
 from constants import FPS_2D
 from display import Display
 from entities.base import Entity2D

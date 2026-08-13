@@ -1,6 +1,6 @@
 import random
 
-from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION
+from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.enemy2d import Enemy2D
 from entities.things2d import Exit2D
 from factories.theme import DefaultTheme, DoubleLines
@@ -38,9 +38,9 @@ class Level2D:
         for enemy in enemies:
             enemy.set_curr_level(self)
 
-        for i in range(Y_RESOLUTION):
+        for i in range(Y_RESOLUTION_2D):
             self.map.append([])
-            for _ in range(X_RESOLUTION):
+            for _ in range(X_RESOLUTION_2D):
                 self.map[i].append(EMPTY_SPACE)
 
         self.init_map_border()
@@ -48,21 +48,21 @@ class Level2D:
     def init_map_border(self):
         l = self.theme.line_type or _DEFAULT_LINE_TYPE
         self.add_char(l.UL, (0, 0))
-        self.add_char(l.LR, (X_RESOLUTION - 1, Y_RESOLUTION - 1))
-        self.add_char(l.UR, (X_RESOLUTION - 1, 0))
-        self.add_char(l.LL, (0, Y_RESOLUTION - 1))
+        self.add_char(l.LR, (X_RESOLUTION_2D - 1, Y_RESOLUTION_2D - 1))
+        self.add_char(l.UR, (X_RESOLUTION_2D - 1, 0))
+        self.add_char(l.LL, (0, Y_RESOLUTION_2D - 1))
 
         # repeat the loops to respect the _curr_custom_char_index order
         # TODO: do it better so it's really a loop, even considering corners
-        for i in range(1, Y_RESOLUTION - 1):
+        for i in range(1, Y_RESOLUTION_2D - 1):
             self.add_char(l.V, (0, i))
-        for i in range(1, Y_RESOLUTION - 1):
-            self.add_char(l.V, (X_RESOLUTION - 1, i))
+        for i in range(1, Y_RESOLUTION_2D - 1):
+            self.add_char(l.V, (X_RESOLUTION_2D - 1, i))
 
-        for i in range(1, X_RESOLUTION - 1):
+        for i in range(1, X_RESOLUTION_2D - 1):
             self.add_char(l.H, (i, 0))
-        for i in range(1, X_RESOLUTION - 1):
-            self.add_char(l.H, (i, Y_RESOLUTION - 1))
+        for i in range(1, X_RESOLUTION_2D - 1):
+            self.add_char(l.H, (i, Y_RESOLUTION_2D - 1))
 
     def _color(self, char: str, color: RGB | None = None, bg_color: RGB | None = None):
         return colored(
@@ -144,14 +144,14 @@ class Level2D:
             x = max(
                 min(
                     x1 + i if orientation == Orientation.HORIZONTAL else x1,
-                    X_RESOLUTION - 1,
+                    X_RESOLUTION_2D - 1,
                 ),
                 0,
             )
             y = max(
                 min(
                     y1 + i if orientation == Orientation.VERTICAL else y1,
-                    Y_RESOLUTION - 1,
+                    Y_RESOLUTION_2D - 1,
                 ),
                 0,
             )
