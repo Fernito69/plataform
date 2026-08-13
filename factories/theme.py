@@ -1,4 +1,4 @@
-from model.theme import RGB, Theme
+from model.theme import RGB, DoubleLines, Theme
 
 """
 COLORS
@@ -57,7 +57,7 @@ def Magenta(intensity: float = _DEFAULT_INTENSITY) -> RGB:
 """
 THEMES
 """
-DefaultTheme = Theme()
+DefaultTheme = Theme(line_type=DoubleLines)
 
 JungleTheme = Theme(
     color=Green(),

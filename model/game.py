@@ -5,3 +5,4 @@ class GameStatus(StrEnum):
     PLAYING = auto()
     PAUSED = auto()
     GAMEOVER = auto()
+    THREE_D_RENDERER = auto()

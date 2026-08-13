@@ -1,29 +1,31 @@
 import random
 
 from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION
-from entities.enemy import Enemy
-from entities.things import Exit
-from factories.theme import DefaultTheme
-from model.shared import Coord, Orientation
+from entities.enemy2d import Enemy2D
+from entities.things2d import Exit2D
+from factories.theme import DefaultTheme, DoubleLines
+from model.shared import Coord2, Orientation
 from model.theme import RGB, Theme
 from utils import colored
 
+_DEFAULT_LINE_TYPE = DoubleLines
 
-class Level:
+
+class Level2D:
     map: list[list[str]]  # matrix representation of the level data
-    enemies: list[Enemy]
-    exits: list[Exit]
+    enemies: list[Enemy2D]
+    exits: list[Exit2D]
     name: str
-    player_starting_position: Coord
+    player_starting_position: Coord2
     theme: Theme
 
     def __init__(
         self,
         name: str,
-        enemies: list[Enemy],
-        exits: list[Exit],
+        enemies: list[Enemy2D],
+        exits: list[Exit2D],
         theme: Theme | None,
-        player_starting_position: Coord = (1, 1),
+        player_starting_position: Coord2 = (1, 1),
     ):
         self.enemies = enemies
         self.name = name
@@ -44,7 +46,7 @@ class Level:
         self.init_map_border()
 
     def init_map_border(self):
-        l = self.theme.line_type
+        l = self.theme.line_type or _DEFAULT_LINE_TYPE
         self.add_char(l.UL, (0, 0))
         self.add_char(l.LR, (X_RESOLUTION - 1, Y_RESOLUTION - 1))
         self.add_char(l.UR, (X_RESOLUTION - 1, 0))
@@ -62,9 +64,7 @@ class Level:
         for i in range(1, X_RESOLUTION - 1):
             self.add_char(l.H, (i, Y_RESOLUTION - 1))
 
-    def _color(
-        self, char: str, color: RGB | None = None, bg_color: RGB | None = None
-    ):
+    def _color(self, char: str, color: RGB | None = None, bg_color: RGB | None = None):
         return colored(
             char[0],
             color or self.theme.color,
@@ -74,11 +74,11 @@ class Level:
     def add_char(
         self,
         char: str,
-        position: Coord,
+        position: Coord2,
         color: RGB | None = None,
         bg_color: RGB | None = None,
     ):
-        char = self.get_custom_theme_char(char[0])
+        char = self._get_custom_theme_char(char[0])
         color = color or self.theme.color
         bg_color = bg_color or self.theme.bg_color
         # TODO: check whether round or math.floor works better here
@@ -90,7 +90,7 @@ class Level:
     _directions = (1, -1)
     _curr_direction_index: int = 0
 
-    def get_custom_theme_char(self, fallback: str) -> str:
+    def _get_custom_theme_char(self, fallback: str) -> str:
         if self.theme.custom_line_chars:
             index: int
             match self.theme.custom_line_type:
@@ -134,7 +134,7 @@ class Level:
     # TODO: implement animated map parts :O with a self.do_your_thing() method
     def add_line(
         self,
-        initial_position: Coord,
+        initial_position: Coord2,
         length: int = 3,
         direction: Orientation = Orientation.HORIZONTAL,
         color: RGB | None = None,
@@ -152,14 +152,16 @@ class Level:
             )
             y = max(
                 min(
-                    y1 + i if direction == Orientation.VERTICAL else y1, Y_RESOLUTION - 1
+                    y1 + i if direction == Orientation.VERTICAL else y1,
+                    Y_RESOLUTION - 1,
                 ),
                 0,
             )
+            l = self.theme.line_type or _DEFAULT_LINE_TYPE
             char = (
-                self.get_custom_theme_char(self.theme.line_type.H)
+                self._get_custom_theme_char(l.H)
                 if direction == Orientation.HORIZONTAL
-                else self.get_custom_theme_char(self.theme.line_type.V)
+                else self._get_custom_theme_char(l.V)
             )
             self.map[int(y)][int(x)] = self._color(
                 char=char,

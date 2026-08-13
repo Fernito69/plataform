@@ -4,16 +4,16 @@ from model.shared import Number, Orientation
 
 
 @dataclass
-class Collision:
+class Collision2:
     distance: Number = 0
     direction: Orientation = Orientation.HORIZONTAL
 
 
 @dataclass
-class CollisionX(Collision):
+class Collision2X(Collision2):
     x_at_target: int = 0
 
 
 @dataclass
-class CollisionY(Collision):
+class Collision2Y(Collision2):
     y_at_target: int = 0

@@ -1,11 +1,17 @@
-from entities.things import Exit
-from factories.enemy import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
-from factories.theme import Cyan, JungleTheme, Magenta, Yellow
-from level import Level
+from entities.things2d import Exit2D
+from factories.enemy2d import (
+    DumbBouncingEnemy,
+    DumbFireFloatingEnemy,
+    DumbFloatingEnemy,
+)
+from factories.theme import Cyan, DoubleLines, JungleTheme, Magenta, Yellow
+from level2d import Level2D
 from model.shared import Orientation
 
+_DEFAULT_LINE_TYPE = DoubleLines
 
-def build_level1() -> Level:
+
+def build_level1() -> Level2D:
     enemies = [
         DumbFloatingEnemy(movement_type=(1, 0), position=(10, 5), speed=2),
         DumbFloatingEnemy(movement_type=(0, 1), position=(2, 9), speed=6),
@@ -31,10 +37,10 @@ def build_level1() -> Level:
     ]
 
     exits = [
-        Exit((41, 4)),
+        Exit2D((41, 4)),
     ]
 
-    level = Level(
+    level = Level2D(
         name="Level 1",
         enemies=enemies,
         exits=exits,
@@ -42,7 +48,7 @@ def build_level1() -> Level:
     )
 
     # level 1 terrain
-    l = level.theme.line_type
+    l = level.theme.line_type or _DEFAULT_LINE_TYPE
     level.add_char(l.UR, (4, 5))
 
     level.add_line(initial_position=(1, 5))

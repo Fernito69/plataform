@@ -2,11 +2,12 @@
 
 import math
 
-from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION, DoubleLines
-from entities.entity import Entity
-from entities.player import Player
+from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION
+from entities.base import Entity2D
+from entities.player2d import Player2D
 from factories.theme import Green, Red, Yellow
-from level import Level
+from model.theme import DoubleLines
+from level2d import Level2D
 from terminal import clear
 from utils import colored
 
@@ -24,10 +25,12 @@ _MESSAGE_TEXT_COLOR = Yellow()
 class Display:
     # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
-    _curr_level: Level
+    _curr_level_2D: Level2D
 
-    def __init__(self, curr_level: Level):
-        self._curr_level = curr_level
+    # _curr_level_3D: Level3D
+
+    def __init__(self, curr_level: Level2D):
+        self._curr_level_2D = curr_level
         self.populate_level_into_matrix()
 
     def populate_level_into_matrix(self):
@@ -36,9 +39,11 @@ class Display:
         for y in range(Y_RESOLUTION):
             self._screen_matrix.append([])
             for x in range(X_RESOLUTION):
-                self._screen_matrix[y].append(self._curr_level.map[y][x] or EMPTY_SPACE)
+                self._screen_matrix[y].append(
+                    self._curr_level_2D.map[y][x] or EMPTY_SPACE
+                )
 
-    def add_to_matrix(self, entity: Entity):
+    def add_to_matrix(self, entity: Entity2D):
         y = math.floor(entity.position[1])
         x = math.floor(entity.position[0])
 
@@ -91,7 +96,7 @@ class Display:
 
         self.print_curr_screen()
 
-    def print_curr_screen(self, player: Player | None = None):
+    def print_curr_screen(self, player: Player2D | None = None):
         matrix_string = ""
 
         for i in range(Y_RESOLUTION):
@@ -106,7 +111,7 @@ class Display:
         if player:
             self._print_hud(player)
 
-    def _print_hud(self, player: Player):
+    def _print_hud(self, player: Player2D):
         health = str(player.health)
 
         # TODO: refactor it to go continuously from green, to yellow, to red
