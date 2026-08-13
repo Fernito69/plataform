@@ -1,14 +1,10 @@
 import random
 
-from constants import (
-    EMPTY_SPACE,
-    X_RESOLUTION,
-    Y_RESOLUTION,
-)
+from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION
 from entities.enemy import Enemy
 from entities.things import Exit
 from factories.theme import DefaultTheme
-from model.shared import Direction, Coord
+from model.shared import Coord, Orientation
 from model.theme import Color, Theme
 from utils import colored
 
@@ -140,7 +136,7 @@ class Level:
         self,
         initial_position: Coord,
         length: int = 3,
-        direction: Direction = Direction.HORIZONTAL,
+        direction: Orientation = Orientation.HORIZONTAL,
         color: Color | None = None,
         bg_color: Color | None = None,
     ):
@@ -149,20 +145,20 @@ class Level:
         for i in range(length):
             x = max(
                 min(
-                    x1 + i if direction == Direction.HORIZONTAL else x1,
+                    x1 + i if direction == Orientation.HORIZONTAL else x1,
                     X_RESOLUTION - 1,
                 ),
                 0,
             )
             y = max(
                 min(
-                    y1 + i if direction == Direction.VERTICAL else y1, Y_RESOLUTION - 1
+                    y1 + i if direction == Orientation.VERTICAL else y1, Y_RESOLUTION - 1
                 ),
                 0,
             )
             char = (
                 self.get_custom_theme_char(self.theme.line_type.H)
-                if direction == Direction.HORIZONTAL
+                if direction == Orientation.HORIZONTAL
                 else self.get_custom_theme_char(self.theme.line_type.V)
             )
             self.map[int(y)][int(x)] = self._color(

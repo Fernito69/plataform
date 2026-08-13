@@ -1,15 +1,11 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import (
-    EMPTY_SPACE,
-    GRAVITY_ACCELERATION,
-    X_RESOLUTION,
-    Y_RESOLUTION,
-)
+from constants import (EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION,
+                       Y_RESOLUTION)
+from model.entity import CollisionX, CollisionY
+from model.shared import Coord, Orientation, Vector
 from model.theme import Theme
-from model.entity import CollisionY, CollisionX
-from model.shared import Vector, Coord, Direction
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
@@ -134,7 +130,7 @@ class Entity:
                 return CollisionY(
                     y_at_target=i,
                     distance=y_dist,
-                    direction=Direction.VERTICAL,
+                    direction=Orientation.VERTICAL,
                 )
 
         return CollisionY()
@@ -154,7 +150,7 @@ class Entity:
                 return CollisionY(
                     y_at_target=i,
                     distance=y_dist_neg,
-                    direction=Direction.VERTICAL,
+                    direction=Orientation.VERTICAL,
                 )
 
         return CollisionY()
@@ -175,7 +171,7 @@ class Entity:
                 return CollisionX(
                     distance=x_dist,
                     x_at_target=i,
-                    direction=Direction.HORIZONTAL,
+                    direction=Orientation.HORIZONTAL,
                 )
 
         return CollisionX()
@@ -195,7 +191,7 @@ class Entity:
                 return CollisionX(
                     distance=x_dist_neg,
                     x_at_target=i,
-                    direction=Direction.HORIZONTAL,
+                    direction=Orientation.HORIZONTAL,
                 )
 
         return CollisionX()

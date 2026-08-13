@@ -1,6 +1,6 @@
 from entities.entity import Entity
-from model.theme import Theme
 from model.shared import Coord
+from model.theme import Theme
 
 _EXIT_COLOR = "yellow"
 _EXIT_BG_COLOR = "red"

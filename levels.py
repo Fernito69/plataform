@@ -2,7 +2,7 @@ from entities.things import Exit
 from factories.enemy import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
 from factories.theme import JungleTheme
 from level import Level
-from model.shared import Direction
+from model.shared import Orientation
 
 
 def build_level1() -> Level:
@@ -62,7 +62,7 @@ def build_level1() -> Level:
 
     level.add_char(l.CR, (0, 5))
 
-    level.add_line((4, 6), 17, Direction.VERTICAL)
+    level.add_line((4, 6), 17, Orientation.VERTICAL)
     level.add_line((1, 22))
 
     level.add_char(l.CR, (0, 22))

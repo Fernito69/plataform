@@ -6,6 +6,6 @@ Vector = tuple[Number, Number]
 Coord = Vector
 
 
-class Direction(StrEnum):
+class Orientation(StrEnum):
     HORIZONTAL = auto()
     VERTICAL = auto()
