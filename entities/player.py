@@ -4,7 +4,7 @@ from constants import IMMUNE_TIME
 from entities.entity import LivingEntity
 from model.keyboard import MenuKeys, MovementKeys
 from model.player import PlayerStatus
-from model.theme import Color, Theme
+from model.theme import Theme
 from terminal import is_pressed
 
 if TYPE_CHECKING:
