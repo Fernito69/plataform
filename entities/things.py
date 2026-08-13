@@ -1,9 +1,10 @@
 from entities.entity import Entity
+from factories.theme import Red, Yellow
 from model.shared import Coord
 from model.theme import Theme
 
-_EXIT_COLOR = "yellow"
-_EXIT_BG_COLOR = "red"
+_EXIT_COLOR = Yellow()
+_EXIT_BG_COLOR = Red()
 _EXIT_FRAMES = [
     "E",
     "E",

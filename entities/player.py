@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from constants import IMMUNE_TIME
 from entities.entity import LivingEntity
+from factories.theme import Cyan, Green, White
 from model.keyboard import MenuKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
@@ -10,7 +11,7 @@ from terminal import is_pressed
 if TYPE_CHECKING:
     from level import Level
 
-_PLAYER_COLOR = "green"
+_PLAYER_COLOR = Green()
 _PLAYER_FRAMES = ["☺"]
 _PLAYER_FLASHING_FRAMES = ["☻"]
 
@@ -62,8 +63,8 @@ class Player(LivingEntity):
             return
 
         if self._immune_counter > 0:
-            self.theme.color = "cyan" if self._immune_counter % 2 == 0 else "white"
-            self.theme.bg_color = "white" if self._immune_counter % 2 == 0 else None
+            self.theme.color = Cyan() if self._immune_counter % 2 == 0 else White()
+            self.theme.bg_color = White() if self._immune_counter % 2 == 0 else None
 
             self._set_char_frames(_PLAYER_FLASHING_FRAMES)
             self._immune_counter -= 1

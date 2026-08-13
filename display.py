@@ -5,6 +5,7 @@ import math
 from constants import EMPTY_SPACE, X_RESOLUTION, Y_RESOLUTION, DoubleLines
 from entities.entity import Entity
 from entities.player import Player
+from factories.theme import Green, Red, Yellow
 from level import Level
 from terminal import clear
 from utils import colored
@@ -12,12 +13,12 @@ from utils import colored
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
 
-_GOOD_HEALTH_COLOR = "green"
-_BAD_HEALTH_COLOR = "red"
-_MID_HEALTH_COLOR = "yellow"
+_GOOD_HEALTH_COLOR = Green()
+_BAD_HEALTH_COLOR = Red()
+_MID_HEALTH_COLOR = Yellow()
 
-_MESSAGE_BORDER_COLOR = "red"
-_MESSAGE_TEXT_COLOR = "yellow"
+_MESSAGE_BORDER_COLOR = Red()
+_MESSAGE_TEXT_COLOR = Yellow()
 
 
 class Display:
@@ -108,6 +109,7 @@ class Display:
     def _print_hud(self, player: Player):
         health = str(player.health)
 
+        # TODO: refactor it to go continuously from green, to yellow, to red
         if player.health <= _BAD_HEALTH_LIMIT:
             health = colored(health, _BAD_HEALTH_COLOR)
         elif _BAD_HEALTH_LIMIT < player.health <= _GOOD_HEALTH_LIMIT:

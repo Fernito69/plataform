@@ -5,7 +5,7 @@ from entities.enemy import Enemy
 from entities.things import Exit
 from factories.theme import DefaultTheme
 from model.shared import Coord, Orientation
-from model.theme import Color, Theme
+from model.theme import RGB, Theme
 from utils import colored
 
 
@@ -63,7 +63,7 @@ class Level:
             self.add_char(l.H, (i, Y_RESOLUTION - 1))
 
     def _color(
-        self, char: str, color: Color | None = None, bg_color: Color | None = None
+        self, char: str, color: RGB | None = None, bg_color: RGB | None = None
     ):
         return colored(
             char[0],
@@ -75,8 +75,8 @@ class Level:
         self,
         char: str,
         position: Coord,
-        color: Color | None = None,
-        bg_color: Color | None = None,
+        color: RGB | None = None,
+        bg_color: RGB | None = None,
     ):
         char = self.get_custom_theme_char(char[0])
         color = color or self.theme.color
@@ -137,8 +137,8 @@ class Level:
         initial_position: Coord,
         length: int = 3,
         direction: Orientation = Orientation.HORIZONTAL,
-        color: Color | None = None,
-        bg_color: Color | None = None,
+        color: RGB | None = None,
+        bg_color: RGB | None = None,
     ):
         x1, y1 = initial_position
 

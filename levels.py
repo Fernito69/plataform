@@ -1,6 +1,6 @@
 from entities.things import Exit
 from factories.enemy import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
-from factories.theme import JungleTheme
+from factories.theme import Cyan, JungleTheme, Magenta, Yellow
 from level import Level
 from model.shared import Orientation
 
@@ -16,16 +16,16 @@ def build_level1() -> Level:
         DumbFireFloatingEnemy(movement_type=(0, 1), position=(2, 2), speed=4),
         # Jumpy enemies
         DumbBouncingEnemy(
-            movement_type=(1, 0), position=(11, 23), color="cyan", speed=8
+            movement_type=(1, 0), position=(11, 23), color=Cyan(), speed=8
         ),
         DumbBouncingEnemy(movement_type=(1, 0), position=(12, 23), speed=-5),
         DumbBouncingEnemy(
-            movement_type=(1.2, 0), position=(12, 23), color="magenta", speed=1
+            movement_type=(1.2, 0), position=(12, 23), color=Magenta(), speed=1
         ),
         DumbBouncingEnemy(
             movement_type=(2, 0),
             position=(65, 23),
-            color="yellow",
+            color=Yellow(),
             speed=0,
         ),
     ]
