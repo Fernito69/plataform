@@ -4,7 +4,7 @@ from constants import FPS_2D
 from display import Display
 from entities.base import Entity2D
 from entities.player2d import Player2D
-from level2d import Level2D
+from level_2d import Level2D
 from model.game import GameStatus
 from model.player import PlayerStatus
 from three_d_renderer.constants import FPS_3D

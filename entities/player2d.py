@@ -9,7 +9,7 @@ from model.theme import Theme
 from terminal import is_pressed
 
 if TYPE_CHECKING:
-    from level2d import Level2D
+    from level_2d import Level2D
 
 _PLAYER_COLOR = Green()
 _PLAYER_FRAMES = ["☺"]

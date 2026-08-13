@@ -13,7 +13,7 @@ from model.theme import Theme
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
-    from level2d import Level2D
+    from level_2d import Level2D
 
 
 # TODO: rename methods properly

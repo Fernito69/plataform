@@ -6,7 +6,7 @@ from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import Green, Red, Yellow
-from level2d import Level2D
+from level_2d import Level2D
 from model.theme import DoubleLines
 from terminal import clear
 from utils import colored

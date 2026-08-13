@@ -1,7 +1,7 @@
 from entities.player2d import Player2D
 from three_d_renderer.entities.player3d import Player3D
 from game import Game
-from levels2d import build_level1
+from levels_2d import build_level1
 from model.game import GameStatus
 
 
