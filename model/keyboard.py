@@ -8,7 +8,8 @@ class KeyCategory(StrEnum):
 
 class MenuKeys(StrEnum):
     QUIT = auto()
-    SWITCH_MODE = auto()
+    SWITCH_3D_MODE = auto()
+    SWITCH_2D_MODE = auto()
 
 
 class MovementKeys(StrEnum):

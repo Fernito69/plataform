@@ -88,14 +88,15 @@ class Player2D(LivingEntity2D):
         ########
         # MENU #
         ########
+        # TODO: check why this doesn't work
+        # if self.status != PlayerStatus.MODE_2D:
+        #    return
+
         if is_pressed(MenuKeys.QUIT):
             self.status = PlayerStatus.QUIT
-        if is_pressed(MenuKeys.SWITCH_MODE):
-            self.status = (
-                PlayerStatus.MODE_3D
-                if self.status != PlayerStatus.MODE_3D
-                else PlayerStatus.MODE_2D
-            )
+
+        if is_pressed(MenuKeys.SWITCH_3D_MODE):
+            self.status = PlayerStatus.MODE_3D
 
         ############
         # MOVEMENT #

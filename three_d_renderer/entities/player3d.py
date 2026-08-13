@@ -1,19 +1,12 @@
 from typing import TYPE_CHECKING, Optional
 
-from constants import IMMUNE_TIME
-from factories.theme import Cyan, Green, White
 from model.keyboard import MenuKeys, MovementKeys
 from model.player import PlayerStatus
-from model.theme import Theme
 from terminal import is_pressed
 from three_d_renderer.entities.base3d import LivingEntity3D
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level3d import Level3D
-
-_PLAYER_COLOR = Green()
-_PLAYER_FRAMES = ["☺"]
-_PLAYER_FLASHING_FRAMES = ["☻"]
 
 
 # for now a fixed camera
@@ -37,6 +30,35 @@ class Player3D(LivingEntity3D):
         self.points = 0
         # self.theme = Theme(color=_PLAYER_COLOR)
         self.status = PlayerStatus.ALIVE
+
+    def handle_player_input(self):
+        ########
+        # MENU #
+        ########
+        if self.status != PlayerStatus.MODE_3D:
+            return
+
+        if is_pressed(MenuKeys.QUIT):
+            self.status = PlayerStatus.QUIT
+
+        if is_pressed(MenuKeys.SWITCH_2D_MODE):
+            self.status = PlayerStatus.MODE_2D
+
+        ############
+        # MOVEMENT #
+        ############
+        if is_pressed(MovementKeys.JUMP):
+            self._move_by([0, -1, 0])
+
+        # These are a bit dumb, refactor
+        if is_pressed(MovementKeys.LEFT):
+            self._move_by([-1, 0, 0])
+
+        if is_pressed(MovementKeys.RIGHT):
+            self._move_by([1, 0, 0])
+
+        if is_pressed(MovementKeys.DOWN):
+            self._move_by([0, 1, 0])
 
     # def do_your_thing(self):
     #     self._apply_gravity()

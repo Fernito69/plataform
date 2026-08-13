@@ -1,5 +1,6 @@
 import time
 
+from typing import cast
 from constants import FPS_2D
 from display import Display
 from entities.base import Entity2D
@@ -40,25 +41,40 @@ class Game:
         self.three_d_renderer = ThreeDeeRenderer(player=player_3d)
 
     def _check_player_status(self) -> None:
-        if self.player2d.status != PlayerStatus.ALIVE:
-            match self.player2d.status:
-                case PlayerStatus.MODE_3D:
-                    self._curr_fps = FPS_3D
-                    self.status = GameStatus.THREE_D_RENDERER
-                    return
-                case PlayerStatus.MODE_2D:
-                    self._curr_fps = FPS_2D
-                    self.status = GameStatus.PLAYING
-                    return
-                case PlayerStatus.DEAD:
-                    message = "GAME OVER"
-                case PlayerStatus.QUIT:
-                    message = "BYE BYE"
-                case PlayerStatus.EXIT:
-                    message = "YOU WON!"
+        players: list[Player2D | Player3D] = [
+            self.player2d,
+            self.three_d_renderer.player,
+        ]
+        for player in players:
+            message: str = ""
+            if player.status != PlayerStatus.ALIVE:
+                match player.status:
+                    case PlayerStatus.MODE_3D:
+                        if self.status == GameStatus.PLAYING:
+                            self._curr_fps = FPS_3D
+                            self.status = GameStatus.THREE_D_RENDERER
+                            # TODO: this is stupid, do better
+                            for p in players:
+                                p.status = PlayerStatus.MODE_3D
+                            return
+                    case PlayerStatus.MODE_2D:
+                        if self.status == GameStatus.THREE_D_RENDERER:
+                            self._curr_fps = FPS_2D
+                            self.status = GameStatus.PLAYING
+                            # TODO: this is stupid, do better
+                            for p in players:
+                                p.status = PlayerStatus.MODE_2D
+                            return
+                    case PlayerStatus.DEAD:
+                        message = "GAME OVER"
+                    case PlayerStatus.QUIT:
+                        message = "BYE BYE"
+                    case PlayerStatus.EXIT:
+                        message = "YOU WON!"
 
-            self.display.print_message(message)
-            self.status = GameStatus.GAMEOVER
+            if message != "":
+                self.display.print_message(message)
+                self.status = GameStatus.GAMEOVER
 
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
@@ -74,6 +90,7 @@ class Game:
         self._frame_delay()
 
         self.player2d.handle_player_input()
+        self.three_d_renderer.player.handle_player_input()
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.THREE_D_RENDERER:

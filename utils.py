@@ -19,6 +19,7 @@ def add_tuple(
 
 
 def add_triplet(
-    orig: tuple[Number, Number, Number], add: tuple[Number, Number, Number]
+    orig: tuple[Number, Number, Number] | list[Number],
+    add: tuple[Number, Number, Number] | list[Number],
 ) -> tuple[Number, Number, Number]:
     return (orig[0] + add[0], orig[1] + add[1], orig[2] + add[2])

@@ -85,8 +85,7 @@ class Entity3D:
 
     # TODO: this should calculate player collision before moving ()
     def _move_by(self, vector: Vector3) -> None:
-        # self.position = add_triplet(self.position, vector)
-        pass
+        self.position = list(add_triplet(self.position, vector))
 
     def is_same_position(self, entity: "Entity3D") -> bool:
         return all(a == b for a, b in zip(self.position, entity.position))

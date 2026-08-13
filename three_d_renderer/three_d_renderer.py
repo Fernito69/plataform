@@ -15,7 +15,7 @@ from three_d_renderer.scenario.levels3d import build_level_3d_1
 
 class ThreeDeeRenderer:
     # for now a fixed camera
-    _player: Player3D
+    player: Player3D
     _curr_level: Level3D
 
     def __init__(
@@ -23,7 +23,7 @@ class ThreeDeeRenderer:
         player: Player3D,
         level: Level3D | None = None,
     ):
-        self._player = player
+        self.player = player
         self._curr_level = level or build_level_3d_1()
 
     # TODO: should be level3d
