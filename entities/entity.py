@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 
 # TODO: rename methods properly
+# TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
 class Entity:
     _curr_level: Optional["Level"] = None
     position: tuple[float, float] = (0, 0)
