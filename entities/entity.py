@@ -8,7 +8,8 @@ from constants import (
     Y_RESOLUTION,
 )
 from model.theme import Theme
-from model.shared import Vector, Coord
+from model.entity import CollisionY, CollisionX
+from model.shared import Vector, Coord, Direction
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
@@ -53,7 +54,11 @@ class Entity:
         self._char_frames = new_char_frames or self._default_char_frames
 
     def _apply_gravity(self) -> None:
-        y_dist, y_coor = self.y_distance()
+        y_dist = self.y_distance().distance
+        y_coor = self.y_distance().y_at_target
+
+        if y_coor is None:
+            return
 
         # moves entity down because of gravity
         if self.position[1] < y_coor - 1 and y_dist > 0:
@@ -104,8 +109,8 @@ class Entity:
 
     # checks collision with landscape elements
     def _collision_jump(self) -> None:
-        if self.y_distance_neg()[0] == -1:  # and self.gravity <= 0
-            self.position = (self.position[0], self.y_distance_neg()[1] + 1)
+        if self.y_distance_neg().distance == -1:
+            self.position = (self.position[0], self.y_distance_neg().y_at_target + 1)
             self.falling_velocity = 0
 
     # calculates Y-axis distance DOWN to landscape
@@ -115,9 +120,9 @@ class Entity:
     # TODO: all these tuples should be data classes
 
     # calculates Y-axis distance DOWN to landscape
-    def y_distance(self) -> tuple[int, int]:
+    def y_distance(self) -> CollisionY:
         if self._curr_level is None:
-            return (1, 1)
+            return CollisionY()
 
         y_dist = -1
 
@@ -126,16 +131,19 @@ class Entity:
             if self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE:
                 y_dist += 1
             else:
-                # returns a list with distance to floor and Y-position of floor
-                return (y_dist, i)
+                return CollisionY(
+                    y_at_target=i,
+                    distance=y_dist,
+                    direction=Direction.VERTICAL,
+                )
 
-        return (0, 0)
+        return CollisionY()
 
     # calculates Y-axis distance UP to landscape
     # checks from current entity position to the upper part of the screen
-    def y_distance_neg(self) -> tuple[int, int]:
+    def y_distance_neg(self) -> CollisionY:
         if self._curr_level is None:
-            return (1, -1)
+            return CollisionY()
 
         y_dist_neg = -1
         for i in range(math.floor(self.position[1]), -1, -1):
@@ -143,16 +151,19 @@ class Entity:
             if self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE:
                 y_dist_neg += 1
             else:
-                # returns a list with distance to ceiling and Y-position of ceiling
-                return (y_dist_neg, i)
+                return CollisionY(
+                    y_at_target=i,
+                    distance=y_dist_neg,
+                    direction=Direction.VERTICAL,
+                )
 
-        return (0, 0)
+        return CollisionY()
 
     # calculates X-axis distance to landscape to the RIGHT
     # checks from current entity position to the leftmost part of the screen
-    def x_distance(self) -> tuple[int, int]:
+    def x_distance(self) -> CollisionX:
         if self._curr_level is None:
-            return (0, 0)
+            return CollisionX()
 
         x_dist = -1
 
@@ -161,16 +172,19 @@ class Entity:
             if self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
                 x_dist += 1
             else:
-                # returns a list with distance to the right and X-position of the next piece
-                return (x_dist, i)
+                return CollisionX(
+                    distance=x_dist,
+                    x_at_target=i,
+                    direction=Direction.HORIZONTAL,
+                )
 
-        return (0, 0)
+        return CollisionX()
 
     # calculates X-axis distance to landscape to the LEFT
     # checks from current entity position to the upper part of the screen
-    def x_distance_neg(self) -> tuple[int, int]:
+    def x_distance_neg(self) -> CollisionX:
         if self._curr_level is None:
-            return (0, 0)
+            return CollisionX()
 
         x_dist_neg = -1
         for i in range(math.floor(self.position[0]), -1, -1):
@@ -178,10 +192,13 @@ class Entity:
             if self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
                 x_dist_neg += 1
             else:
-                # returns a list with distance to the left and X-position of the next piece
-                return (x_dist_neg, i)
+                return CollisionX(
+                    distance=x_dist_neg,
+                    x_at_target=i,
+                    direction=Direction.HORIZONTAL,
+                )
 
-        return (0, 0)
+        return CollisionX()
 
     def set_curr_level(self, level: "Level"):
         self._curr_level = level

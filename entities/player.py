@@ -93,7 +93,7 @@ class Player(LivingEntity):
         ############
         # MOVEMENT #
         ############
-        if is_pressed(MovementKeys.JUMP) and self.y_distance()[0] == 0:
+        if is_pressed(MovementKeys.JUMP) and self.y_distance().distance == 0:
             self.falling_velocity = -1
             self._move_by((0, -1))
             self._calc_collision()

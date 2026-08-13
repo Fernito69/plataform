@@ -39,10 +39,10 @@ class Enemy(LivingEntity):
             return False
 
         colliding_x = self.movement_type[0] > 0 and (
-            self.x_distance()[0] <= 0 or self.x_distance_neg()[0] <= 0
+            self.x_distance().distance <= 0 or self.x_distance_neg().distance <= 0
         )
         colliding_y = self.movement_type[1] > 0 and (
-            self.y_distance()[0] <= 0 or self.y_distance_neg()[0] <= 0
+            self.y_distance().distance <= 0 or self.y_distance_neg().distance <= 0
         )
 
         if colliding_x or colliding_y:
@@ -76,7 +76,7 @@ class Enemy(LivingEntity):
             self._collision_landscape(old_position)
             self._collision_jump()
 
-            if self.y_distance()[0] == 0:
+            if self.y_distance().distance == 0:
                 random_factor = (
                     0.1
                     * random.randrange(

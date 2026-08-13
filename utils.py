@@ -1,5 +1,5 @@
-from model.theme import Color
 from model.shared import Number
+from model.theme import Color
 
 COLOR_CODES = {
     "black": "\033[30m",
