@@ -1,8 +1,7 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import (EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION,
-                       Y_RESOLUTION)
+from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION, Y_RESOLUTION
 from model.entity import CollisionX, CollisionY
 from model.shared import Coord, Orientation, Vector
 from model.theme import Theme
