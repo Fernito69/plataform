@@ -148,7 +148,7 @@ class Entity:
 
     def __init__(self, level: Optional["Level"] = None):
         # x and y coordinates
-        self.curr_level = level
+        self._curr_level = level
 
     def apply_gravity(self):
         # detemines Y-position and distance to next piece of landscape
@@ -178,7 +178,7 @@ class Entity:
     # checks collision with landscape elements
     def collision_ls(self, old_pos: List[int]):
         if (
-            self.curr_level.map[int(self.position[1])][int(self.position[0])]
+            self._curr_level.map[int(self.position[1])][int(self.position[0])]
             != _EMPTY_SPACE
         ):
             self.position = old_pos
@@ -192,14 +192,14 @@ class Entity:
     # calculates Y-axis distance DOWN to landscape
     # checks from current entity position to the bottom of the screen
     def y_distance(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return [1, 1]
 
         y_dist = -1
 
         for i in range(math.floor(self.position[1]), y_resolution):
             # checks all the way down in player's current X-position
-            if self.curr_level.map[i][math.floor(self.position[0])] == _EMPTY_SPACE:
+            if self._curr_level.map[i][math.floor(self.position[0])] == _EMPTY_SPACE:
                 y_dist += 1
             else:
                 # returns a list with distance to floor and Y-position of floor
@@ -208,14 +208,14 @@ class Entity:
     # calculates Y-axis distance UP to landscape
     # checks from current entity position to the upper part of the screen
     def y_distance_neg(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return [-1, -1]
 
         y_dist_neg = -1
         # print(str(y_resolution) + ", " + str(self.position[1]))
         for i in range(math.floor(self.position[1]), -1, -1):
             # checks all the way up in player's current X-position
-            if self.curr_level.map[i][math.floor(self.position[0])] == _EMPTY_SPACE:
+            if self._curr_level.map[i][math.floor(self.position[0])] == _EMPTY_SPACE:
                 y_dist_neg += 1
             else:
                 # returs a list with distance to ceiling and Y-position of ceiling
@@ -231,7 +231,7 @@ class Entity:
 
         for i in range(math.floor(self.position[0]), x_resolution):
             # checks all the way to the right in entity's current Y-position
-            if self.curr_level.map[math.floor(self.position[1])][i] == _EMPTY_SPACE:
+            if self._curr_level.map[math.floor(self.position[1])][i] == _EMPTY_SPACE:
                 x_dist += 1
             else:
                 # returns a list with distance to the right and X-position of the next piece
@@ -244,14 +244,14 @@ class Entity:
         # print(str(y_resolution) + ", " + str(self.position[1]))
         for i in range(math.floor(self.position[0]), -1, -1):
             # checks all the way to the left in entity's current Y-position
-            if self.curr_level.map[math.floor(self.position[1])][i] == _EMPTY_SPACE:
+            if self._curr_level.map[math.floor(self.position[1])][i] == _EMPTY_SPACE:
                 x_dist_neg += 1
             else:
                 # returns a list with distance to the left and X-position of the next piece
                 return [x_dist_neg, i]
 
     def set_curr_level(self, level: "Level"):
-        self.curr_level = level
+        self._curr_level = level
         if isinstance(self, Player):
             self.position = level.player_starting_position
 
@@ -291,7 +291,7 @@ class Player(Entity):
         self.character = "☺"
         self.color = "green"
 
-        enemies: List["Enemy"] = self.curr_level.enemies
+        enemies: List["Enemy"] = self._curr_level.enemies
 
         # print(self.position+", "+enemy.position)
         for enemy in enemies:
@@ -366,7 +366,7 @@ class Enemy(Entity):
         self.color = color
 
     def collision_enemy(self) -> bool:
-        if self.curr_level is None:
+        if self._curr_level is None:
             return False
 
         if self.movement_type[0] > 0 and (
@@ -382,7 +382,7 @@ class Enemy(Entity):
         return False
 
     def movement(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return
 
         if self.enemy_type == 2:
@@ -526,7 +526,7 @@ class Game:
         self.player.set_curr_level(self.levels[self.current_level])
 
         print("INIT GAME")
-        print(self.player.curr_level)
+        print(self.player._curr_level)
         print(self.levels[self.current_level])
         print(self.levels[self.current_level].enemies)
 

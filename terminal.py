@@ -3,14 +3,14 @@
 import os
 import platform
 
-from mappings.keyboard import keyboard_mapping
-from model.keyboard import KeyboardKeys, KeyCategory
+from mappings.keyboard import default_keyboard_mapping
+from model.keyboard import KeyboardKeys
 
 if platform.system() == "Windows":
     import ctypes
 
-    def is_pressed(category: KeyCategory, key: KeyboardKeys) -> bool:
-        value = keyboard_mapping[category][key]
+    def is_pressed(key: KeyboardKeys) -> bool:
+        value = default_keyboard_mapping[key]
         return ctypes.windll.user32.GetAsyncKeyState(ord(value.upper())) & 0x8000
 else:
     from pynput import keyboard as _pynput_keyboard
@@ -33,8 +33,8 @@ else:
     _listener.daemon = True
     _listener.start()
 
-    def is_pressed(category: KeyCategory, key: KeyboardKeys) -> bool:
-        value = keyboard_mapping[category][key]
+    def is_pressed(key: KeyboardKeys) -> bool:
+        value = default_keyboard_mapping[key]
         return value.lower() in _pressed_keys
 
 

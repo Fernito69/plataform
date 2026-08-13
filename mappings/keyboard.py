@@ -1,17 +1,9 @@
-from model.keyboard import KeyboardKeys, KeyCategory, MenuKeys, MovementKeys
+from model.keyboard import KeyboardKeys, MenuKeys, MovementKeys
 
-keyboard_mapping: dict[KeyCategory, dict[KeyboardKeys, str]] = {
-    KeyCategory.MENU: {
-        MenuKeys.QUIT: "q",
-    },
-    KeyCategory.MOVEMENT: {
-        MovementKeys.JUMP: "w",
-        MovementKeys.LEFT: "a",
-        MovementKeys.RIGHT: "d",
-        MovementKeys.DOWN: "s",
-    },
+default_keyboard_mapping: dict[KeyboardKeys, str] = {
+    MenuKeys.QUIT: "q",
+    MovementKeys.JUMP: "w",
+    MovementKeys.LEFT: "a",
+    MovementKeys.RIGHT: "d",
+    MovementKeys.DOWN: "s",
 }
-
-
-def get_key(key: KeyboardKeys) -> str:
-    return keyboard_mapping[KeyCategory.MOVEMENT][key]

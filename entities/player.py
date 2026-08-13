@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from constants import IMMUNE_TIME
 from entities.entity import LivingEntity
-from model.keyboard import KeyCategory, MenuKeys, MovementKeys
+from model.keyboard import MenuKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Color, Theme
 from terminal import is_pressed
@@ -16,71 +16,68 @@ _PLAYER_FLASHING_FRAMES = ["☻"]
 
 
 class Player(LivingEntity):
-    curr_level: Optional["Level"] = None
-    immune_counter: int
-    lives: int
-    _character_frames: list[str]
-    color: Color
-    points: int
     status: PlayerStatus
+    lives: int
+    points: int
+    player_number: int
 
-    def __init__(
-        self,
-        player_number,
-    ):
+    _curr_level: Optional["Level"] = None
+    _immune_counter: int
+
+    def __init__(self, player_number: int):
         LivingEntity.__init__(self, health=100)
-        self.player_number = player_number
-        self.immune_counter: int = 0
-        self.lives: int = 3
-        self._character_frames = _PLAYER_FRAMES
-        self._default_character_frames = _PLAYER_FRAMES
+        self._immune_counter: int = 0
+        self._char_frames = _PLAYER_FRAMES
+        self._default_char_frames = _PLAYER_FRAMES
 
-        self.theme = Theme(color=_PLAYER_COLOR)
+        self.player_number = player_number
+        self.lives: int = 3
         self.points = 0
+        self.theme = Theme(color=_PLAYER_COLOR)
         self.status = PlayerStatus.ALIVE
 
     def do_your_thing(self):
-        self.apply_gravity()
-        self.calc_collision()
-        self.advance_character_frame()
+        self._apply_gravity()
+        self._calc_collision()
+        self._advance_character_frame()
 
     # checks collision with everything
-    def calc_collision(self):
-        self.collision_enemies()
-        self.collision_things()
-        self.collision_jump()
+    def _calc_collision(self):
+        self._collision_enemies()
+        self._collision_things()
+        self._collision_jump()
 
     # checks collision with everything
-    def collision_things(self):
-        if self.curr_level is None:
+    def _collision_things(self):
+        if self._curr_level is None:
             return
 
-        for exit in self.curr_level.exits:
+        for exit in self._curr_level.exits:
             if self.is_same_position(exit):
                 self.status = PlayerStatus.EXIT
 
     # checks collision with enemies
-    def collision_enemies(self):
-        if self.curr_level is None:
+    def _collision_enemies(self):
+        if self._curr_level is None:
             return
 
-        if self.immune_counter > 0:
-            self.theme.color = "cyan" if self.immune_counter % 2 == 0 else "white"
-            self.theme.bg_color = "white" if self.immune_counter % 2 == 0 else None
+        if self._immune_counter > 0:
+            self.theme.color = "cyan" if self._immune_counter % 2 == 0 else "white"
+            self.theme.bg_color = "white" if self._immune_counter % 2 == 0 else None
 
-            self.set_char_frames(_PLAYER_FLASHING_FRAMES)
-            self.immune_counter -= 1
+            self._set_char_frames(_PLAYER_FLASHING_FRAMES)
+            self._immune_counter -= 1
             return
-        elif self.immune_counter == 0 and self._character_frames != _PLAYER_FRAMES:
-            self.set_char_frames()
+        elif self._immune_counter == 0 and self._char_frames != _PLAYER_FRAMES:
+            self._set_char_frames()
             self._character_frame_index = 0
             self.theme.color = _PLAYER_COLOR
 
         if any(
-            self.is_same_position(enemy) for enemy in self.curr_level.enemies
+            self.is_same_position(enemy) for enemy in self._curr_level.enemies
         ):  # player loses health and gains immunity!
             self.health -= 20
-            self.immune_counter = IMMUNE_TIME
+            self._immune_counter = IMMUNE_TIME
 
             if self.health <= 0:
                 self.character = "🥴"
@@ -90,43 +87,39 @@ class Player(LivingEntity):
         ########
         # MENU #
         ########
-        if is_pressed(KeyCategory.MENU, MenuKeys.QUIT):
+        if is_pressed(MenuKeys.QUIT):
             self.status = PlayerStatus.QUIT
 
         ############
         # MOVEMENT #
         ############
-        if (
-            is_pressed(KeyCategory.MOVEMENT, MovementKeys.JUMP)
-            and self.y_distance()[0] == 0
-        ):
+        if is_pressed(MovementKeys.JUMP) and self.y_distance()[0] == 0:
             self.falling_velocity = -1
-            self.move_to((0, -1))
-
-            self.calc_collision()
+            self._move_by((0, -1))
+            self._calc_collision()
 
         # These are a bit dumb, refactor
-        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.LEFT):
+        if is_pressed(MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
-            self.move_to((-1, 0))
+            self._move_by((-1, 0))
 
-            self.collision_landscape(old_position)
-            self.calc_collision()
+            self._collision_landscape(old_position)
+            self._calc_collision()
 
-        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.RIGHT):
+        if is_pressed(MovementKeys.RIGHT):
             old_position = (self.position[0], self.position[1])
-            self.move_to((1, 0))
+            self._move_by((1, 0))
 
-            self.collision_landscape(old_position)
-            self.calc_collision()
+            self._collision_landscape(old_position)
+            self._calc_collision()
 
-        if is_pressed(KeyCategory.MOVEMENT, MovementKeys.DOWN):
+        if is_pressed(MovementKeys.DOWN):
             old_position = (self.position[0], self.position[1])
-            self.move_to((0, 1))
+            self._move_by((0, 1))
 
-            self.collision_landscape(old_position)
-            self.calc_collision()
+            self._collision_landscape(old_position)
+            self._calc_collision()
 
     def set_curr_level(self, level: "Level"):
-        self.curr_level = level
+        self._curr_level = level
         self.position = level.player_starting_position

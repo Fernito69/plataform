@@ -30,12 +30,12 @@ class Enemy(LivingEntity):
         self.speed = speed
         self.position = position
         self.movement_type = movement_type
-        self._character_frames = character_frames
+        self._char_frames = character_frames
         self._orig_character_frames = character_frames.copy()
         self.theme = theme or Theme()
 
     def collision(self) -> bool:
-        if self.curr_level is None:
+        if self._curr_level is None:
             return False
 
         colliding_x = self.movement_type[0] > 0 and (
@@ -56,7 +56,7 @@ class Enemy(LivingEntity):
         self.movement()
 
     def movement(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return
 
         # Bounce enemy
@@ -64,17 +64,17 @@ class Enemy(LivingEntity):
         if self.enemy_type == EnemyType.DUMB_BOUNCING:
             # Go back to original characters after bouncing animation is finished
             if (
-                self._character_frames == _BOUNCE_FRAMES
-                and self._character_frame_index == len(_BOUNCE_FRAMES) - 1
+                self._char_frames == _BOUNCE_FRAMES
+                and self._curr_char_frame_index == len(_BOUNCE_FRAMES) - 1
             ):
-                self._character_frames = self._orig_character_frames
-                self._character_frame_index = 0
+                self._char_frames = self._orig_character_frames
+                self._curr_char_frame_index = 0
 
             # Has gravity and jumps!
             old_position = (self.position[0], self.position[1])
-            self.apply_gravity()
-            self.collision_landscape(old_position)
-            self.collision_jump()
+            self._apply_gravity()
+            self._collision_landscape(old_position)
+            self._collision_jump()
 
             if self.y_distance()[0] == 0:
                 random_factor = (
@@ -85,20 +85,20 @@ class Enemy(LivingEntity):
                     if _MIN_BOUNCING_RANDOMNESS < _MAX_BOUNCING_RANDOMNESS
                     else 1
                 )
-                self._character_frames = _BOUNCE_FRAMES
-                self._character_frame_index = 0
+                self._char_frames = _BOUNCE_FRAMES
+                self._curr_char_frame_index = 0
                 self.falling_velocity = (-1) * self.movement_type[0] * random_factor
-                self.move_to((0, -0.5))
-                self.collision_jump()
+                self._move_by((0, -0.5))
+                self._collision_jump()
 
         # Standard movement for all enemies
-        self.move_to(
+        self._move_by(
             (
                 self.movement_type[0] * ENEMY_MOV_FACTOR * self.speed,
                 self.movement_type[1] * ENEMY_MOV_FACTOR * self.speed,
             )
         )
 
-        self.advance_character_frame()
+        self._advance_character_frame()
 
         self.collision()
