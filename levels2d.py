@@ -14,7 +14,7 @@ _DEFAULT_LINE_TYPE = DoubleLines
 def build_level1() -> Level2D:
     enemies = [
         DumbFloatingEnemy(movement_type=(1, 0), position=(10, 5), speed=2),
-        DumbFloatingEnemy(movement_type=(0, 1), position=(2, 9), speed=6),
+        DumbFloatingEnemy(movement_type=(0, 1), position=(9, 7), speed=6),
         DumbFloatingEnemy(movement_type=(0, 1), position=(32, 7)),
         DumbFloatingEnemy(movement_type=(1, 0), position=(6, 11), speed=4),
         DumbFloatingEnemy(movement_type=(1, -1), position=(50, 11), speed=10),
@@ -69,7 +69,9 @@ def build_level1() -> Level2D:
     level.add_char(l.CR, (0, 5))
 
     level.add_line((4, 6), 17, Orientation.VERTICAL)
-    level.add_line((1, 22))
+    level.add_line((3, 6), 17, orientation=Orientation.VERTICAL)
+    level.add_line((2, 6), 17, orientation=Orientation.VERTICAL)
+    level.add_line((1, 6), 17, orientation=Orientation.VERTICAL)
 
     level.add_char(l.CR, (0, 22))
     level.add_char(l.CR, (4, 17))

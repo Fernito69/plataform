@@ -126,8 +126,6 @@ class Level2D:
                     elif direction == -1 and self._curr_custom_char_index <= 0:
                         self._curr_direction_index = 0
 
-            # bump the index
-
             return self.theme.custom_line_chars[index]
         return fallback
 
@@ -136,7 +134,7 @@ class Level2D:
         self,
         initial_position: Coord2,
         length: int = 3,
-        direction: Orientation = Orientation.HORIZONTAL,
+        orientation: Orientation = Orientation.HORIZONTAL,
         color: RGB | None = None,
         bg_color: RGB | None = None,
     ):
@@ -145,14 +143,14 @@ class Level2D:
         for i in range(length):
             x = max(
                 min(
-                    x1 + i if direction == Orientation.HORIZONTAL else x1,
+                    x1 + i if orientation == Orientation.HORIZONTAL else x1,
                     X_RESOLUTION - 1,
                 ),
                 0,
             )
             y = max(
                 min(
-                    y1 + i if direction == Orientation.VERTICAL else y1,
+                    y1 + i if orientation == Orientation.VERTICAL else y1,
                     Y_RESOLUTION - 1,
                 ),
                 0,
@@ -160,7 +158,7 @@ class Level2D:
             l = self.theme.line_type or _DEFAULT_LINE_TYPE
             char = (
                 self._get_custom_theme_char(l.H)
-                if direction == Orientation.HORIZONTAL
+                if orientation == Orientation.HORIZONTAL
                 else self._get_custom_theme_char(l.V)
             )
             self.map[int(y)][int(x)] = self._color(

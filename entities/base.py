@@ -129,7 +129,7 @@ class Entity2D:
                 return Collision2Y(
                     y_at_target=i,
                     distance=y_dist,
-                    direction=Orientation.VERTICAL,
+                    orientation=Orientation.VERTICAL,
                 )
 
         return Collision2Y()
@@ -149,7 +149,7 @@ class Entity2D:
                 return Collision2Y(
                     y_at_target=i,
                     distance=y_dist_neg,
-                    direction=Orientation.VERTICAL,
+                    orientation=Orientation.VERTICAL,
                 )
 
         return Collision2Y()
@@ -170,7 +170,7 @@ class Entity2D:
                 return Collision2X(
                     distance=x_dist,
                     x_at_target=i,
-                    direction=Orientation.HORIZONTAL,
+                    orientation=Orientation.HORIZONTAL,
                 )
 
         return Collision2X()
@@ -190,7 +190,7 @@ class Entity2D:
                 return Collision2X(
                     distance=x_dist_neg,
                     x_at_target=i,
-                    direction=Orientation.HORIZONTAL,
+                    orientation=Orientation.HORIZONTAL,
                 )
 
         return Collision2X()

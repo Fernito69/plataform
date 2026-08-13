@@ -6,7 +6,7 @@ from model.shared import Number, Orientation
 @dataclass
 class Collision2:
     distance: Number = 0
-    direction: Orientation = Orientation.HORIZONTAL
+    orientation: Orientation = Orientation.HORIZONTAL
 
 
 @dataclass

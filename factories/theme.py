@@ -61,7 +61,17 @@ DefaultTheme = Theme(line_type=DoubleLines)
 
 JungleTheme = Theme(
     color=Green(),
-    bg_color=Yellow(0.5),
-    custom_line_chars=["█", "▓", "▒", "░"],
-    custom_line_type="back&forth",
+    bg_color=MakeColor(1, (120, 73, 40)),
+    # TODO: split into vertical and horizontal
+    custom_line_chars=[
+        "▓",
+        "█",
+        "▓",
+        "▒",
+        "░",
+        "░",
+        "▄",
+        "▀",
+    ],  # "#", "@", "§", "$", "&"],
+    custom_line_type="random",
 )
