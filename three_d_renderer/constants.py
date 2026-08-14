@@ -1,4 +1,6 @@
 DISTANCE_TO_SPEC = 100  # fov^-1???
+PLAYER_3D_MOVING_SPEED = 3
+
 # screenWidth = 10
 # screenHeight = 5
 ASPECT_RATIO = 1.78  # aspect ratio of characters in console

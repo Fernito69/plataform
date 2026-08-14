@@ -17,6 +17,8 @@ class MovementKeys(StrEnum):
     LEFT = auto()
     RIGHT = auto()
     DOWN = auto()
+    FLY_UP = auto()
+    FLY_DOWN = auto()
 
 
 KeyboardKeys = MenuKeys | MovementKeys

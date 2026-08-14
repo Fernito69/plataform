@@ -63,9 +63,13 @@ class ThreeDeeRenderer:
 
             # we add the vertexes to the screen matrix
             for vertex in entity.objVertexes:
-                vX = vertex[0]
-                vY = vertex[1] if vertex[1] != 0 else 0.001
-                vZ = vertex[2]
+                vX = vertex[0] - self.player.position[0]
+                vY = (
+                    (vertex[1] - self.player.position[1])
+                    if (vertex[1] - self.player.position[1]) != 0
+                    else 0.001
+                )
+                vZ = vertex[2] - self.player.position[2]
 
                 xPos = (
                     int(round(vX * DISTANCE_TO_SPEC / vY) + round(X_RESOLUTION_3D / 2))
@@ -88,7 +92,11 @@ class ThreeDeeRenderer:
                     and yPos > 0
                 ):
                     # calculate distance between point and observer
-                    d = (vX**2 + vY**2 + vZ**2) ** 0.5
+                    d = (
+                        (vX - self.player.position[0]) ** 2
+                        + (vY - self.player.position[1]) ** 2
+                        + (vZ - self.player.position[2]) ** 2
+                    ) ** 0.5
 
                     # according to this distance, choose character
                     chars = "█▓@Øø*°,.¸"
