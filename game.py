@@ -1,6 +1,6 @@
 import time
 
-from constants import FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from constants import FPS_2D
 from display import Display
 from entities.base import Entity2D
 from entities.player2d import Player2D
@@ -9,11 +9,12 @@ from model.game import GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
 from terminal import is_pressed
-from three_d_renderer.constants import FPS_3D, X_RESOLUTION_3D, Y_RESOLUTION_3D
+from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 
 
+# TODO: Game should not handle the 2D game, it should be a subclass like the 3D renderer
 class Game:
     status: GameStatus = GameStatus.MODE_2D
     player2d: Player2D
@@ -121,7 +122,7 @@ class Game:
             self.display.set_3d_resolution()
             self._curr_fps = FPS_3D
 
-        # For now screen is fixed for 2D mode
+        # For now screen size is fixed for 2D mode
         if self.status != GameStatus.MODE_3D:
             return
 

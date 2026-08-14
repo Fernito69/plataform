@@ -1,8 +1,8 @@
 from entities.player2d import Player2D
-from three_d_renderer.entities.player3d import Player3D
 from game import Game
 from levels_2d import build_level1
 from model.game import GameStatus
+from three_d_renderer.entities.player3d import Player3D
 
 
 def main():
@@ -12,9 +12,7 @@ def main():
 
     game = Game(player_2d=player, levels=[level1], player_3d=player_3d)
 
-    while (
-        game.status == GameStatus.MODE_2D or game.status == GameStatus.MODE_3D
-    ):
+    while game.status == GameStatus.MODE_2D or game.status == GameStatus.MODE_3D:
         game.game_loop()
 
 

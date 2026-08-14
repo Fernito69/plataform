@@ -76,12 +76,12 @@ class Display:
         if len(message) <= 0:
             return
 
-        mid_x = int(self.curr_x_resolution / 2)
-        mid_y = int(self.curr_y_resolution / 2)
+        mid_x = round(self.curr_x_resolution / 2)
+        mid_y = round(self.curr_y_resolution / 2)
 
         # Message position
-        starting_message_x = int(mid_x - len(message) / 2)
-        ending_message_x = int(mid_x + len(message) / 2)
+        starting_message_x = round(mid_x - len(message) / 2)
+        ending_message_x = round(mid_x + len(message) / 2)
 
         # Set up border
         starting_border_x: int = starting_message_x - padding_x

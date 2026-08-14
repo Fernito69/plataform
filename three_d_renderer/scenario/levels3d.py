@@ -4,7 +4,7 @@ from three_d_renderer.scenario.level3d import Level3D
 
 def build_level_3d_1() -> Level3D:
     ico1 = Ico(
-        position=[70, 170, -20],
+        position=[20, 170, -20],
         size=20,
         angle=[0, 30, 0],
         movMatrix=[0, 0, 0],
@@ -24,6 +24,13 @@ def build_level_3d_1() -> Level3D:
         movMatrix=[0, 0, 0],
         rotMatrix=[0, 1, 0],
     )
+    cube2 = Cube(
+        position=[+25, 60, 50],
+        size=15,
+        angle=[0, -4, 0],
+        movMatrix=[0, 0, 0],
+        rotMatrix=[0, -1, .5],
+    )
     tetra = Tetra(
         position=[50, 50, -100],
         size=14,
@@ -31,4 +38,4 @@ def build_level_3d_1() -> Level3D:
         movMatrix=[0, 0, 0],
         rotMatrix=[1, 1, -1],
     )
-    return Level3D(entities=[dode, ico1, cube, tetra])
+    return Level3D(entities=[dode, ico1, cube, tetra, cube2])
