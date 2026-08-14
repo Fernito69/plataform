@@ -1,11 +1,11 @@
 from model.shared import (
-    Number,
     Coord2,
     Coord3,
-    Vector2,
-    Vector3,
     DistVector2D,
     DistVector3D,
+    Number,
+    Vector2,
+    Vector3,
 )
 from model.theme import RGB
 

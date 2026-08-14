@@ -1,13 +1,11 @@
-import math
-import random
 from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Red, White, Yellow
-from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC, VISION_LIMIT
+from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level3d import Level3D
 from three_d_renderer.scenario.levels3d import build_level_3d_1
-from utils import colored, vector_length, subtract_triplet, distance_between_points
+from utils import colored, distance_between_points, subtract_triplet, vector_length
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 
@@ -67,7 +65,7 @@ class ThreeDeeRenderer:
                 distance_between_points(e.position, self.player.position).distance
             ),
         )
-        # TODO: find a way to find what's behind the player to not render it 
+        # TODO: find a way to find what's behind the player to not render it
         for entity in self._curr_level.entities:
             # calculate movement
             entity.movement()
@@ -101,13 +99,10 @@ class ThreeDeeRenderer:
 
             color = colors[entity.size % len(colors)]
 
-            vertices_to_render = [
-                v
-                for v in sorted(
-                    vertices_to_render,
-                    key=lambda e: vector_length(e[0]),
-                )
-            ]
+            vertices_to_render = sorted(
+                vertices_to_render,
+                key=lambda e: vector_length(e[0]),
+            )
 
             for vector, screen_position in vertices_to_render:
                 xPos, yPos = screen_position
