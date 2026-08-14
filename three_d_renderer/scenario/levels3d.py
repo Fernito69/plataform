@@ -6,9 +6,9 @@ def build_level_3d_1() -> Level3D:
     ico1 = Ico(
         position=[20, 170, -20],
         size=20,
-        angle=[0, 30, 0],
+        angle=[0, 0, 0],
         movMatrix=[0, 0, 0],
-        # rotMatrix=[-3, 5, 1],
+        rotMatrix=[0, 1, 0],
     )
     dode = Dodeca(
         position=[0, 100, 20],

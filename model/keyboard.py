@@ -12,7 +12,9 @@ class DisplayKeys(StrEnum):
     DECREASE_X_RESOLUTION = auto()
     DECREASE_Y_RESOLUTION = auto()
     SWITCH_CHAR_MODE = auto()
-
+    DECREASE_DISTANCE_FOG = auto()
+    INCREASE_DISTANCE_FOG = auto()
+    
 
 class MenuKeys(StrEnum):
     QUIT = auto()

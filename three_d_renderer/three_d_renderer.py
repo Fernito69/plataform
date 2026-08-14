@@ -28,6 +28,7 @@ class ThreeDeeRenderer:
     player: Player3D
     _curr_level: Level3D
     display: Display
+    curr_distance_fog: int = 200
 
     def __init__(
         self,
@@ -120,8 +121,7 @@ class ThreeDeeRenderer:
             for vector, screen_position in vertices_to_render:
                 x_pos, y_pos = screen_position
                 d: float = vector_length(vector)
-                max_dist = 250
-                intensity: float = max(min(1 - d / max_dist, 1), 0)
+                intensity: float = max(min(1 - d / self.curr_distance_fog, 1), 0)
 
                 # TODO: make these symbols consts
                 _char: str | list[str] = self.display.curr_3d_char_mode
