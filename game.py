@@ -10,10 +10,13 @@ from model.player import PlayerStatus
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
+from terminal import is_pressed
+from model.keyboard import MenuKeys
+from model.player import PlayerStatus
 
 
 class Game:
-    status: GameStatus = GameStatus.PLAYING
+    status: GameStatus = GameStatus.MODE_2D
     player2d: Player2D
     levels: list[Level2D]
     current_level_index: int
@@ -39,41 +42,36 @@ class Game:
 
         self.three_d_renderer = ThreeDeeRenderer(player=player_3d)
 
-    def _check_player_status(self) -> None:
-        players: list[Player2D | Player3D] = [
-            self.player2d,
-            self.three_d_renderer.player,
-        ]
-        for player in players:
+    def _check_game_status(self) -> None:
+        for player in [self.player2d, self.three_d_renderer.player]:
             message: str = ""
-            if player.status != PlayerStatus.ALIVE:
-                match player.status:
-                    case PlayerStatus.MODE_3D:
-                        if self.status == GameStatus.PLAYING:
-                            self._curr_fps = FPS_3D
-                            self.status = GameStatus.THREE_D_RENDERER
-                            # TODO: this is stupid, do better
-                            for p in players:
-                                p.status = PlayerStatus.MODE_3D
-                            return
-                    case PlayerStatus.MODE_2D:
-                        if self.status == GameStatus.THREE_D_RENDERER:
-                            self._curr_fps = FPS_2D
-                            self.status = GameStatus.PLAYING
-                            # TODO: this is stupid, do better
-                            for p in players:
-                                p.status = PlayerStatus.MODE_2D
-                            return
-                    case PlayerStatus.DEAD:
-                        message = "GAME OVER"
-                    case PlayerStatus.QUIT:
-                        message = "BYE BYE"
-                    case PlayerStatus.EXIT:
-                        message = "YOU WON!"
+
+            match player.status:
+                case PlayerStatus.DEAD:
+                    message = "GAME OVER"
 
             if message != "":
                 self.display.print_message(message)
                 self.status = GameStatus.GAMEOVER
+
+        if self.player2d.status == PlayerStatus.END_LEVEL_2D:
+            message = "YOU WON!!! :D"
+            self.display.print_message(message)
+            self.status = GameStatus.GAMEOVER
+
+        match self.status:
+            case GameStatus.QUIT:
+                message = "BYE BYE"
+                self.display.print_message(message)
+                self.status = GameStatus.GAMEOVER
+            case GameStatus.MODE_3D:
+                if self._curr_fps != FPS_3D:
+                    self._curr_fps = FPS_3D
+                return
+            case GameStatus.MODE_2D:
+                if self._curr_fps != FPS_2D:
+                    self._curr_fps = FPS_2D
+                return
 
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
@@ -88,12 +86,13 @@ class Game:
     def game_loop(self) -> None:
         self._frame_delay()
 
+        self.handle_player_input()
         self.player2d.handle_player_input()
         self.three_d_renderer.player.handle_player_input()
 
         # TODO: this should not happen here, do properly
-        if self.status == GameStatus.THREE_D_RENDERER:
-            self._check_player_status()
+        if self.status == GameStatus.MODE_3D:
+            self._check_game_status()
             return self.three_d_renderer.print_scenario()
 
         self.display.populate_level_into_matrix()
@@ -108,4 +107,18 @@ class Game:
 
         self._print_game()
 
-        self._check_player_status()
+        self._check_game_status()
+
+    def handle_player_input(self):
+        ########
+        # MENU #
+        ########
+        if is_pressed(MenuKeys.QUIT):
+            self.status = GameStatus.QUIT
+
+        # TODO: for menu keys, add a refractory period so the action doesn't get triggered several times
+        if is_pressed(MenuKeys.SWITCH_2D_MODE):
+            self.status = GameStatus.MODE_2D
+
+        if is_pressed(MenuKeys.SWITCH_3D_MODE):
+            self.status = GameStatus.MODE_3D

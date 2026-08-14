@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from constants import IMMUNE_TIME
 from entities.base import LivingEntity2D
 from factories.theme import Cyan, Green, White
-from model.keyboard import MenuKeys, MovementKeys
+from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
 from terminal import is_pressed
@@ -35,7 +35,7 @@ class Player2D(LivingEntity2D):
         self.lives: int = 3
         self.points = 0
         self.theme = Theme(color=_PLAYER_COLOR)
-        self.status = PlayerStatus.ALIVE
+        self.status = PlayerStatus.PLAYING
 
     def do_your_thing(self):
         self._apply_gravity()
@@ -55,7 +55,7 @@ class Player2D(LivingEntity2D):
 
         for exit in self._curr_level.exits:
             if self.is_same_position(exit):
-                self.status = PlayerStatus.EXIT
+                self.status = PlayerStatus.END_LEVEL_2D
 
     # checks collision with enemies
     def _collision_enemies(self):
@@ -85,19 +85,6 @@ class Player2D(LivingEntity2D):
                 self.status = PlayerStatus.DEAD
 
     def handle_player_input(self):
-        ########
-        # MENU #
-        ########
-        # TODO: check why this doesn't work
-        # if self.status != PlayerStatus.MODE_2D:
-        #    return
-
-        if is_pressed(MenuKeys.QUIT):
-            self.status = PlayerStatus.QUIT
-
-        if is_pressed(MenuKeys.SWITCH_3D_MODE):
-            self.status = PlayerStatus.MODE_3D
-
         ############
         # MOVEMENT #
         ############

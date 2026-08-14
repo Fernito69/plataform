@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from model.keyboard import MenuKeys, MovementKeys
+from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from terminal import is_pressed
-from three_d_renderer.entities.base3d import LivingEntity3D
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED
+from three_d_renderer.entities.base3d import LivingEntity3D
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level3d import Level3D
@@ -30,21 +30,9 @@ class Player3D(LivingEntity3D):
         self.lives: int = 3
         self.points = 0
         # self.theme = Theme(color=_PLAYER_COLOR)
-        self.status = PlayerStatus.ALIVE
+        self.status = PlayerStatus.PLAYING
 
     def handle_player_input(self):
-        ########
-        # MENU #
-        ########
-        if self.status != PlayerStatus.MODE_3D:
-            return
-
-        if is_pressed(MenuKeys.QUIT):
-            self.status = PlayerStatus.QUIT
-
-        if is_pressed(MenuKeys.SWITCH_2D_MODE):
-            self.status = PlayerStatus.MODE_2D
-
         ############
         # MOVEMENT #
         ############

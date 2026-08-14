@@ -2,9 +2,6 @@ from enum import StrEnum, auto
 
 
 class PlayerStatus(StrEnum):
-    ALIVE = auto()
+    PLAYING = auto()
     DEAD = auto()
-    QUIT = auto()
-    MODE_2D = auto()
-    MODE_3D = auto()
-    EXIT = auto()
+    END_LEVEL_2D = auto()

@@ -2,7 +2,8 @@ from enum import StrEnum, auto
 
 
 class GameStatus(StrEnum):
-    PLAYING = auto()
+    MODE_2D = auto()
+    MODE_3D = auto()
     PAUSED = auto()
     GAMEOVER = auto()
-    THREE_D_RENDERER = auto()
+    QUIT = auto()

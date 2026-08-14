@@ -13,7 +13,7 @@ def main():
     game = Game(player_2d=player, levels=[level1], player_3d=player_3d)
 
     while (
-        game.status == GameStatus.PLAYING or game.status == GameStatus.THREE_D_RENDERER
+        game.status == GameStatus.MODE_2D or game.status == GameStatus.MODE_3D
     ):
         game.game_loop()
 
