@@ -7,7 +7,7 @@ from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import Green, Red, Yellow
 from level_2d import Level2D
-from model.shared import Vector2
+from model.shared import Coord2, Vector2
 from model.theme import DoubleLines
 from terminal import clear
 from three_d_renderer.constants import X_RESOLUTION_3D, Y_RESOLUTION_3D
@@ -34,7 +34,10 @@ class Display:
 
     _debug_str: str | None = None
 
+    # TODO: do this, wire properly!
     # _curr_level_3D: Level3D
+    #
+    curr_3d_char_mode: str | list[str]
 
     def __init__(
         self,
@@ -42,6 +45,9 @@ class Display:
     ):
         self._curr_level_2D = curr_level
         self.populate_level_into_matrix()
+        self.curr_3d_char_mode = "█"
+
+        self.switch_3d_char_mode()
 
     def set_2d_resolution(self):
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
@@ -54,7 +60,7 @@ class Display:
 
     def populate_level_into_matrix(self):
         self.set_2d_resolution()
-        self._screen_matrix = []
+        self.put_screen_content([])
 
         for y in range(self.curr_y_resolution):
             self._screen_matrix.append([])
@@ -62,6 +68,19 @@ class Display:
                 self._screen_matrix[y].append(
                     self._curr_level_2D.map[y][x] or EMPTY_SPACE
                 )
+
+    def switch_3d_char_mode(self) -> str | list[str]:
+        # THIS IS HORRIBLE, DO PROPERLY
+        char: str | list[str] = "█"
+        if self.curr_3d_char_mode == "█":
+            char = "░"
+        elif self.curr_3d_char_mode == "░":
+            char = ["▀", "▄"]
+        if self.curr_3d_char_mode == ["▀", "▄"]:
+            char = "█"
+
+        self.curr_3d_char_mode = char
+        return self.curr_3d_char_mode
 
     def modify_resolution(self, amount: Vector2) -> None:
         self.curr_x_resolution += int(amount[0])
@@ -71,7 +90,13 @@ class Display:
         self.curr_x_resolution = int(resolution[0])
         self.curr_y_resolution = int(resolution[1])
 
-    def _add_to_matrix(self, entity: Entity2D):
+    def _put_char_in_pixel(self, char: str, position: Coord2):
+        y = math.floor(position[1])
+        x = math.floor(position[0])
+
+        self._screen_matrix[y][x] = char
+
+    def _add_2d_entity_to_matrix(self, entity: Entity2D):
         y = math.floor(entity.position[1])
         x = math.floor(entity.position[0])
 
@@ -123,6 +148,9 @@ class Display:
             self._screen_matrix[mid_y][index] = colored(message[x], _MESSAGE_TEXT_COLOR)
 
         self.print_curr_screen()
+
+    def put_screen_content(self, new_screen_matrix: list[list[str]]):
+        self._screen_matrix = new_screen_matrix
 
     def print_curr_screen(self, player: Player2D | None = None):
         matrix_string = ""

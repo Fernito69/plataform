@@ -70,7 +70,7 @@ class Game:
 
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
-        self.display._add_to_matrix(entity)
+        self.display._add_2d_entity_to_matrix(entity)
 
     def _frame_delay(self) -> None:
         time.sleep(1 / self._curr_fps)
@@ -90,7 +90,7 @@ class Game:
         if self.status == GameStatus.MODE_3D:
             self._check_game_status()
             self.three_d_renderer.player.handle_player_input()
-            return self.three_d_renderer.print_scenario()
+            return self.three_d_renderer.visualize_scenario()
 
         self.display.populate_level_into_matrix()
 
@@ -122,6 +122,11 @@ class Game:
         if is_pressed(MenuKeys.SWITCH_3D_MODE):
             self.status = GameStatus.MODE_3D
             self.display.set_3d_resolution()
+            self._curr_fps = FPS_3D
+
+        if is_pressed(DisplayKeys.SWITCH_CHAR_MODE):
+            self.status = GameStatus.MODE_3D
+            self.display.switch_3d_char_mode()
             self._curr_fps = FPS_3D
 
         # For now screen size is fixed for 2D mode

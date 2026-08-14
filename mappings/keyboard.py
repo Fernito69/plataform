@@ -8,10 +8,11 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     MovementKeys.LEFT: "a",
     MovementKeys.RIGHT: "d",
     MovementKeys.DOWN: "s",
-    MovementKeys.FLY_DOWN: "f",
-    MovementKeys.FLY_UP: "r",
+    MovementKeys.FLY_DOWN: "c",
+    MovementKeys.FLY_UP: " ",
     DisplayKeys.DECREASE_X_RESOLUTION: "7",
     DisplayKeys.INCREASE_X_RESOLUTION: "8",
     DisplayKeys.DECREASE_Y_RESOLUTION: "9",
     DisplayKeys.INCREASE_Y_RESOLUTION: "0",
+    DisplayKeys.SWITCH_CHAR_MODE: "v",
 }

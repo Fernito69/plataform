@@ -11,6 +11,7 @@ class DisplayKeys(StrEnum):
     INCREASE_Y_RESOLUTION = auto()
     DECREASE_X_RESOLUTION = auto()
     DECREASE_Y_RESOLUTION = auto()
+    SWITCH_CHAR_MODE = auto()
 
 
 class MenuKeys(StrEnum):

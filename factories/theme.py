@@ -53,6 +53,10 @@ def Magenta(intensity: float = _DEFAULT_INTENSITY) -> RGB:
     return MakeColor(intensity, (255, 0, 255))
 
 
+def Violet(intensity: float = _DEFAULT_INTENSITY) -> RGB:
+    return MakeColor(intensity, (127, 0, 255))
+
+
 """
 THEMES
 """
@@ -76,8 +80,8 @@ JungleTheme = Theme(
 )
 
 BloodTheme = Theme(
-    color=MakeColor(.5, (255, 0, 0)),
-    bg_color=MakeColor(.7, (255, 12, 32)),
+    color=MakeColor(0.5, (255, 0, 0)),
+    bg_color=MakeColor(0.7, (255, 12, 32)),
     custom_line_chars=[
         "▓",
         "█",
@@ -93,6 +97,6 @@ BloodTheme = Theme(
 CandyTheme = Theme(
     color=Red(),
     bg_color=MakeColor(1, (255, 212, 232)),
-    custom_line_chars=[" ", "▄", "█" "▀", "▀"],
+    custom_line_chars=[" ", "▄", "█▀", "▀"],
     custom_line_type="sequential",
 )

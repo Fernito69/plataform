@@ -10,14 +10,32 @@ from model.shared import (
 from model.theme import RGB
 
 RESET = "\033[0m"
+_FG_CODE = "\033[38;2;"
+_BG_CODE = "\033[48;2;"
+
+
+def _encode_rgb(color: RGB) -> str:
+    return f"{color.r};{color.g};{color.b}"
 
 
 def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) -> str:
-    fg_code = f"\033[38;2;{color.r};{color.g};{color.b}m" if color else ""
-    bg_code = f"\033[48;2;{bg_color.r};{bg_color.g};{bg_color.b}m" if bg_color else ""
-    reset_code = RESET if color or bg_color else ""
+    fg_code = f"{_FG_CODE}{_encode_rgb(color)}m" if color else ""
+    bg_code = f"{_BG_CODE}{_encode_rgb(bg_color)}m" if bg_color else ""
+    reset_code = RESET if (color or bg_color) and RESET not in text else ""
 
     return f"{fg_code}{bg_code}{text}{reset_code}"
+
+
+def has_color(text: str) -> bool:
+    return _FG_CODE in text
+
+
+def has_bg_color(text: str, omit_black_from_check: bool = True) -> bool:
+    return (
+        _BG_CODE in text and not _encode_rgb(RGB(0, 0, 0)) in text
+        if omit_black_from_check
+        else _BG_CODE in text
+    )
 
 
 def add_tuple(

@@ -1,17 +1,25 @@
+import random
+
 from constants import EMPTY_SPACE
 from display import Display
-from factories.theme import Blue, Cyan, Green, Magenta, Red, White, Yellow
+from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
 from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level3d import Level3D
 from three_d_renderer.scenario.levels3d import build_level_3d_1
-from utils import colored, distance_between_points, subtract_triplet, vector_length
+from utils import (
+    colored,
+    distance_between_points,
+    has_bg_color,
+    subtract_triplet,
+    vector_length,
+)
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 
 # TODO: this is a temporary hack
-colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow]
-# random.shuffle(colors)
+colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet]
+random.shuffle(colors)
 
 
 # TODO: this should reuse display and set_resolution()
@@ -32,7 +40,12 @@ class ThreeDeeRenderer:
         self._curr_level = level or build_level_3d_1()
 
     # TODO: should be level3d
-    def print_scenario(self):
+    def visualize_scenario(self):
+        # a = "▀"
+        # b = colored(a, Red())
+        # c = colored(b, bg_color=Blue())
+        # self.display.debug_log(a + "|" + b + "|" + c)
+
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
 
@@ -77,25 +90,25 @@ class ThreeDeeRenderer:
             # TODO: type this shit properly
             vertices_to_render = []
             for vertex in entity.objVertexes:
-                vX, vY, vZ = subtract_triplet(vertex, self.player.position)
+                v_x, v_y, v_z = subtract_triplet(vertex, self.player.position)
 
                 # This is where the 3D to 2D projection magic happens
-                xPos = ((vX * DISTANCE_TO_SPEC / vY) + (X_RES / 2)) if vY > 0 else 0
-                yPos = (
-                    (((vZ * DISTANCE_TO_SPEC / vY) + (Y_RES / 2)) / ASPECT_RATIO)
-                    if vY > 0
+                x_pos = ((v_x * DISTANCE_TO_SPEC / v_y) + (X_RES / 2)) if v_y > 0 else 0
+                y_pos = (
+                    (((v_z * DISTANCE_TO_SPEC / v_y) + (Y_RES / 2)) / ASPECT_RATIO)
+                    if v_y > 0
                     else 0
                 )
 
                 if (
                     # The -1 is because of the border thickness
-                    xPos < self.display.curr_x_resolution - 1
-                    and yPos < self.display.curr_y_resolution - 1
-                    and xPos > 1
-                    and yPos > 1
-                    and screen_matrix[round(yPos)][round(xPos)] == _DEFAULT_CHAR
+                    x_pos < self.display.curr_x_resolution - 1
+                    and y_pos < self.display.curr_y_resolution - 1
+                    and x_pos > 1
+                    and y_pos > 1
+                    and screen_matrix[round(y_pos)][round(x_pos)] == _DEFAULT_CHAR
                 ):
-                    vertices_to_render.append([(vX, vY, vZ), (xPos, yPos)])
+                    vertices_to_render.append([(v_x, v_y, v_z), (x_pos, y_pos)])
 
             color = colors[entity.size % len(colors)]
 
@@ -105,37 +118,68 @@ class ThreeDeeRenderer:
             )
 
             for vector, screen_position in vertices_to_render:
-                xPos, yPos = screen_position
+                x_pos, y_pos = screen_position
                 d: float = vector_length(vector)
                 max_dist = 250
                 intensity: float = max(min(1 - d / max_dist, 1), 0)
 
-                # char = "▀" if yPos % 1 > 0.5 else "▄"
-                char = "█"
+                # TODO: make these symbols consts
+                _char: str | list[str] = self.display.curr_3d_char_mode
+                # TODO: generalize to any length of array
+                char: str = (
+                    _char
+                    if isinstance(_char, str)
+                    else _char[0]
+                    if y_pos % 1 > 0.5
+                    else _char[1]
+                )
 
-                defchar = colored(char, color(intensity), White(0))
+                defchar = colored(char, color=color(intensity))
 
                 # checks if another vertex has been drawn in the specified coord and draws only the one closest to the spectator
-                rounded_x_pos = round(xPos)
-                rounded_y_pos = round(yPos)
-                if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
+                rounded_x_pos = round(x_pos)
+                rounded_y_pos = round(y_pos)
+
+                curr_pixel: str = screen_matrix[rounded_y_pos][rounded_x_pos]
+
+                if curr_pixel == _DEFAULT_CHAR:
+                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+                    # self.display.debug_log(
+                    #     "char: "
+                    #     + char
+                    #     + " | crr_pix: "
+                    #     + curr_pixel
+                    #     + " |  char not in curr_pixel:"
+                    #     + str(char not in curr_pixel)
+                    # )
+                # we can replace it with bg_color!
+                # elif char not in curr_pixel:
+                elif not has_bg_color(defchar, omit_black_from_check=False) and (
+                    defchar not in curr_pixel if not isinstance(_char, str) else True
+                ):
+                    _prev_defchar = curr_pixel
+
+                    # defchar = colored(curr_pixel, bg_color=color(intensity))
+                    defchar = colored(curr_pixel, bg_color=White(1))
+                    # if intensity > 0.7:
+                    # self.display.debug_log(
+                    #     defchar
+                    #     + " | color:"
+                    #     + str(color(intensity).r)
+                    #     + " | prev dev char:"
+                    #     + _prev_defchar
+                    # )
+                    # self.display.debug_log(
+                    #     "prev_pixel: " + curr_pixel + " | defchar: " + defchar
+                    # )
+                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+
+                if not has_bg_color(defchar):
+                    defchar = colored(defchar, bg_color=White(0))
                     screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
 
                 # just for debugging (shows vertex number)
                 # screen_matrix[yPos][xPos] = str(intensity)[0]
 
-        self.display._screen_matrix = screen_matrix
+        self.display.put_screen_content(screen_matrix)
         self.display.print_curr_screen()
-
-        # # we convert the screen matrix into a string, so we can print it
-        # matrix_string = ""
-
-        # for y in range(Y_RES):
-        #     for x in range(X_RES):
-        #         matrix_string += screen_matrix[y][x]
-        #     if y < Y_RES - 1:
-        #         matrix_string += "\n"
-
-        # clear()
-
-        # print(matrix_string)
