@@ -96,6 +96,7 @@ class Level2D:
             match self.theme.custom_line_type:
                 case "random":
                     index = int(random.random() * len(self.theme.custom_line_chars))
+                # TODO: check why this is not returning the last char
                 case "sequential":
                     index = self._curr_custom_char_index
 
@@ -135,6 +136,7 @@ class Level2D:
         initial_position: Coord2,
         length: int = 3,
         orientation: Orientation = Orientation.HORIZONTAL,
+        # TODO: refactor Theme here!!!
         color: RGB | None = None,
         bg_color: RGB | None = None,
     ):

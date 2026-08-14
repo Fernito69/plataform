@@ -18,7 +18,6 @@ def MakeColor(
     intensity: float = _DEFAULT_INTENSITY,
     rgb_values: tuple[int, int, int] = (255, 255, 255),
 ):
-
     r = _normalize(intensity * rgb_values[0])
     g = _normalize(intensity * rgb_values[1])
     b = _normalize(intensity * rgb_values[2])
@@ -74,4 +73,26 @@ JungleTheme = Theme(
         "▀",
     ],  # "#", "@", "§", "$", "&"],
     custom_line_type="random",
+)
+
+BloodTheme = Theme(
+    color=MakeColor(.5, (255, 0, 0)),
+    bg_color=MakeColor(.7, (255, 12, 32)),
+    custom_line_chars=[
+        "▓",
+        "█",
+        "▓",
+        "▒",
+        "░",
+        "░",
+        " ",
+    ],  # "#", "@", "§", "$", "&"],
+    custom_line_type="random",
+)
+
+CandyTheme = Theme(
+    color=Red(),
+    bg_color=MakeColor(1, (255, 212, 232)),
+    custom_line_chars=[" ", "▄", "█" "▀", "▀"],
+    custom_line_type="sequential",
 )
