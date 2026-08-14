@@ -36,24 +36,23 @@ class Player3D(LivingEntity3D):
         ############
         # MOVEMENT #
         ############
-        if is_pressed(MovementKeys.JUMP):
+        if is_pressed(MovementKeys.UP):
             self._move_by([0, 1 * PLAYER_3D_MOVING_SPEED, 0])
-
-        # These are a bit dumb, refactor
-        if is_pressed(MovementKeys.LEFT):
-            self._move_by([1 * PLAYER_3D_MOVING_SPEED, 0, 0])
-
-        if is_pressed(MovementKeys.RIGHT):
-            self._move_by([-1 * PLAYER_3D_MOVING_SPEED, 0, 0])
 
         if is_pressed(MovementKeys.DOWN):
             self._move_by([0, -1 * PLAYER_3D_MOVING_SPEED, 0])
 
+        if is_pressed(MovementKeys.LEFT):
+            self._move_by([-1 * PLAYER_3D_MOVING_SPEED, 0, 0])
+
+        if is_pressed(MovementKeys.RIGHT):
+            self._move_by([1 * PLAYER_3D_MOVING_SPEED, 0, 0])
+
         if is_pressed(MovementKeys.FLY_UP):
-            self._move_by([0, 0, 1 * PLAYER_3D_MOVING_SPEED])
+            self._move_by([0, 0, -1 * PLAYER_3D_MOVING_SPEED])
 
         if is_pressed(MovementKeys.FLY_DOWN):
-            self._move_by([0, 0, -1 * PLAYER_3D_MOVING_SPEED])
+            self._move_by([0, 0, 1 * PLAYER_3D_MOVING_SPEED])
 
     # def do_your_thing(self):
     #     self._apply_gravity()

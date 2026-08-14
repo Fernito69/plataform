@@ -7,8 +7,10 @@ from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import Green, Red, Yellow
 from level_2d import Level2D
+from model.shared import Vector2
 from model.theme import DoubleLines
 from terminal import clear
+from three_d_renderer.constants import X_RESOLUTION_3D, Y_RESOLUTION_3D
 from utils import colored
 
 _GOOD_HEALTH_LIMIT = 75
@@ -27,37 +29,44 @@ class Display:
     _screen_matrix: list[list[str]]
     _curr_level_2D: Level2D
 
-    _curr_x_resolution: int
-    _curr_y_resolution: int
+    curr_x_resolution: int
+    curr_y_resolution: int
 
     # _curr_level_3D: Level3D
 
     def __init__(
         self,
         curr_level: Level2D,
-        curr_x_resolution: int = X_RESOLUTION_2D,
-        curr_y_resolution: int = Y_RESOLUTION_2D,
     ):
         self._curr_level_2D = curr_level
-        self._curr_x_resolution = curr_x_resolution
-        self._curr_y_resolution = curr_y_resolution
         self.populate_level_into_matrix()
 
+    def set_2d_resolution(self):
+        self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
+
+    def set_3d_resolution(self):
+        self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
+
     def populate_level_into_matrix(self):
+        self.set_2d_resolution()
         self._screen_matrix = []
 
-        for y in range(self._curr_y_resolution):
+        for y in range(self.curr_y_resolution):
             self._screen_matrix.append([])
-            for x in range(self._curr_x_resolution):
+            for x in range(self.curr_x_resolution):
                 self._screen_matrix[y].append(
                     self._curr_level_2D.map[y][x] or EMPTY_SPACE
                 )
 
-    def set_resolution(self, x: int, y: int) -> None:
-        self._curr_x_resolution = x
-        self._curr_y_resolution = y
+    def modify_resolution(self, amount: Vector2) -> None:
+        self.curr_x_resolution += int(amount[0])
+        self.curr_y_resolution += int(amount[1])
 
-    def add_to_matrix(self, entity: Entity2D):
+    def _set_resolution(self, resolution: Vector2) -> None:
+        self.curr_x_resolution = int(resolution[0])
+        self.curr_y_resolution = int(resolution[1])
+
+    def _add_to_matrix(self, entity: Entity2D):
         y = math.floor(entity.position[1])
         x = math.floor(entity.position[0])
 
@@ -67,8 +76,8 @@ class Display:
         if len(message) <= 0:
             return
 
-        mid_x = int(self._curr_x_resolution / 2)
-        mid_y = int(self._curr_y_resolution / 2)
+        mid_x = int(self.curr_x_resolution / 2)
+        mid_y = int(self.curr_y_resolution / 2)
 
         # Message position
         starting_message_x = int(mid_x - len(message) / 2)
@@ -113,10 +122,10 @@ class Display:
     def print_curr_screen(self, player: Player2D | None = None):
         matrix_string = ""
 
-        for i in range(self._curr_y_resolution):
-            for j in range(self._curr_x_resolution):
+        for i in range(self.curr_y_resolution):
+            for j in range(self.curr_x_resolution):
                 matrix_string += self._screen_matrix[i][j]
-            if i < self._curr_y_resolution - 1:
+            if i < self.curr_y_resolution - 1:
                 matrix_string += "\n"
 
         clear()
