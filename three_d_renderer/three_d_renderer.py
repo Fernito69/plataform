@@ -2,7 +2,7 @@ import math
 
 from constants import EMPTY_SPACE
 from display import Display
-from factories.theme import White
+from factories.theme import White, Cyan, Red, Blue, Green
 from terminal import clear
 from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC, VISION_LIMIT
 from three_d_renderer.entities.player3d import Player3D
@@ -58,7 +58,7 @@ class ThreeDeeRenderer:
             screen_matrix[Y_RES - 1][x] = "═"
 
         # rendering objects
-        for entity in self._curr_level.entities:
+        for entity_idx, entity in enumerate(self._curr_level.entities):
             # calculate movement
             entity.movement()
             entity.calc_vertexes()
@@ -98,17 +98,24 @@ class ThreeDeeRenderer:
                     chars = "█▓@Øø*°,.¸"
 
                     # if its x,y coordinates are negative, just don't draw the character
-                    index = (
-                        int(math.floor(d / VISION_LIMIT))
-                        if int(math.floor(d / VISION_LIMIT)) >= 0
-                        else 0
-                    )
-                    index = index if index <= 9 else 9
+                    index = max(math.floor(d / VISION_LIMIT), 0)
+                    index = min(index, 9)
 
                     # color it
                     max_dist = 200
                     intensity = max(min(1 - d / max_dist, 1), 0)
-                    defchar = colored(chars[index], White(intensity), White(0))
+                    # For now hardcode colors
+                    color = (
+                        Red(intensity)
+                        if entity_idx % 4 == 1
+                        else Blue(intensity)
+                        if entity_idx % 4 == 2
+                        else Cyan(intensity)
+                        if entity_idx % 4 == 3
+                        else Green(intensity)
+                    )
+                    defchar = colored(chars[index], color, White(0))
+                    # TODO: implement debugging log in Display
 
                     # checks if another vertex has been drawn in the specified coord and draws only the one closest to the spectator
                     if screen_matrix[yPos][xPos] != _DEFAULT_CHAR:
