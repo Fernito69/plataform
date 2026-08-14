@@ -84,7 +84,7 @@ class Player2D(LivingEntity2D):
                 self.character = "🥴"
                 self.status = PlayerStatus.DEAD
 
-    def handle_player_input(self):
+    def handle_player_input(self): 
         ############
         # MOVEMENT #
         ############

@@ -82,12 +82,14 @@ class Game:
         self._frame_delay()
 
         self.handle_player_input()
-        self.player2d.handle_player_input()
-        self.three_d_renderer.player.handle_player_input()
+
+        if self.status == GameStatus.MODE_2D:
+            self.player2d.handle_player_input()
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
             self._check_game_status()
+            self.three_d_renderer.player.handle_player_input()
             return self.three_d_renderer.print_scenario()
 
         self.display.populate_level_into_matrix()

@@ -2,7 +2,7 @@ import math
 from typing import TYPE_CHECKING, Any, Optional
 
 from constants import EMPTY_SPACE
-from model.shared import Vector3
+from model.shared import Coord3, Vector3
 from model.theme import Theme
 from utils import add_triplet, colored
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 # TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
 class Entity3D:
     # _curr_level: Optional["Level3D"] = None
-    position: Vector3 = [0, 0, 0]
+    position: Coord3 = [0, 0, 0]
     falling_velocity: float = 0
     # TODO: rotation_matrix missing?
 

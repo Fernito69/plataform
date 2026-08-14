@@ -32,6 +32,8 @@ class Display:
     curr_x_resolution: int
     curr_y_resolution: int
 
+    _debug_str: str | None = None
+
     # _curr_level_3D: Level3D
 
     def __init__(
@@ -46,6 +48,9 @@ class Display:
 
     def set_3d_resolution(self):
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
+
+    def set_debug_string(self, msg: str) -> None:
+        self._debug_str = msg
 
     def populate_level_into_matrix(self):
         self.set_2d_resolution()
@@ -129,6 +134,10 @@ class Display:
                 matrix_string += "\n"
 
         clear()
+
+        # Add debug string on top
+        if self._debug_str:
+            matrix_string = matrix_string[len(self._debug_str) :] + self._debug_str
         print(matrix_string)
 
         if player:
