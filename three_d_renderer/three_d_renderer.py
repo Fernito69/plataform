@@ -63,10 +63,11 @@ class ThreeDeeRenderer:
         # rendering objects, we sort them first by distance
         self._curr_level.entities = sorted(
             self._curr_level.entities,
-            key=lambda e: distance_between_points(
-                e.position, self.player.position
-            ).distance,
+            key=lambda e: (
+                distance_between_points(e.position, self.player.position).distance
+            ),
         )
+        # TODO: find a way to find what's behind the player to not render it 
         for entity in self._curr_level.entities:
             # calculate movement
             entity.movement()
@@ -75,38 +76,26 @@ class ThreeDeeRenderer:
             # we get vertexes from object
 
             # we add the vertexes to the screen matrix
-            # TODO: we should somehow cheapily sort by distance and render accordingly
             # TODO: type this shit properly
             vertices_to_render = []
             for vertex in entity.objVertexes:
-                # vX = vertex[0] - self.player.position[0]
-                # vY = (
-                #     (vertex[1] - self.player.position[1])
-                #     if (vertex[1] - self.player.position[1]) != 0
-                #     else 0.001
-                # )
-                # vZ = vertex[2] - self.player.position[2]
                 vX, vY, vZ = subtract_triplet(vertex, self.player.position)
 
                 # This is where the 3D to 2D projection magic happens
-                xPos = (
-                    round((vX * DISTANCE_TO_SPEC / vY) + (X_RES / 2)) if vY > 0 else 0
-                )
+                xPos = ((vX * DISTANCE_TO_SPEC / vY) + (X_RES / 2)) if vY > 0 else 0
                 yPos = (
-                    round(((vZ * DISTANCE_TO_SPEC / vY) + (Y_RES / 2)) / ASPECT_RATIO)
+                    (((vZ * DISTANCE_TO_SPEC / vY) + (Y_RES / 2)) / ASPECT_RATIO)
                     if vY > 0
                     else 0
                 )
 
                 if (
-                    yPos < Y_RES
-                    and xPos < X_RES
-                    and xPos > 0
-                    and yPos > 0
-                    and screen_matrix[yPos][xPos] == _DEFAULT_CHAR
                     # The -1 is because of the border thickness
-                    and xPos < self.display.curr_x_resolution - 1
+                    xPos < self.display.curr_x_resolution - 1
                     and yPos < self.display.curr_y_resolution - 1
+                    and xPos > 1
+                    and yPos > 1
+                    and screen_matrix[round(yPos)][round(xPos)] == _DEFAULT_CHAR
                 ):
                     vertices_to_render.append([(vX, vY, vZ), (xPos, yPos)])
 
@@ -122,36 +111,20 @@ class ThreeDeeRenderer:
 
             for vector, screen_position in vertices_to_render:
                 xPos, yPos = screen_position
-                # calculate distance between point and observer
-                # d: float = ((vX) ** 2 + (vY) ** 2 + (vZ) ** 2) ** 0.5
                 d: float = vector_length(vector)
-                max_dist = 300
+                max_dist = 250
                 intensity: float = max(min(1 - d / max_dist, 1), 0)
 
-                # according to this distance, choose character
-                chars = "█▓@Øø*°,.¸"
+                # char = "▀" if yPos % 1 > 0.5 else "▄"
+                char = "█"
 
-                char_index = max(math.floor(d / VISION_LIMIT), 0)
-                char_index = min(char_index, 9)
-
-                # color it
-                # For now hardcode colors
-                # color = (
-                #     Red(intensity)
-                #     if entity_idx % 4 == 1
-                #     else Blue(intensity)
-                #     if entity_idx % 4 == 2
-                #     else Cyan(intensity)
-                #     if entity_idx % 4 == 3
-                #     else Green(intensity)
-                # )
-                c = color(intensity)
-                defchar = colored(chars[char_index], color(intensity), White(0))
-                self.display.set_debug_string(f"R: {c.r}, G: {c.g}, B: {c.b}")
+                defchar = colored(char, color(intensity), White(0))
 
                 # checks if another vertex has been drawn in the specified coord and draws only the one closest to the spectator
-                if screen_matrix[yPos][xPos] == _DEFAULT_CHAR:
-                    screen_matrix[yPos][xPos] = defchar
+                rounded_x_pos = round(xPos)
+                rounded_y_pos = round(yPos)
+                if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
+                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
 
                 # just for debugging (shows vertex number)
                 # screen_matrix[yPos][xPos] = str(intensity)[0]

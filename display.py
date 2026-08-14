@@ -49,7 +49,7 @@ class Display:
     def set_3d_resolution(self):
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
-    def set_debug_string(self, msg: str) -> None:
+    def debug_log(self, msg: str) -> None:
         self._debug_str = msg
 
     def populate_level_into_matrix(self):
@@ -135,9 +135,9 @@ class Display:
 
         clear()
 
-        # Add debug string on top
         if self._debug_str:
-            matrix_string = matrix_string[len(self._debug_str) :] + self._debug_str
+            matrix_string += colored(" DEBUG: ", Red()) + self._debug_str
+
         print(matrix_string)
 
         if player:
