@@ -302,6 +302,8 @@ class Ico(Entity3D):
         if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
             return
 
+        self.apply_rotations()
+
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -414,7 +416,6 @@ class Ico(Entity3D):
             vertexes.append([(x - PHI * s), (y), (z + s - 2 * t), "."])  # vertex 11 - 12
 
         self.objVertexes = vertexes
-        self.apply_rotations()
 
 
 ################
@@ -468,7 +469,9 @@ class Dodeca(Entity3D):
         vertexes.append([x - PHI * s, y + IPHI * s, z, "J"])  # vertex 19
         vertexes.append([x - PHI * s, y - IPHI * s, z, "K"])  # vertex 20
 
-        # edges of dodecahedron
+        # TODO: create a mapping of segments that are joined and use that instead.
+        # Instead of looping through the size, we print the line mapped to a char to the screen right away! Should be ok if we do it in order of closeness, right? TODO: order vertexer in order of closeness!
+
         for t in range(s):
             vertexes.append(
                 [(x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]
