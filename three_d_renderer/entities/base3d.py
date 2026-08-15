@@ -55,7 +55,8 @@ class Entity3D:
         self.objVertexes = objVertexes
 
     def is_lazy(self) -> bool:
-        return self.movMatrix == [0, 0, 0] and self.rotMatrix == [0, 0, 0]
+        # TODO: we are bypassing this, check why the optimization is not working
+        return False and self.movMatrix == [0, 0, 0] and self.rotMatrix == [0, 0, 0]
 
     @abstractmethod
     def get_diameter(cls) -> float:
