@@ -2,7 +2,17 @@ import random
 
 from constants import EMPTY_SPACE
 from display import Display
-from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
+from factories.theme import (
+    Blue,
+    Cyan,
+    Green,
+    Magenta,
+    Red,
+    Violet,
+    White,
+    Yellow,
+    Orange,
+)
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_LIMIT,
@@ -23,7 +33,7 @@ from utils import (
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 
 # TODO: this is a temporary hack
-colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet]
+colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
 random.shuffle(colors)
 
 # TODO: make color oscillate with time!
@@ -59,13 +69,7 @@ class ThreeDeeRenderer:
         # TODO: this is a temporary hack
         self.colors = colors
 
-    # TODO: should be level3d
     def visualize_scenario(self):
-        # a = "▀"
-        # b = colored(a, Red())
-        # c = colored(b, bg_color=Blue())
-        # self.display.debug_log(a + "|" + b + "|" + c)
-
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
 
@@ -97,16 +101,30 @@ class ThreeDeeRenderer:
             self._curr_level.entities,
             key=lambda e: (
                 # distance_between_points(e.position, self.player.position).distance
-                # TODO: if I add the size it does it wrong, figure out the shit
+                # TODO: if I add the size it does it wrong, figure out what the shit
+                # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
+                # TODO: this shold be distance to vertex!!!!????
+
                 distance_between_points(
-                    e.position,
-                    self.player.position,
-                    #   e.size
+                    e.position, self.player.position, e.size * 10
                 ).distance_to_border
-                or 1000
+                or 100000
             ),
         )
+        # self._curr_level.entities.sort(
+        #     key=lambda e: (
+        #         # distance_between_points(e.position, self.player.position).distance
+        #         # TODO: if I add the size it does it wrong, figure out what the shit
+        #         distance_between_points(
+        #             e.position,
+        #             self.player.position,
+        #             #   e.size
+        #         ).distance_to_border
+        #         or 1000
+        #     ),
+        # )
         # TODO: find a way to find what's behind the player to not render it
+        # TODO: refactor, beri messy right now
         for entity in self._curr_level.entities:
             # calculate movement
             entity.movement()

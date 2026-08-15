@@ -103,8 +103,9 @@ def distance_between_points(
     x = p1[0] - p2[0]
     y = p1[1] - p2[1]
 
+    # TODO: this branching is dumb now. fix
     if len(p1) == 2:
-        return DistVector3D(vector_length((x, y)), [x, y, 0])
+        return DistVector3D(vector_length((x, y)), [x, y, p2[2] if len(p2) == 3 else 0])
 
     z = p1[2] - p2[0]
 

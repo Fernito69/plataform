@@ -57,6 +57,10 @@ def Violet(intensity: float = _DEFAULT_INTENSITY) -> RGB:
     return MakeColor(intensity, (127, 0, 255))
 
 
+def Orange(intensity: float = _DEFAULT_INTENSITY) -> RGB:
+    return MakeColor(intensity, (227, 143, 41))
+
+
 """
 THEMES
 """
