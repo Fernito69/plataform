@@ -24,12 +24,14 @@ class Entity3D:
     position: Point3 = [0, 0, 0]
     falling_velocity: float = 0
     # TODO: rotation_matrix missing?
+    # TODO: should be objVertexes: list[tuple[Point3, Point3]]
+    objVertexes: list[Point3]
 
     # theme: Theme
 
     def __init__(
         self,
-        objVertexes: list[Any],
+        objVertexes: list[Point3],
         level: Optional["Level3D"] = None,
         theme: Theme | None = None,
         position=[0, 0, 0],
@@ -60,6 +62,10 @@ class Entity3D:
 
     @abstractmethod
     def get_diameter(cls) -> float:
+        pass
+
+    @abstractmethod
+    def calc_v2_vertexes(self) -> list[Any]:
         pass
 
     def _apply_gravity(self) -> None:
@@ -117,6 +123,12 @@ class Entity3D:
         self.angle[0] -= self.rotMatrix[0]
         self.angle[1] -= self.rotMatrix[1]
         self.angle[2] -= self.rotMatrix[2]
+
+    def get_render_v2_obj(self) -> Any:
+        ordered_vertexes = sorted(self.objVertexes)
+
+        for v in ordered_vertexes:
+            pass
 
     def apply_rotations(self):
         vertexes = self.objVertexes
@@ -190,15 +202,9 @@ class Cube(Entity3D):
         # "diameter" for cube is just the size
         return self.size
 
-    def calc_vertexes(self):
-        # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
-            return
-
+    def calc_v2_vertexes(self) -> list[Any]:
         vertexes = []
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x, y, z = self.position
         s = self.size
 
         vertexes.append([x + s / 2, y + s / 2, z + s / 2])
@@ -209,6 +215,17 @@ class Cube(Entity3D):
         vertexes.append([x + s / 2, y - s / 2, z - s / 2])
         vertexes.append([x - s / 2, y + s / 2, z - s / 2])
         vertexes.append([x - s / 2, y - s / 2, z - s / 2])
+
+        return vertexes
+
+    def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
+        vertexes = self.calc_v2_vertexes()
+        x, y, z = self.position
+        s = self.size
 
         # "voxels" for the edges
         for i in range(s):
@@ -252,22 +269,32 @@ class Tetra(Entity3D):
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
         return self.size * R2O2 * 2
 
-    def calc_vertexes(self):
-        # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
-            return
-
-        vertexes = []
+    def calc_v2_vertexes(self) -> list[Any]:
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
-
         s = self.size
+
+        vertexes = []
 
         vertexes.append([x + s, y, z - R2O2 * s])
         vertexes.append([x - s, y, z - R2O2 * s])
         vertexes.append([x, y + s, z + R2O2 * s])
         vertexes.append([x, y - s, z + R2O2 * s])
+
+        return vertexes
+
+    def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
+        vertexes = self.calc_v2_vertexes()
+        x = self.position[0]
+        y = self.position[1]
+        z = self.position[2]
+
+        s = self.size
 
         for t in range(s * 2):
             vertexes.append([(x - s + t), (y), (z - R2O2 * s)])  # 1 - 2
@@ -297,12 +324,7 @@ class Ico(Entity3D):
         # let's say 2*phi?
         return self.size * 2 * PHI
 
-    def calc_vertexes(self):
-
-        # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
-            return
-
+    def calc_v2_vertexes(self) -> list[Any]:
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -323,6 +345,19 @@ class Ico(Entity3D):
         vertexes.append([x + PHI * s, y, z - s, "X"])  # vertex 10
         vertexes.append([x - PHI * s, y, z + s, "J"])  # vertex 11
         vertexes.append([x - PHI * s, y, z - s, "Q"])  # vertex 12
+
+        return vertexes
+
+    def calc_vertexes(self):
+
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
+        vertexes = self.calc_v2_vertexes()
+
+        x, y, z = self.position
+        s = self.size
 
         # edges of icosahedron
         for t in range(s):
@@ -433,15 +468,9 @@ class Dodeca(Entity3D):
         # similar to ico?
         return self.size * 2 * PHI
 
-    def calc_vertexes(self):
-        # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
-            return
-
+    def calc_v2_vertexes(self) -> list[Any]:
         vertexes = []
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x, y, z = self.position
         s = self.size
 
         vertexes.append([x + s, y + s, z + s, "1"])  # vertex 1
@@ -468,9 +497,19 @@ class Dodeca(Entity3D):
         vertexes.append([x - PHI * s, y + IPHI * s, z, "J"])  # vertex 19
         vertexes.append([x - PHI * s, y - IPHI * s, z, "K"])  # vertex 20
 
+        return vertexes
+
+    def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
+        vertexes = self.calc_v2_vertexes()
+        x, y, z = self.position
+        s = self.size
+
         # TODO: create a mapping of segments that are joined and use that instead.
         # Instead of looping through the size, we print the line mapped to a char to the screen right away! Should be ok if we do it in order of closeness, right? TODO: order vertexer in order of closeness!
-
         for t in range(s):
             vertexes.append(
                 [(x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]

@@ -70,12 +70,12 @@ def add_triplet(
 def subtract_triplet(
     victim: tuple[Number, Number, Number] | list[Number],
     subtracter: tuple[Number, Number, Number] | list[Number],
-) -> tuple[Number, Number, Number]:
-    return (
+) -> list[Number]:
+    return [
         victim[0] - subtracter[0],
         victim[1] - subtracter[1],
         victim[2] - subtracter[2],
-    )
+    ]
 
 
 def vector_length(v: Vector3 | Vector2) -> float:
@@ -103,10 +103,11 @@ def distance_between_points(
         # TODO: type properly
         vector = [x, y, z]
         distance = vector_length(vector)
-        # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex
+        # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex. this factor should become 1
         distance_to_border: float | None = (
             distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
         )
+        # distance_to_border: float = distance + (diameter_p2 / 2) if diameter_p2 else distance
         return DistVector3D(
             distance=distance,
             vector=vector,

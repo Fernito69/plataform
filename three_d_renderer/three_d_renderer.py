@@ -1,18 +1,10 @@
 import random
+from dataclasses import dataclass
 
 from constants import EMPTY_SPACE
 from display import Display
-from factories.theme import (
-    Blue,
-    Cyan,
-    Green,
-    Magenta,
-    Orange,
-    Red,
-    Violet,
-    White,
-    Yellow,
-)
+from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
+from model.shared import DistVector3D, Point2, Point3
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     PIXEL_ASPECT_RATIO,
@@ -21,15 +13,19 @@ from three_d_renderer.constants import (
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
-from utils import (
-    colored,
-    distance_between_points,
-    has_bg_color,
-    subtract_triplet,
-    vector_length,
-)
+from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
+
+
+# TODO: Move
+@dataclass
+class ResOfThingie:
+    entity_idx: int
+    vertex: Point3
+    dist_vector: DistVector3D
+    dot_connections: list[Point3] | None = None
+
 
 # TODO: this is a temporary hack
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
@@ -68,6 +64,62 @@ class ThreeDeeRenderer:
         self.current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
+
+    # This is where the 3D to 2D projection magic happens
+    def _project_onto_screen(self, point3: Point3) -> Point2:
+        v_x, v_y, v_z = point3
+        x_pos = (
+            ((v_x * self.distance_to_spec / v_y) + (self.display.curr_x_resolution / 2))
+            if v_y > 0
+            else 0
+        )
+        y_pos = (
+            (
+                ((v_z * self.distance_to_spec / v_y) + (self.display.curr_y_resolution / 2))
+                / PIXEL_ASPECT_RATIO
+            )
+            if v_y > 0
+            else 0
+        )
+        return (x_pos, y_pos)
+
+    def render_v2(self):
+        res_list: list[ResOfThingie] = sorted(
+            [
+                ResOfThingie(
+                    entity_idx=entity_idx,
+                    dist_vector=distance_between_points(
+                        entity.position, self.player.position, entity.get_diameter()
+                    ),
+                    vertex=vertex,
+                )
+                for entity_idx, entity in [
+                    (entity_idx, entity)
+                    for entity_idx, entity in enumerate(self._curr_level.entities)
+                ]
+                for vertex in entity.objVertexes
+            ],
+            # key=lambda r: (
+            #     r.dist_vector.distance_to_edge if r.dist_vector.distance_to_edge else 100000
+            # ),
+            # TODO: should be distance to spectator
+            key=lambda r: (),
+        )
+
+        # Order everything we need by:
+        # - Distance to edge of entity (this dist_vector.distance_to_edge seems fishy though)
+        # res_list = sorted(
+        #     res_list,
+        #     key=lambda r: (
+        #         r.dist_vector.distance_to_edge if r.dist_vector.distance_to_edge else 100000
+        #     ),
+        # )
+
+        # self._curr_level.entities = [r.entity for r in res_list]
+
+        listi = []
+        for entity_idx, entity in enumerate(self._curr_level.entities):
+            pass
 
     def visualize_scenario(self):
         X_RES = self.display.curr_x_resolution
@@ -125,15 +177,8 @@ class ThreeDeeRenderer:
             vertices_to_render = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.objVertexes:
-                v_x, v_y, v_z = subtract_triplet(vertex, self.player.position)
-
-                # This is where the 3D to 2D projection magic happens
-                x_pos = ((v_x * self.distance_to_spec / v_y) + (X_RES / 2)) if v_y > 0 else 0
-                y_pos = (
-                    (((v_z * self.distance_to_spec / v_y) + (Y_RES / 2)) / PIXEL_ASPECT_RATIO)
-                    if v_y > 0
-                    else 0
-                )
+                normalized_vertex = subtract_triplet(vertex, self.player.position)
+                x_pos, y_pos = self._project_onto_screen(normalized_vertex)
 
                 if (
                     # The -1 is because of the border thickness
@@ -143,7 +188,7 @@ class ThreeDeeRenderer:
                     and y_pos > 1
                     and screen_matrix[round(y_pos)][round(x_pos)] == _DEFAULT_CHAR
                 ):
-                    vertices_to_render.append([(v_x, v_y, v_z), (x_pos, y_pos)])
+                    vertices_to_render.append([normalized_vertex, (x_pos, y_pos)])
 
             color = self.colors[entity.size % len(self.colors)]
 
