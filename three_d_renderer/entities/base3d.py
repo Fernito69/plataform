@@ -1,4 +1,5 @@
 import math
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Optional
 
 from constants import EMPTY_SPACE
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 # TODO: move
 PHI = 1.618
 IPHI = 0.618
-R2 = 0.707
+R2O2 = 0.707
 
 # TODO: rename methods properly
 # TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
@@ -55,6 +56,10 @@ class Entity3D:
 
     def is_lazy(self) -> bool:
         return self.movMatrix == [0, 0, 0] and self.rotMatrix == [0, 0, 0]
+
+    @abstractmethod
+    def get_diameter(cls) -> float:
+        pass
 
     def _apply_gravity(self) -> None:
         pass
@@ -177,6 +182,10 @@ class Cube(Entity3D):
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
 
+    def get_diameter(self) -> float:
+        # "diameter" for cube is just the size
+        return self.size
+
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
@@ -235,6 +244,10 @@ class Tetra(Entity3D):
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
 
+    def get_diameter(self) -> float:
+        # hmmm also roughly sqrt2? the size? TODO: do proper calc later
+        return self.size * R2O2 * 2
+
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
@@ -244,21 +257,21 @@ class Tetra(Entity3D):
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
-        r = 0.707
+
         s = self.size
 
-        vertexes.append([x + s, y, z - r * s])
-        vertexes.append([x - s, y, z - r * s])
-        vertexes.append([x, y + s, z + r * s])
-        vertexes.append([x, y - s, z + r * s])
+        vertexes.append([x + s, y, z - R2O2 * s])
+        vertexes.append([x - s, y, z - R2O2 * s])
+        vertexes.append([x, y + s, z + R2O2 * s])
+        vertexes.append([x, y - s, z + R2O2 * s])
 
         for t in range(s * 2):
-            vertexes.append([(x - s + t), (y), (z - r * s)])  # 1 - 2
-            vertexes.append([(x + s - t / 2), (y + t / 2), (z - r * s + r * t)])  # 1 - 3
-            vertexes.append([(x + s - t / 2), (y - t / 2), (z - r * s + r * t)])  # 1 - 4
-            vertexes.append([(x - s + t / 2), (y + t / 2), (z - r * s + r * t)])  # 2 - 3
-            vertexes.append([(x - s + t / 2), (y - t / 2), (z - r * s + r * t)])  # 2 - 4
-            vertexes.append([(x), (y - s + t), (z + r * s)])  # 3 - 4
+            vertexes.append([(x - s + t), (y), (z - R2O2 * s)])  # 1 - 2
+            vertexes.append([(x + s - t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 3
+            vertexes.append([(x + s - t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 4
+            vertexes.append([(x - s + t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)])  # 2 - 3
+            vertexes.append([(x - s + t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 2 - 4
+            vertexes.append([(x), (y - s + t), (z + R2O2 * s)])  # 3 - 4
 
         self.objVertexes = vertexes
         self.apply_rotations()
@@ -275,6 +288,10 @@ class Ico(Entity3D):
         self.angle = angle  # XY, XZ, YZ
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
+
+    def get_diameter(self) -> float:
+        # let's say 2*phi?
+        return self.size * 2 * PHI
 
     def calc_vertexes(self):
 
@@ -408,6 +425,10 @@ class Dodeca(Entity3D):
         self.angle = angle  # XY, XZ, YZ
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
+
+    def get_diameter(self) -> float:
+        # similar to ico?
+        return self.size * 2 * PHI
 
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
@@ -557,6 +578,7 @@ CUSTOMSHITTT
 """
 
 
+# TODO: brokeeeen, fix!
 class F_Letter(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
         Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])

@@ -104,10 +104,13 @@ class ThreeDeeRenderer:
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
+                # distance_between_points(
+                #     e.position, self.player.position, e.size * 2
+                # ).distance_to_border
                 distance_between_points(
-                    e.position, self.player.position, e.size * 10
-                ).distance_to_border
-                or 100000
+                    e.position, self.player.position, e.get_diameter()
+                ).distance_to_edge
+                or 0
             ),
         )
         # self._curr_level.entities.sort(

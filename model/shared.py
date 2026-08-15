@@ -27,7 +27,7 @@ class DistVector2D(DistCoordBase):
 @dataclass
 class DistVector3D(DistCoordBase):
     vector: Vector3
-    distance_to_border: float | None = None
+    distance_to_edge: float | None = None
 
 
 # TODO: unify this for 3D too

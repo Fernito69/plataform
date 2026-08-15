@@ -103,11 +103,13 @@ def distance_between_points(
         # TODO: type properly
         vector = [x, y, z]
         distance = vector_length(vector)
-        distance_to_border: float | None = distance + diameter_p2 if diameter_p2 else distance
+        distance_to_border: float | None = (
+            distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
+        )
         return DistVector3D(
             distance=distance,
             vector=vector,
-            distance_to_border=distance_to_border,
+            distance_to_edge=distance_to_border,
         )
 
     return DistVector3D(0, [0, 0, 0])
