@@ -10,6 +10,9 @@ def main():
     player_3d = Player3D(1)
     level1 = build_level1()
 
+    # hardcoded cool place
+    player_3d.position = [-3, -126, -48]
+
     game = Game(player_2d=player, levels=[level1], player_3d=player_3d)
 
     while game.status == GameStatus.MODE_2D or game.status == GameStatus.MODE_3D:

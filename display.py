@@ -237,6 +237,7 @@ class Display:
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
+            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
 
             return print(hud)
 

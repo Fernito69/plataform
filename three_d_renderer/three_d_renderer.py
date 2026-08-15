@@ -15,7 +15,6 @@ from factories.theme import (
 )
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
-    DEFAULT_VISIBILITY_LIMIT,
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
@@ -64,7 +63,8 @@ class ThreeDeeRenderer:
         self.display = display
         self._curr_level = level or build_level_3d_1()
         self.distance_to_spec = DEFAULT_DISTANCE_TO_SPEC
-        self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
+        self.curr_distance_fog = 170
+        # self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
         self.current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
