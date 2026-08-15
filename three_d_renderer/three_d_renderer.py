@@ -26,6 +26,8 @@ _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet]
 random.shuffle(colors)
 
+# TODO: make color oscillate with time!
+
 
 # TODO: this should reuse display and set_resolution()
 class ThreeDeeRenderer:
