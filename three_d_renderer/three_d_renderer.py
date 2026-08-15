@@ -3,7 +3,12 @@ import random
 from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
-from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC
+from three_d_renderer.constants import (
+    DEFAULT_DISTANCE_TO_SPEC,
+    DEFAULT_VISIBILITY_LIMIT,
+    PIXEL_ASPECT_RATIO,
+    PLAYER_3D_MOVING_SPEED_FACTOR,
+)
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
@@ -11,7 +16,6 @@ from utils import (
     colored,
     distance_between_points,
     has_bg_color,
-    has_color,
     subtract_triplet,
     vector_length,
 )
@@ -29,7 +33,11 @@ class ThreeDeeRenderer:
     player: Player3D
     _curr_level: Level3D
     display: Display
-    curr_distance_fog: int = 200
+
+    # physics params
+    current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
+    curr_distance_fog: int
+    distance_to_spec: float
 
     def __init__(
         self,
@@ -40,6 +48,9 @@ class ThreeDeeRenderer:
         self.player = player
         self.display = display
         self._curr_level = level or build_level_3d_1()
+        self.distance_to_spec = DEFAULT_DISTANCE_TO_SPEC
+        self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
+        self.current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
 
     # TODO: should be level3d
     def visualize_scenario(self):
@@ -95,9 +106,16 @@ class ThreeDeeRenderer:
                 v_x, v_y, v_z = subtract_triplet(vertex, self.player.position)
 
                 # This is where the 3D to 2D projection magic happens
-                x_pos = ((v_x * DISTANCE_TO_SPEC / v_y) + (X_RES / 2)) if v_y > 0 else 0
+                x_pos = (
+                    ((v_x * self.distance_to_spec / v_y) + (X_RES / 2))
+                    if v_y > 0
+                    else 0
+                )
                 y_pos = (
-                    (((v_z * DISTANCE_TO_SPEC / v_y) + (Y_RES / 2)) / ASPECT_RATIO)
+                    (
+                        ((v_z * self.distance_to_spec / v_y) + (Y_RES / 2))
+                        / PIXEL_ASPECT_RATIO
+                    )
                     if v_y > 0
                     else 0
                 )

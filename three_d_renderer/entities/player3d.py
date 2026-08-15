@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from terminal import is_pressed
-from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED
+from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
 
 if TYPE_CHECKING:
@@ -37,22 +37,22 @@ class Player3D(LivingEntity3D):
         # MOVEMENT #
         ############
         if is_pressed(MovementKeys.UP):
-            self._move_by([0, 1 * PLAYER_3D_MOVING_SPEED, 0])
+            self._move_by([0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0])
 
         if is_pressed(MovementKeys.DOWN):
-            self._move_by([0, -1 * PLAYER_3D_MOVING_SPEED, 0])
+            self._move_by([0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0])
 
         if is_pressed(MovementKeys.LEFT):
-            self._move_by([-1 * PLAYER_3D_MOVING_SPEED, 0, 0])
+            self._move_by([-1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0])
 
         if is_pressed(MovementKeys.RIGHT):
-            self._move_by([1 * PLAYER_3D_MOVING_SPEED, 0, 0])
+            self._move_by([1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0])
 
         if is_pressed(MovementKeys.FLY_UP):
-            self._move_by([0, 0, -1 * PLAYER_3D_MOVING_SPEED])
+            self._move_by([0, 0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR])
 
         if is_pressed(MovementKeys.FLY_DOWN):
-            self._move_by([0, 0, 1 * PLAYER_3D_MOVING_SPEED])
+            self._move_by([0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR])
 
     # def do_your_thing(self):
     #     self._apply_gravity()

@@ -156,3 +156,11 @@ class Game:
         if is_pressed(DisplayKeys.DECREASE_DISTANCE_FOG):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog -= 5
+
+        if is_pressed(DisplayKeys.INCREASE_FOV):
+            # TODO: const this value
+            self.three_d_renderer.distance_to_spec += 5
+
+        if is_pressed(DisplayKeys.DECREASE_FOV):
+            # TODO: const this value
+            self.three_d_renderer.distance_to_spec -= 5

@@ -15,7 +15,9 @@ class DisplayKeys(StrEnum):
     DECREASE_DISTANCE_FOG = auto()
     INCREASE_DISTANCE_FOG = auto()
     SWITCH_ANTIALIASING = auto()
-    
+    INCREASE_FOV = auto()
+    DECREASE_FOV = auto()
+
 
 class MenuKeys(StrEnum):
     QUIT = auto()
