@@ -56,9 +56,7 @@ def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
     )
 
 
-def add_tuple(
-    orig: tuple[Number, Number], add: tuple[Number, Number]
-) -> tuple[Number, Number]:
+def add_tuple(orig: tuple[Number, Number], add: tuple[Number, Number]) -> tuple[Number, Number]:
     return (orig[0] + add[0], orig[1] + add[1])
 
 
@@ -105,9 +103,7 @@ def distance_between_points(
         # TODO: type properly
         vector = [x, y, z]
         distance = vector_length(vector)
-        distance_to_border: float | None = (
-            distance + diameter_p2 if diameter_p2 else distance
-        )
+        distance_to_border: float | None = distance + diameter_p2 if diameter_p2 else distance
         return DistVector3D(
             distance=distance,
             vector=vector,

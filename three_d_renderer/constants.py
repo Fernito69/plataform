@@ -4,13 +4,13 @@ PLAYER_3D_MOVING_SPEED_FACTOR = 3
 
 # screenWidth = 10
 # screenHeight = 5
-PIXEL_ASPECT_RATIO = 1.78  # needed to compensate for the fact that console characters are not square
+PIXEL_ASPECT_RATIO = (
+    1.78  # needed to compensate for the fact that console characters are not square
+)
 
 
 # TODO: deprecate?
-VISION_LIMIT = (
-    13  # how quickly the characters change when objects get closer to the spectator
-)
+VISION_LIMIT = 13  # how quickly the characters change when objects get closer to the spectator
 # X_RESOLUTION_3D = 180
 # Y_RESOLUTION_3D = 45
 # X_RESOLUTION_3D = 80

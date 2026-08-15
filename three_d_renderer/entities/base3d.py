@@ -2,7 +2,7 @@ import math
 from typing import TYPE_CHECKING, Any, Optional
 
 from constants import EMPTY_SPACE
-from model.shared import Point2, Point3, Vector3
+from model.shared import Point3, Vector3
 from model.theme import Theme
 from utils import add_triplet, colored
 
@@ -129,12 +129,8 @@ class Entity3D:
             orig.append(vertexes[i][:])
 
         for i in range(len(vertexes)):
-            vertexes[i][0] = (
-                (orig[i][0] - x) * math.cos(aX) + (orig[i][1] - y) * math.sin(aX) + x
-            )
-            vertexes[i][1] = (
-                -(orig[i][0] - x) * math.sin(aX) + (orig[i][1] - y) * math.cos(aX) + y
-            )
+            vertexes[i][0] = (orig[i][0] - x) * math.cos(aX) + (orig[i][1] - y) * math.sin(aX) + x
+            vertexes[i][1] = -(orig[i][0] - x) * math.sin(aX) + (orig[i][1] - y) * math.cos(aX) + y
 
         # XZ
         orig = []
@@ -142,12 +138,8 @@ class Entity3D:
             orig.append(vertexes[i][:])
 
         for i in range(len(vertexes)):
-            vertexes[i][0] = (
-                (orig[i][0] - x) * math.cos(aY) + (orig[i][2] - z) * math.sin(aY) + x
-            )
-            vertexes[i][2] = (
-                -(orig[i][0] - x) * math.sin(aY) + (orig[i][2] - z) * math.cos(aY) + z
-            )
+            vertexes[i][0] = (orig[i][0] - x) * math.cos(aY) + (orig[i][2] - z) * math.sin(aY) + x
+            vertexes[i][2] = -(orig[i][0] - x) * math.sin(aY) + (orig[i][2] - z) * math.cos(aY) + z
 
         # YZ
         orig = []
@@ -155,12 +147,8 @@ class Entity3D:
             orig.append(vertexes[i][:])
 
         for i in range(len(vertexes)):
-            vertexes[i][1] = (
-                (orig[i][1] - y) * math.cos(aZ) + (orig[i][2] - z) * math.sin(aZ) + y
-            )
-            vertexes[i][2] = (
-                -(orig[i][1] - y) * math.sin(aZ) + (orig[i][2] - z) * math.cos(aZ) + z
-            )
+            vertexes[i][1] = (orig[i][1] - y) * math.cos(aZ) + (orig[i][2] - z) * math.sin(aZ) + y
+            vertexes[i][2] = -(orig[i][1] - y) * math.sin(aZ) + (orig[i][2] - z) * math.cos(aZ) + z
 
         self.objVertexes = vertexes
 
@@ -182,9 +170,7 @@ class LivingEntity3D(Entity3D):
 # REFACTOR vertices stuff, it's sooo repetitive
 class Cube(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
-        )
+        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
@@ -242,9 +228,7 @@ class Cube(Entity3D):
 
 class Tetra(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
-        )
+        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
@@ -270,18 +254,10 @@ class Tetra(Entity3D):
 
         for t in range(s * 2):
             vertexes.append([(x - s + t), (y), (z - r * s)])  # 1 - 2
-            vertexes.append(
-                [(x + s - t / 2), (y + t / 2), (z - r * s + r * t)]
-            )  # 1 - 3
-            vertexes.append(
-                [(x + s - t / 2), (y - t / 2), (z - r * s + r * t)]
-            )  # 1 - 4
-            vertexes.append(
-                [(x - s + t / 2), (y + t / 2), (z - r * s + r * t)]
-            )  # 2 - 3
-            vertexes.append(
-                [(x - s + t / 2), (y - t / 2), (z - r * s + r * t)]
-            )  # 2 - 4
+            vertexes.append([(x + s - t / 2), (y + t / 2), (z - r * s + r * t)])  # 1 - 3
+            vertexes.append([(x + s - t / 2), (y - t / 2), (z - r * s + r * t)])  # 1 - 4
+            vertexes.append([(x - s + t / 2), (y + t / 2), (z - r * s + r * t)])  # 2 - 3
+            vertexes.append([(x - s + t / 2), (y - t / 2), (z - r * s + r * t)])  # 2 - 4
             vertexes.append([(x), (y - s + t), (z + r * s)])  # 3 - 4
 
         self.objVertexes = vertexes
@@ -293,9 +269,7 @@ class Tetra(Entity3D):
 
 class Ico(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
-        )
+        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
@@ -417,9 +391,7 @@ class Ico(Entity3D):
 
             vertexes.append([(x + PHI * s), (y), (z + s - 2 * t), "."])  # vertex 9 - 10
 
-            vertexes.append(
-                [(x - PHI * s), (y), (z + s - 2 * t), "."]
-            )  # vertex 11 - 12
+            vertexes.append([(x - PHI * s), (y), (z + s - 2 * t), "."])  # vertex 11 - 12
 
         self.objVertexes = vertexes
         self.apply_rotations()
@@ -430,9 +402,7 @@ class Ico(Entity3D):
 
 class Dodeca(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
-        )
+        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
@@ -589,9 +559,7 @@ CUSTOMSHITTT
 
 class F_Letter(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
-        )
+        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ

@@ -1,4 +1,4 @@
-from three_d_renderer.entities.base3d import Cube, Dodeca, F_Letter, Ico, Tetra
+from three_d_renderer.entities.base3d import Cube, Dodeca, Ico, Tetra
 from three_d_renderer.scenario.level_3d import Level3D
 
 

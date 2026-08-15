@@ -5,11 +5,9 @@ from factories.enemy2d import (
     DumbFloatingEnemy,
 )
 from factories.theme import (
+    BloodTheme,
     Cyan,
     DoubleLines,
-    CandyTheme,
-    BloodTheme,
-    JungleTheme,
     Magenta,
     Yellow,
 )
@@ -29,13 +27,9 @@ def build_level1() -> Level2D:
         DumbFireFloatingEnemy(movement_type=(1, 0), position=(15, 3), speed=4),
         DumbFireFloatingEnemy(movement_type=(0, 1), position=(2, 2), speed=4),
         # Jumpy enemies
-        DumbBouncingEnemy(
-            movement_type=(1, 0), position=(11, 23), color=Cyan(), speed=8
-        ),
+        DumbBouncingEnemy(movement_type=(1, 0), position=(11, 23), color=Cyan(), speed=8),
         DumbBouncingEnemy(movement_type=(1, 0), position=(12, 23), speed=-5),
-        DumbBouncingEnemy(
-            movement_type=(1.2, 0), position=(12, 23), color=Magenta(), speed=1
-        ),
+        DumbBouncingEnemy(movement_type=(1.2, 0), position=(12, 23), color=Magenta(), speed=1),
         DumbBouncingEnemy(
             movement_type=(2, 0),
             position=(65, 23),

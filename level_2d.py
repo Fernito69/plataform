@@ -4,7 +4,7 @@ from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.enemy2d import Enemy2D
 from entities.things2d import Exit2D
 from factories.theme import DefaultTheme, DoubleLines
-from model.shared import Point2, Orientation
+from model.shared import Orientation, Point2
 from model.theme import RGB, Theme
 from utils import colored
 
@@ -82,9 +82,7 @@ class Level2D:
         color = color or self.theme.color
         bg_color = bg_color or self.theme.bg_color
         # TODO: check whether round or math.floor works better here
-        self.map[round(position[1])][round(position[0])] = self._color(
-            char, color, bg_color
-        )
+        self.map[round(position[1])][round(position[0])] = self._color(char, color, bg_color)
 
     _curr_custom_char_index: int = 0
     _directions = (1, -1)
@@ -103,8 +101,7 @@ class Level2D:
                     # bump the index
                     self._curr_custom_char_index = (
                         self._curr_custom_char_index + 1
-                        if self._curr_custom_char_index
-                        < len(self.theme.custom_line_chars) - 1
+                        if self._curr_custom_char_index < len(self.theme.custom_line_chars) - 1
                         else 0
                     )
                 case "back&forth":
@@ -113,15 +110,12 @@ class Level2D:
                     # set the right index
                     direction = self._directions[self._curr_direction_index]
 
-                    self._curr_custom_char_index = (
-                        self._curr_custom_char_index + direction
-                    )
+                    self._curr_custom_char_index = self._curr_custom_char_index + direction
 
                     # flip the direction if need be
                     if (
                         direction == 1
-                        and self._curr_custom_char_index
-                        >= len(self.theme.custom_line_chars) - 1
+                        and self._curr_custom_char_index >= len(self.theme.custom_line_chars) - 1
                     ):
                         self._curr_direction_index = 1
                     elif direction == -1 and self._curr_custom_char_index <= 0:

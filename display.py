@@ -76,9 +76,7 @@ class Display:
         for y in range(self.curr_y_resolution):
             self._screen_matrix.append([])
             for x in range(self.curr_x_resolution):
-                self._screen_matrix[y].append(
-                    self._curr_level_2D.map[y][x] or EMPTY_SPACE
-                )
+                self._screen_matrix[y].append(self._curr_level_2D.map[y][x] or EMPTY_SPACE)
 
     def switch_3d_char_mode(self) -> str | list[str]:
         # THIS IS HORRIBLE, DO PROPERLY
@@ -171,9 +169,7 @@ class Display:
             for j in range(self.curr_x_resolution):
                 matrix_string += (
                     self._screen_matrix[i][j]
-                    if has_bg_color(
-                        self._screen_matrix[i][j], black_is_not_condidered_bg=False
-                    )
+                    if has_bg_color(self._screen_matrix[i][j], black_is_not_condidered_bg=False)
                     # TODO: it should not override the color behind it in the case of superposing objects
                     # check if it belongs to the same entity!! we can do that in the loop I think
                     # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
@@ -255,13 +251,7 @@ class Display:
             health = colored(health, _GOOD_HEALTH_COLOR)
 
         hud = "Score: " + str(player.points) + " | Health: " + health
-        hud += (
-            " | Pos: ("
-            + str(player.position[0])
-            + ", "
-            + str(player.position[1])
-            + ") | Vy: "
-        )
+        hud += " | Pos: (" + str(player.position[0]) + ", " + str(player.position[1]) + ") | Vy: "
         hud += str(round(player.falling_velocity, 3))
 
         print(hud)

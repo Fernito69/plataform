@@ -8,7 +8,7 @@ from constants import (
     Y_RESOLUTION_2D,
 )
 from model.entity import Collision2X, Collision2Y
-from model.shared import Point2, Orientation, Vector2
+from model.shared import Orientation, Point2, Vector2
 from model.theme import Theme
 from utils import add_tuple, colored
 
@@ -102,8 +102,7 @@ class Entity2D:
     def _collision_landscape(self, old_pos: Point2) -> None:
         if (
             self._curr_level
-            and self._curr_level.map[int(self.position[1])][int(self.position[0])]
-            != EMPTY_SPACE
+            and self._curr_level.map[int(self.position[1])][int(self.position[0])] != EMPTY_SPACE
         ):
             self.position = old_pos
 

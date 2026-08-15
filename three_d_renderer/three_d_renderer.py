@@ -138,16 +138,9 @@ class ThreeDeeRenderer:
                 v_x, v_y, v_z = subtract_triplet(vertex, self.player.position)
 
                 # This is where the 3D to 2D projection magic happens
-                x_pos = (
-                    ((v_x * self.distance_to_spec / v_y) + (X_RES / 2))
-                    if v_y > 0
-                    else 0
-                )
+                x_pos = ((v_x * self.distance_to_spec / v_y) + (X_RES / 2)) if v_y > 0 else 0
                 y_pos = (
-                    (
-                        ((v_z * self.distance_to_spec / v_y) + (Y_RES / 2))
-                        / PIXEL_ASPECT_RATIO
-                    )
+                    (((v_z * self.distance_to_spec / v_y) + (Y_RES / 2)) / PIXEL_ASPECT_RATIO)
                     if v_y > 0
                     else 0
                 )
@@ -178,11 +171,7 @@ class ThreeDeeRenderer:
                 _char: str | list[str] = self.display.curr_3d_char_mode
                 # TODO: generalize to any length of array
                 char: str = (
-                    _char
-                    if isinstance(_char, str)
-                    else _char[0]
-                    if y_pos % 1 > 0.5
-                    else _char[1]
+                    _char if isinstance(_char, str) else _char[0] if y_pos % 1 > 0.5 else _char[1]
                 )
 
                 defchar = colored(char, color=color(intensity))
@@ -196,9 +185,9 @@ class ThreeDeeRenderer:
                 if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
                     screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
                 # TODO: implement a test for this, not sure if works as intended
-                elif char not in screen_matrix[rounded_y_pos][
-                    rounded_x_pos
-                ] and not has_bg_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
+                elif char not in screen_matrix[rounded_y_pos][rounded_x_pos] and not has_bg_color(
+                    screen_matrix[rounded_y_pos][rounded_x_pos]
+                ):
                     _char = colored(
                         screen_matrix[rounded_y_pos][rounded_x_pos],
                         bg_color=color(intensity),
