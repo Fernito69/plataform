@@ -302,8 +302,6 @@ class Ico(Entity3D):
         if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
             return
 
-        self.apply_rotations()
-
         vertexes = []
         x = self.position[0]
         y = self.position[1]
