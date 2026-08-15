@@ -1,4 +1,5 @@
-import time, random
+import random
+import time
 
 from constants import FPS_2D
 from display import Display
@@ -20,7 +21,7 @@ class Game:
     player2d: Player2D
     levels: list[Level2D]
     current_level_index: int
-    _curr_fps: int = FPS_2D
+    _curr_fps: int
 
     three_d_renderer: ThreeDeeRenderer
 
@@ -39,7 +40,9 @@ class Game:
         self.player2d = player_2d
         self.player2d.set_curr_level(levels[current_level_index])
         self.display = Display(levels[current_level_index])
-        self.status = GameStatus.MODE_2D
+        self.status = GameStatus.MODE_3D
+        self._curr_fps = FPS_3D
+        self.display.set_3d_resolution()
         self.three_d_renderer = ThreeDeeRenderer(player=player_3d, display=self.display)
 
     def _check_game_status(self) -> None:
@@ -153,11 +156,11 @@ class Game:
         if is_pressed(DisplayKeys.SWITCH_ANTIALIASING):
             self.display.antialiasing = not self.display.antialiasing
 
-        if is_pressed(DisplayKeys.INCREASE_DISTANCE_FOG):
+        if is_pressed(DisplayKeys.DECREASE_DISTANCE_FOG):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog += 5
 
-        if is_pressed(DisplayKeys.DECREASE_DISTANCE_FOG):
+        if is_pressed(DisplayKeys.INCREASE_DISTANCE_FOG):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog -= 5
 
@@ -176,5 +179,5 @@ class Game:
             # )
             self.three_d_renderer.colors = sorted(
                 self.three_d_renderer.colors,
-                key=lambda _: (0.5 - random.random()),
+                key=lambda _: 0.5 - random.random(),
             )

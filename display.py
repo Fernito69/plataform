@@ -5,8 +5,10 @@ import math
 from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.base import Entity2D
 from entities.player2d import Player2D
-from factories.theme import RGB, Green, Red, Yellow
+from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from level_2d import Level2D
+from mappings.keyboard import default_keyboard_mapping
+from model.keyboard import DisplayKeys
 from model.shared import Point2, Vector2
 from model.theme import DoubleLines
 from terminal import clear
@@ -15,13 +17,8 @@ from three_d_renderer.constants import (
     X_RESOLUTION_3D,
     Y_RESOLUTION_3D,
 )
-from utils import (
-    colored,
-    extract_color_from_string,
-    has_bg_color,
-    extract_bg_color_from_string,
-    mix_colors,
-)
+from three_d_renderer.entities.player3d import Player3D
+from utils import colored, extract_color_from_string, has_bg_color
 
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
@@ -116,6 +113,7 @@ class Display:
 
         self._screen_matrix[y][x] = entity.get_char()
 
+    # TODO: this is broken
     def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
         if len(message) <= 0:
             return
@@ -166,7 +164,7 @@ class Display:
     def put_screen_content(self, new_screen_matrix: list[list[str]]):
         self._screen_matrix = new_screen_matrix
 
-    def print_curr_screen(self, player: Player2D | None = None):
+    def print_curr_screen(self, player: Player2D | Player3D | None = None):
         matrix_string = ""
 
         for i in range(self.curr_y_resolution):
@@ -178,7 +176,7 @@ class Display:
                     )
                     # TODO: it should not override the color behind it in the case of superposing objects
                     # check if it belongs to the same entity!! we can do that in the loop I think
-                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest 
+                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
                     # use a precomputed store with the not rounded coord, aka subpixel??
                     else colored(
                         self._screen_matrix[i][j],
@@ -209,7 +207,43 @@ class Display:
         if player:
             self._print_hud(player)
 
-    def _print_hud(self, player: Player2D):
+    def _print_hud(self, player: Player2D | Player3D | None = None):
+        if not player:
+            return
+
+        hud = ""
+        # Horrible branching
+        if isinstance(player, Player3D):
+            switch_aa_key = default_keyboard_mapping[DisplayKeys.SWITCH_ANTIALIASING]
+            fov_decr_key = default_keyboard_mapping[DisplayKeys.DECREASE_FOV]
+            fov_incr_key = default_keyboard_mapping[DisplayKeys.INCREASE_FOV]
+            decr_x_key = default_keyboard_mapping[DisplayKeys.DECREASE_X_RESOLUTION]
+            incr_x_key = default_keyboard_mapping[DisplayKeys.INCREASE_X_RESOLUTION]
+            decr_y_key = default_keyboard_mapping[DisplayKeys.DECREASE_Y_RESOLUTION]
+            incr_y_key = default_keyboard_mapping[DisplayKeys.INCREASE_Y_RESOLUTION]
+            incr_fog_key = default_keyboard_mapping[DisplayKeys.INCREASE_DISTANCE_FOG]
+            decr_fog_key = default_keyboard_mapping[DisplayKeys.DECREASE_DISTANCE_FOG]
+            shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
+            mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_CHAR_MODE]
+
+            def _c(s: str) -> str:
+                return "'" + colored(s.capitalize(), White(1)) + "'"
+
+            ON_STR = colored("ON", Green(0.8))
+            OFF_STR = colored("OFF", Red(0.8))
+            SEP = f" {colored('|', Blue(0.8))} "
+
+            hud += f"{colored('KEYS REFERENCE', Yellow(0.9))}: "
+            hud += f"AA: ({_c(switch_aa_key)}) {ON_STR if self.antialiasing else OFF_STR}{SEP}"
+            hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEP}"
+            hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEP}"
+            hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEP}"
+            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_fog_key)}\n{SEP}"
+            hud += f"Mode: {_c(mode_key)}{SEP}"
+            hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
+
+            return print(hud)
+
         health = str(player.health)
 
         # TODO: refactor it to go continuously from green, to yellow, to red

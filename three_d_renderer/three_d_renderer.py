@@ -1,5 +1,5 @@
 import random
-from typing import Any
+
 from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
@@ -268,4 +268,4 @@ class ThreeDeeRenderer:
         # ]
 
         self.display.put_screen_content(screen_matrix)
-        self.display.print_curr_screen()
+        self.display.print_curr_screen(self.player)
