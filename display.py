@@ -15,7 +15,13 @@ from three_d_renderer.constants import (
     X_RESOLUTION_3D,
     Y_RESOLUTION_3D,
 )
-from utils import colored, extract_color_from_string, has_bg_color
+from utils import (
+    colored,
+    extract_color_from_string,
+    has_bg_color,
+    extract_bg_color_from_string,
+    mix_colors,
+)
 
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
@@ -171,6 +177,9 @@ class Display:
                         self._screen_matrix[i][j], black_is_not_condidered_bg=False
                     )
                     # TODO: it should not override the color behind it in the case of superposing objects
+                    # check if it belongs to the same entity!! we can do that in the loop I think
+                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest 
+                    # use a precomputed store with the not rounded coord, aka subpixel??
                     else colored(
                         self._screen_matrix[i][j],
                         bg_color=extract_color_from_string(
@@ -179,6 +188,12 @@ class Display:
                         if self.antialiasing
                         else RGB(0, 0, 0),
                     )
+                    # else colored(
+                    #     self._screen_matrix[i][j],
+                    #     bg_color=mix_colors()
+                    #     if self.antialiasing
+                    #     else RGB(0, 0, 0),
+                    # )()
                 )
             if i < self.curr_y_resolution - 1:
                 matrix_string += "\n"

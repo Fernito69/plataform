@@ -27,6 +27,23 @@ def extract_color_from_string(text: str) -> RGB:
     return RGB(int(r), int(g), int(b))
 
 
+def mix_colors(c1: RGB, c2: RGB) -> RGB:
+    return RGB(
+        r=round((c2.r + c2.r) / 2),
+        g=round((c2.g + c2.g) / 2),
+        b=round((c2.b + c2.b) / 2),
+    )
+
+
+def extract_bg_color_from_string(text: str) -> RGB | None:
+    if not has_bg_color(text):
+        return None
+
+    rgb_string = text.split(_BG_CODE)[1].split("m")[0]
+    r, g, b = rgb_string.split(";")
+    return RGB(int(r), int(g), int(b))
+
+
 def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) -> str:
     fg_code = f"{_FG_CODE}{_encode_rgb(color)}m" if color else ""
     bg_code = f"{_BG_CODE}{_encode_rgb(bg_color)}m" if bg_color else ""
