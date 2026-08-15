@@ -16,7 +16,7 @@ from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 
 # TODO: Game should not handle the 2D game, it should be a subclass like the 3D renderer
 class Game:
-    status: GameStatus = GameStatus.MODE_2D
+    status: GameStatus
     player2d: Player2D
     levels: list[Level2D]
     current_level_index: int
@@ -39,7 +39,7 @@ class Game:
         self.player2d = player_2d
         self.player2d.set_curr_level(levels[current_level_index])
         self.display = Display(levels[current_level_index])
-
+        self.status = GameStatus.MODE_2D
         self.three_d_renderer = ThreeDeeRenderer(player=player_3d, display=self.display)
 
     def _check_game_status(self) -> None:
@@ -79,6 +79,8 @@ class Game:
         self.display.print_curr_screen(self.player2d)
 
     def game_loop(self) -> None:
+        self._check_game_status()
+
         self._frame_delay()
 
         self.handle_player_input()
@@ -88,7 +90,7 @@ class Game:
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
-            self._check_game_status()
+            # self._check_game_status()
             self.three_d_renderer.player.handle_player_input()
             return self.three_d_renderer.visualize_scenario()
 
@@ -104,7 +106,7 @@ class Game:
 
         self._print_game()
 
-        self._check_game_status()
+        # self._check_game_status()
 
     def handle_player_input(self):
         ########
@@ -112,6 +114,8 @@ class Game:
         ########
         if is_pressed(MenuKeys.QUIT):
             self.status = GameStatus.QUIT
+            # TODO: fix the quit loop: check why the message is not being printed
+            raise
 
         # TODO: for menu keys, add a refractory period so the action doesn't get triggered several times
         if is_pressed(MenuKeys.SWITCH_2D_MODE):

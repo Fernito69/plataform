@@ -46,23 +46,23 @@ class Level2D:
         self.init_map_border()
 
     def init_map_border(self):
-        l = self.theme.line_type or _DEFAULT_LINE_TYPE
-        self.add_char(l.UL, (0, 0))
-        self.add_char(l.LR, (X_RESOLUTION_2D - 1, Y_RESOLUTION_2D - 1))
-        self.add_char(l.UR, (X_RESOLUTION_2D - 1, 0))
-        self.add_char(l.LL, (0, Y_RESOLUTION_2D - 1))
+        line = self.theme.line_type or _DEFAULT_LINE_TYPE
+        self.add_char(line.UL, (0, 0))
+        self.add_char(line.LR, (X_RESOLUTION_2D - 1, Y_RESOLUTION_2D - 1))
+        self.add_char(line.UR, (X_RESOLUTION_2D - 1, 0))
+        self.add_char(line.LL, (0, Y_RESOLUTION_2D - 1))
 
         # repeat the loops to respect the _curr_custom_char_index order
         # TODO: do it better so it's really a loop, even considering corners
         for i in range(1, Y_RESOLUTION_2D - 1):
-            self.add_char(l.V, (0, i))
+            self.add_char(line.V, (0, i))
         for i in range(1, Y_RESOLUTION_2D - 1):
-            self.add_char(l.V, (X_RESOLUTION_2D - 1, i))
+            self.add_char(line.V, (X_RESOLUTION_2D - 1, i))
 
         for i in range(1, X_RESOLUTION_2D - 1):
-            self.add_char(l.H, (i, 0))
+            self.add_char(line.H, (i, 0))
         for i in range(1, X_RESOLUTION_2D - 1):
-            self.add_char(l.H, (i, Y_RESOLUTION_2D - 1))
+            self.add_char(line.H, (i, Y_RESOLUTION_2D - 1))
 
     def _color(self, char: str, color: RGB | None = None, bg_color: RGB | None = None):
         return colored(
@@ -157,11 +157,11 @@ class Level2D:
                 ),
                 0,
             )
-            l = self.theme.line_type or _DEFAULT_LINE_TYPE
+            line = self.theme.line_type or _DEFAULT_LINE_TYPE
             char = (
-                self._get_custom_theme_char(l.H)
+                self._get_custom_theme_char(line.H)
                 if orientation == Orientation.HORIZONTAL
-                else self._get_custom_theme_char(l.V)
+                else self._get_custom_theme_char(line.V)
             )
             self.map[int(y)][int(x)] = self._color(
                 char=char,

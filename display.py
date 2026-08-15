@@ -28,6 +28,7 @@ _MESSAGE_BORDER_COLOR = Red()
 _MESSAGE_TEXT_COLOR = Yellow()
 
 
+# TODO: add status (2d, 3d)
 class Display:
     # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
@@ -189,6 +190,7 @@ class Display:
 
         print(matrix_string)
 
+        # TODO: we can use this in 3d to show controls
         if player:
             self._print_hud(player)
 
