@@ -1,12 +1,4 @@
-from model.shared import (
-    Point2,
-    Point3,
-    DistVector2D,
-    DistVector3D,
-    Number,
-    Vector2,
-    Vector3,
-)
+from model.shared import DistVector3D, Number, Point2, Point3, Vector2, Vector3
 from model.theme import RGB
 
 RESET = "\033[0m"

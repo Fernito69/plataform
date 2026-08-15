@@ -7,11 +7,11 @@ from factories.theme import (
     Cyan,
     Green,
     Magenta,
+    Orange,
     Red,
     Violet,
     White,
     Yellow,
-    Orange,
 )
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
@@ -104,7 +104,6 @@ class ThreeDeeRenderer:
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
-
                 distance_between_points(
                     e.position, self.player.position, e.size * 10
                 ).distance_to_border
