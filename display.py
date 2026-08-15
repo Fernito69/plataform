@@ -169,6 +169,7 @@ class Display:
                     if has_bg_color(
                         self._screen_matrix[i][j], black_is_not_condidered_bg=False
                     )
+                    # TODO: it should not override the color behind it in the case of superposing objects
                     else colored(
                         self._screen_matrix[i][j],
                         bg_color=extract_color_from_string(

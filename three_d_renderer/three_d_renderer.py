@@ -204,14 +204,14 @@ class ThreeDeeRenderer:
                         screen_matrix[rounded_y_pos][rounded_x_pos],
                         bg_color=color(intensity),
                     )
-                    self.display.debug_log(
-                        "prev_pixel: "
-                        + screen_matrix[rounded_y_pos][rounded_x_pos]
-                        + " | defchar: "
-                        + _char
-                        + " | intensity:"
-                        + str(color(intensity))
-                    )
+                    # self.display.debug_log(
+                    #     "prev_pixel: "
+                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
+                    #     + " | defchar: "
+                    #     + _char
+                    #     + " | intensity:"
+                    #     + str(color(intensity))
+                    # )
                     screen_matrix[rounded_y_pos][rounded_x_pos] = _char
                     # screen_matrix[rounded_y_pos][rounded_x_pos] = "A"
 
