@@ -8,7 +8,7 @@ from constants import (
     Y_RESOLUTION_2D,
 )
 from model.entity import Collision2X, Collision2Y
-from model.shared import Coord2, Orientation, Vector2
+from model.shared import Point2, Orientation, Vector2
 from model.theme import Theme
 from utils import add_tuple, colored
 
@@ -99,7 +99,7 @@ class Entity2D:
         return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
 
     # checks collision with landscape elements
-    def _collision_landscape(self, old_pos: Coord2) -> None:
+    def _collision_landscape(self, old_pos: Point2) -> None:
         if (
             self._curr_level
             and self._curr_level.map[int(self.position[1])][int(self.position[0])]

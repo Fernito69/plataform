@@ -7,7 +7,7 @@ from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import RGB, Green, Red, Yellow
 from level_2d import Level2D
-from model.shared import Coord2, Vector2
+from model.shared import Point2, Vector2
 from model.theme import DoubleLines
 from terminal import clear
 from three_d_renderer.constants import (
@@ -104,7 +104,7 @@ class Display:
         self.curr_x_resolution = int(resolution[0])
         self.curr_y_resolution = int(resolution[1])
 
-    def _put_char_in_pixel(self, char: str, position: Coord2):
+    def _put_char_in_pixel(self, char: str, position: Point2):
         y = math.floor(position[1])
         x = math.floor(position[0])
 

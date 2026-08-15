@@ -2,19 +2,25 @@ import math
 from typing import TYPE_CHECKING, Any, Optional
 
 from constants import EMPTY_SPACE
-from model.shared import Coord3, Vector3
+from model.shared import Point2, Point3, Vector3
 from model.theme import Theme
 from utils import add_triplet, colored
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
 
+# TODO: move
+PHI = 1.618
+IPHI = 0.618
+R2 = 0.707
 
 # TODO: rename methods properly
 # TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
+
+
 class Entity3D:
     # _curr_level: Optional["Level3D"] = None
-    position: Coord3 = [0, 0, 0]
+    position: Point3 = [0, 0, 0]
     falling_velocity: float = 0
     # TODO: rotation_matrix missing?
 
@@ -32,6 +38,7 @@ class Entity3D:
         rotMatrix=[0, 0, 0],
     ):
         # x and y coordinates
+        # TODO: should we keep previous state to calculate instant velocity?
         self._curr_level = level
         self._char_frames = [EMPTY_SPACE]
         self._default_char_frames = [EMPTY_SPACE]
@@ -45,6 +52,9 @@ class Entity3D:
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
         self.objVertexes = objVertexes
+
+    def is_lazy(self) -> bool:
+        return self.movMatrix == [0, 0, 0] and self.rotMatrix == [0, 0, 0]
 
     def _apply_gravity(self) -> None:
         pass
@@ -169,6 +179,7 @@ class LivingEntity3D(Entity3D):
 ################
 
 
+# REFACTOR vertices stuff, it's sooo repetitive
 class Cube(Entity3D):
     def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
         Entity3D.__init__(
@@ -181,6 +192,10 @@ class Cube(Entity3D):
         self.rotMatrix = rotMatrix
 
     def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -237,6 +252,10 @@ class Tetra(Entity3D):
         self.rotMatrix = rotMatrix
 
     def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -284,118 +303,122 @@ class Ico(Entity3D):
         self.rotMatrix = rotMatrix
 
     def calc_vertexes(self):
+
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
         vertexes = []
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
         s = self.size
-        phi = 1.618
 
-        vertexes.append([x, y + s, z + phi * s, "1"])  # vertex 1
-        vertexes.append([x, y - s, z + phi * s, "2"])  # vertex 2
-        vertexes.append([x, y + s, z - phi * s, "3"])  # vertex 3
-        vertexes.append([x, y - s, z - phi * s, "4"])  # vertex 4
+        vertexes.append([x, y + s, z + PHI * s, "1"])  # vertex 1
+        vertexes.append([x, y - s, z + PHI * s, "2"])  # vertex 2
+        vertexes.append([x, y + s, z - PHI * s, "3"])  # vertex 3
+        vertexes.append([x, y - s, z - PHI * s, "4"])  # vertex 4
 
-        vertexes.append([x + s, y + phi * s, z, "5"])  # vertex 5
-        vertexes.append([x + s, y - phi * s, z, "6"])  # vertex 6
-        vertexes.append([x - s, y + phi * s, z, "7"])  # vertex 7
-        vertexes.append([x - s, y - phi * s, z, "8"])  # vertex 8
+        vertexes.append([x + s, y + PHI * s, z, "5"])  # vertex 5
+        vertexes.append([x + s, y - PHI * s, z, "6"])  # vertex 6
+        vertexes.append([x - s, y + PHI * s, z, "7"])  # vertex 7
+        vertexes.append([x - s, y - PHI * s, z, "8"])  # vertex 8
 
-        vertexes.append([x + phi * s, y, z + s, "9"])  # vertex 9
-        vertexes.append([x + phi * s, y, z - s, "X"])  # vertex 10
-        vertexes.append([x - phi * s, y, z + s, "J"])  # vertex 11
-        vertexes.append([x - phi * s, y, z - s, "Q"])  # vertex 12
+        vertexes.append([x + PHI * s, y, z + s, "9"])  # vertex 9
+        vertexes.append([x + PHI * s, y, z - s, "X"])  # vertex 10
+        vertexes.append([x - PHI * s, y, z + s, "J"])  # vertex 11
+        vertexes.append([x - PHI * s, y, z - s, "Q"])  # vertex 12
 
         # edges of icosahedron
         for t in range(s):
-            vertexes.append([(x), (y + s - 2 * t), (z + phi * s), "."])  # vertex 1 - 2
+            vertexes.append([(x), (y + s - 2 * t), (z + PHI * s), "."])  # vertex 1 - 2
             vertexes.append(
-                [(x + t), (y + s - t * (1 - phi)), (z + phi * s - phi * t), "."]
+                [(x + t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t), "."]
             )  # vertex 1 - 5
             vertexes.append(
-                [(x - t), (y + s - t * (1 - phi)), (z + phi * s - phi * t), "."]
+                [(x - t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t), "."]
             )  # vertex 1 - 7
             vertexes.append(
-                [(x + phi * t), (y + s - t), (z + phi * s - t * (phi - 1)), "."]
+                [(x + PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1)), "."]
             )  # vertex 1 - 9
             vertexes.append(
-                [(x - phi * t), (y + s - t), (z + phi * s - t * (phi - 1)), "."]
+                [(x - PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1)), "."]
             )  # vertex 1 - 11
 
             vertexes.append(
-                [(x + phi * t), (y - s + t), (z + phi * s - t * (phi - 1)), "."]
+                [(x + PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1)), "."]
             )  # vertex 2 - 9
             vertexes.append(
-                [(x + t), (y - s + t * (1 - phi)), (z + phi * s - phi * t), "."]
+                [(x + t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t), "."]
             )  # vertex 2 - 6
             vertexes.append(
-                [(x - t), (y - s + t * (1 - phi)), (z + phi * s - phi * t), "."]
+                [(x - t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t), "."]
             )  # vertex 2 - 8
             vertexes.append(
-                [(x - phi * t), (y - s + t), (z + phi * s - t * (phi - 1)), "."]
+                [(x - PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1)), "."]
             )  # vertex 2 - 11
 
             vertexes.append(
-                [(x + t), (y + s - t * (1 - phi)), (z - phi * s + phi * t), "."]
+                [(x + t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t), "."]
             )  # vertex 3 - 5
-            vertexes.append([(x), (y + s - 2 * t), (z - phi * s), "."])  # vertex 3 - 4
+            vertexes.append([(x), (y + s - 2 * t), (z - PHI * s), "."])  # vertex 3 - 4
             vertexes.append(
-                [(x - t), (y + s - t * (1 - phi)), (z - phi * s + phi * t), "."]
+                [(x - t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t), "."]
             )  # vertex 3 - 7
             vertexes.append(
-                [(x + phi * t), (y + s - t), (z - phi * s + t * (phi - 1)), "."]
+                [(x + PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1)), "."]
             )  # vertex 3 - 10
             vertexes.append(
-                [(x - phi * t), (y + s - t), (z - phi * s + t * (phi - 1)), "."]
+                [(x - PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1)), "."]
             )  # vertex 3 - 12
 
             vertexes.append(
-                [(x + t), (y - s + t * (1 - phi)), (z - phi * s + phi * t), "."]
+                [(x + t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t), "."]
             )  # vertex 4 - 6
             vertexes.append(
-                [(x - t), (y - s + t * (1 - phi)), (z - phi * s + phi * t), "."]
+                [(x - t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t), "."]
             )  # vertex 4 - 8
             vertexes.append(
-                [(x + phi * t), (y - s + t), (z - phi * s + t * (phi - 1)), "."]
+                [(x + PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1)), "."]
             )  # vertex 4 - 10
             vertexes.append(
-                [(x - phi * t), (y - s + t), (z - phi * s + t * (phi - 1)), "."]
+                [(x - PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1)), "."]
             )  # vertex 4 - 12
 
-            vertexes.append([(x + s - 2 * t), (y + phi * s), (z), "."])  # vertex 5 - 7
+            vertexes.append([(x + s - 2 * t), (y + PHI * s), (z), "."])  # vertex 5 - 7
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y + phi * s - phi * t), (z + t), "."]
+                [(x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t), "."]
             )  # vertex 5 - 9
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y + phi * s - phi * t), (z - t), "."]
+                [(x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t), "."]
             )  # vertex 5 - 10
 
-            vertexes.append([(x + s - 2 * t), (y - phi * s), (z), "."])  # vertex 6 - 8
+            vertexes.append([(x + s - 2 * t), (y - PHI * s), (z), "."])  # vertex 6 - 8
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y - phi * s + phi * t), (z + t), "."]
+                [(x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t), "."]
             )  # vertex 6 - 9
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y - phi * s + phi * t), (z - t), "."]
+                [(x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t), "."]
             )  # vertex 6 - 10
 
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y + phi * s - phi * t), (z + t), "."]
+                [(x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t), "."]
             )  # vertex 7 - 11
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y + phi * s - phi * t), (z - t), "."]
+                [(x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t), "."]
             )  # vertex 7 - 12
 
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y - phi * s + phi * t), (z + t), "."]
+                [(x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t), "."]
             )  # vertex 8 - 11
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y - phi * s + phi * t), (z - t), "."]
+                [(x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t), "."]
             )  # vertex 8 - 12
 
-            vertexes.append([(x + phi * s), (y), (z + s - 2 * t), "."])  # vertex 9 - 10
+            vertexes.append([(x + PHI * s), (y), (z + s - 2 * t), "."])  # vertex 9 - 10
 
             vertexes.append(
-                [(x - phi * s), (y), (z + s - 2 * t), "."]
+                [(x - PHI * s), (y), (z + s - 2 * t), "."]
             )  # vertex 11 - 12
 
         self.objVertexes = vertexes
@@ -417,13 +440,15 @@ class Dodeca(Entity3D):
         self.rotMatrix = rotMatrix
 
     def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+            return
+
         vertexes = []
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
         s = self.size
-        phi = 1.618
-        iphi = 0.618
 
         vertexes.append([x + s, y + s, z + s, "1"])  # vertex 1
         vertexes.append([x + s, y - s, z + s, "2"])  # vertex 2
@@ -434,121 +459,187 @@ class Dodeca(Entity3D):
         vertexes.append([x - s, y + s, z - s, "7"])  # vertex 7
         vertexes.append([x - s, y - s, z - s, "8"])  # vertex 8
 
-        vertexes.append([x, y + phi * s, z + iphi * s, "9"])  # vertex 9
-        vertexes.append([x, y - phi * s, z + iphi * s, "A"])  # vertex 10
-        vertexes.append([x, y + phi * s, z - iphi * s, "B"])  # vertex 11
-        vertexes.append([x, y - phi * s, z - iphi * s, "C"])  # vertex 12
+        vertexes.append([x, y + PHI * s, z + IPHI * s, "9"])  # vertex 9
+        vertexes.append([x, y - PHI * s, z + IPHI * s, "A"])  # vertex 10
+        vertexes.append([x, y + PHI * s, z - IPHI * s, "B"])  # vertex 11
+        vertexes.append([x, y - PHI * s, z - IPHI * s, "C"])  # vertex 12
 
-        vertexes.append([x + iphi * s, y, z + phi * s, "D"])  # vertex 13
-        vertexes.append([x + iphi * s, y, z - phi * s, "E"])  # vertex 14
-        vertexes.append([x - iphi * s, y, z + phi * s, "F"])  # vertex 15
-        vertexes.append([x - iphi * s, y, z - phi * s, "G"])  # vertex 16
+        vertexes.append([x + IPHI * s, y, z + PHI * s, "D"])  # vertex 13
+        vertexes.append([x + IPHI * s, y, z - PHI * s, "E"])  # vertex 14
+        vertexes.append([x - IPHI * s, y, z + PHI * s, "F"])  # vertex 15
+        vertexes.append([x - IPHI * s, y, z - PHI * s, "G"])  # vertex 16
 
-        vertexes.append([x + phi * s, y + iphi * s, z, "H"])  # vertex 17
-        vertexes.append([x + phi * s, y - iphi * s, z, "I"])  # vertex 18
-        vertexes.append([x - phi * s, y + iphi * s, z, "J"])  # vertex 19
-        vertexes.append([x - phi * s, y - iphi * s, z, "K"])  # vertex 20
+        vertexes.append([x + PHI * s, y + IPHI * s, z, "H"])  # vertex 17
+        vertexes.append([x + PHI * s, y - IPHI * s, z, "I"])  # vertex 18
+        vertexes.append([x - PHI * s, y + IPHI * s, z, "J"])  # vertex 19
+        vertexes.append([x - PHI * s, y - IPHI * s, z, "K"])  # vertex 20
 
         # edges of dodecahedron
         for t in range(s):
             vertexes.append(
-                [(x + s - t), (y + s - t * (1 - phi)), (z + s - t * (1 - iphi)), "."]
+                [(x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]
             )  # vertex 1 - 9
             vertexes.append(
-                [(x + s - t * (1 - iphi)), (y + s - t), (z + s - t * (1 - phi)), "."]
+                [(x + s - t * (1 - IPHI)), (y + s - t), (z + s - t * (1 - PHI)), "."]
             )  # vertex 1 - 13
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y + s - t * (1 - iphi)), (z + s - t), "."]
+                [(x + s - t * (1 - PHI)), (y + s - t * (1 - IPHI)), (z + s - t), "."]
             )  # vertex 1 - 17
 
             vertexes.append(
-                [(x + s - t), (y - s + t * (1 - phi)), (z + s - t * (1 - iphi)), "."]
+                [(x + s - t), (y - s + t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]
             )  # vertex 2 - 10
             vertexes.append(
-                [(x + s - t * (1 - iphi)), (y - s + t), (z + s - t * (1 - phi)), "."]
+                [(x + s - t * (1 - IPHI)), (y - s + t), (z + s - t * (1 - PHI)), "."]
             )  # vertex 2 - 13
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y - s + t * (1 - iphi)), (z + s - t), "."]
+                [(x + s - t * (1 - PHI)), (y - s + t * (1 - IPHI)), (z + s - t), "."]
             )  # vertex 2 - 18 3HBE
 
             vertexes.append(
-                [(x + s - t), (y + s - t * (1 - phi)), (z - s + t * (1 - iphi)), "."]
+                [(x + s - t), (y + s - t * (1 - PHI)), (z - s + t * (1 - IPHI)), "."]
             )  # vertex 3 - 11
             vertexes.append(
-                [(x + s - t * (1 - iphi)), (y + s - t), (z - s + t * (1 - phi)), "."]
+                [(x + s - t * (1 - IPHI)), (y + s - t), (z - s + t * (1 - PHI)), "."]
             )  # vertex 3 - 14
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y + s - t * (1 - iphi)), (z - s + t), "."]
+                [(x + s - t * (1 - PHI)), (y + s - t * (1 - IPHI)), (z - s + t), "."]
             )  # vertex 3 - 17 4CEI
 
             vertexes.append(
-                [(x + s - t), (y - s + t * (1 - phi)), (z - s + t * (1 - iphi)), "."]
+                [(x + s - t), (y - s + t * (1 - PHI)), (z - s + t * (1 - IPHI)), "."]
             )  # vertex 4 - 12
             vertexes.append(
-                [(x + s - t * (1 - iphi)), (y - s + t), (z - s + t * (1 - phi)), "."]
+                [(x + s - t * (1 - IPHI)), (y - s + t), (z - s + t * (1 - PHI)), "."]
             )  # vertex 4 - 14
             vertexes.append(
-                [(x + s - t * (1 - phi)), (y - s + t * (1 - iphi)), (z - s + t), "."]
+                [(x + s - t * (1 - PHI)), (y - s + t * (1 - IPHI)), (z - s + t), "."]
             )  # vertex 4 - 18 59FJ
 
             vertexes.append(
-                [(x - s + t), (y + s - t * (1 - phi)), (z + s - t * (1 - iphi)), "."]
+                [(x - s + t), (y + s - t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]
             )  # vertex 5 - 9
             vertexes.append(
-                [(x - s + t * (1 - iphi)), (y + s - t), (z + s - t * (1 - phi)), "."]
+                [(x - s + t * (1 - IPHI)), (y + s - t), (z + s - t * (1 - PHI)), "."]
             )  # vertex 5 - 15
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y + s - t * (1 - iphi)), (z + s - t), "."]
+                [(x - s + t * (1 - PHI)), (y + s - t * (1 - IPHI)), (z + s - t), "."]
             )  # vertex 5 - 19 6AFK
 
             vertexes.append(
-                [(x - s + t), (y - s + t * (1 - phi)), (z + s - t * (1 - iphi)), "."]
+                [(x - s + t), (y - s + t * (1 - PHI)), (z + s - t * (1 - IPHI)), "."]
             )  # vertex 6 - 10
             vertexes.append(
-                [(x - s + t * (1 - iphi)), (y - s + t), (z + s - t * (1 - phi)), "."]
+                [(x - s + t * (1 - IPHI)), (y - s + t), (z + s - t * (1 - PHI)), "."]
             )  # vertex 6 - 15
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y - s + t * (1 - iphi)), (z + s - t), "."]
+                [(x - s + t * (1 - PHI)), (y - s + t * (1 - IPHI)), (z + s - t), "."]
             )  # vertex 6 - 20 7BGJ
 
             vertexes.append(
-                [(x - s + t), (y + s - t * (1 - phi)), (z - s + t * (1 - iphi)), "."]
+                [(x - s + t), (y + s - t * (1 - PHI)), (z - s + t * (1 - IPHI)), "."]
             )  # vertex 7 - 11
             vertexes.append(
-                [(x - s + t * (1 - iphi)), (y + s - t), (z - s + t * (1 - phi)), "."]
+                [(x - s + t * (1 - IPHI)), (y + s - t), (z - s + t * (1 - PHI)), "."]
             )  # vertex 7 - 16
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y + s - t * (1 - iphi)), (z - s + t), "."]
+                [(x - s + t * (1 - PHI)), (y + s - t * (1 - IPHI)), (z - s + t), "."]
             )  # vertex 7 - 19 8CGK
 
             vertexes.append(
-                [(x - s + t), (y - s + t * (1 - phi)), (z - s + t * (1 - iphi)), "."]
+                [(x - s + t), (y - s + t * (1 - PHI)), (z - s + t * (1 - IPHI)), "."]
             )  # vertex 8 - 12
             vertexes.append(
-                [(x - s + t * (1 - iphi)), (y - s + t), (z - s + t * (1 - phi)), "."]
+                [(x - s + t * (1 - IPHI)), (y - s + t), (z - s + t * (1 - PHI)), "."]
             )  # vertex 8 - 16
             vertexes.append(
-                [(x - s + t * (1 - phi)), (y - s + t * (1 - iphi)), (z - s + t), "."]
+                [(x - s + t * (1 - PHI)), (y - s + t * (1 - IPHI)), (z - s + t), "."]
             )  # vertex 8 - 20
 
             vertexes.append(
-                [(x), (y + phi * s), (z + iphi * s - 2 * iphi * t), "."]
+                [(x), (y + PHI * s), (z + IPHI * s - 2 * IPHI * t), "."]
             )  # vertex 9 - 11
             vertexes.append(
-                [(x), (y - phi * s), (z + iphi * s - 2 * iphi * t), "."]
+                [(x), (y - PHI * s), (z + IPHI * s - 2 * IPHI * t), "."]
             )  # vertex 10 - 12
             vertexes.append(
-                [(x + iphi * s - 2 * iphi * t), (y), (z - phi * s), "."]
+                [(x + IPHI * s - 2 * IPHI * t), (y), (z - PHI * s), "."]
             )  # vertex 13 - 15
             vertexes.append(
-                [(x + iphi * s - 2 * iphi * t), (y), (z + phi * s), "."]
+                [(x + IPHI * s - 2 * IPHI * t), (y), (z + PHI * s), "."]
             )  # vertex 14 - 16
             vertexes.append(
-                [(x + phi * s), (y + iphi * s - 2 * iphi * t), (z), "."]
+                [(x + PHI * s), (y + IPHI * s - 2 * IPHI * t), (z), "."]
             )  # vertex 17 - 18
             vertexes.append(
-                [(x - phi * s), (y + iphi * s - 2 * iphi * t), (z), "."]
+                [(x - PHI * s), (y + IPHI * s - 2 * IPHI * t), (z), "."]
             )  # vertex 19 - 20
+
+        self.objVertexes = vertexes
+        self.apply_rotations()
+
+
+####
+
+
+"""
+CUSTOMSHITTT
+"""
+
+
+class F_Letter(Entity3D):
+    def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
+        Entity3D.__init__(
+            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]
+        )
+        self.position = position
+        self.size = size
+        self.angle = angle  # XY, XZ, YZ
+        self.movMatrix = movMatrix
+        self.rotMatrix = rotMatrix
+
+    def calc_vertexes(self):
+        # TODO: this should also check for velocity / previous position
+        # if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+        #     return
+
+        vertexes = []
+        s = self.size
+
+        letter_points: list[Any] = [
+            [0, 0],
+            [0, 6],
+            [3, 6],
+            [3, 5],
+            [1, 5],
+            [1, 4],
+            [3.5, 4],
+            [3.3, 3],
+            [1, 3],
+            [1, 0],
+        ]
+
+        for l_index, l_point in enumerate(letter_points):
+            x_l, y_l = l_point
+            prev_point_index = len(letter_points) - 1 if l_index == 0 else l_index - 1
+            prev_x_l, prev_y_l = letter_points[prev_point_index]
+
+            # Add main points
+            vertexes.append(list(add_triplet([x_l, y_l, 0], self.position)))
+
+            for x_v, y_v, z_v in vertexes:
+                pass
+                # TODO: debug this shit
+                # Vertical line down
+                # for t in range(s):
+                #     vertexes.append([x_v, y_v, z_v - t])
+                #     vertexes.append(
+                #         (
+                #             (x_l * (s - t) + prev_x_l * t) / s,
+                #             (y_l * (s - t) + prev_y_l * t) / s,
+                #             z_v,
+                #         )
+                #     )
 
         self.objVertexes = vertexes
         self.apply_rotations()

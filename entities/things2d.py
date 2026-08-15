@@ -1,6 +1,6 @@
 from entities.base import Entity2D
 from factories.theme import Red, Yellow
-from model.shared import Coord2
+from model.shared import Point2
 from model.theme import Theme
 
 _EXIT_COLOR = Yellow()
@@ -26,7 +26,7 @@ _EXIT_FRAMES = [
 
 
 class Exit2D(Entity2D):
-    def __init__(self, position: Coord2):
+    def __init__(self, position: Point2):
         Entity2D.__init__(self)
         self.position = position
         self._char_frames = _EXIT_FRAMES

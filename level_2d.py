@@ -4,7 +4,7 @@ from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.enemy2d import Enemy2D
 from entities.things2d import Exit2D
 from factories.theme import DefaultTheme, DoubleLines
-from model.shared import Coord2, Orientation
+from model.shared import Point2, Orientation
 from model.theme import RGB, Theme
 from utils import colored
 
@@ -16,7 +16,7 @@ class Level2D:
     enemies: list[Enemy2D]
     exits: list[Exit2D]
     name: str
-    player_starting_position: Coord2
+    player_starting_position: Point2
     theme: Theme
 
     def __init__(
@@ -25,7 +25,7 @@ class Level2D:
         enemies: list[Enemy2D],
         exits: list[Exit2D],
         theme: Theme | None,
-        player_starting_position: Coord2 = (1, 1),
+        player_starting_position: Point2 = (1, 1),
     ):
         self.enemies = enemies
         self.name = name
@@ -74,7 +74,7 @@ class Level2D:
     def add_char(
         self,
         char: str,
-        position: Coord2,
+        position: Point2,
         color: RGB | None = None,
         bg_color: RGB | None = None,
     ):
@@ -133,7 +133,7 @@ class Level2D:
     # TODO: implement animated map parts :O with a self.do_your_thing() method
     def add_line(
         self,
-        initial_position: Coord2,
+        initial_position: Point2,
         length: int = 3,
         orientation: Orientation = Orientation.HORIZONTAL,
         # TODO: refactor Theme here!!!

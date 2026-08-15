@@ -1,6 +1,6 @@
 from model.shared import (
-    Coord2,
-    Coord3,
+    Point2,
+    Point3,
     DistVector2D,
     DistVector3D,
     Number,
@@ -93,7 +93,7 @@ def vector_length(v: Vector3 | Vector2) -> float:
 
 
 def distance_between_points(
-    p1: Coord2 | Coord3, p2: Coord2 | Coord3
+    p1: Point2 | Point3, p2: Point2 | Point3
 ) -> DistVector2D | DistVector3D:
     if len(p1) != len(p2):
         raise IndexError("They should have the same length")

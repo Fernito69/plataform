@@ -1,8 +1,15 @@
-from three_d_renderer.entities.base3d import Cube, Dodeca, Ico, Tetra
+from three_d_renderer.entities.base3d import Cube, Dodeca, F_Letter, Ico, Tetra
 from three_d_renderer.scenario.level_3d import Level3D
 
 
 def build_level_3d_1() -> Level3D:
+    f = F_Letter(
+        position=[0,170, 0],
+        size=20,
+        angle=[0, 0, 0],
+        movMatrix=[0, 0, 0],
+        rotMatrix=[1, 0, 0],
+    )
     ico1 = Ico(
         position=[20, 170, -20],
         size=20,
@@ -38,4 +45,4 @@ def build_level_3d_1() -> Level3D:
         movMatrix=[0, 0, 0],
         rotMatrix=[-3, 5, 1],
     )
-    return Level3D(entities=[dode, ico1, cube, tetra, cube2])
+    return Level3D(entities=[f, dode, ico1, cube, tetra, cube2])

@@ -1,17 +1,17 @@
-from enum import StrEnum, auto
 from dataclasses import dataclass
+from enum import StrEnum, auto
 
 Number = int | float
 
 Vector2 = tuple[Number, Number]
-Coord2 = Vector2
+Point2 = Vector2
 
 # Vector3 = tuple[Number, Number, Number]
-# Coord3 = tuple[Number, Number, Number]
+# Point3 = tuple[Number, Number, Number]
 
 # TODO: make the above work
 Vector3 = list[Number]
-Coord3 = list[Number]
+Point3 = list[Number]
 
 
 @dataclass
