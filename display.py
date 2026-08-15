@@ -217,8 +217,8 @@ class Display:
             incr_x_key = default_keyboard_mapping[DisplayKeys.INCREASE_X_RESOLUTION]
             decr_y_key = default_keyboard_mapping[DisplayKeys.DECREASE_Y_RESOLUTION]
             incr_y_key = default_keyboard_mapping[DisplayKeys.INCREASE_Y_RESOLUTION]
-            incr_fog_key = default_keyboard_mapping[DisplayKeys.INCREASE_DISTANCE_FOG]
-            decr_fog_key = default_keyboard_mapping[DisplayKeys.DECREASE_DISTANCE_FOG]
+            decr_fog_key = default_keyboard_mapping[DisplayKeys.DECREASE_VISIBILITY]
+            incr_vis_key = default_keyboard_mapping[DisplayKeys.INCREASE_VISIBILITY]
             shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
             mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_CHAR_MODE]
 
@@ -234,7 +234,7 @@ class Display:
             hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEP}"
             hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEP}"
             hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEP}"
-            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_fog_key)}\n{SEP}"
+            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
 

@@ -160,11 +160,11 @@ class Game:
         if is_pressed(DisplayKeys.SWITCH_ANTIALIASING):
             self.display.antialiasing = not self.display.antialiasing
 
-        if is_pressed(DisplayKeys.DECREASE_DISTANCE_FOG):
+        if is_pressed(DisplayKeys.INCREASE_VISIBILITY):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog += 5
 
-        if is_pressed(DisplayKeys.INCREASE_DISTANCE_FOG):
+        if is_pressed(DisplayKeys.DECREASE_VISIBILITY):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog -= 5
 
