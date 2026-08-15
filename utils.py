@@ -92,9 +92,11 @@ def vector_length(v: Vector3 | Vector2) -> float:
     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
+# Instead of diameter, pass an Entity3D and call an internal get diameter function
+# I think distance_to_border doesn't work because the size is not the diameter in the current way we are creating the entities
 def distance_between_points(
-    p1: Point2 | Point3, p2: Point2 | Point3
-) -> DistVector2D | DistVector3D:
+    p1: Point2 | Point3, p2: Point2 | Point3, diameter_p2: float | None = 0.0
+) -> DistVector3D:
     if len(p1) != len(p2):
         raise IndexError("They should have the same length")
 
@@ -102,11 +104,21 @@ def distance_between_points(
     y = p1[1] - p2[1]
 
     if len(p1) == 2:
-        return DistVector2D(vector_length((x, y)), (x, y))
+        return DistVector3D(vector_length((x, y)), [x, y, 0])
 
     z = p1[2] - p2[0]
 
     if len(p1) == 3 and len(p2) == 3:
-        return DistVector3D(vector_length([x, y, z]), [x, y, z])  # TODO: type properly
+        # TODO: type properly
+        vector = [x, y, z]
+        distance = vector_length(vector)
+        distance_to_border: float | None = (
+            distance + diameter_p2 if diameter_p2 else distance
+        )
+        return DistVector3D(
+            distance=distance,
+            vector=vector,
+            distance_to_border=distance_to_border,
+        )
 
-    return DistVector2D(0, (0, 0))
+    return DistVector3D(0, [0, 0, 0])

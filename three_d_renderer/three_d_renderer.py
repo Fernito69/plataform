@@ -78,6 +78,7 @@ class ThreeDeeRenderer:
                 screen_matrix[y].append(_DEFAULT_CHAR)
 
         # we draw the border of the screen
+        # TODO: this shit we should do only once!
         screen_matrix[0][0] = "╔"
         screen_matrix[Y_RES - 1][X_RES - 1] = "╝"
         screen_matrix[0][X_RES - 1] = "╗"
@@ -95,7 +96,14 @@ class ThreeDeeRenderer:
         self._curr_level.entities = sorted(
             self._curr_level.entities,
             key=lambda e: (
-                distance_between_points(e.position, self.player.position).distance
+                # distance_between_points(e.position, self.player.position).distance
+                # TODO: if I add the size it does it wrong, figure out the shit
+                distance_between_points(
+                    e.position,
+                    self.player.position,
+                    #   e.size
+                ).distance_to_border
+                or 1000
             ),
         )
         # TODO: find a way to find what's behind the player to not render it
@@ -170,102 +178,15 @@ class ThreeDeeRenderer:
 
                 if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
                     screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
-                    # screen_matrix[rounded_y_pos][rounded_x_pos] = colored(
-                    #     "·", color=color(intensity)
-                    # )
-                    # self.display.debug_log(
-                    #     "char: "
-                    #     + char
-                    #     + " | crr_pix: "
-                    #     + curr_pixel
-                    #     + " |  char not in curr_pixel:"
-                    #     + str(char not in curr_pixel)
-                    # )
-                # we can replace it with bg_color!
-                # elif char not in curr_pixel:
-                # TODO: Why does this part not work??
-                # TODO: implement a test for this
-
+                # TODO: implement a test for this, not sure if works as intended
                 elif char not in screen_matrix[rounded_y_pos][
                     rounded_x_pos
                 ] and not has_bg_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
-                    # elif not has_bg_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
-                    #     and (
-                    #     char not in screen_matrix[rounded_y_pos][roundesssssssssssssssssssssssssssssssssssssssd_x_pos]
-                    #     if not isinstance(_char, str)
-                    #     else True
-                    # ):
-                    # _prev_defchar = curr_pixel
-                    # defchar = colored(curr_pixel, bg_color=22)
-
-                    # if intensity > 0.7:
-                    # self.display.debug_log(
-                    #     defchar
-                    #     + " | color:"
-                    #     + str(color(intensity).r)
-                    #     + " | prev dev char:"
-                    #     + _prev_defchar
-                    # )
-                    # raise NotImplementedError("")
                     _char = colored(
                         screen_matrix[rounded_y_pos][rounded_x_pos],
                         bg_color=color(intensity),
                     )
-                    # self.display.debug_log(
-                    #     "prev_pixel: "
-                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
-                    #     + " | defchar: "
-                    #     + _char
-                    #     + " | intensity:"
-                    #     + str(color(intensity))
-                    # )
                     screen_matrix[rounded_y_pos][rounded_x_pos] = _char
-                    # screen_matrix[rounded_y_pos][rounded_x_pos] = "A"
-
-                # screen_matrix[rounded_y_pos][rounded_x_pos] = "C"
-                # raise NotImplementedError()
-
-                # elif (
-                #     not has_bg_color(
-                #         screen_matrix[rounded_y_pos][rounded_x_pos],
-                #         black_is_not_condidered_bg=False,
-                #     )
-                #     and screen_matrix[rounded_y_pos][rounded_x_pos] != _DEFAULT_CHAR
-                # ):
-                # elif has_bg_color(
-                #     screen_matrix[rounded_y_pos][rounded_x_pos]
-                # ) and not has_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
-
-                # else:
-                #     _char = colored(
-                #         screen_matrix[rounded_y_pos][rounded_x_pos], color=White(1)
-                #     )
-                #     # self.display.debug_log(
-                #     #     "prev_pixel: "
-                #     #     + screen_matrix[rounded_y_pos][rounded_x_pos]
-                #     #     + " | defchar: "
-                #     #     + colored(
-                #     #         screen_matrix[rounded_y_pos][rounded_x_pos], color=White(1)
-                #     #     )
-                #     # )
-                #     screen_matrix[rounded_y_pos][rounded_x_pos] = colored(
-                #         "A", color=White(1)
-                #     )
-
-                # just for debugging (shows vertex number)
-                # screen_matrix[yPos][xPos] = str(intensity)[0]
-
-        # screen_matrix = [
-        #     [
-        #         colored(
-        #             char,
-        #             bg_color=White(0),
-        #         )
-        #         for char in row
-        #         if not has_bg_color(char)
-        #     ]
-        #     for row in screen_matrix
-        # ]
 
         self.display.put_screen_content(screen_matrix)
         self.display.print_curr_screen(self.player)
