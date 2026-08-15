@@ -15,17 +15,21 @@ from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 
 
-# TODO: Game should not handle the 2D game, it should be a subclass like the 3D renderer
+# TODO: Game should not handle the 2D game directly, it should be a subclass like the 3D renderer
 class Game:
     status: GameStatus
+
+    _curr_fps: int
+    _current_level_index: int
+
+    # TODO: refactor this into its own renderere
     player2d: Player2D
     levels: list[Level2D]
-    current_level_index: int
-    _curr_fps: int
-
-    three_d_renderer: ThreeDeeRenderer
 
     display: Display
+
+    # TODO: this should actuaklly go in Display, together with 2D renderer when refactored
+    three_d_renderer: ThreeDeeRenderer
 
     def __init__(
         self,
@@ -35,7 +39,7 @@ class Game:
         current_level_index: int = 0,
     ):
         self.levels = levels
-        self.current_level_index = current_level_index
+        self._current_level_index = current_level_index
 
         self.player2d = player_2d
         self.player2d.set_curr_level(levels[current_level_index])
@@ -101,10 +105,10 @@ class Game:
 
         self._compute_actions_and_add_to_screen(self.player2d)
 
-        for enemy in self.levels[self.current_level_index].enemies:
+        for enemy in self.levels[self._current_level_index].enemies:
             self._compute_actions_and_add_to_screen(enemy)
 
-        for exit in self.levels[self.current_level_index].exits:
+        for exit in self.levels[self._current_level_index].exits:
             self._compute_actions_and_add_to_screen(exit)
 
         self._print_game()
