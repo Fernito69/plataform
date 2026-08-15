@@ -17,4 +17,5 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.SWITCH_CHAR_MODE: "v",
     DisplayKeys.INCREASE_DISTANCE_FOG: "4",
     DisplayKeys.DECREASE_DISTANCE_FOG: "3",
+    DisplayKeys.SWITCH_ANTIALIASING: "p"
 }

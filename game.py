@@ -146,6 +146,9 @@ class Game:
         if is_pressed(DisplayKeys.DECREASE_Y_RESOLUTION):
             self.display.modify_resolution((0, -1))
 
+        if is_pressed(DisplayKeys.SWITCH_ANTIALIASING):
+            self.display.antialiasing = not self.display.antialiasing
+
         if is_pressed(DisplayKeys.INCREASE_DISTANCE_FOG):
             # TODO: const this value
             self.three_d_renderer.curr_distance_fog += 5

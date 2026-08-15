@@ -14,6 +14,7 @@ class DisplayKeys(StrEnum):
     SWITCH_CHAR_MODE = auto()
     DECREASE_DISTANCE_FOG = auto()
     INCREASE_DISTANCE_FOG = auto()
+    SWITCH_ANTIALIASING = auto()
     
 
 class MenuKeys(StrEnum):
