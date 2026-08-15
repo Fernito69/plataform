@@ -1,5 +1,5 @@
 import random
-
+from typing import Any
 from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
@@ -41,6 +41,9 @@ class ThreeDeeRenderer:
     curr_distance_fog: int
     distance_to_spec: float
 
+    # TODO: this is a temporary hack
+    colors: list
+
     def __init__(
         self,
         player: Player3D,
@@ -53,6 +56,8 @@ class ThreeDeeRenderer:
         self.distance_to_spec = DEFAULT_DISTANCE_TO_SPEC
         self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
         self.current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
+        # TODO: this is a temporary hack
+        self.colors = colors
 
     # TODO: should be level3d
     def visualize_scenario(self):
@@ -132,7 +137,7 @@ class ThreeDeeRenderer:
                 ):
                     vertices_to_render.append([(v_x, v_y, v_z), (x_pos, y_pos)])
 
-            color = colors[entity.size % len(colors)]
+            color = self.colors[entity.size % len(self.colors)]
 
             vertices_to_render = sorted(
                 vertices_to_render,

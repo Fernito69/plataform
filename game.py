@@ -1,4 +1,4 @@
-import time
+import time, random
 
 from constants import FPS_2D
 from display import Display
@@ -168,3 +168,13 @@ class Game:
         if is_pressed(DisplayKeys.DECREASE_FOV):
             # TODO: const this value
             self.three_d_renderer.distance_to_spec -= 5
+
+        if is_pressed(DisplayKeys.SHUFFLE_COLORS):
+            # TODO: const this value
+            # self.three_d_renderer.colors = sorted(
+            #     self.three_d_renderer.colors, key=lambda: (0.5 - random.random())
+            # )
+            self.three_d_renderer.colors = sorted(
+                self.three_d_renderer.colors,
+                key=lambda _: (0.5 - random.random()),
+            )

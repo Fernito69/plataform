@@ -20,4 +20,5 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.SWITCH_ANTIALIASING: "p",
     DisplayKeys.INCREASE_FOV: "l",
     DisplayKeys.DECREASE_FOV: "k",
+    DisplayKeys.SHUFFLE_COLORS: "m",
 }

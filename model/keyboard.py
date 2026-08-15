@@ -17,6 +17,7 @@ class DisplayKeys(StrEnum):
     SWITCH_ANTIALIASING = auto()
     INCREASE_FOV = auto()
     DECREASE_FOV = auto()
+    SHUFFLE_COLORS = auto()
 
 
 class MenuKeys(StrEnum):
