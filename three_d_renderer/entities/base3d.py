@@ -7,7 +7,7 @@ from model.theme import Theme
 from utils import add_triplet, colored
 
 if TYPE_CHECKING:
-    from three_d_renderer.scenario.level3d import Level3D
+    from three_d_renderer.scenario.level_3d import Level3D
 
 
 # TODO: rename methods properly

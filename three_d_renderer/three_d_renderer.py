@@ -5,8 +5,8 @@ from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Red, Violet, White, Yellow
 from three_d_renderer.constants import ASPECT_RATIO, DISTANCE_TO_SPEC
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.scenario.level3d import Level3D
-from three_d_renderer.scenario.levels3d import build_level_3d_1
+from three_d_renderer.scenario.level_3d import Level3D
+from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import (
     colored,
     distance_between_points,
@@ -140,9 +140,9 @@ class ThreeDeeRenderer:
                 rounded_x_pos = round(x_pos)
                 rounded_y_pos = round(y_pos)
 
-                curr_pixel: str = screen_matrix[rounded_y_pos][rounded_x_pos]
+                # curr_pixel: str = screen_matrix[rounded_y_pos][rounded_x_pos]
 
-                if curr_pixel == _DEFAULT_CHAR:
+                if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
                     screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
                     # self.display.debug_log(
                     #     "char: "
@@ -154,13 +154,18 @@ class ThreeDeeRenderer:
                     # )
                 # we can replace it with bg_color!
                 # elif char not in curr_pixel:
-                elif not has_bg_color(defchar, omit_black_from_check=False) and (
-                    defchar not in curr_pixel if not isinstance(_char, str) else True
+                # TODO: Why does this part not work??
+                elif not has_bg_color(
+                    screen_matrix[rounded_y_pos][rounded_x_pos],
+                    omit_black_from_check=True,
+                ) and (
+                    char not in screen_matrix[rounded_y_pos][rounded_x_pos]
+                    if not isinstance(_char, str)
+                    else True
                 ):
-                    _prev_defchar = curr_pixel
+                    # _prev_defchar = curr_pixel
+                    # defchar = colored(curr_pixel, bg_color=22)
 
-                    # defchar = colored(curr_pixel, bg_color=color(intensity))
-                    defchar = colored(curr_pixel, bg_color=White(1))
                     # if intensity > 0.7:
                     # self.display.debug_log(
                     #     defchar
@@ -169,14 +174,36 @@ class ThreeDeeRenderer:
                     #     + " | prev dev char:"
                     #     + _prev_defchar
                     # )
+                    # raise NotImplementedError("")
+                    _char = colored(
+                        screen_matrix[rounded_y_pos][rounded_x_pos],
+                        bg_color=color(intensity),
+                    )
                     # self.display.debug_log(
-                    #     "prev_pixel: " + curr_pixel + " | defchar: " + defchar
+                    #     "prev_pixel: "
+                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
+                    #     + " | defchar: "
+                    #     + _char
                     # )
-                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+                    screen_matrix[rounded_y_pos][rounded_x_pos] = _char
 
-                if not has_bg_color(defchar):
-                    defchar = colored(defchar, bg_color=White(0))
-                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+                if (
+                    not has_bg_color(
+                        screen_matrix[rounded_y_pos][rounded_x_pos],
+                        omit_black_from_check=False,
+                    )
+                    and screen_matrix[rounded_y_pos][rounded_x_pos] != _DEFAULT_CHAR
+                ):
+                    _char = colored(
+                        screen_matrix[rounded_y_pos][rounded_x_pos], bg_color=White(0)
+                    )
+                    # self.display.debug_log(
+                    #     "prev_pixel: "
+                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
+                    #     + " | defchar: "
+                    #     + _char
+                    # )
+                    screen_matrix[rounded_y_pos][rounded_x_pos] = _char
 
                 # just for debugging (shows vertex number)
                 # screen_matrix[yPos][xPos] = str(intensity)[0]

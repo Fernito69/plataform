@@ -73,10 +73,10 @@ class Display:
         # THIS IS HORRIBLE, DO PROPERLY
         char: str | list[str] = "█"
         if self.curr_3d_char_mode == "█":
-            char = "░"
-        elif self.curr_3d_char_mode == "░":
             char = ["▀", "▄"]
-        if self.curr_3d_char_mode == ["▀", "▄"]:
+        elif self.curr_3d_char_mode == ["▀", "▄"]:
+            char = "░"
+        if self.curr_3d_char_mode == "░":
             char = "█"
 
         self.curr_3d_char_mode = char

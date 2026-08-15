@@ -7,7 +7,7 @@ from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED
 from three_d_renderer.entities.base3d import LivingEntity3D
 
 if TYPE_CHECKING:
-    from three_d_renderer.scenario.level3d import Level3D
+    from three_d_renderer.scenario.level_3d import Level3D
 
 
 # for now a fixed camera

@@ -1,5 +1,5 @@
 from three_d_renderer.entities.base3d import Cube, Dodeca, Ico, Tetra
-from three_d_renderer.scenario.level3d import Level3D
+from three_d_renderer.scenario.level_3d import Level3D
 
 
 def build_level_3d_1() -> Level3D:
@@ -8,31 +8,31 @@ def build_level_3d_1() -> Level3D:
         size=20,
         angle=[0, 0, 0],
         movMatrix=[0, 0, 0],
-        rotMatrix=[0, 1, 0],
+        rotMatrix=[1, 0, 0],
     )
     dode = Dodeca(
         position=[0, 100, 20],
         size=18,
         angle=[0, 30, 0],
         movMatrix=[0, 0, 0],
-        rotMatrix=[-3, 5, 1],
+        rotMatrix=[-1, 2, 0],
     )
     cube = Cube(
         position=[-25, 150, -50],
         size=30,
         angle=[0, 5, 0],
         movMatrix=[0, 0, 0],
-        rotMatrix=[-3, 5, 1],
+        rotMatrix=[-3, 3, 1],
     )
     cube2 = Cube(
         position=[+25, 60, 50],
         size=15,
         angle=[0, -4, 0],
         movMatrix=[0, 0, 0],
-        rotMatrix=[-3, 5, 1],
+        rotMatrix=[2, 2, 1],
     )
     tetra = Tetra(
-        position=[50, 50, -100],
+        position=[50, 50, -80],
         size=14,
         angle=[0, 17, 0],
         movMatrix=[0, 0, 0],
