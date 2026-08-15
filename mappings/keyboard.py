@@ -18,7 +18,7 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.DECREASE_DISTANCE_FOG: "4",
     DisplayKeys.INCREASE_DISTANCE_FOG: "3",
     DisplayKeys.SWITCH_ANTIALIASING: "p",
-    DisplayKeys.INCREASE_FOV: "g",
-    DisplayKeys.DECREASE_FOV: "f",
+    DisplayKeys.DECREASE_FOV: "g",
+    DisplayKeys.INCREASE_FOV: "f",
     DisplayKeys.SHUFFLE_COLORS: "m",
 }

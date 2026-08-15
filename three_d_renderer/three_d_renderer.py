@@ -104,27 +104,13 @@ class ThreeDeeRenderer:
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
-                # distance_between_points(
-                #     e.position, self.player.position, e.size * 2
-                # ).distance_to_border
                 distance_between_points(
                     e.position, self.player.position, e.get_diameter()
                 ).distance_to_edge
                 or 0
             ),
         )
-        # self._curr_level.entities.sort(
-        #     key=lambda e: (
-        #         # distance_between_points(e.position, self.player.position).distance
-        #         # TODO: if I add the size it does it wrong, figure out what the shit
-        #         distance_between_points(
-        #             e.position,
-        #             self.player.position,
-        #             #   e.size
-        #         ).distance_to_border
-        #         or 1000
-        #     ),
-        # )
+
         # TODO: find a way to find what's behind the player to not render it
         # TODO: refactor, beri messy right now
         for entity in self._curr_level.entities:
@@ -137,6 +123,7 @@ class ThreeDeeRenderer:
             # we add the vertexes to the screen matrix
             # TODO: type this shit properly
             vertices_to_render = []
+            # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.objVertexes:
                 v_x, v_y, v_z = subtract_triplet(vertex, self.player.position)
 

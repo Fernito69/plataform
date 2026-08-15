@@ -157,6 +157,9 @@ class Entity3D:
 
         self.objVertexes = vertexes
 
+    # TODO!!!: voxels/"objVertexes" are stupid! we should trace a line from the projected point "a" to "b" and draw through the screen, averaging the colors of both halves of the pixel depending on the float
+    # TODO: theoretically, with a (hopefully cheaper) second pass (once all background entities were rendered), we can achieve very pretty effects... or maybe we don't even need a second pass! e.g: if both color and bg are different, apply where it should go!!!!!
+    # for the above we need the locations with decimals, befores rounding
     def calc_vertexes(self):
         pass
 

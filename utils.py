@@ -103,6 +103,7 @@ def distance_between_points(
         # TODO: type properly
         vector = [x, y, z]
         distance = vector_length(vector)
+        # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex
         distance_to_border: float | None = (
             distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
         )
