@@ -57,6 +57,16 @@ class RGB:
     g: int = 127
     b: int = 127
 
+    def __str__(self):
+        return f"rgb({self.r}, {self.g}, {self.b})"
+
+    def with_intensity(self, intensity: float) -> "RGB":
+        return RGB(
+            int(self.r * intensity),
+            int(self.g * intensity),
+            int(self.b * intensity),
+        )
+
 
 # TODO: make this an enum
 type SequencingType = Literal["random", "sequential", "back&forth"]

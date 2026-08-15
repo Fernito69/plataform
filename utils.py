@@ -18,6 +18,15 @@ def _encode_rgb(color: RGB) -> str:
     return f"{color.r};{color.g};{color.b}"
 
 
+def extract_color_from_string(text: str) -> RGB:
+    if not has_color(text):
+        return RGB(0, 0, 0)
+
+    rgb_string = text.split(_FG_CODE)[1].split("m")[0]
+    r, g, b = rgb_string.split(";")
+    return RGB(int(r), int(g), int(b))
+
+
 def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) -> str:
     fg_code = f"{_FG_CODE}{_encode_rgb(color)}m" if color else ""
     bg_code = f"{_BG_CODE}{_encode_rgb(bg_color)}m" if bg_color else ""
@@ -30,10 +39,10 @@ def has_color(text: str) -> bool:
     return _FG_CODE in text
 
 
-def has_bg_color(text: str, omit_black_from_check: bool = True) -> bool:
+def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
     return (
         _BG_CODE in text and not _encode_rgb(RGB(0, 0, 0)) in text
-        if omit_black_from_check
+        if black_is_not_condidered_bg
         else _BG_CODE in text
     )
 

@@ -127,6 +127,7 @@ class Game:
         if is_pressed(DisplayKeys.SWITCH_CHAR_MODE):
             self.status = GameStatus.MODE_3D
             self.display.switch_3d_char_mode()
+            # self.display.with_black_bg = not self.display.with_black_bg
             self._curr_fps = FPS_3D
 
         # For now screen size is fixed for 2D mode

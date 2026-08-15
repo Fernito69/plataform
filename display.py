@@ -5,13 +5,13 @@ import math
 from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.base import Entity2D
 from entities.player2d import Player2D
-from factories.theme import Green, Red, Yellow
+from factories.theme import Green, Red, Yellow, White, RGB
 from level_2d import Level2D
 from model.shared import Coord2, Vector2
 from model.theme import DoubleLines
 from terminal import clear
 from three_d_renderer.constants import X_RESOLUTION_3D, Y_RESOLUTION_3D
-from utils import colored
+from utils import colored, has_bg_color, extract_color_from_string
 
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
@@ -39,6 +39,9 @@ class Display:
     #
     curr_3d_char_mode: str | list[str]
 
+    # TODO: delete this
+    with_black_bg: bool = True
+
     def __init__(
         self,
         curr_level: Level2D,
@@ -46,6 +49,7 @@ class Display:
         self._curr_level_2D = curr_level
         self.populate_level_into_matrix()
         self.curr_3d_char_mode = "█"
+        self.with_black_bg = True
 
         self.switch_3d_char_mode()
 
@@ -157,7 +161,21 @@ class Display:
 
         for i in range(self.curr_y_resolution):
             for j in range(self.curr_x_resolution):
-                matrix_string += self._screen_matrix[i][j]
+                matrix_string += (
+                    self._screen_matrix[i][j]
+                    if not self.with_black_bg
+                    or has_bg_color(
+                        self._screen_matrix[i][j], black_is_not_condidered_bg=False
+                    )
+                    #  TODO: implement antialiasign using an averaged RGB
+                    else colored(
+                        self._screen_matrix[i][j],
+                        bg_color=extract_color_from_string(
+                            self._screen_matrix[i][j]
+                        ).with_intensity(0.4),
+                        # bg_color=White(0),
+                    )
+                )
             if i < self.curr_y_resolution - 1:
                 matrix_string += "\n"
 

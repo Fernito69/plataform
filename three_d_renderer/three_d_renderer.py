@@ -11,6 +11,7 @@ from utils import (
     colored,
     distance_between_points,
     has_bg_color,
+    has_color,
     subtract_triplet,
     vector_length,
 )
@@ -144,6 +145,9 @@ class ThreeDeeRenderer:
 
                 if screen_matrix[rounded_y_pos][rounded_x_pos] == _DEFAULT_CHAR:
                     screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+                    # screen_matrix[rounded_y_pos][rounded_x_pos] = colored(
+                    #     "·", color=color(intensity)
+                    # )
                     # self.display.debug_log(
                     #     "char: "
                     #     + char
@@ -155,14 +159,17 @@ class ThreeDeeRenderer:
                 # we can replace it with bg_color!
                 # elif char not in curr_pixel:
                 # TODO: Why does this part not work??
-                elif not has_bg_color(
-                    screen_matrix[rounded_y_pos][rounded_x_pos],
-                    omit_black_from_check=True,
-                ) and (
-                    char not in screen_matrix[rounded_y_pos][rounded_x_pos]
-                    if not isinstance(_char, str)
-                    else True
-                ):
+                # TODO: implement a test for this
+
+                elif char not in screen_matrix[rounded_y_pos][
+                    rounded_x_pos
+                ] and not has_bg_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
+                    # elif not has_bg_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
+                    #     and (
+                    #     char not in screen_matrix[rounded_y_pos][roundesssssssssssssssssssssssssssssssssssssssd_x_pos]
+                    #     if not isinstance(_char, str)
+                    #     else True
+                    # ):
                     # _prev_defchar = curr_pixel
                     # defchar = colored(curr_pixel, bg_color=22)
 
@@ -179,34 +186,61 @@ class ThreeDeeRenderer:
                         screen_matrix[rounded_y_pos][rounded_x_pos],
                         bg_color=color(intensity),
                     )
-                    # self.display.debug_log(
-                    #     "prev_pixel: "
-                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
-                    #     + " | defchar: "
-                    #     + _char
-                    # )
+                    self.display.debug_log(
+                        "prev_pixel: "
+                        + screen_matrix[rounded_y_pos][rounded_x_pos]
+                        + " | defchar: "
+                        + _char
+                        + " | intensity:"
+                        + str(color(intensity))
+                    )
                     screen_matrix[rounded_y_pos][rounded_x_pos] = _char
+                    # screen_matrix[rounded_y_pos][rounded_x_pos] = "A"
 
-                if (
-                    not has_bg_color(
-                        screen_matrix[rounded_y_pos][rounded_x_pos],
-                        omit_black_from_check=False,
-                    )
-                    and screen_matrix[rounded_y_pos][rounded_x_pos] != _DEFAULT_CHAR
-                ):
-                    _char = colored(
-                        screen_matrix[rounded_y_pos][rounded_x_pos], bg_color=White(0)
-                    )
-                    # self.display.debug_log(
-                    #     "prev_pixel: "
-                    #     + screen_matrix[rounded_y_pos][rounded_x_pos]
-                    #     + " | defchar: "
-                    #     + _char
-                    # )
-                    screen_matrix[rounded_y_pos][rounded_x_pos] = _char
+                # screen_matrix[rounded_y_pos][rounded_x_pos] = "C"
+                # raise NotImplementedError()
+
+                # elif (
+                #     not has_bg_color(
+                #         screen_matrix[rounded_y_pos][rounded_x_pos],
+                #         black_is_not_condidered_bg=False,
+                #     )
+                #     and screen_matrix[rounded_y_pos][rounded_x_pos] != _DEFAULT_CHAR
+                # ):
+                # elif has_bg_color(
+                #     screen_matrix[rounded_y_pos][rounded_x_pos]
+                # ) and not has_color(screen_matrix[rounded_y_pos][rounded_x_pos]):
+
+                # else:
+                #     _char = colored(
+                #         screen_matrix[rounded_y_pos][rounded_x_pos], color=White(1)
+                #     )
+                #     # self.display.debug_log(
+                #     #     "prev_pixel: "
+                #     #     + screen_matrix[rounded_y_pos][rounded_x_pos]
+                #     #     + " | defchar: "
+                #     #     + colored(
+                #     #         screen_matrix[rounded_y_pos][rounded_x_pos], color=White(1)
+                #     #     )
+                #     # )
+                #     screen_matrix[rounded_y_pos][rounded_x_pos] = colored(
+                #         "A", color=White(1)
+                #     )
 
                 # just for debugging (shows vertex number)
                 # screen_matrix[yPos][xPos] = str(intensity)[0]
+
+        # screen_matrix = [
+        #     [
+        #         colored(
+        #             char,
+        #             bg_color=White(0),
+        #         )
+        #         for char in row
+        #         if not has_bg_color(char)
+        #     ]
+        #     for row in screen_matrix
+        # ]
 
         self.display.put_screen_content(screen_matrix)
         self.display.print_curr_screen()
