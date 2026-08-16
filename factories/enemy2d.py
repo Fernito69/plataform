@@ -1,7 +1,7 @@
 from entities.enemy2d import Enemy2D
 from factories.theme import Blue, Red, Yellow
+from model.base import Point2, Vector2
 from model.enemy import EnemyType
-from model.shared import Point2, Vector2
 from model.theme import RGB, Theme
 
 _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_FRAMES = ["@"]

@@ -12,7 +12,7 @@ from factories.theme import (
     Yellow,
 )
 from level_2d import Level2D
-from model.shared import Orientation
+from model.base import Orientation
 
 _DEFAULT_LINE_TYPE = DoubleLines
 

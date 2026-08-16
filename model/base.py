@@ -9,7 +9,7 @@ Point2 = Vector2
 # Vector3 = tuple[Number, Number, Number]
 # Point3 = tuple[Number, Number, Number]
 
-# TODO: make the above work
+# TODO: these sholud be 3-tuples
 Vector3 = list[Number]
 Point3 = list[Number]
 

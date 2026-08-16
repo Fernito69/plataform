@@ -4,7 +4,7 @@ from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.enemy2d import Enemy2D
 from entities.things2d import Exit2D
 from factories.theme import DefaultTheme, DoubleLines
-from model.shared import Orientation, Point2
+from model.base import Orientation, Point2
 from model.theme import RGB, Theme
 from utils import colored
 

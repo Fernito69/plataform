@@ -8,8 +8,8 @@ from entities.player2d import Player2D
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from level_2d import Level2D
 from mappings.keyboard import default_keyboard_mapping
+from model.base import Point2, Vector2
 from model.keyboard import DisplayKeys
-from model.shared import Point2, Vector2
 from model.theme import DoubleLines
 from terminal import clear
 from three_d_renderer.constants import (

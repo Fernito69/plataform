@@ -1,72 +1,35 @@
-import random
-from dataclasses import dataclass
 import math
+import random
 
 from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
-from model.shared import DistVector3D, Point2, Point3
-from model.theme import RGB
+from model.base import Point2, Point3
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
-from three_d_renderer.entities.base3d import Entity3D
 from three_d_renderer.entities.player3d import Player3D
+from three_d_renderer.model.base import (
+    PixelContribution,
+    RenderingObj,
+    ScreenData,
+    SubpixelContribution,
+    Vertex3,
+)
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import (
     colored,
     distance_between_points,
+    get_line_equations,
     has_bg_color,
     subtract_triplet,
     vector_length,
-    get_line_equation,
 )
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
-
-
-# TODO: Move
-@dataclass
-class Vertex3:
-    # Index of vertex in the Entity (check calc_vertex_v2 method)
-    index: int
-    point: Point3
-
-
-@dataclass
-class RenderingObj:
-    entity_idx: int
-    entity: Entity3D
-    vertex: Vertex3
-    dist_vector: DistVector3D
-
-
-@dataclass
-# Represents the contribution of a line segment to filling in the pixel's content
-class SubpixelContribution:
-    distance_from_spec: float
-    """
-    Usage is calculated based on how close the line passes to the center of the pixel
-    e.g. at pixel (x1, y1), if the line crosses at:
-    - (x1, y1) -> 0% usage, it barely touches the pixel
-    - (x1 + 0.5, y1 + 0.5) -> 100% usage, the line pases exactly through the middle of the pixel
-    """
-    pixel_usage_ratio: float
-    color: RGB | None = None
-
-
-@dataclass
-class PixelContribution:
-    upper_subpixel: SubpixelContribution
-    lower_subpixel: SubpixelContribution
-
-
-@dataclass
-class ScreenData:
-    contributions: list[SubpixelContribution]
 
 
 # TODO: this is a temporary hack
@@ -164,7 +127,7 @@ class ThreeDeeRenderer:
                     continue
 
                 # Trace line
-                eq_y, eq_x = get_line_equation(curr_vertex, connecting_vertex)
+                eq = get_line_equations(curr_vertex, connecting_vertex)
                 x1, y1 = curr_vertex
                 x2, y2 = connecting_vertex
 
@@ -173,7 +136,7 @@ class ThreeDeeRenderer:
                 # Check the affected pixels:
                 for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
                     for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
-                        calculated_y = eq_y(x)
+                        calculated_y = eq.get_y(x)
                         # TODO: Round or floor?
                         if round(calculated_y) == y:
                             # Calculate pixel_usage_ratio per half

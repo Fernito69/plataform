@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from constants import EMPTY_SPACE
 from factories.theme import White
-from model.shared import Point3, Vector3
+from model.base import Point3, Vector3
 from model.theme import RGB, Theme
 from utils import add_triplet, colored
 

@@ -1,12 +1,9 @@
-from factories.theme import DoubleLines
-from model.shared import Vector3
+from model.base import Vector3
 from three_d_renderer.entities.base3d import Entity3D
 
-_DEFAULT_LINE_TYPE = DoubleLines
 
-
+# TODO: refactor the shit out of this
 class Level3D:
-    # TODO: refactor the shit out of this
     entities: list[Entity3D]
 
     def __init__(

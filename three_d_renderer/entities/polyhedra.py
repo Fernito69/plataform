@@ -1,4 +1,4 @@
-from model.shared import Point3
+from model.base import Point3
 from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
 from utils import add_triplet

@@ -1,6 +1,6 @@
 from entities.base import Entity2D
 from factories.theme import Red, Yellow
-from model.shared import Point2
+from model.base import Point2
 from model.theme import Theme
 
 _EXIT_COLOR = Yellow()

@@ -7,8 +7,8 @@ from constants import (
     X_RESOLUTION_2D,
     Y_RESOLUTION_2D,
 )
+from model.base import Orientation, Point2, Vector2
 from model.entity import Collision2X, Collision2Y
-from model.shared import Orientation, Point2, Vector2
 from model.theme import Theme
 from utils import add_tuple, colored
 

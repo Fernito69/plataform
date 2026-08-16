@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from model.shared import Number, Orientation
+from model.base import Number, Orientation
 
 
 @dataclass

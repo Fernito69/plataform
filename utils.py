@@ -1,6 +1,7 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 
-from model.shared import DistVector3D, Number, Point2, Point3, Vector2, Vector3
+from model.base import DistVector3D, Number, Point2, Point3, Vector2, Vector3
 from model.theme import RGB
 
 RESET = "\033[0m"
@@ -80,10 +81,6 @@ def subtract_triplet(
     ]
 
 
-def vector_length(v: Vector3 | Vector2) -> float:
-    return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
-
-
 # Instead of diameter, pass an Entity3D and call an internal get diameter function
 # I think distance_to_border doesn't work because the size is not the diameter in the current way we are creating the entities
 def distance_between_points(
@@ -119,15 +116,59 @@ def distance_between_points(
     return DistVector3D(0, [0, 0, 0])
 
 
-def get_line_equation(
-    point1: Point2, point2: Point2
-) -> tuple[Callable[[float], float], Callable[[float], float]]:
-    m = (point2[1] - point1[1]) / (point2[0] - point1[0])
+def vector_length(v: Vector3 | Vector2) -> float:
+    return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
-    def y(x: float):
+
+def distance_from_line_to_point(line: tuple[Point2, Point2], point: Point2) -> float:
+    original_m = get_slope(line[0], line[1])
+
+    # edge case 1: when slope is infinite! straight distance from point to line
+    if original_m is None:
+        return abs(point[0] - line[0][0])
+
+    # edge case 2: when slope is 0! same as above
+    if original_m == 0:
+        return abs(point[1] - line[0][1])
+
+    perpendicular_m = -1 / original_m
+
+    # get the new equation with (y - y1) = m(x - x1) -> y-intercept = -mx1 + y1
+    y_intercept_new_line = -perpendicular_m * point[0] + point[1]
+    y_intercept_old_line = -original_m * line[0][0] + line[0][1]
+
+    # we equate both to extract x, and then y
+    new_x = (y_intercept_new_line - y_intercept_old_line) / (original_m - perpendicular_m)
+    new_y = perpendicular_m * new_x + y_intercept_new_line
+
+    # now get distance
+    return vector_length((point[0] - new_x, point[1] - new_y))
+
+
+def get_slope(point1: Point2, point2: Point2) -> float | None:
+    if point2[0] - point1[0] == 0:
+        return None
+    return (point2[1] - point1[1]) / (point2[0] - point1[0])
+
+
+@dataclass
+class GetLineEquationResponse:
+    get_y: Callable[[float], float]
+    get_x: Callable[[float], float]
+    m: float | None
+
+
+def get_line_equations(point1: Point2, point2: Point2) -> GetLineEquationResponse:
+    m = get_slope(point1, point2)
+
+    def get_y(x: float) -> float:
+        if not m:
+            return point1[1]
         return m * (x - point1[0]) + point1[1]
 
-    def x(y: float):
+    def get_x(y: float):
+        if not m:
+            return point1[0]
         return ((y - point1[1]) / m) + point1[0]
 
-    return (y, x)
+    return GetLineEquationResponse(get_y, get_x, m)
