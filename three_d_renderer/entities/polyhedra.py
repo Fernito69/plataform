@@ -55,7 +55,7 @@ class Cube(Entity3D):
 
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+        if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
         vertexes = self.calc_v2_vertexes()
@@ -84,7 +84,7 @@ class Cube(Entity3D):
             vertexes.append([x - s / 2, y + s / 2 - i, z - s / 2])
             vertexes.append([x - s / 2, y - s / 2, z + s / 2 - i])
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
         self.apply_rotations()
 
 
@@ -123,7 +123,7 @@ class Tetra(Entity3D):
 
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+        if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
         vertexes = self.calc_v2_vertexes()
@@ -141,7 +141,7 @@ class Tetra(Entity3D):
             vertexes.append([(x - s + t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 2 - 4
             vertexes.append([(x), (y - s + t), (z + R2O2 * s)])  # 3 - 4
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
         self.apply_rotations()
 
 
@@ -228,7 +228,7 @@ class Ico(Entity3D):
     def calc_vertexes(self):
 
         # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+        if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
         vertexes = self.calc_v2_vertexes()
@@ -326,7 +326,7 @@ class Ico(Entity3D):
 
             vertexes.append([(x - PHI * s), (y), (z + s - 2 * t)])  # vertex 11 - 12
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
 
 
 ################
@@ -405,7 +405,7 @@ class Dodeca(Entity3D):
 
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position
-        if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
+        if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
         vertexes = self.calc_v2_vertexes()
@@ -502,7 +502,7 @@ class Dodeca(Entity3D):
             vertexes.append([(x + PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)])  # vertex 17 - 18
             vertexes.append([(x - PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)])  # vertex 19 - 20
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
         self.apply_rotations()
 
 
@@ -567,5 +567,5 @@ class F_Letter(Entity3D):
                 #         )
                 #     )
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
         self.apply_rotations()

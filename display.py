@@ -91,6 +91,15 @@ class Display:
         self.curr_3d_char_mode = char
         return self.curr_3d_char_mode
 
+    # TODO: border thickness should not be passed here
+    def is_in_screen(self, point: Point2, border_thickness: int = 1) -> bool:
+        return (
+            point[0] >= border_thickness
+            and point[0] < self.curr_x_resolution - border_thickness
+            and point[1] >= border_thickness
+            and point[1] < self.curr_y_resolution - border_thickness
+        )
+
     def modify_resolution(self, amount: Vector2) -> None:
         self.curr_x_resolution += int(amount[0])
         self.curr_y_resolution += int(amount[1])

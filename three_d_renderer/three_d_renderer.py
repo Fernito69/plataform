@@ -1,5 +1,6 @@
 import random
 from dataclasses import dataclass
+import math
 
 from constants import EMPTY_SPACE
 from display import Display
@@ -15,24 +16,37 @@ from three_d_renderer.entities.base3d import Entity3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
-from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
+from utils import (
+    colored,
+    distance_between_points,
+    has_bg_color,
+    subtract_triplet,
+    vector_length,
+    get_line_equation,
+)
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 
 
 # TODO: Move
 @dataclass
+class Vertex3:
+    # Index of vertex in the Entity (check calc_vertex_v2 method)
+    index: int
+    point: Point3
+
+
+@dataclass
 class RenderingObj:
     entity_idx: int
     entity: Entity3D
-    vertex: Point3
+    vertex: Vertex3
     dist_vector: DistVector3D
 
 
 @dataclass
 # Represents the contribution of a line segment to filling in the pixel's content
-class Contribution:
-    color: RGB
+class SubpixelContribution:
     distance_from_spec: float
     """
     Usage is calculated based on how close the line passes to the center of the pixel
@@ -41,12 +55,18 @@ class Contribution:
     - (x1 + 0.5, y1 + 0.5) -> 100% usage, the line pases exactly through the middle of the pixel
     """
     pixel_usage_ratio: float
+    color: RGB | None = None
+
+
+@dataclass
+class PixelContribution:
+    upper_subpixel: SubpixelContribution
+    lower_subpixel: SubpixelContribution
 
 
 @dataclass
 class ScreenData:
-    position: Point2
-    contributions: list[Contribution]
+    contributions: list[SubpixelContribution]
 
 
 # TODO: this is a temporary hack
@@ -89,40 +109,96 @@ class ThreeDeeRenderer:
 
     # This is where the 3D to 2D projection magic happens
     def _project_onto_screen(self, point3: Point3) -> Point2:
-        v_x, v_y, v_z = point3
-        x_pos = ((v_x * self.fov / v_y) + (self.display.curr_x_resolution / 2)) if v_y > 0 else 0
+        x, y, z = point3
+        x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
         y_pos = (
-            (((v_z * self.fov / v_y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
-            if v_y > 0
+            (((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
+            if y > 0
             else 0
         )
         return (x_pos, y_pos)
 
     def render_v2(self):
-        # Order by closest to farthest
+        # Order vertices by closest to farthest
         render_list: list[RenderingObj] = sorted(
             [
                 RenderingObj(
                     entity_idx=entity_idx,
                     entity=entity,
-                    vertex=vertex,
+                    vertex=Vertex3(point=vertex, index=vertex_index),
                     dist_vector=distance_between_points(vertex, self.player.position),
                 )
                 for entity_idx, entity in [
                     (entity_idx, entity)
                     for entity_idx, entity in enumerate(self._curr_level.entities)
                 ]
-                for vertex in entity.objVertexes
+                for vertex_index, vertex in enumerate(entity.vertices)
             ],
             key=lambda r: r.dist_vector.distance,
         )
 
-        # TODO: this doesn't go here
-        screen_matrix: list[list[str]] = []
+        screen_data: list[list[ScreenData | None]] = []
+        # Init screen_data
+        for y in range(self.display.curr_y_resolution):
+            screen_data.append([])
+            for _ in range(self.display.curr_x_resolution):
+                screen_data[y].append(None)
 
         for res in render_list:
-            # With the vertex position, we project it into the screen
-            pass
+            # 1) Take vertices and trace lines
+            # 2) Figure out pixels the line goes through
+            # 3) Figure out pixel_usage_ratio
+
+            connections = [c for c in res.entity.vertex_connections if c[0] == res.vertex.index]
+
+            # Calc lines
+            for _, connecting_vertex_index in connections:
+                curr_vertex = self._project_onto_screen(res.vertex.point)
+                connecting_vertex = self._project_onto_screen(
+                    res.entity.vertices[connecting_vertex_index]
+                )
+
+                if not self.display.is_in_screen(curr_vertex) and not self.display.is_in_screen(
+                    connecting_vertex
+                ):
+                    continue
+
+                # Trace line
+                eq_y, eq_x = get_line_equation(curr_vertex, connecting_vertex)
+                x1, y1 = curr_vertex
+                x2, y2 = connecting_vertex
+
+                contributions: list[PixelContribution] = []
+
+                # Check the affected pixels:
+                for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
+                    for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
+                        calculated_y = eq_y(x)
+                        # TODO: Round or floor?
+                        if round(calculated_y) == y:
+                            # Calculate pixel_usage_ratio per half
+                            pixel_usage_ratio = 0
+
+                            # Upper pixel limits:
+                            # (x,y) (x+1, y + .5)
+                            # (x,y+.5) (x+1, y + 1)
+                            upper_subpixel = SubpixelContribution(
+                                color=res.entity.theme.color,
+                                distance_from_spec=res.dist_vector.distance,
+                                pixel_usage_ratio=pixel_usage_ratio,
+                            )
+
+                            lower_subpixel = SubpixelContribution(
+                                color=res.entity.theme.color,
+                                distance_from_spec=res.dist_vector.distance,
+                                pixel_usage_ratio=pixel_usage_ratio,
+                            )
+
+                            contributions.append(
+                                PixelContribution(
+                                    upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
+                                )
+                            )
 
     def visualize_scenario(self):
         X_RES = self.display.curr_x_resolution
@@ -179,7 +255,7 @@ class ThreeDeeRenderer:
             # TODO: type this shit properly
             vertices_to_render = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
-            for vertex in entity.objVertexes:
+            for vertex in entity.vertices:
                 normalized_vertex = subtract_triplet(vertex, self.player.position)
                 x_pos, y_pos = self._project_onto_screen(normalized_vertex)
 

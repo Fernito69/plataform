@@ -24,7 +24,7 @@ class Entity3D:
     falling_velocity: float = 0
     # TODO: rotation_matrix missing?
     # TODO: should be objVertexes: list[tuple[Point3, Point3]]
-    objVertexes: list[Point3]
+    vertices: list[Point3]
 
     # How vertices in the entity interconnect between them
     # works by index, e.g.: (0, 1) <- vertex 0 connects with 1
@@ -58,7 +58,7 @@ class Entity3D:
         self.angle = angle
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
-        self.objVertexes = objVertexes
+        self.vertices = objVertexes
 
         # For now only color
         self.theme = Theme(color=color)
@@ -132,13 +132,13 @@ class Entity3D:
         self.angle[2] -= self.rotMatrix[2]
 
     def get_render_v2_obj(self) -> Any:
-        ordered_vertexes = sorted(self.objVertexes)
+        ordered_vertexes = sorted(self.vertices)
 
         for v in ordered_vertexes:
             pass
 
     def apply_rotations(self):
-        vertexes = self.objVertexes
+        vertexes = self.vertices
 
         x = self.position[0]
         y = self.position[1]
@@ -175,7 +175,7 @@ class Entity3D:
             vertexes[i][1] = (orig[i][1] - y) * math.cos(aZ) + (orig[i][2] - z) * math.sin(aZ) + y
             vertexes[i][2] = -(orig[i][1] - y) * math.sin(aZ) + (orig[i][2] - z) * math.cos(aZ) + z
 
-        self.objVertexes = vertexes
+        self.vertices = vertexes
 
     # TODO!!!: voxels/"objVertexes" are stupid! we should trace a line from the projected point "a" to "b" and draw through the screen, averaging the colors of both halves of the pixel depending on the float
     # TODO: theoretically, with a (hopefully cheaper) second pass (once all background entities were rendered), we can achieve very pretty effects... or maybe we don't even need a second pass! e.g: if both color and bg are different, apply where it should go!!!!!

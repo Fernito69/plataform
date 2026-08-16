@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from model.shared import DistVector3D, Number, Point2, Point3, Vector2, Vector3
 from model.theme import RGB
 
@@ -115,3 +117,17 @@ def distance_between_points(
         )
 
     return DistVector3D(0, [0, 0, 0])
+
+
+def get_line_equation(
+    point1: Point2, point2: Point2
+) -> tuple[Callable[[float], float], Callable[[float], float]]:
+    m = (point2[1] - point1[1]) / (point2[0] - point1[0])
+
+    def y(x: float):
+        return m * (x - point1[0]) + point1[1]
+
+    def x(y: float):
+        return ((y - point1[1]) / m) + point1[0]
+
+    return (y, x)
