@@ -141,7 +141,7 @@ class ThreeDeeRenderer:
                         calculated_y = eq.get_y(x)
                         calculated_x = eq.get_x(calculated_y)
                         # TODO: Round or floor?
-                        if round(calculated_y) == y and round(calculated_x == x):
+                        if round(calculated_y) == y and round(calculated_x) == x:
                             # Calculate pixel_usage_ratio per half
                             # we use the half's middle point
 
@@ -164,16 +164,22 @@ class ThreeDeeRenderer:
                                     0,
                                 )
 
+                            upper_contribution = get_contribution(*middle_upper)
+                            lower_contribution = get_contribution(*middle_lower)
+
+                            if upper_contribution <= 0 and lower_contribution <= 0:
+                                continue
+
                             upper_subpixel = SubpixelContribution(
                                 color=res.entity.theme.color,
                                 distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=get_contribution(*middle_upper),
+                                pixel_usage_ratio=upper_contribution,
                             )
 
                             lower_subpixel = SubpixelContribution(
                                 color=res.entity.theme.color,
                                 distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=get_contribution(*middle_lower),
+                                pixel_usage_ratio=lower_contribution,
                             )
 
                             contributions.append(
