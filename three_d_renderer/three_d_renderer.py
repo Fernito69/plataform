@@ -139,7 +139,7 @@ class ThreeDeeRenderer:
                         calculated_y = eq.get_y(x)
                         # TODO: Round or floor?
                         if round(calculated_y) == y:
-                            # Calculate pixel_usage_ratio per half
+                            # Calculate pixel_usage_ratio per half, for this we use the new function to calculate the fdistance to the poitnsitnsintsintsintsin
                             pixel_usage_ratio = 0
 
                             # Upper pixel limits:
