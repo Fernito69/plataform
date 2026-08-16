@@ -81,9 +81,8 @@ class ThreeDeeRenderer:
         )
         return (x_pos, y_pos)
 
-    def render_v2(self):
-        # Order vertices by closest to farthest
-        render_list: list[RenderingObj] = sorted(
+    def _get_render_v2_list(self) -> list[RenderingObj]:
+        return sorted(
             [
                 RenderingObj(
                     entity_idx=entity_idx,
@@ -100,12 +99,20 @@ class ThreeDeeRenderer:
             key=lambda r: r.dist_vector.distance,
         )
 
+    def _init_screen_data(self) -> list[list[ScreenData | None]]:
         screen_data: list[list[ScreenData | None]] = []
         # Init screen_data
         for y in range(self.display.curr_y_resolution):
             screen_data.append([])
             for _ in range(self.display.curr_x_resolution):
                 screen_data[y].append(None)
+        return screen_data
+
+    def render_v2(self):
+        # Order vertices by closest to farthest
+        render_list: list[RenderingObj] = self._get_render_v2_list()
+
+        screen_data: list[list[ScreenData | None]] = self._init_screen_data()
 
         for res in render_list:
             # 1) Take vertices and trace lines
@@ -140,8 +147,7 @@ class ThreeDeeRenderer:
                     for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
                         calculated_y = eq.get_y(x)
                         calculated_x = eq.get_x(calculated_y)
-                        # TODO: Round or floor?
-                        if round(calculated_y) == y and round(calculated_x) == x:
+                        if y <= calculated_y < (y + 1) and x <= calculated_x < (x + 1):
                             # Calculate pixel_usage_ratio per half
                             # we use the half's middle point
 
@@ -153,7 +159,7 @@ class ThreeDeeRenderer:
 
                             # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
                             # We take that as 0% contribution, and 0 as 100%
-                            def get_contribution(x: float, y: float):
+                            def get_contribution(x: float, y: float) -> float:
                                 return max(
                                     1
                                     - distance_from_line_to_point(
@@ -164,8 +170,8 @@ class ThreeDeeRenderer:
                                     0,
                                 )
 
-                            upper_contribution = get_contribution(*middle_upper)
-                            lower_contribution = get_contribution(*middle_lower)
+                            upper_contribution: float = get_contribution(*middle_upper)
+                            lower_contribution: float = get_contribution(*middle_lower)
 
                             if upper_contribution <= 0 and lower_contribution <= 0:
                                 continue
