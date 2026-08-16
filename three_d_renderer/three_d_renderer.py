@@ -23,6 +23,7 @@ from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import (
     colored,
     distance_between_points,
+    distance_from_line_to_point,
     get_line_equations,
     has_bg_color,
     subtract_triplet,
@@ -30,7 +31,6 @@ from utils import (
 )
 
 _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
-
 
 # TODO: this is a temporary hack
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
@@ -128,33 +128,50 @@ class ThreeDeeRenderer:
 
                 # Trace line
                 eq = get_line_equations(curr_vertex, connecting_vertex)
-                x1, y1 = curr_vertex
-                x2, y2 = connecting_vertex
 
+                # we gather every individual contribution of the entity line to the pixel.
                 contributions: list[PixelContribution] = []
 
                 # Check the affected pixels:
+                x1, y1 = curr_vertex
+                x2, y2 = connecting_vertex
                 for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
                     for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
                         calculated_y = eq.get_y(x)
+                        calculated_x = eq.get_x(calculated_y)
                         # TODO: Round or floor?
-                        if round(calculated_y) == y:
-                            # Calculate pixel_usage_ratio per half, for this we use the new function to calculate the fdistance to the poitnsitnsintsintsintsin
-                            pixel_usage_ratio = 0
+                        if round(calculated_y) == y and round(calculated_x == x):
+                            # Calculate pixel_usage_ratio per half
+                            # we use the half's middle point
 
+                            # Upper pixel limits -> (x,y) (x+1, y + .5)
+                            middle_upper = (x + 0.5, y + 0.25)
                             # Upper pixel limits:
-                            # (x,y) (x+1, y + .5)
                             # (x,y+.5) (x+1, y + 1)
+                            middle_lower = (x + 0.5, y + 0.75)
+
+                            # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559... constant above ^
+                            # We take that as 0% contribution, and 0 as 100%
+                            def get_contribution(x: float, y: float):
+                                return (
+                                    1
+                                    - distance_from_line_to_point(
+                                        (curr_vertex, connecting_vertex),
+                                        (x, y),
+                                    )
+                                    / 0.559
+                                )
+
                             upper_subpixel = SubpixelContribution(
                                 color=res.entity.theme.color,
                                 distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=pixel_usage_ratio,
+                                pixel_usage_ratio=get_contribution(*middle_upper),
                             )
 
                             lower_subpixel = SubpixelContribution(
                                 color=res.entity.theme.color,
                                 distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=pixel_usage_ratio,
+                                pixel_usage_ratio=get_contribution(*middle_lower),
                             )
 
                             contributions.append(
