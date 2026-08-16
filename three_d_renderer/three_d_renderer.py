@@ -5,11 +5,13 @@ from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
 from model.shared import DistVector3D, Point2, Point3
+from model.theme import RGB
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
+from three_d_renderer.entities.base3d import Entity3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
@@ -20,11 +22,31 @@ _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 
 # TODO: Move
 @dataclass
-class ResOfThingie:
+class RenderingObj:
     entity_idx: int
+    entity: Entity3D
     vertex: Point3
     dist_vector: DistVector3D
-    dot_connections: list[Point3] | None = None
+
+
+@dataclass
+# Represents the contribution of a line segment to filling in the pixel's content
+class Contribution:
+    color: RGB
+    distance_from_spec: float
+    """
+    Usage is calculated based on how close the line passes to the center of the pixel
+    e.g. at pixel (x1, y1), if the line crosses at:
+    - (x1, y1) -> 0% usage, it barely touches the pixel
+    - (x1 + 0.5, y1 + 0.5) -> 100% usage, the line pases exactly through the middle of the pixel
+    """
+    pixel_usage_ratio: float
+
+
+@dataclass
+class ScreenData:
+    position: Point2
+    contributions: list[Contribution]
 
 
 # TODO: this is a temporary hack
@@ -42,9 +64,9 @@ class ThreeDeeRenderer:
     display: Display
 
     # physics params
-    current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
+    curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
     curr_distance_fog: int
-    distance_to_spec: float
+    fov: float
 
     # TODO: this is a temporary hack
     colors: list
@@ -58,40 +80,33 @@ class ThreeDeeRenderer:
         self.player = player
         self.display = display
         self._curr_level = level or build_level_3d_1()
-        self.distance_to_spec = DEFAULT_DISTANCE_TO_SPEC
+        self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.curr_distance_fog = 170
         # self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
-        self.current_speed = PLAYER_3D_MOVING_SPEED_FACTOR
+        self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
 
     # This is where the 3D to 2D projection magic happens
     def _project_onto_screen(self, point3: Point3) -> Point2:
         v_x, v_y, v_z = point3
-        x_pos = (
-            ((v_x * self.distance_to_spec / v_y) + (self.display.curr_x_resolution / 2))
-            if v_y > 0
-            else 0
-        )
+        x_pos = ((v_x * self.fov / v_y) + (self.display.curr_x_resolution / 2)) if v_y > 0 else 0
         y_pos = (
-            (
-                ((v_z * self.distance_to_spec / v_y) + (self.display.curr_y_resolution / 2))
-                / PIXEL_ASPECT_RATIO
-            )
+            (((v_z * self.fov / v_y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
             if v_y > 0
             else 0
         )
         return (x_pos, y_pos)
 
     def render_v2(self):
-        res_list: list[ResOfThingie] = sorted(
+        # Order by closest to farthest
+        render_list: list[RenderingObj] = sorted(
             [
-                ResOfThingie(
+                RenderingObj(
                     entity_idx=entity_idx,
-                    dist_vector=distance_between_points(
-                        entity.position, self.player.position, entity.get_diameter()
-                    ),
+                    entity=entity,
                     vertex=vertex,
+                    dist_vector=distance_between_points(vertex, self.player.position),
                 )
                 for entity_idx, entity in [
                     (entity_idx, entity)
@@ -99,26 +114,14 @@ class ThreeDeeRenderer:
                 ]
                 for vertex in entity.objVertexes
             ],
-            # key=lambda r: (
-            #     r.dist_vector.distance_to_edge if r.dist_vector.distance_to_edge else 100000
-            # ),
-            # TODO: should be distance to spectator
-            key=lambda r: (),
+            key=lambda r: r.dist_vector.distance,
         )
 
-        # Order everything we need by:
-        # - Distance to edge of entity (this dist_vector.distance_to_edge seems fishy though)
-        # res_list = sorted(
-        #     res_list,
-        #     key=lambda r: (
-        #         r.dist_vector.distance_to_edge if r.dist_vector.distance_to_edge else 100000
-        #     ),
-        # )
+        # TODO: this doesn't go here
+        screen_matrix: list[list[str]] = []
 
-        # self._curr_level.entities = [r.entity for r in res_list]
-
-        listi = []
-        for entity_idx, entity in enumerate(self._curr_level.entities):
+        for res in render_list:
+            # With the vertex position, we project it into the screen
             pass
 
     def visualize_scenario(self):

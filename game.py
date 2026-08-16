@@ -170,11 +170,11 @@ class Game:
 
         if is_pressed(DisplayKeys.INCREASE_FOV):
             # TODO: const this value
-            self.three_d_renderer.distance_to_spec += 5
+            self.three_d_renderer.fov += 5
 
         if is_pressed(DisplayKeys.DECREASE_FOV):
             # TODO: const this value
-            self.three_d_renderer.distance_to_spec -= 5
+            self.three_d_renderer.fov -= 5
 
         if is_pressed(DisplayKeys.SHUFFLE_COLORS):
             # TODO: const this value
