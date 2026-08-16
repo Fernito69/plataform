@@ -150,7 +150,7 @@ class ThreeDeeRenderer:
                             # (x,y+.5) (x+1, y + 1)
                             middle_lower = (x + 0.5, y + 0.75)
 
-                            # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559... constant above ^
+                            # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
                             # We take that as 0% contribution, and 0 as 100%
                             def get_contribution(x: float, y: float):
                                 return max(
