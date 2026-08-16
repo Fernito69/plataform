@@ -121,6 +121,7 @@ class ThreeDeeRenderer:
                     res.entity.vertices[connecting_vertex_index]
                 )
 
+                # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
                 if not self.display.is_in_screen(curr_vertex) and not self.display.is_in_screen(
                     connecting_vertex
                 ):
