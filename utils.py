@@ -121,25 +121,27 @@ def vector_length(v: Vector3 | Vector2) -> float:
 
 
 def distance_from_line_to_point(line: tuple[Point2, Point2], point: Point2) -> float:
-    original_m = get_slope(line[0], line[1])
+    line_point_1, line_point_2 = line
+    original_m = get_slope(line_point_1, line_point_2)
 
     # edge case 1: when slope is infinite! straight distance from point to line
     if original_m is None:
-        return abs(point[0] - line[0][0])
+        return abs(point[0] - line_point_1[0])
 
     # edge case 2: when slope is 0! same as above
     if original_m == 0:
-        return abs(point[1] - line[0][1])
+        return abs(point[1] - line_point_1[1])
 
+    # get the equation of the perpendicular line
     perpendicular_m = -1 / original_m
 
-    # get the new equation with (y - y1) = m(x - x1) -> y-intercept = -mx1 + y1
-    y_intercept_new_line = -perpendicular_m * point[0] + point[1]
-    y_intercept_old_line = -original_m * line[0][0] + line[0][1]
+    # with (y - y1) = m(x - x1) -> y-intercept = -mx1 + y1
+    y_intercept_perp_line = -perpendicular_m * point[0] + point[1]
+    y_intercept_orig_line = -original_m * line_point_1[0] + line_point_1[1]
 
     # we equate both to extract x, and then y
-    new_x = (y_intercept_new_line - y_intercept_old_line) / (original_m - perpendicular_m)
-    new_y = perpendicular_m * new_x + y_intercept_new_line
+    new_x = (y_intercept_perp_line - y_intercept_orig_line) / (original_m - perpendicular_m)
+    new_y = perpendicular_m * new_x + y_intercept_perp_line
 
     # now get distance
     return vector_length((point[0] - new_x, point[1] - new_y))
