@@ -153,13 +153,14 @@ class ThreeDeeRenderer:
                             # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559... constant above ^
                             # We take that as 0% contribution, and 0 as 100%
                             def get_contribution(x: float, y: float):
-                                return (
+                                return max(
                                     1
                                     - distance_from_line_to_point(
                                         (curr_vertex, connecting_vertex),
                                         (x, y),
                                     )
-                                    / 0.559
+                                    / 0.559,
+                                    0,
                                 )
 
                             upper_subpixel = SubpixelContribution(
