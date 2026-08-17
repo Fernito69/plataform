@@ -34,7 +34,7 @@ class Entity3D:
 
     def __init__(
         self,
-        objVertexes: list[Point3],
+        vertices: list[Point3],
         level: Optional["Level3D"] = None,
         theme: Theme | None = None,
         position=[0, 0, 0],
@@ -58,7 +58,7 @@ class Entity3D:
         self.angle = angle
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
-        self.vertices = objVertexes
+        self.vertices = vertices
 
         # For now only color
         self.theme = Theme(color=color)
@@ -72,7 +72,7 @@ class Entity3D:
         pass
 
     @abstractmethod
-    def calc_v2_vertexes(self) -> list[Point3]:
+    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
         pass
 
     def _apply_gravity(self) -> None:
@@ -187,6 +187,6 @@ class Entity3D:
 class LivingEntity3D(Entity3D):
     health: int
 
-    def __init__(self, health: int, objVertexes: list[Any]):
-        Entity3D.__init__(self, objVertexes=objVertexes)
+    def __init__(self, health: int, vertices: list[Any]):
+        Entity3D.__init__(self, vertices=vertices)
         self.health = health

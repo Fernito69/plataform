@@ -21,7 +21,7 @@ class Player3D(LivingEntity3D):
     _immune_counter: int
 
     def __init__(self, player_number: int = 1):
-        LivingEntity3D.__init__(self, health=100, objVertexes=[])
+        LivingEntity3D.__init__(self, health=100, vertices=[])
         self._immune_counter: int = 0
         # self._char_frames = _PLAYER_FRAMES
         # self._default_char_frames = _PLAYER_FRAMES

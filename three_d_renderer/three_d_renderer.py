@@ -7,17 +7,12 @@ from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, Whi
 from model.base import Point2, Point3
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
+    DEFAULT_VISIBILITY_THRESHOLD,
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.model.base import (
-    PixelContribution,
-    RenderingObj,
-    ScreenData,
-    SubpixelContribution,
-    Vertex3,
-)
+from three_d_renderer.model.base import PixelContribution, RenderData, SubpixelContribution, Vertex3
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import (
@@ -26,6 +21,7 @@ from utils import (
     distance_from_line_to_point,
     get_line_equations,
     has_bg_color,
+    mix_colors,
     subtract_triplet,
     vector_length,
 )
@@ -48,7 +44,7 @@ class ThreeDeeRenderer:
 
     # physics params
     curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
-    curr_distance_fog: int
+    visibility_threshold: int
     fov: float
 
     # TODO: this is a temporary hack
@@ -64,8 +60,7 @@ class ThreeDeeRenderer:
         self.display = display
         self._curr_level = level or build_level_3d_1()
         self.fov = DEFAULT_DISTANCE_TO_SPEC
-        self.curr_distance_fog = 170
-        # self.curr_distance_fog = DEFAULT_VISIBILITY_LIMIT
+        self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
@@ -81,118 +76,173 @@ class ThreeDeeRenderer:
         )
         return (x_pos, y_pos)
 
-    def _get_render_v2_list(self) -> list[RenderingObj]:
-        return sorted(
-            [
-                RenderingObj(
-                    entity_idx=entity_idx,
-                    entity=entity,
-                    vertex=Vertex3(point=vertex, index=vertex_index),
-                    dist_vector=distance_between_points(vertex, self.player.position),
-                )
-                for entity_idx, entity in [
-                    (entity_idx, entity)
-                    for entity_idx, entity in enumerate(self._curr_level.entities)
-                ]
-                for vertex_index, vertex in enumerate(entity.vertices)
-            ],
-            key=lambda r: r.dist_vector.distance,
-        )
+    def _get_render_v2_list(self) -> list[RenderData]:
+        # Order vertices by closest to farthest and exclude those too far away to be renderer
+        return [
+            obj
+            for obj in sorted(
+                [
+                    RenderData(
+                        entity_idx=entity_idx,
+                        entity=entity,
+                        vertex=Vertex3(point=vertex, index=vertex_index),
+                        dist_vector=distance_between_points(vertex, self.player.position),
+                    )
+                    for entity_idx, entity in [
+                        (entity_idx, entity)
+                        for entity_idx, entity in enumerate(self._curr_level.entities)
+                    ]
+                    for vertex_index, vertex in enumerate(entity.vertices)
+                ],
+                key=lambda r: r.dist_vector.distance,
+            )
+            if obj.dist_vector.distance < self.visibility_threshold
+        ]
 
-    def _init_screen_data(self) -> list[list[ScreenData | None]]:
-        screen_data: list[list[ScreenData | None]] = []
-        # Init screen_data
+    # TODO: this shoulñd be in display?
+    screen_data: list[list[list[PixelContribution]]]
+
+    def empty_screen_data(self) -> None:
         for y in range(self.display.curr_y_resolution):
-            screen_data.append([])
+            self.screen_data.append([])
             for _ in range(self.display.curr_x_resolution):
-                screen_data[y].append(None)
-        return screen_data
+                self.screen_data[y].append([])
 
     def render_v2(self):
-        # Order vertices by closest to farthest
-        render_list: list[RenderingObj] = self._get_render_v2_list()
+        render_list: list[RenderData] = self._get_render_v2_list()
 
-        screen_data: list[list[ScreenData | None]] = self._init_screen_data()
+        for entity in self._curr_level.entities:
+            entity.movement()
+            entity.calc_v2_vertexes(apply=True)
+            entity.apply_rotations()
 
-        for res in render_list:
+        for data in render_list:
             # 1) Take vertices and trace lines
             # 2) Figure out pixels the line goes through
             # 3) Figure out pixel_usage_ratio
 
-            connections = [c for c in res.entity.vertex_connections if c[0] == res.vertex.index]
+            # Check all the other vertices this vertex is connected to
+            connections = [c for c in data.entity.vertex_connections if c[0] == data.vertex.index]
 
-            # Calc lines
+            # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_vertex = self._project_onto_screen(res.vertex.point)
-                connecting_vertex = self._project_onto_screen(
-                    res.entity.vertices[connecting_vertex_index]
+                curr_pixel_pos: Point2 = self._project_onto_screen(data.vertex.point)
+                connecting_pixel_pos: Point2 = self._project_onto_screen(
+                    data.entity.vertices[connecting_vertex_index]
                 )
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
-                if not self.display.is_in_screen(curr_vertex) and not self.display.is_in_screen(
-                    connecting_vertex
+                if not self.display.is_in_screen(curr_pixel_pos) and not self.display.is_in_screen(
+                    connecting_pixel_pos
                 ):
                     continue
 
-                # Trace line
-                eq = get_line_equations(curr_vertex, connecting_vertex)
+                self._compute_pixel_contributions(data, curr_pixel_pos, connecting_pixel_pos)
 
-                # we gather every individual contribution of the entity line to the pixel.
-                contributions: list[PixelContribution] = []
+        # Fill in screen data!!! TODO: we should involve the display class here, this is hacky
+        new_screen_matrix = []
+        for y in range(self.display.curr_y_resolution):
+            new_screen_matrix.append([])
+            for x in range(self.display.curr_x_resolution):
+                new_screen_matrix[y].append(_DEFAULT_CHAR)
 
-                # Check the affected pixels:
-                x1, y1 = curr_vertex
-                x2, y2 = connecting_vertex
-                for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
-                    for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
-                        calculated_y = eq.get_y(x)
-                        calculated_x = eq.get_x(calculated_y)
-                        if y <= calculated_y < (y + 1) and x <= calculated_x < (x + 1):
-                            # Calculate pixel_usage_ratio per half
-                            # we use the half's middle point
+        for x in range(self.display.curr_x_resolution):
+            for y in range(self.display.curr_y_resolution):
+                data = self.screen_data[y][x]
 
-                            # Upper pixel limits -> (x,y) (x+1, y + .5)
-                            middle_upper = (x + 0.5, y + 0.25)
-                            # Upper pixel limits:
-                            # (x,y+.5) (x+1, y + 1)
-                            middle_lower = (x + 0.5, y + 0.75)
+                if len(data) == 0:
+                    continue
 
-                            # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
-                            # We take that as 0% contribution, and 0 as 100%
-                            def get_contribution(x: float, y: float) -> float:
-                                return max(
-                                    1
-                                    - distance_from_line_to_point(
-                                        (curr_vertex, connecting_vertex),
-                                        (x, y),
-                                    )
-                                    / 0.559,
-                                    0,
-                                )
+                def get_intensity(c: SubpixelContribution):
+                    return c.pixel_usage_ratio * max(
+                        min(
+                            1 - c.distance_from_spec / self.visibility_threshold,
+                            1,
+                        ),
+                        0,
+                    )
 
-                            upper_contribution: float = get_contribution(*middle_upper)
-                            lower_contribution: float = get_contribution(*middle_lower)
+                color = mix_colors(
+                    [
+                        (c.upper_subpixel.color or White()).with_intensity(
+                            get_intensity(c.lower_subpixel)
+                        )
+                        for c in data
+                    ]
+                )
+                bg_color = mix_colors(
+                    [
+                        (c.lower_subpixel.color or White()).with_intensity(
+                            get_intensity(c.lower_subpixel)
+                        )
+                        for c in data
+                    ]
+                )
+                # TODO: do properly
+                new_screen_matrix[y][x] = colored("▄", color=color, bg_color=bg_color)
 
-                            if upper_contribution <= 0 and lower_contribution <= 0:
-                                continue
+        self.display.put_screen_content(new_screen_matrix)
+        self.display.print_curr_screen()
 
-                            upper_subpixel = SubpixelContribution(
-                                color=res.entity.theme.color,
-                                distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=upper_contribution,
+    def _compute_pixel_contributions(
+        self, data: RenderData, curr_pixel_pos: Point2, connecting_pixel_pos: Point2
+    ) -> None:
+        self.empty_screen_data()
+        eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
+
+        # Check the affected pixels:
+        x1, y1 = curr_pixel_pos
+        x2, y2 = connecting_pixel_pos
+        for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
+            for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
+                calculated_y = eq.get_y(x)
+                calculated_x = eq.get_x(calculated_y)
+                if y <= calculated_y < (y + 1) and x <= calculated_x < (x + 1):
+                    # Calculate pixel_usage_ratio per half
+                    # we use the half's middle point
+
+                    # Upper pixel limits -> (x,y) (x+1, y + .5)
+                    middle_upper = (x + 0.5, y + 0.25)
+                    # Upper pixel limits:
+                    # (x,y+.5) (x+1, y + 1)
+                    middle_lower = (x + 0.5, y + 0.75)
+
+                    # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
+                    # We take that as 0% contribution, and 0 as 100%
+                    def get_contribution(x: float, y: float) -> float:
+                        return max(
+                            1
+                            - distance_from_line_to_point(
+                                (curr_pixel_pos, connecting_pixel_pos),
+                                (x, y),
                             )
+                            / 0.559,
+                            0,
+                        )
 
-                            lower_subpixel = SubpixelContribution(
-                                color=res.entity.theme.color,
-                                distance_from_spec=res.dist_vector.distance,
-                                pixel_usage_ratio=lower_contribution,
-                            )
+                    upper_contribution: float = get_contribution(*middle_upper)
+                    lower_contribution: float = get_contribution(*middle_lower)
 
-                            contributions.append(
-                                PixelContribution(
-                                    upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
-                                )
-                            )
+                    if upper_contribution <= 0 and lower_contribution <= 0:
+                        continue
+
+                    upper_subpixel = SubpixelContribution(
+                        color=data.entity.theme.color,
+                        distance_from_spec=data.dist_vector.distance,
+                        pixel_usage_ratio=upper_contribution,
+                    )
+
+                    lower_subpixel = SubpixelContribution(
+                        color=data.entity.theme.color,
+                        distance_from_spec=data.dist_vector.distance,
+                        pixel_usage_ratio=lower_contribution,
+                    )
+
+                    contribution = PixelContribution(
+                        upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
+                    )
+
+                    self.screen_data[y][x] += [contribution]
 
     def visualize_scenario(self):
         X_RES = self.display.curr_x_resolution
@@ -273,7 +323,7 @@ class ThreeDeeRenderer:
             for vector, screen_position in vertices_to_render:
                 x_pos, y_pos = screen_position
                 d: float = vector_length(vector)
-                intensity: float = max(min(1 - d / self.curr_distance_fog, 1), 0)
+                intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
                 # TODO: make these symbols consts
                 _char: str | list[str] = self.display.curr_3d_char_mode

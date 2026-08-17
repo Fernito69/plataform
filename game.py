@@ -99,6 +99,7 @@ class Game:
         if self.status == GameStatus.MODE_3D:
             # self._check_game_status()
             self.three_d_renderer.player.handle_player_input()
+            # return self.three_d_renderer.render_v2()
             return self.three_d_renderer.visualize_scenario()
 
         self.display.populate_level_into_matrix()
@@ -162,11 +163,11 @@ class Game:
 
         if is_pressed(DisplayKeys.INCREASE_VISIBILITY):
             # TODO: const this value
-            self.three_d_renderer.curr_distance_fog += 5
+            self.three_d_renderer.visibility_threshold += 5
 
         if is_pressed(DisplayKeys.DECREASE_VISIBILITY):
             # TODO: const this value
-            self.three_d_renderer.curr_distance_fog -= 5
+            self.three_d_renderer.visibility_threshold -= 5
 
         if is_pressed(DisplayKeys.INCREASE_FOV):
             # TODO: const this value

@@ -37,7 +37,7 @@ class Cube(Entity3D):
         # "diameter" for cube is just the size
         return self.size
 
-    def calc_v2_vertexes(self) -> list[Point3]:
+    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x, y, z = self.position
         s = self.size
@@ -50,6 +50,9 @@ class Cube(Entity3D):
         vertexes.append([x + s / 2, y - s / 2, z - s / 2])  # 5
         vertexes.append([x - s / 2, y + s / 2, z - s / 2])  # 6
         vertexes.append([x - s / 2, y - s / 2, z - s / 2])  # 7
+
+        if apply:
+            self.vertices = vertexes
 
         return vertexes
 
@@ -106,7 +109,7 @@ class Tetra(Entity3D):
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
         return self.size * R2O2 * 2
 
-    def calc_v2_vertexes(self) -> list[Point3]:
+    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
@@ -118,6 +121,8 @@ class Tetra(Entity3D):
         vertexes.append([x - s, y, z - R2O2 * s])
         vertexes.append([x, y + s, z + R2O2 * s])
         vertexes.append([x, y - s, z + R2O2 * s])
+
+        self.vertices = vertexes
 
         return vertexes
 
@@ -201,7 +206,7 @@ class Ico(Entity3D):
         # let's say 2*phi?
         return self.size * 2 * PHI
 
-    def calc_v2_vertexes(self) -> list[Point3]:
+    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -222,6 +227,9 @@ class Ico(Entity3D):
         vertexes.append([x + PHI * s, y, z - s, "X"])  # vertex 10
         vertexes.append([x - PHI * s, y, z + s, "J"])  # vertex 11
         vertexes.append([x - PHI * s, y, z - s, "Q"])  # vertex 12
+
+        if apply:
+            self.vertices = vertexes
 
         return vertexes
 
@@ -372,7 +380,7 @@ class Dodeca(Entity3D):
         # similar to ico?
         return self.size * 2 * PHI
 
-    def calc_v2_vertexes(self) -> list[Point3]:
+    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x, y, z = self.position
         s = self.size
@@ -400,6 +408,9 @@ class Dodeca(Entity3D):
         vertexes.append([x + PHI * s, y - I_PHI * s, z, "I"])  # vertex 18
         vertexes.append([x - PHI * s, y + I_PHI * s, z, "J"])  # vertex 19
         vertexes.append([x - PHI * s, y - I_PHI * s, z, "K"])  # vertex 20
+
+        if apply:
+            self.vertices = vertexes
 
         return vertexes
 

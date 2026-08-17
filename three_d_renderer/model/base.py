@@ -14,7 +14,7 @@ class Vertex3:
 
 
 @dataclass
-class RenderingObj:
+class RenderData:
     entity_idx: int
     entity: Entity3D
     vertex: Vertex3
@@ -39,8 +39,3 @@ class SubpixelContribution:
 class PixelContribution:
     upper_subpixel: SubpixelContribution
     lower_subpixel: SubpixelContribution
-
-
-@dataclass
-class ScreenData:
-    contributions: list[SubpixelContribution]

@@ -191,12 +191,6 @@ class Display:
                         if self.antialiasing
                         else RGB(0, 0, 0),
                     )
-                    # else colored(
-                    #     self._screen_matrix[i][j],
-                    #     bg_color=mix_colors()
-                    #     if self.antialiasing
-                    #     else RGB(0, 0, 0),
-                    # )()
                 )
             if i < self.curr_y_resolution - 1:
                 matrix_string += "\n"

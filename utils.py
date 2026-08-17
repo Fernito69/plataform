@@ -8,6 +8,8 @@ RESET = "\033[0m"
 _FG_CODE = "\033[38;2;"
 _BG_CODE = "\033[48;2;"
 
+# TODO: separate functions here
+
 
 def _encode_rgb(color: RGB) -> str:
     return f"{color.r};{color.g};{color.b}"
@@ -22,11 +24,12 @@ def extract_color_from_string(text: str) -> RGB:
     return RGB(int(r), int(g), int(b))
 
 
-def mix_colors(c1: RGB, c2: RGB) -> RGB:
+def mix_colors(colores: list[RGB]) -> RGB:
+    length = len(colores)
     return RGB(
-        r=round((c2.r + c2.r) / 2),
-        g=round((c2.g + c2.g) / 2),
-        b=round((c2.b + c2.b) / 2),
+        r=round((sum([c.r for c in colores])) / length),
+        g=round((sum([c.g for c in colores])) / length),
+        b=round((sum([c.b for c in colores])) / length),
     )
 
 
@@ -86,8 +89,12 @@ def subtract_triplet(
 def distance_between_points(
     p1: Point2 | Point3, p2: Point2 | Point3, diameter_p2: float | None = 0.0
 ) -> DistVector3D:
-    if len(p1) != len(p2):
-        raise IndexError("They should have the same length")
+    print(f"p1: {p1}, p2: {p2}")
+    try:
+        if len(p1) != len(p2):
+            raise IndexError("They should have the same length")
+    except:
+        pass
 
     x = p1[0] - p2[0]
     y = p1[1] - p2[1]
