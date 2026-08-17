@@ -26,11 +26,15 @@ def extract_color_from_string(text: str) -> RGB:
 
 
 def mix_colors(colores: list[RGB]) -> RGB:
-    length = len(colores)
+    weighted_intensity = sum([c.intensity for c in colores])
+    weighted_sum_r = sum([c.r * c.intensity for c in colores]) / weighted_intensity
+    weighted_sum_g = sum([c.g * c.intensity for c in colores]) / weighted_intensity
+    weighted_sum_b = sum([c.b * c.intensity for c in colores]) / weighted_intensity
+
     return RGB(
-        r=round((sum([c.r for c in colores])) / length),
-        g=round((sum([c.g for c in colores])) / length),
-        b=round((sum([c.b for c in colores])) / length),
+        r=round(weighted_sum_r),
+        g=round(weighted_sum_g),
+        b=round(weighted_sum_b),
     )
 
 
@@ -132,17 +136,34 @@ def vector_length(v: Vector3 | Vector2) -> float:
     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
-def distance_from_line_to_point(line: tuple[Point2, Point2], point: Point2) -> float:
+@dataclass
+class DistanceFromLineToPointResponse:
+    distance: float
+    intersection: Point2
+    slope: float | None
+
+
+def distance_from_line_to_point(
+    line: tuple[Point2, Point2], point: Point2
+) -> DistanceFromLineToPointResponse:
     line_point_1, line_point_2 = line
     original_m = get_slope(line_point_1, line_point_2)
 
     # edge case 1: when slope is infinite! straight distance from point to line
     if original_m is None:
-        return abs(point[0] - line_point_1[0])
+        return DistanceFromLineToPointResponse(
+            distance=abs(point[0] - line_point_1[0]),
+            intersection=((line_point_1[0], point[1])),
+            slope=None,
+        )
 
     # edge case 2: when slope is 0! same as above
     if original_m == 0:
-        return abs(point[1] - line_point_1[1])
+        return DistanceFromLineToPointResponse(
+            distance=abs(point[1] - line_point_1[1]),
+            intersection=(point[0], line_point_1[1]),
+            slope=0,
+        )
 
     # get the equation of the perpendicular line
     perpendicular_m = -1 / original_m
@@ -156,7 +177,11 @@ def distance_from_line_to_point(line: tuple[Point2, Point2], point: Point2) -> f
     new_y = perpendicular_m * new_x + y_intercept_perp_line
 
     # now get distance
-    return vector_length((point[0] - new_x, point[1] - new_y))
+    return DistanceFromLineToPointResponse(
+        distance=vector_length((point[0] - new_x, point[1] - new_y)),
+        intersection=(new_x, new_y),
+        slope=original_m,
+    )
 
 
 def get_slope(point1: Point2, point2: Point2) -> float | None:

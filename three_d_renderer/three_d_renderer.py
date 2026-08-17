@@ -5,6 +5,7 @@ from constants import EMPTY_SPACE
 from display import Display
 from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
 from model.base import Point2, Point3
+from model.theme import RGB
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_THRESHOLD,
@@ -31,6 +32,38 @@ _DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=White(0))
 # TODO: this is a temporary hack
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
 random.shuffle(colors)
+
+PIXEL = 1
+HALF_PIXEL = 0.5
+QUARTER_PIXEL = 0.25
+
+PI = 3.14159265
+
+DIRECTIONS = [
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+    (-1, 0),
+    (0, 0),
+    (1, 0),
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+]
+
+
+# What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
+# We take that as 0% contribution, and 0 as 100%
+DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 1  # 0.559
+
+
+# TODO: move this function elsewhere
+def _get_contribution(distance: float) -> float:
+    return max(
+        1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,
+        0,
+    )
+
 
 # TODO: make color oscillate with time!
 
@@ -165,7 +198,7 @@ class ThreeDeeRenderer:
                 if len(data) == 0:
                     continue
 
-                def get_intensity(c: SubpixelContribution):
+                def _get_intensity(c: SubpixelContribution):
                     return c.pixel_usage_ratio * max(
                         min(
                             1 - c.distance_from_spec / self.visibility_threshold,
@@ -177,7 +210,7 @@ class ThreeDeeRenderer:
                 color = mix_colors(
                     [
                         (c.upper_subpixel.color or White()).with_intensity(
-                            get_intensity(c.upper_subpixel)
+                            _get_intensity(c.upper_subpixel)
                         )
                         for c in data
                     ]
@@ -185,7 +218,7 @@ class ThreeDeeRenderer:
                 bg_color = mix_colors(
                     [
                         (c.lower_subpixel.color or White()).with_intensity(
-                            get_intensity(c.lower_subpixel)
+                            _get_intensity(c.lower_subpixel)
                         )
                         for c in data
                     ]
@@ -199,16 +232,16 @@ class ThreeDeeRenderer:
     def _compute_pixel_contributions(
         self, data: RenderData, curr_pixel_pos: Point2, connecting_pixel_pos: Point2
     ) -> None:
-        eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
-
         # Check the affected pixels:
         x1, y1 = curr_pixel_pos
         x2, y2 = connecting_pixel_pos
 
         range_x_min = math.floor(max(min(x1, x2), 0))
-        range_x_max = math.floor(min(max(x1, x2), self.display.curr_x_resolution))
-        range_y_min = math.floor(max(min(y1, y2), 0))
-        range_y_max = math.floor(min(max(y1, y2), self.display.curr_y_resolution))
+        range_x_max = math.ceil(min(max(x1, x2), self.display.curr_x_resolution))
+        range_y_min = math.ceil(max(min(y1, y2), 0))
+        range_y_max = math.ceil(min(max(y1, y2), self.display.curr_y_resolution))
+
+        eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
 
         for x in range(range_x_min, range_x_max):
             for y in range(range_y_min, range_y_max):
@@ -217,56 +250,74 @@ class ThreeDeeRenderer:
 
                 calculated_y = eq.get_y(x)
                 calculated_x = eq.get_x(calculated_y)
-                if y <= calculated_y < (y + 1) and x <= calculated_x < (x + 1):
-                    # Calculate pixel_usage_ratio per half
-                    # we use the half's middle point
 
-                    # Upper pixel limits -> (x,y) (x+1, y + .5)
-                    middle_upper = (x + 0.5, y + 0.25)
-                    # Upper pixel limits:
-                    # (x,y+.5) (x+1, y + 1)
-                    middle_lower = (x + 0.5, y + 0.75)
-
-                    # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
-                    # We take that as 0% contribution, and 0 as 100%
-                    def get_contribution(x: float, y: float) -> float:
-                        return max(
-                            1
-                            - distance_from_line_to_point(
-                                (curr_pixel_pos, connecting_pixel_pos),
-                                (x, y),
-                            )
-                            / 0.559,
-                            0,
-                        )
-
-                    upper_contribution: float = get_contribution(*middle_upper)
-                    lower_contribution: float = get_contribution(*middle_lower)
-
-                    if upper_contribution <= 0 and lower_contribution <= 0:
-                        continue
-
+                if y <= calculated_y <= (y + PIXEL) and x <= calculated_x <= (x + PIXEL):
                     # color hack
                     # color = data.entity.theme.color
                     color = self.colors[round(data.entity.size) % len(self.colors)]()
 
-                    upper_subpixel = SubpixelContribution(
-                        color=color,
-                        distance_from_spec=data.dist_vector.distance,
-                        pixel_usage_ratio=upper_contribution,
-                    )
+                    # check the bleeding in all directions:
+                    for delta_x, delta_y in [
+                        d
+                        for d in DIRECTIONS
+                        if x + d[0] <= range_x_max
+                        and x + d[0] >= range_x_min
+                        and y + d[1] <= range_y_max
+                        and y + d[1] >= range_y_min
+                    ]:
+                        self._add_contribution_to_screen(
+                            line=(curr_pixel_pos, connecting_pixel_pos),
+                            curr_screen_pos=(x + delta_x, y + delta_y),
+                            distance=data.dist_vector.distance,
+                            color=color,
+                        )
 
-                    lower_subpixel = SubpixelContribution(
-                        color=color,
-                        distance_from_spec=data.dist_vector.distance,
-                        pixel_usage_ratio=lower_contribution,
-                    )
+    def _add_contribution_to_screen(
+        self,
+        line: tuple[Point2, Point2],
+        curr_screen_pos: Point2,
+        color: RGB,
+        distance: float,
+    ):
+        x, y = curr_screen_pos
 
-                    contribution = PixelContribution(
-                        upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
-                    )
+        # Upper pixel limits -> (x,y) (x+1, y + .5)
+        middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
+        # Lower pixel limits -> (x,y+.5) (x+1, y + 1)
+        middle_lower = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
 
-                    self.screen_data[y][x] += [contribution]
+        upper_res = distance_from_line_to_point(
+            line,
+            middle_upper,
+        )
+        lower_res = distance_from_line_to_point(
+            line,
+            middle_lower,
+        )
+
+        upper_contribution_ratio: float = _get_contribution(upper_res.distance)
+        lower_contribution_ratio: float = _get_contribution(lower_res.distance)
+
+        if upper_contribution_ratio <= 0 and lower_contribution_ratio <= 0:
+            return
+
+        upper_subpixel = SubpixelContribution(
+            color=color,
+            distance_from_spec=distance,
+            pixel_usage_ratio=upper_contribution_ratio,
+        )
+
+        lower_subpixel = SubpixelContribution(
+            color=color,
+            distance_from_spec=distance,
+            pixel_usage_ratio=lower_contribution_ratio,
+        )
+
+        contribution = PixelContribution(
+            upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
+        )
+
+        self.screen_data[round(curr_screen_pos[1])][round(curr_screen_pos[0])] += [contribution]
 
     # Legacy voxel renderer
     def visualize_scenario(self):

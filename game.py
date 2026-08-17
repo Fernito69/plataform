@@ -177,7 +177,7 @@ class Game:
     def _decrease_visibility(self):
         self.three_d_renderer.visibility_threshold -= 5
 
-    @on_key_press(DisplayKeys.INCREASE_FOV)
+    @on_key_press(DisplayKeys.DECREASE_FOV)
     def _decrease_fov(self):
         self.three_d_renderer.fov -= 5
 
@@ -198,6 +198,9 @@ class Game:
         self._switch_2d_mode()
         self._switch_3d_mode()
 
+        self._increase_fov()
+        self._decrease_fov()
+
         if self.status == GameStatus.MODE_2D:
             return
 
@@ -208,8 +211,6 @@ class Game:
 
         self._increase_visibility()
         self._decrease_visibility()
-        self._increase_fov()
-        self._decrease_fov()
 
         self._shuffle_colors()
 

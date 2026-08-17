@@ -57,14 +57,19 @@ class RGB:
     g: int = 127
     b: int = 127
 
+    intensity: float = 1
+
     def __str__(self):
         return f"rgb({self.r}, {self.g}, {self.b})"
 
-    def with_intensity(self, intensity: float) -> "RGB":
+    def with_intensity(self, intensity: float | None = None) -> "RGB":
+        if intensity is not None:
+            self.intensity = intensity
+
         return RGB(
-            int(self.r * intensity),
-            int(self.g * intensity),
-            int(self.b * intensity),
+            int(self.r * self.intensity),
+            int(self.g * self.intensity),
+            int(self.b * self.intensity),
         )
 
 
