@@ -7,9 +7,9 @@ from entities.base import Entity2D
 from entities.player2d import Player2D
 from level_2d import Level2D
 from model.game import GameStatus
-from model.keyboard import DisplayKeys, MenuKeys
+from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
 from model.player import PlayerStatus
-from terminal import is_pressed
+from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
@@ -30,6 +30,8 @@ class Game:
 
     # TODO: this should actuaklly go in Display, together with 2D renderer when refactored
     three_d_renderer: ThreeDeeRenderer
+
+    _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(
         self,
@@ -118,74 +120,98 @@ class Game:
 
         self._print_game()
 
+    # Input methods
+    # TODO: all display methods should go in Display class
+    @on_key_press(MenuKeys.QUIT)
+    def _quit(self):
+        self.status = GameStatus.QUIT
+        # TODO: fix the quit loop: check why the message is not being printed
+        raise
+
+    @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
+    def _switch_2d_mode(self):
+        self.status = GameStatus.MODE_2D
+        self.display.set_2d_resolution()
+        # TODO: this should be part of Display, and go into the method .set_2d_resolution()
+        self._curr_fps = FPS_2D
+
+    @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
+    def _switch_3d_mode(self):
+        self.status = GameStatus.MODE_3D
+        self.display.set_3d_resolution()
+        # TODO: this should be part of Display, and go into the method .set_2d_resolution()
+        self._curr_fps = FPS_3D
+
+    @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
+    def _switch_rendering_mode(self):
+        self.status = (
+            GameStatus.MODE_3D if self.status == GameStatus.MODE_3D_V2 else GameStatus.MODE_3D_V2
+        )
+        self._curr_fps = FPS_3D
+
+    @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
+    def _increase_x_resolution(self):
+        self.display.modify_resolution((1, 0))
+
+    @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
+    def _decrease_x_resolution(self):
+        self.display.modify_resolution((-1, 0))
+
+    @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
+    def _increase_y_resolution(self):
+        self.display.modify_resolution((0, 1))
+
+    @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
+    def _decrease_y_resolution(self):
+        self.display.modify_resolution((0, -1))
+
+    @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
+    def _switch_antialiasing(self):
+        self.display.antialiasing = not self.display.antialiasing
+
+    @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
+    def _increase_visibility(self):
+        self.three_d_renderer.visibility_threshold += 5
+
+    @on_key_press(DisplayKeys.DECREASE_VISIBILITY)
+    def _decrease_visibility(self):
+        self.three_d_renderer.visibility_threshold -= 5
+
+    @on_key_press(DisplayKeys.INCREASE_FOV)
+    def _decrease_fov(self):
+        self.three_d_renderer.fov -= 5
+
+    @on_key_press(DisplayKeys.INCREASE_FOV)
+    def _increase_fov(self):
+        self.three_d_renderer.fov += 5
+
+    @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
+    def _shuffle_colors(self):
+        self.three_d_renderer.colors = sorted(
+            self.three_d_renderer.colors,
+            key=lambda _: 0.5 - random.random(),
+        )
+
     def handle_player_input(self):
-        ########
-        # MENU #
-        ########
-        if is_pressed(MenuKeys.QUIT):
-            self.status = GameStatus.QUIT
-            # TODO: fix the quit loop: check why the message is not being printed
-            raise
+        self._quit()
+        self._switch_rendering_mode()
+        self._switch_2d_mode()
+        self._switch_3d_mode()
 
-        # TODO: for menu keys, add a refractory period so the action doesn't get triggered several times
-        if is_pressed(MenuKeys.SWITCH_2D_MODE):
-            self.status = GameStatus.MODE_2D
-            self.display.set_2d_resolution()
-            self._curr_fps = FPS_2D
-
-        if is_pressed(MenuKeys.SWITCH_3D_MODE):
-            self.status = GameStatus.MODE_3D
-            self.display.set_3d_resolution()
-            self._curr_fps = FPS_3D
-
-        if is_pressed(DisplayKeys.SWITCH_RENDERING_MODE):
-            self.status = (
-                GameStatus.MODE_3D
-                if self.status == GameStatus.MODE_3D_V2
-                else GameStatus.MODE_3D_V2
-            )
-            self._curr_fps = FPS_3D
-            # self.display.switch_3d_char_mode()
-            # self.display.with_black_bg = not self.display.with_black_bg
-
-        # For now screen size is fixed for 2D mode
-        if self.status != GameStatus.MODE_3D and self.status != GameStatus.MODE_3D_V2:
+        if self.status == GameStatus.MODE_2D:
             return
 
-        if is_pressed(DisplayKeys.INCREASE_X_RESOLUTION):
-            self.display.modify_resolution((1, 0))
+        self._increase_x_resolution()
+        self._decrease_x_resolution()
+        self._increase_y_resolution()
+        self._decrease_y_resolution()
 
-        if is_pressed(DisplayKeys.DECREASE_X_RESOLUTION):
-            self.display.modify_resolution((-1, 0))
+        self._increase_visibility()
+        self._decrease_visibility()
+        self._increase_fov()
+        self._decrease_fov()
 
-        if is_pressed(DisplayKeys.INCREASE_Y_RESOLUTION):
-            self.display.modify_resolution((0, 1))
+        self._shuffle_colors()
 
-        if is_pressed(DisplayKeys.DECREASE_Y_RESOLUTION):
-            self.display.modify_resolution((0, -1))
-
-        if is_pressed(DisplayKeys.SWITCH_ANTIALIASING):
-            self.display.antialiasing = not self.display.antialiasing
-
-        if is_pressed(DisplayKeys.INCREASE_VISIBILITY):
-            # TODO: const this value
-            self.three_d_renderer.visibility_threshold += 5
-
-        if is_pressed(DisplayKeys.DECREASE_VISIBILITY):
-            # TODO: const this value
-            self.three_d_renderer.visibility_threshold -= 5
-
-        if is_pressed(DisplayKeys.INCREASE_FOV):
-            # TODO: const this value
-            self.three_d_renderer.fov += 5
-
-        if is_pressed(DisplayKeys.DECREASE_FOV):
-            # TODO: const this value
-            self.three_d_renderer.fov -= 5
-
-        if is_pressed(DisplayKeys.SHUFFLE_COLORS):
-            # TODO: const this value
-            self.three_d_renderer.colors = sorted(
-                self.three_d_renderer.colors,
-                key=lambda _: 0.5 - random.random(),
-            )
+    def _set_pressed_key(self, key: KeyboardKeys, val: bool):
+        self._pressed_key_map[key] = val

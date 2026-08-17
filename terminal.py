@@ -1,7 +1,6 @@
-"""Terminal I/O: keyboard polling and screen clearing."""
-
 import os
 import platform
+from functools import wraps
 
 from mappings.keyboard import default_keyboard_mapping
 from model.keyboard import KeyboardKeys
@@ -65,3 +64,26 @@ if os.name == "nt":
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
+
+
+def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            pressed = is_pressed(key)
+
+            if pressed and not act_once_per_press:
+                return func(self, *args, **kwargs)
+
+            was_pressed = self._pressed_key_map.get(key, False)
+
+            if pressed and not was_pressed:
+                self._set_pressed_key(key, True)
+                func(self, *args, **kwargs)
+
+            elif not pressed and was_pressed:
+                self._set_pressed_key(key, False)
+
+        return wrapper
+
+    return decorator
