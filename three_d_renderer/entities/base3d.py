@@ -32,17 +32,20 @@ class Entity3D:
 
     theme: Theme
 
+    name: str | None
+
     def __init__(
         self,
         vertices: list[Point3],
         level: Optional["Level3D"] = None,
         theme: Theme | None = None,
-        position=[0, 0, 0],
-        size=1,
-        angle=[0, 0, 0],
-        movMatrix=[0, 0, 0],
-        rotMatrix=[0, 0, 0],
+        position: Point3 = [0, 0, 0],
+        size: float = 1,
+        angle: Point3 = [0, 0, 0],
+        movMatrix: Point3 = [0, 0, 0],
+        rotMatrix: Point3 = [0, 0, 0],
         color: RGB = White(),
+        name: str | None = None,
     ):
         # x and y coordinates
         # TODO: should we keep previous state to calculate instant velocity?
@@ -62,6 +65,7 @@ class Entity3D:
 
         # For now only color
         self.theme = Theme(color=color)
+        self.name = name
 
     def is_lazy(self) -> bool:
         # TODO: we are bypassing this, check why the optimization is not working
@@ -187,6 +191,31 @@ class Entity3D:
 class LivingEntity3D(Entity3D):
     health: int
 
-    def __init__(self, health: int, vertices: list[Any]):
-        Entity3D.__init__(self, vertices=vertices)
+    def __init__(
+        self,
+        health: int,
+        vertices: list[Point3],
+        level: Optional["Level3D"] = None,
+        theme: Theme | None = None,
+        position=[0, 0, 0],
+        size=1,
+        angle=[0, 0, 0],
+        movMatrix=[0, 0, 0],
+        rotMatrix=[0, 0, 0],
+        color: RGB = White(),
+        name: str | None = None,
+    ):
+        Entity3D.__init__(
+            self,
+            vertices=vertices,
+            level=level,
+            theme=theme,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=movMatrix,
+            rotMatrix=rotMatrix,
+            color=color,
+            name=name,
+        )
         self.health = health

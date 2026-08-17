@@ -14,7 +14,7 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.INCREASE_X_RESOLUTION: "8",
     DisplayKeys.DECREASE_Y_RESOLUTION: "9",
     DisplayKeys.INCREASE_Y_RESOLUTION: "0",
-    DisplayKeys.SWITCH_CHAR_MODE: "v",
+    DisplayKeys.SWITCH_RENDERING_MODE: "v",
     DisplayKeys.INCREASE_VISIBILITY: "4",
     DisplayKeys.DECREASE_VISIBILITY: "3",
     DisplayKeys.SWITCH_ANTIALIASING: "p",

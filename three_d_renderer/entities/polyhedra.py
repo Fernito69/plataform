@@ -25,13 +25,26 @@ class Cube(Entity3D):
         (6, 7),
     ]
 
-    def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
-        self.position = position
-        self.size = size
-        self.angle = angle  # XY, XZ, YZ
-        self.movMatrix = movMatrix
-        self.rotMatrix = rotMatrix
+    def __init__(
+        self,
+        position: Point3,
+        size: float,
+        angle: Point3,
+        color: RGB = RGB(),
+        movMatrix: Point3 = [0, 0, 0],
+        rotMatrix: Point3 = [0, 0, 0],
+        vertices: list[Point3] = [],
+    ):
+        Entity3D.__init__(
+            self,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=movMatrix,
+            rotMatrix=rotMatrix,
+            vertices=vertices,
+            color=color,
+        )
 
     def get_diameter(self) -> float:
         # "diameter" for cube is just the size
@@ -66,7 +79,7 @@ class Cube(Entity3D):
         s = self.size
 
         # "voxels" for the edges
-        for i in range(s):
+        for i in range(round(s)):
             vertexes.append([x + s / 2 - i, y + s / 2, z + s / 2])
             vertexes.append([x + s / 2, y + s / 2 - i, z + s / 2])
             vertexes.append([x + s / 2, y + s / 2, z + s / 2 - i])
@@ -97,13 +110,27 @@ class Cube(Entity3D):
 class Tetra(Entity3D):
     vertex_connections: list[tuple[int, int]] = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
 
-    def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
-        self.position = position
-        self.size = size
-        self.angle = angle  # XY, XZ, YZ
-        self.movMatrix = movMatrix
-        self.rotMatrix = rotMatrix
+    def __init__(
+        self,
+        position: Point3,
+        size: float,
+        angle: Point3,
+        color: RGB = RGB(),
+        movMatrix: Point3 = [0, 0, 0],
+        rotMatrix: Point3 = [0, 0, 0],
+        vertices: list[Point3] = [],
+    ):
+        Entity3D.__init__(
+            self,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=movMatrix,
+            rotMatrix=rotMatrix,
+            vertices=vertices,
+            color=color,
+        )
+        self.name = "Tetrahedron"
 
     def get_diameter(self) -> float:
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
@@ -122,7 +149,8 @@ class Tetra(Entity3D):
         vertexes.append([x, y + s, z + R2O2 * s])
         vertexes.append([x, y - s, z + R2O2 * s])
 
-        self.vertices = vertexes
+        if apply:
+            self.vertices = vertexes
 
         return vertexes
 
@@ -138,7 +166,7 @@ class Tetra(Entity3D):
 
         s = self.size
 
-        for t in range(s * 2):
+        for t in range(round(s * 2)):
             vertexes.append([(x - s + t), (y), (z - R2O2 * s)])  # 1 - 2
             vertexes.append([(x + s - t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 3
             vertexes.append([(x + s - t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 4
@@ -186,21 +214,31 @@ class Ico(Entity3D):
 
     def __init__(
         self,
-        position,
-        size,
-        angle,
+        position: Point3,
+        size: float,
+        angle: Point3,
         color: RGB,
-        movMatrix=[0, 0, 0],
-        rotMatrix=[0, 0, 0],
+        movMatrix: Point3 = [0, 0, 0],
+        rotMatrix: Point3 = [0, 0, 0],
+        vertices: list[Point3] = [],
     ):
         Entity3D.__init__(
-            self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0], color=color
+            self,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=[0, 0, 0],
+            rotMatrix=[0, 0, 0],
+            color=color,
+            vertices=vertices,
         )
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
+        self.name = "Icosahedron"
+        self.vertices = vertices
 
     def get_diameter(self) -> float:
         # let's say 2*phi?
@@ -213,23 +251,25 @@ class Ico(Entity3D):
         z = self.position[2]
         s = self.size
 
-        vertexes.append([x, y + s, z + PHI * s, "1"])  # vertex 1
-        vertexes.append([x, y - s, z + PHI * s, "2"])  # vertex 2
-        vertexes.append([x, y + s, z - PHI * s, "3"])  # vertex 3
-        vertexes.append([x, y - s, z - PHI * s, "4"])  # vertex 4
+        vertexes.append([x, y + s, z + PHI * s])  # vertex 1
+        vertexes.append([x, y - s, z + PHI * s])  # vertex 2
+        vertexes.append([x, y + s, z - PHI * s])  # vertex 3
+        vertexes.append([x, y - s, z - PHI * s])  # vertex 4
 
-        vertexes.append([x + s, y + PHI * s, z, "5"])  # vertex 5
-        vertexes.append([x + s, y - PHI * s, z, "6"])  # vertex 6
-        vertexes.append([x - s, y + PHI * s, z, "7"])  # vertex 7
-        vertexes.append([x - s, y - PHI * s, z, "8"])  # vertex 8
+        vertexes.append([x + s, y + PHI * s, z])  # vertex 5
+        vertexes.append([x + s, y - PHI * s, z])  # vertex 6
+        vertexes.append([x - s, y + PHI * s, z])  # vertex 7
+        vertexes.append([x - s, y - PHI * s, z])  # vertex 8
 
-        vertexes.append([x + PHI * s, y, z + s, "9"])  # vertex 9
-        vertexes.append([x + PHI * s, y, z - s, "X"])  # vertex 10
-        vertexes.append([x - PHI * s, y, z + s, "J"])  # vertex 11
-        vertexes.append([x - PHI * s, y, z - s, "Q"])  # vertex 12
+        vertexes.append([x + PHI * s, y, z + s])  # vertex 9
+        vertexes.append([x + PHI * s, y, z - s])  # vertex 10
+        vertexes.append([x - PHI * s, y, z + s])  # vertex 11
+        vertexes.append([x - PHI * s, y, z - s])  # vertex 12
 
         if apply:
             self.vertices = vertexes
+            # print("VERTICES:" + str(self.vertices))
+            # raise InterruptedError("popo")
 
         return vertexes
 
@@ -245,7 +285,7 @@ class Ico(Entity3D):
         s = self.size
 
         # edges of icosahedron
-        for t in range(s):
+        for t in range(round(s)):
             vertexes.append([(x), (y + s - 2 * t), (z + PHI * s)])  # vertex 1 - 2
             vertexes.append(
                 [(x + t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t)]
@@ -368,13 +408,27 @@ class Dodeca(Entity3D):
         (7, 19),
     ]
 
-    def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
-        self.position = position
-        self.size = size
-        self.angle = angle  # XY, XZ, YZ
-        self.movMatrix = movMatrix
-        self.rotMatrix = rotMatrix
+    def __init__(
+        self,
+        position: Point3,
+        size: float,
+        angle: Point3,
+        color: RGB = RGB(),
+        movMatrix: Point3 = [0, 0, 0],
+        rotMatrix: Point3 = [0, 0, 0],
+        vertices: list[Point3] = [],
+    ):
+        Entity3D.__init__(
+            self,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=movMatrix,
+            rotMatrix=rotMatrix,
+            vertices=vertices,
+            color=color,
+        )
+        self.name = "Dodecahedron"
 
     def get_diameter(self) -> float:
         # similar to ico?
@@ -385,29 +439,29 @@ class Dodeca(Entity3D):
         x, y, z = self.position
         s = self.size
 
-        vertexes.append([x + s, y + s, z + s, "1"])  # vertex 1
-        vertexes.append([x + s, y - s, z + s, "2"])  # vertex 2
-        vertexes.append([x + s, y + s, z - s, "3"])  # vertex 3
-        vertexes.append([x + s, y - s, z - s, "4"])  # vertex 4
-        vertexes.append([x - s, y + s, z + s, "5"])  # vertex 5
-        vertexes.append([x - s, y - s, z + s, "6"])  # vertex 6
-        vertexes.append([x - s, y + s, z - s, "7"])  # vertex 7
-        vertexes.append([x - s, y - s, z - s, "8"])  # vertex 8
+        vertexes.append([x + s, y + s, z + s])  # vertex 1
+        vertexes.append([x + s, y - s, z + s])  # vertex 2
+        vertexes.append([x + s, y + s, z - s])  # vertex 3
+        vertexes.append([x + s, y - s, z - s])  # vertex 4
+        vertexes.append([x - s, y + s, z + s])  # vertex 5
+        vertexes.append([x - s, y - s, z + s])  # vertex 6
+        vertexes.append([x - s, y + s, z - s])  # vertex 7
+        vertexes.append([x - s, y - s, z - s])  # vertex 8
 
-        vertexes.append([x, y + PHI * s, z + I_PHI * s, "9"])  # vertex 9
-        vertexes.append([x, y - PHI * s, z + I_PHI * s, "A"])  # vertex 10
-        vertexes.append([x, y + PHI * s, z - I_PHI * s, "B"])  # vertex 11
-        vertexes.append([x, y - PHI * s, z - I_PHI * s, "C"])  # vertex 12
+        vertexes.append([x, y + PHI * s, z + I_PHI * s])  # vertex 9
+        vertexes.append([x, y - PHI * s, z + I_PHI * s])  # vertex 10
+        vertexes.append([x, y + PHI * s, z - I_PHI * s])  # vertex 11
+        vertexes.append([x, y - PHI * s, z - I_PHI * s])  # vertex 12
 
-        vertexes.append([x + I_PHI * s, y, z + PHI * s, "D"])  # vertex 13
-        vertexes.append([x + I_PHI * s, y, z - PHI * s, "E"])  # vertex 14
-        vertexes.append([x - I_PHI * s, y, z + PHI * s, "F"])  # vertex 15
-        vertexes.append([x - I_PHI * s, y, z - PHI * s, "G"])  # vertex 16
+        vertexes.append([x + I_PHI * s, y, z + PHI * s])  # vertex 13
+        vertexes.append([x + I_PHI * s, y, z - PHI * s])  # vertex 14
+        vertexes.append([x - I_PHI * s, y, z + PHI * s])  # vertex 15
+        vertexes.append([x - I_PHI * s, y, z - PHI * s])  # vertex 16
 
-        vertexes.append([x + PHI * s, y + I_PHI * s, z, "H"])  # vertex 17
-        vertexes.append([x + PHI * s, y - I_PHI * s, z, "I"])  # vertex 18
-        vertexes.append([x - PHI * s, y + I_PHI * s, z, "J"])  # vertex 19
-        vertexes.append([x - PHI * s, y - I_PHI * s, z, "K"])  # vertex 20
+        vertexes.append([x + PHI * s, y + I_PHI * s, z])  # vertex 17
+        vertexes.append([x + PHI * s, y - I_PHI * s, z])  # vertex 18
+        vertexes.append([x - PHI * s, y + I_PHI * s, z])  # vertex 19
+        vertexes.append([x - PHI * s, y - I_PHI * s, z])  # vertex 20
 
         if apply:
             self.vertices = vertexes
@@ -425,7 +479,7 @@ class Dodeca(Entity3D):
 
         # TODO: create a mapping of segments that are joined and use that instead.
         # Instead of looping through the size, we print the line mapped to a char to the screen right away! Should be ok if we do it in order of closeness, right? TODO: order vertexer in order of closeness!
-        for t in range(s):
+        for t in range(round(s)):
             vertexes.append(
                 [(x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - I_PHI))]
             )  # vertex 1 - 9
@@ -527,13 +581,26 @@ CUSTOMSHITTT
 
 # TODO: brokeeeen, fix!
 class F_Letter(Entity3D):
-    def __init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0]):
-        Entity3D.__init__(self, position, size, angle, movMatrix=[0, 0, 0], rotMatrix=[0, 0, 0])
-        self.position = position
-        self.size = size
-        self.angle = angle  # XY, XZ, YZ
-        self.movMatrix = movMatrix
-        self.rotMatrix = rotMatrix
+    def __init__(
+        self,
+        position: Point3,
+        size: float,
+        angle: Point3,
+        color: RGB,
+        movMatrix=[0, 0, 0],
+        rotMatrix=[0, 0, 0],
+        vertices: list[Point3] = [],
+    ):
+        Entity3D.__init__(
+            self,
+            position=position,
+            size=size,
+            angle=angle,
+            movMatrix=movMatrix,
+            rotMatrix=rotMatrix,
+            vertices=vertices,
+            color=color,
+        )
 
     def calc_vertexes(self):
         # TODO: this should also check for velocity / previous position

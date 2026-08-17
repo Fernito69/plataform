@@ -11,7 +11,7 @@ class DisplayKeys(StrEnum):
     INCREASE_Y_RESOLUTION = auto()
     DECREASE_X_RESOLUTION = auto()
     DECREASE_Y_RESOLUTION = auto()
-    SWITCH_CHAR_MODE = auto()
+    SWITCH_RENDERING_MODE = auto()
     DECREASE_VISIBILITY = auto()
     INCREASE_VISIBILITY = auto()
     SWITCH_ANTIALIASING = auto()

@@ -15,7 +15,12 @@ def main():
 
     game = Game(player_2d=player, levels=[level1], player_3d=player_3d)
 
-    while game.status == GameStatus.MODE_2D or game.status == GameStatus.MODE_3D:
+    # TODO: should be different loops per game type
+    while (
+        game.status == GameStatus.MODE_2D
+        or game.status == GameStatus.MODE_3D
+        or game.status == GameStatus.MODE_3D_V2
+    ):
         game.game_loop()
 
 

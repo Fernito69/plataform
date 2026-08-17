@@ -50,6 +50,9 @@ class ThreeDeeRenderer:
     # TODO: this is a temporary hack
     colors: list
 
+    # TODO: this should be in display?
+    screen_data: list[list[list[PixelContribution]]]
+
     def __init__(
         self,
         player: Player3D,
@@ -64,6 +67,7 @@ class ThreeDeeRenderer:
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
+        self.empty_screen_data()
 
     # This is where the 3D to 2D projection magic happens
     def _project_onto_screen(self, point3: Point3) -> Point2:
@@ -77,6 +81,8 @@ class ThreeDeeRenderer:
         return (x_pos, y_pos)
 
     def _get_render_v2_list(self) -> list[RenderData]:
+        # print([f"{a.name}:{str(a.vertices)}, " for a in self._curr_level.entities])
+        # raise InterruptedError("POPO")
         # Order vertices by closest to farthest and exclude those too far away to be renderer
         return [
             obj
@@ -86,7 +92,9 @@ class ThreeDeeRenderer:
                         entity_idx=entity_idx,
                         entity=entity,
                         vertex=Vertex3(point=vertex, index=vertex_index),
-                        dist_vector=distance_between_points(vertex, self.player.position),
+                        dist_vector=distance_between_points(
+                            vertex, self.player.position, entity=entity
+                        ),
                     )
                     for entity_idx, entity in [
                         (entity_idx, entity)
@@ -99,21 +107,21 @@ class ThreeDeeRenderer:
             if obj.dist_vector.distance < self.visibility_threshold
         ]
 
-    # TODO: this shoulñd be in display?
-    screen_data: list[list[list[PixelContribution]]]
-
     def empty_screen_data(self) -> None:
+        self.screen_data = []
         for y in range(self.display.curr_y_resolution):
             self.screen_data.append([])
             for _ in range(self.display.curr_x_resolution):
                 self.screen_data[y].append([])
 
     def render_v2(self):
+        self.empty_screen_data()
         render_list: list[RenderData] = self._get_render_v2_list()
 
+        # TODO: calculations should not be part of the rendering
         for entity in self._curr_level.entities:
-            entity.movement()
             entity.calc_v2_vertexes(apply=True)
+            entity.movement()
             entity.apply_rotations()
 
         for data in render_list:
@@ -126,9 +134,13 @@ class ThreeDeeRenderer:
 
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_pixel_pos: Point2 = self._project_onto_screen(data.vertex.point)
+                curr_pixel_pos: Point2 = self._project_onto_screen(
+                    subtract_triplet(data.vertex.point, self.player.position)
+                )
                 connecting_pixel_pos: Point2 = self._project_onto_screen(
-                    data.entity.vertices[connecting_vertex_index]
+                    subtract_triplet(
+                        data.entity.vertices[connecting_vertex_index], self.player.position
+                    )
                 )
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
@@ -165,7 +177,7 @@ class ThreeDeeRenderer:
                 color = mix_colors(
                     [
                         (c.upper_subpixel.color or White()).with_intensity(
-                            get_intensity(c.lower_subpixel)
+                            get_intensity(c.upper_subpixel)
                         )
                         for c in data
                     ]
@@ -179,22 +191,30 @@ class ThreeDeeRenderer:
                     ]
                 )
                 # TODO: do properly
-                new_screen_matrix[y][x] = colored("▄", color=color, bg_color=bg_color)
+                new_screen_matrix[y][x] = colored("▀", color=color, bg_color=bg_color)
 
         self.display.put_screen_content(new_screen_matrix)
-        self.display.print_curr_screen()
+        self.display.print_curr_screen(self.player)
 
     def _compute_pixel_contributions(
         self, data: RenderData, curr_pixel_pos: Point2, connecting_pixel_pos: Point2
     ) -> None:
-        self.empty_screen_data()
         eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
 
         # Check the affected pixels:
         x1, y1 = curr_pixel_pos
         x2, y2 = connecting_pixel_pos
-        for x in range(math.floor(min(x1, x2)), math.ceil(max(x1, x2))):
-            for y in range(math.floor(min(y1, y2)), math.ceil(max(y1, y2))):
+
+        range_x_min = math.floor(max(min(x1, x2), 0))
+        range_x_max = math.floor(min(max(x1, x2), self.display.curr_x_resolution))
+        range_y_min = math.floor(max(min(y1, y2), 0))
+        range_y_max = math.floor(min(max(y1, y2), self.display.curr_y_resolution))
+
+        for x in range(range_x_min, range_x_max):
+            for y in range(range_y_min, range_y_max):
+                if not self.display.is_in_screen((x, y)):
+                    continue
+
                 calculated_y = eq.get_y(x)
                 calculated_x = eq.get_x(calculated_y)
                 if y <= calculated_y < (y + 1) and x <= calculated_x < (x + 1):
@@ -226,14 +246,18 @@ class ThreeDeeRenderer:
                     if upper_contribution <= 0 and lower_contribution <= 0:
                         continue
 
+                    # color hack
+                    # color = data.entity.theme.color
+                    color = self.colors[round(data.entity.size) % len(self.colors)]()
+
                     upper_subpixel = SubpixelContribution(
-                        color=data.entity.theme.color,
+                        color=color,
                         distance_from_spec=data.dist_vector.distance,
                         pixel_usage_ratio=upper_contribution,
                     )
 
                     lower_subpixel = SubpixelContribution(
-                        color=data.entity.theme.color,
+                        color=color,
                         distance_from_spec=data.dist_vector.distance,
                         pixel_usage_ratio=lower_contribution,
                     )
@@ -244,6 +268,7 @@ class ThreeDeeRenderer:
 
                     self.screen_data[y][x] += [contribution]
 
+    # Legacy voxel renderer
     def visualize_scenario(self):
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
@@ -251,7 +276,7 @@ class ThreeDeeRenderer:
         # we make a matrix representation of the playfield
         screen_matrix = []
 
-        for y in range(self.display.curr_y_resolution):
+        for y in range(Y_RES):
             screen_matrix.append([])
             for x in range(X_RES):
                 screen_matrix[y].append(_DEFAULT_CHAR)
@@ -313,7 +338,7 @@ class ThreeDeeRenderer:
                 ):
                     vertices_to_render.append([normalized_vertex, (x_pos, y_pos)])
 
-            color = self.colors[entity.size % len(self.colors)]
+            color = self.colors[round(entity.size) % len(self.colors)]
 
             vertices_to_render = sorted(
                 vertices_to_render,

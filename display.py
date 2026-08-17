@@ -223,7 +223,7 @@ class Display:
             decr_fog_key = default_keyboard_mapping[DisplayKeys.DECREASE_VISIBILITY]
             incr_vis_key = default_keyboard_mapping[DisplayKeys.INCREASE_VISIBILITY]
             shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
-            mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_CHAR_MODE]
+            mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
 
             def _c(s: str) -> str:
                 return "'" + colored(s.capitalize(), White(1)) + "'"

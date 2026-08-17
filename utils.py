@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from model.base import DistVector3D, Number, Point2, Point3, Vector2, Vector3
 from model.theme import RGB
@@ -87,14 +88,18 @@ def subtract_triplet(
 # Instead of diameter, pass an Entity3D and call an internal get diameter function
 # I think distance_to_border doesn't work because the size is not the diameter in the current way we are creating the entities
 def distance_between_points(
-    p1: Point2 | Point3, p2: Point2 | Point3, diameter_p2: float | None = 0.0
+    p1: Point2 | Point3,
+    p2: Point2 | Point3,
+    diameter_p2: float | None = 0.0,
+    entity: Any = None,
 ) -> DistVector3D:
-    print(f"p1: {p1}, p2: {p2}")
-    try:
-        if len(p1) != len(p2):
-            raise IndexError("They should have the same length")
-    except:
-        pass
+
+    if isinstance(p1, int):
+        raise IndexError("CACA")
+
+    if len(p1) != len(p2):
+        print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
+        raise IndexError("They should have the same length")
 
     x = p1[0] - p2[0]
     y = p1[1] - p2[1]

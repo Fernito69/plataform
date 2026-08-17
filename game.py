@@ -97,10 +97,14 @@ class Game:
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
-            # self._check_game_status()
+            self._check_game_status()
             self.three_d_renderer.player.handle_player_input()
-            # return self.three_d_renderer.render_v2()
             return self.three_d_renderer.visualize_scenario()
+
+        if self.status == GameStatus.MODE_3D_V2:
+            self._check_game_status()
+            self.three_d_renderer.player.handle_player_input()
+            return self.three_d_renderer.render_v2()
 
         self.display.populate_level_into_matrix()
 
@@ -113,8 +117,6 @@ class Game:
             self._compute_actions_and_add_to_screen(exit)
 
         self._print_game()
-
-        # self._check_game_status()
 
     def handle_player_input(self):
         ########
@@ -136,14 +138,18 @@ class Game:
             self.display.set_3d_resolution()
             self._curr_fps = FPS_3D
 
-        if is_pressed(DisplayKeys.SWITCH_CHAR_MODE):
-            self.status = GameStatus.MODE_3D
-            self.display.switch_3d_char_mode()
-            # self.display.with_black_bg = not self.display.with_black_bg
+        if is_pressed(DisplayKeys.SWITCH_RENDERING_MODE):
+            self.status = (
+                GameStatus.MODE_3D
+                if self.status == GameStatus.MODE_3D_V2
+                else GameStatus.MODE_3D_V2
+            )
             self._curr_fps = FPS_3D
+            # self.display.switch_3d_char_mode()
+            # self.display.with_black_bg = not self.display.with_black_bg
 
         # For now screen size is fixed for 2D mode
-        if self.status != GameStatus.MODE_3D:
+        if self.status != GameStatus.MODE_3D and self.status != GameStatus.MODE_3D_V2:
             return
 
         if is_pressed(DisplayKeys.INCREASE_X_RESOLUTION):
