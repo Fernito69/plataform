@@ -185,9 +185,6 @@ class Game:
 
         if is_pressed(DisplayKeys.SHUFFLE_COLORS):
             # TODO: const this value
-            # self.three_d_renderer.colors = sorted(
-            #     self.three_d_renderer.colors, key=lambda: (0.5 - random.random())
-            # )
             self.three_d_renderer.colors = sorted(
                 self.three_d_renderer.colors,
                 key=lambda _: 0.5 - random.random(),
