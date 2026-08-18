@@ -1,5 +1,6 @@
 from display import Display
 from factories.theme import DEFAULT_CHAR
+from model.theme import DoubleLines
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
@@ -7,6 +8,8 @@ from utils import colored, distance_between_points, has_bg_color, subtract_tripl
 
 
 class LegacyRenderer(ThreeDeeRenderer):
+    _screen_matrix_buffer: list[list[str]] = []
+
     def __init__(
         self,
         player: Player3D,
@@ -14,6 +17,40 @@ class LegacyRenderer(ThreeDeeRenderer):
         level: Level3D | None = None,
     ):
         ThreeDeeRenderer.__init__(self, player, display, level)
+        self._reset_screen_buffer()
+        self._draw_screen_border()
+
+    def _reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
+        X_RES = self.display.curr_x_resolution
+        Y_RES = self.display.curr_y_resolution
+
+        if keep_border:
+            for y in range(border_thickness, Y_RES - border_thickness):
+                for x in range(border_thickness, X_RES - border_thickness):
+                    self._screen_matrix_buffer[y][x] = DEFAULT_CHAR
+        else:
+            self._screen_matrix_buffer: list[list[str]] = []
+            for y in range(Y_RES):
+                self._screen_matrix_buffer.append([])
+                for _ in range(X_RES):
+                    self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
+
+    def _draw_screen_border(self):
+        X_RES = self.display.curr_x_resolution
+        Y_RES = self.display.curr_y_resolution
+
+        self._screen_matrix_buffer[0][0] = DoubleLines.UL
+        self._screen_matrix_buffer[Y_RES - 1][X_RES - 1] = DoubleLines.LR
+        self._screen_matrix_buffer[0][X_RES - 1] = DoubleLines.UR
+        self._screen_matrix_buffer[Y_RES - 1][0] = DoubleLines.LL
+
+        for y in range(1, Y_RES - 1):
+            self._screen_matrix_buffer[y][0] = DoubleLines.V
+            self._screen_matrix_buffer[y][X_RES - 1] = DoubleLines.V
+
+        for x in range(1, X_RES - 1):
+            self._screen_matrix_buffer[0][x] = DoubleLines.H
+            self._screen_matrix_buffer[Y_RES - 1][x] = DoubleLines.H
 
     # Legacy voxel renderer
     def visualize_scenario(self):
@@ -21,33 +58,12 @@ class LegacyRenderer(ThreeDeeRenderer):
         Y_RES = self.display.curr_y_resolution
 
         # we make a matrix representation of the playfield
-        screen_matrix = []
-
-        for y in range(Y_RES):
-            screen_matrix.append([])
-            for x in range(X_RES):
-                screen_matrix[y].append(DEFAULT_CHAR)
-
-        # we draw the border of the screen
-        # TODO: this shit we should do only once!
-        screen_matrix[0][0] = "╔"
-        screen_matrix[Y_RES - 1][X_RES - 1] = "╝"
-        screen_matrix[0][X_RES - 1] = "╗"
-        screen_matrix[Y_RES - 1][0] = "╚"
-
-        for y in range(1, Y_RES - 1):
-            screen_matrix[y][0] = "║"
-            screen_matrix[y][X_RES - 1] = "║"
-
-        for x in range(1, X_RES - 1):
-            screen_matrix[0][x] = "═"
-            screen_matrix[Y_RES - 1][x] = "═"
+        self._reset_screen_buffer(keep_border=True)
 
         # rendering objects, we sort them first by distance
         self._curr_level.entities = sorted(
             self._curr_level.entities,
             key=lambda e: (
-                # distance_between_points(e.position, self.player.position).distance
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
@@ -77,11 +93,11 @@ class LegacyRenderer(ThreeDeeRenderer):
 
                 if (
                     # The -1 is because of the border thickness
-                    x_pos < self.display.curr_x_resolution - 1
-                    and y_pos < self.display.curr_y_resolution - 1
+                    x_pos < X_RES - 1
+                    and y_pos < Y_RES - 1
                     and x_pos > 1
                     and y_pos > 1
-                    and screen_matrix[round(y_pos)][round(x_pos)] == DEFAULT_CHAR
+                    and self._screen_matrix_buffer[round(y_pos)][round(x_pos)] == DEFAULT_CHAR
                 ):
                     vertices_to_render.append([normalized_vertex, (x_pos, y_pos)])
 
@@ -112,17 +128,17 @@ class LegacyRenderer(ThreeDeeRenderer):
 
                 # curr_pixel: str = screen_matrix[rounded_y_pos][rounded_x_pos]
 
-                if screen_matrix[rounded_y_pos][rounded_x_pos] == DEFAULT_CHAR:
-                    screen_matrix[rounded_y_pos][rounded_x_pos] = defchar
+                if self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] == DEFAULT_CHAR:
+                    self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] = defchar
                 # TODO: implement a test for this, not sure if works as intended
-                elif char not in screen_matrix[rounded_y_pos][rounded_x_pos] and not has_bg_color(
-                    screen_matrix[rounded_y_pos][rounded_x_pos]
-                ):
+                elif char not in self._screen_matrix_buffer[rounded_y_pos][
+                    rounded_x_pos
+                ] and not has_bg_color(self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos]):
                     _char = colored(
-                        screen_matrix[rounded_y_pos][rounded_x_pos],
+                        self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos],
                         bg_color=color(intensity),
                     )
-                    screen_matrix[rounded_y_pos][rounded_x_pos] = _char
+                    self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] = _char
 
-        self.display.put_screen_content(screen_matrix)
+        self.display.put_screen_content(self._screen_matrix_buffer)
         self.display.print_curr_screen(self.player)
