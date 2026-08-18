@@ -105,7 +105,7 @@ class Game:
             self.renderer_v2.player.handle_player_input()
             return self.renderer_v2.render_v2()
 
-        # 2D mode is handled here, TODO: refactor. 
+        # 2D mode is handled here, TODO: refactor.
         self.player2d.handle_player_input()
         self.display.populate_level_into_matrix()
 
@@ -146,6 +146,8 @@ class Game:
         self.status = (
             GameStatus.MODE_3D if self.status == GameStatus.MODE_3D_V2 else GameStatus.MODE_3D_V2
         )
+        if self.status == GameStatus.MODE_3D:
+            self.legacy_renderer.draw_screen_border()
         self._curr_fps = FPS_3D
 
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)

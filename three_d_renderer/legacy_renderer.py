@@ -18,7 +18,7 @@ class LegacyRenderer(ThreeDeeRenderer):
     ):
         ThreeDeeRenderer.__init__(self, player, display, level)
         self._reset_screen_buffer()
-        self._draw_screen_border()
+        self.draw_screen_border()
 
     def _reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
         X_RES = self.display.curr_x_resolution
@@ -35,7 +35,7 @@ class LegacyRenderer(ThreeDeeRenderer):
                 for _ in range(X_RES):
                     self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
 
-    def _draw_screen_border(self):
+    def draw_screen_border(self):
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
 
