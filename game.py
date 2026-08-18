@@ -91,14 +91,8 @@ class Game:
         self.display.print_curr_screen(self.player2d)
 
     def game_loop(self) -> None:
-        self._check_game_status()
-
         self._frame_delay()
-
         self.handle_player_input()
-
-        if self.status == GameStatus.MODE_2D:
-            self.player2d.handle_player_input()
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
@@ -111,6 +105,8 @@ class Game:
             self.renderer_v2.player.handle_player_input()
             return self.renderer_v2.render_v2()
 
+        # 2D mode is handled here, refactor. 
+        self.player2d.handle_player_input()
         self.display.populate_level_into_matrix()
 
         self._compute_actions_and_add_to_screen(self.player2d)
