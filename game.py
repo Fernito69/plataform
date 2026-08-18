@@ -105,7 +105,7 @@ class Game:
             self.renderer_v2.player.handle_player_input()
             return self.renderer_v2.render_v2()
 
-        # 2D mode is handled here, refactor. 
+        # 2D mode is handled here, TODO: refactor. 
         self.player2d.handle_player_input()
         self.display.populate_level_into_matrix()
 
