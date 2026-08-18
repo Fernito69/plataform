@@ -59,13 +59,14 @@ DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 
 # TODO: move this function elsewhere
 def _get_contribution(distance: float, slope: float | None) -> float:
+    # Corrected by the 2/1 ratio between real x and real y
+    # TODO: I'm assuming it's a linear relationship with the angle, maybe it's not. 
+    distance /= (1 + math.atan(slope) / (PI / 2)) if slope is not None else 2
+
     return max(
         1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,
         0,
     )
-
-
-# TODO: make color oscillate with time!
 
 
 # TODO: this should reuse display and set_resolution()
@@ -278,17 +279,17 @@ class ThreeDeeRenderer:
         x, y = curr_screen_pos
 
         # Upper pixel limits -> (x,y) (x+1, y + .5)
-        middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
+        middle_upper_subpixel = (x + HALF_PIXEL, y + QUARTER_PIXEL)
         # Lower pixel limits -> (x,y+.5) (x+1, y + 1)
-        middle_lower = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
+        middle_lower_subpixel = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
 
         upper_res = distance_from_line_to_point(
             line,
-            middle_upper,
+            middle_upper_subpixel,
         )
         lower_res = distance_from_line_to_point(
             line,
-            middle_lower,
+            middle_lower_subpixel,
         )
 
         upper_contribution_ratio: float = _get_contribution(upper_res.distance, upper_res.slope)
