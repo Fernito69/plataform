@@ -12,7 +12,8 @@ from model.player import PlayerStatus
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.three_d_renderer import ThreeDeeRenderer
+from three_d_renderer.legacy_renderer import LegacyRenderer
+from three_d_renderer.renderer_v2 import RendererV2
 
 
 # TODO: Game should not handle the 2D game directly, it should be a subclass like the 3D renderer
@@ -29,7 +30,8 @@ class Game:
     display: Display
 
     # TODO: this should actuaklly go in Display, together with 2D renderer when refactored
-    three_d_renderer: ThreeDeeRenderer
+    legacy_renderer: LegacyRenderer
+    renderer_v2: RendererV2
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
@@ -49,7 +51,8 @@ class Game:
         self.status = GameStatus.MODE_3D
         self._curr_fps = FPS_3D
         self.display.set_3d_resolution()
-        self.three_d_renderer = ThreeDeeRenderer(player=player_3d, display=self.display)
+        self.legacy_renderer = LegacyRenderer(player=player_3d, display=self.display)
+        self.renderer_v2 = RendererV2(player=player_3d, display=self.display)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -61,7 +64,7 @@ class Game:
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        for player in [self.player2d, self.three_d_renderer.player]:
+        for player in [self.player2d, self.renderer_v2.player, self.legacy_renderer.player]:
             message: str = ""
 
             match player.status:
@@ -100,13 +103,13 @@ class Game:
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
             self._check_game_status()
-            self.three_d_renderer.player.handle_player_input()
-            return self.three_d_renderer.visualize_scenario()
+            self.legacy_renderer.player.handle_player_input()
+            return self.legacy_renderer.visualize_scenario()
 
         if self.status == GameStatus.MODE_3D_V2:
             self._check_game_status()
-            self.three_d_renderer.player.handle_player_input()
-            return self.three_d_renderer.render_v2()
+            self.renderer_v2.player.handle_player_input()
+            return self.renderer_v2.render_v2()
 
         self.display.populate_level_into_matrix()
 
@@ -171,26 +174,32 @@ class Game:
 
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):
-        self.three_d_renderer.visibility_threshold += 5
+        # TODO: I don't like this, should be unified. Same for all the rest:
+        self.legacy_renderer.visibility_threshold += 5
+        self.renderer_v2.visibility_threshold += 5
 
     @on_key_press(DisplayKeys.DECREASE_VISIBILITY)
     def _decrease_visibility(self):
-        self.three_d_renderer.visibility_threshold -= 5
+        self.legacy_renderer.visibility_threshold -= 5
+        self.renderer_v2.visibility_threshold -= 5
 
     @on_key_press(DisplayKeys.DECREASE_FOV)
     def _decrease_fov(self):
-        self.three_d_renderer.fov -= 5
+        self.legacy_renderer.fov -= 5
+        self.renderer_v2.fov -= 5
 
     @on_key_press(DisplayKeys.INCREASE_FOV)
     def _increase_fov(self):
-        self.three_d_renderer.fov += 5
+        self.legacy_renderer.fov += 5
+        self.renderer_v2.fov += 5
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
     def _shuffle_colors(self):
-        self.three_d_renderer.colors = sorted(
-            self.three_d_renderer.colors,
-            key=lambda _: 0.5 - random.random(),
-        )
+        for r in [self.legacy_renderer, self.renderer_v2]:
+            r.colors = sorted(
+                r.colors,
+                key=lambda _: 0.5 - random.random(),
+            )
 
     def handle_player_input(self):
         self._quit()

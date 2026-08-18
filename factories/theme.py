@@ -1,4 +1,14 @@
+from constants import EMPTY_SPACE
 from model.theme import RGB, DoubleLines, Theme
+from utils import colored
+
+"""
+CHARACTERS
+"""
+
+
+DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=RGB(0,0,0))
+
 
 """
 COLORS

@@ -5,7 +5,7 @@ from typing import Any
 from model.base import DistVector3D, Number, Point2, Point3, Vector2, Vector3
 from model.theme import RGB
 
-RESET = "\033[0m"
+_RESET = "\033[0m"
 _FG_CODE = "\033[38;2;"
 _BG_CODE = "\033[48;2;"
 
@@ -50,7 +50,7 @@ def extract_bg_color_from_string(text: str) -> RGB | None:
 def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) -> str:
     fg_code = f"{_FG_CODE}{_encode_rgb(color)}m" if color else ""
     bg_code = f"{_BG_CODE}{_encode_rgb(bg_color)}m" if bg_color else ""
-    reset_code = RESET if (color or bg_color) and RESET not in text else ""
+    reset_code = _RESET if (color or bg_color) and _RESET not in text else ""
 
     return f"{fg_code}{bg_code}{text}{reset_code}"
 

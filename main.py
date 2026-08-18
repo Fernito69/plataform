@@ -11,7 +11,7 @@ def main():
     level1 = build_level1()
 
     # hardcoded cool place
-    player_3d.position = [18,84,-33] # [-3, -126, -48]
+    player_3d.position = [18, 84, -33]  # [-3, -126, -48]
 
     game = Game(player_2d=player, levels=[level1], player_3d=player_3d)
 
