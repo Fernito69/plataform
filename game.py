@@ -139,7 +139,7 @@ class Game:
     def _switch_3d_mode(self):
         self.status = GameStatus.MODE_3D
         self.display.set_3d_resolution()
-        # TODO: this should be part of Display, and go into the method .set_2d_resolution()
+        # TODO: this should be part of Display, and go into the method .set_3d_resolution()
         self._curr_fps = FPS_3D
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)

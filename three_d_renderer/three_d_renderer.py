@@ -54,11 +54,11 @@ DIRECTIONS = [
 
 # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
 # We take that as 0% contribution, and 0 as 100%
-DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 1  # 0.559
+DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 
 
 # TODO: move this function elsewhere
-def _get_contribution(distance: float) -> float:
+def _get_contribution(distance: float, slope: float | None) -> float:
     return max(
         1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,
         0,
@@ -114,30 +114,25 @@ class ThreeDeeRenderer:
         return (x_pos, y_pos)
 
     def _get_render_v2_list(self) -> list[RenderData]:
-        # print([f"{a.name}:{str(a.vertices)}, " for a in self._curr_level.entities])
-        # raise InterruptedError("POPO")
-        # Order vertices by closest to farthest and exclude those too far away to be renderer
+        # Order vertices by closest to farthest and exclude those too far away to be rendered
         return [
-            obj
-            for obj in sorted(
+            data
+            for data in sorted(
                 [
                     RenderData(
                         entity_idx=entity_idx,
                         entity=entity,
-                        vertex=Vertex3(point=vertex, index=vertex_index),
+                        vertex=Vertex3(point=vertex, index=vertex_idx),
                         dist_vector=distance_between_points(
                             vertex, self.player.position, entity=entity
                         ),
                     )
-                    for entity_idx, entity in [
-                        (entity_idx, entity)
-                        for entity_idx, entity in enumerate(self._curr_level.entities)
-                    ]
-                    for vertex_index, vertex in enumerate(entity.vertices)
+                    for entity_idx, entity in enumerate(self._curr_level.entities)
+                    for vertex_idx, vertex in enumerate(entity.vertices)
                 ],
                 key=lambda r: r.dist_vector.distance,
             )
-            if obj.dist_vector.distance < self.visibility_threshold
+            if data.dist_vector.distance < self.visibility_threshold
         ]
 
     def empty_screen_data(self) -> None:
@@ -182,20 +177,21 @@ class ThreeDeeRenderer:
                 ):
                     continue
 
-                self._compute_pixel_contributions(data, curr_pixel_pos, connecting_pixel_pos)
+                self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
 
         # Fill in screen data!!! TODO: we should involve the display class here, this is hacky
-        new_screen_matrix = []
-        for y in range(self.display.curr_y_resolution):
-            new_screen_matrix.append([])
-            for x in range(self.display.curr_x_resolution):
-                new_screen_matrix[y].append(_DEFAULT_CHAR)
+        new_screen_matrix = self.display._screen_matrix
+        # for y in range(self.display.curr_y_resolution):
+        #     new_screen_matrix.append([])
+        #     for x in range(self.display.curr_x_resolution):
+        #         new_screen_matrix[y].append(_DEFAULT_CHAR)
 
         for x in range(self.display.curr_x_resolution):
             for y in range(self.display.curr_y_resolution):
                 data = self.screen_data[y][x]
 
                 if len(data) == 0:
+                    new_screen_matrix[y][x] = _DEFAULT_CHAR
                     continue
 
                 def _get_intensity(c: SubpixelContribution):
@@ -229,16 +225,16 @@ class ThreeDeeRenderer:
         self.display.put_screen_content(new_screen_matrix)
         self.display.print_curr_screen(self.player)
 
-    def _compute_pixel_contributions(
-        self, data: RenderData, curr_pixel_pos: Point2, connecting_pixel_pos: Point2
-    ) -> None:
+    def _compute_pixel_contributions(self, data: RenderData, line: tuple[Point2, Point2]) -> None:
         # Check the affected pixels:
+        curr_pixel_pos, connecting_pixel_pos = line
         x1, y1 = curr_pixel_pos
         x2, y2 = connecting_pixel_pos
 
+        # get the target area of the screen
         range_x_min = math.floor(max(min(x1, x2), 0))
         range_x_max = math.ceil(min(max(x1, x2), self.display.curr_x_resolution))
-        range_y_min = math.ceil(max(min(y1, y2), 0))
+        range_y_min = math.floor(max(min(y1, y2), 0))
         range_y_max = math.ceil(min(max(y1, y2), self.display.curr_y_resolution))
 
         eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
@@ -282,6 +278,7 @@ class ThreeDeeRenderer:
         x, y = curr_screen_pos
 
         # Upper pixel limits -> (x,y) (x+1, y + .5)
+        # middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
         middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
         # Lower pixel limits -> (x,y+.5) (x+1, y + 1)
         middle_lower = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
@@ -295,8 +292,8 @@ class ThreeDeeRenderer:
             middle_lower,
         )
 
-        upper_contribution_ratio: float = _get_contribution(upper_res.distance)
-        lower_contribution_ratio: float = _get_contribution(lower_res.distance)
+        upper_contribution_ratio: float = _get_contribution(upper_res.distance, upper_res.slope)
+        lower_contribution_ratio: float = _get_contribution(lower_res.distance, lower_res.slope)
 
         if upper_contribution_ratio <= 0 and lower_contribution_ratio <= 0:
             return
