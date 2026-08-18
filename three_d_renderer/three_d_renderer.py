@@ -103,7 +103,7 @@ class ThreeDeeRenderer:
         self.empty_screen_data()
 
     # This is where the 3D to 2D projection magic happens
-    def _project_onto_screen(self, point3: Point3) -> Point2:
+    def _get_screen_projection(self, point3: Point3) -> Point2:
         x, y, z = point3
         x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
         y_pos = (
@@ -162,10 +162,10 @@ class ThreeDeeRenderer:
 
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_pixel_pos: Point2 = self._project_onto_screen(
+                curr_pixel_pos: Point2 = self._get_screen_projection(
                     subtract_triplet(data.vertex.point, self.player.position)
                 )
-                connecting_pixel_pos: Point2 = self._project_onto_screen(
+                connecting_pixel_pos: Point2 = self._get_screen_projection(
                     subtract_triplet(
                         data.entity.vertices[connecting_vertex_index], self.player.position
                     )
@@ -278,7 +278,6 @@ class ThreeDeeRenderer:
         x, y = curr_screen_pos
 
         # Upper pixel limits -> (x,y) (x+1, y + .5)
-        # middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
         middle_upper = (x + HALF_PIXEL, y + QUARTER_PIXEL)
         # Lower pixel limits -> (x,y+.5) (x+1, y + 1)
         middle_lower = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
@@ -374,7 +373,7 @@ class ThreeDeeRenderer:
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.vertices:
                 normalized_vertex = subtract_triplet(vertex, self.player.position)
-                x_pos, y_pos = self._project_onto_screen(normalized_vertex)
+                x_pos, y_pos = self._get_screen_projection(normalized_vertex)
 
                 if (
                     # The -1 is because of the border thickness
