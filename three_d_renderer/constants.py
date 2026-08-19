@@ -16,7 +16,7 @@ VISION_LIMIT = 13  # how quickly the characters change when objects get closer t
 # X_RESOLUTION_3D = 80
 # Y_RESOLUTION_3D = 25
 X_RESOLUTION_3D = 120
-Y_RESOLUTION_3D = 40
+Y_RESOLUTION_3D = 30
 
 ANTIALIASING_INTENSITY = 0.4
 

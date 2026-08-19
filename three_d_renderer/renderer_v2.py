@@ -37,7 +37,7 @@ DIRECTIONS = [
 
 # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
 # We take that as 0% contribution, and 0 as 100%
-DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
+DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 1  # 0.559
 
 
 # TODO: move this function elsewhere or make it static method
@@ -82,10 +82,23 @@ class RendererV2(ThreeDeeRenderer):
                     for entity_idx, entity in enumerate(self._curr_level.entities)
                     for vertex_idx, vertex in enumerate(entity.vertices)
                 ],
-                key=lambda r: r.dist_vector.distance,
+                key=self._sort_vertices,
             )
             if data.dist_vector.distance < self.visibility_threshold
         ]
+
+    def _sort_vertices(self, r: RenderData) -> float:
+        # TODO: do right
+        # connections = [
+        #     c
+        #     for c in self._curr_level.entities[r.entity_idx].vertex_connections
+        #     if c[0] == r.vertex.index or c[1] == r.vertex.index
+        # ]
+        # sumaa: float = sum(self.screen_data[r.] for c1, c2 in connections)
+        # divisor: float = len(connections) + 1
+        # return (r.dist_vector.distance + sumaa) / divisor
+
+        return r.dist_vector.distance
 
     def empty_screen_data(self) -> None:
         self.screen_data = []
