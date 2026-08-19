@@ -76,33 +76,15 @@ class Entity3D:
         pass
 
     @abstractmethod
-    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
+        pass
+
+    @abstractmethod
+    def calc_legacy_voxels(self, apply: bool = False) -> list[Point3]:
         pass
 
     def _apply_gravity(self) -> None:
-        pass
-        # y_dist = self.y_distance().distance
-        # y_coor = self.y_distance().y_at_target
-
-        # if y_coor is None:
-        #     return
-
-        # # moves entity down because of gravity
-        # if self.position[1] < y_coor - 1 and y_dist > 0:
-        #     # TODO: check if we only need math.floor in the second part
-        #     # TODO: I don't understand this code, wtf is the if condition?
-        #     new_y = (
-        #         y_coor - 1
-        #         if self.position[1] + self.falling_velocity >= y_coor
-        #         else self.position[1] + math.floor(self.falling_velocity)
-        #     )
-
-        #     self.position = (self.position[0], new_y)
-        # else:
-        #     self.falling_velocity = 0
-
-        # if y_dist > 0:
-        #     self.falling_velocity += GRAVITY_ACCELERATION
+        raise NotImplementedError("No gravity support yet")
 
     def get_char(self) -> str:
         return colored(
@@ -121,10 +103,6 @@ class Entity3D:
 
     def is_same_position(self, entity: "Entity3D") -> bool:
         return all(a == b for a, b in zip(self.position, entity.position))
-        #     round(a[0]) == round(b[0])
-        #     and round(a[1]) == round(b[1])
-        #     and round(a[2]) == round(b[2])
-        # )
 
     def movement(self):
         self.position[0] += self.movMatrix[0]

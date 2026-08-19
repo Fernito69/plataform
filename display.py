@@ -168,8 +168,11 @@ class Display:
 
         self.print_curr_screen()
 
-    def put_screen_content(self, new_screen_matrix: list[list[str]]):
+    def put_screen_content(self, new_screen_matrix: list[list[str]]) -> None:
         self._screen_matrix = new_screen_matrix
+
+    def get_screen_content(self) -> list[list[str]]:
+        return self._screen_matrix
 
     def print_curr_screen(self, player: Player2D | Player3D | None = None):
         matrix_string = ""

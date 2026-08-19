@@ -79,7 +79,7 @@ class LegacyRenderer(ThreeDeeRenderer):
         for entity in self._curr_level.entities:
             # calculate movement
             entity.movement()
-            entity.calc_vertexes()
+            entity.calc_legacy_voxels()
             entity.apply_rotations()
             # we get vertexes from object
 

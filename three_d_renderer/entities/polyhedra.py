@@ -14,13 +14,13 @@ class Cube(Entity3D):
         (0, 1),
         (0, 2),
         (0, 4),
-        # (1, 3),
-        # (1, 5),
-        # (2, 3),
-        # (2, 4),
+        (1, 3),
+        (1, 5),
+        (2, 3),
+        (2, 6),
         (3, 7),
-        # (4, 5),
-        # (4, 6),
+        (4, 5),
+        (4, 6),
         (5, 7),
         (6, 7),
     ]
@@ -50,7 +50,7 @@ class Cube(Entity3D):
         # "diameter" for cube is just the size
         return self.size
 
-    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x, y, z = self.position
         s = self.size
@@ -69,12 +69,12 @@ class Cube(Entity3D):
 
         return vertexes
 
-    def calc_vertexes(self):
+    def calc_legacy_voxels(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_v2_vertexes()
+        vertexes = self.calc_main_vertexes()
         x, y, z = self.position
         s = self.size
 
@@ -136,7 +136,7 @@ class Tetra(Entity3D):
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
         return self.size * R2O2 * 2
 
-    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
@@ -154,12 +154,12 @@ class Tetra(Entity3D):
 
         return vertexes
 
-    def calc_vertexes(self):
+    def calc_legacy_voxels(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_v2_vertexes()
+        vertexes = self.calc_main_vertexes()
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
@@ -244,7 +244,7 @@ class Ico(Entity3D):
         # let's say 2*phi?
         return self.size * 2 * PHI
 
-    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x = self.position[0]
         y = self.position[1]
@@ -273,13 +273,12 @@ class Ico(Entity3D):
 
         return vertexes
 
-    def calc_vertexes(self):
-
+    def calc_legacy_voxels(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_v2_vertexes()
+        vertexes = self.calc_main_vertexes()
 
         x, y, z = self.position
         s = self.size
@@ -434,7 +433,7 @@ class Dodeca(Entity3D):
         # similar to ico?
         return self.size * 2 * PHI
 
-    def calc_v2_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
         vertexes = []
         x, y, z = self.position
         s = self.size
@@ -468,12 +467,12 @@ class Dodeca(Entity3D):
 
         return vertexes
 
-    def calc_vertexes(self):
+    def calc_legacy_voxels(self):
         # TODO: this should also check for velocity / previous position
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_v2_vertexes()
+        vertexes = self.calc_main_vertexes()
         x, y, z = self.position
         s = self.size
 
@@ -602,7 +601,7 @@ class F_Letter(Entity3D):
             color=color,
         )
 
-    def calc_vertexes(self):
+    def calc_legacy_voxels(self):
         # TODO: this should also check for velocity / previous position
         # if self.is_lazy() and self.objVertexes and len(self.objVertexes) > 0:
         #     return

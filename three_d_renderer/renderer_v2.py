@@ -45,7 +45,7 @@ DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 def _get_contribution(distance: float, slope: float | None) -> float:
     # Corrected by the 2/1 ratio between real x and real y
     # TODO: I'm assuming it's a linear relationship with the angle, maybe it's not.
-    distance /= (1 + math.atan(slope) / (PI / 2)) if slope is not None else 2
+    distance /= (1 + math.sin(math.atan(slope))) if slope is not None else 2
 
     return max(
         1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,
@@ -101,9 +101,9 @@ class RendererV2(ThreeDeeRenderer):
 
         # TODO: calculations should not be part of the rendering
         for entity in self._curr_level.entities:
-            entity.calc_v2_vertexes(apply=True)
-            entity.movement()
+            entity.calc_main_vertexes(apply=True)
             entity.apply_rotations()
+            entity.movement()
 
         for data in render_list:
             # 1) Take vertices and trace lines
@@ -132,13 +132,9 @@ class RendererV2(ThreeDeeRenderer):
 
                 self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
 
-        # Fill in screen data!!! TODO: we should involve the display class here, this is hacky
-        new_screen_matrix = self.display._screen_matrix
-        # for y in range(self.display.curr_y_resolution):
-        #     new_screen_matrix.append([])
-        #     for x in range(self.display.curr_x_resolution):
-        #         new_screen_matrix[y].append(_DEFAULT_CHAR)
+        new_screen_matrix = self.display.get_screen_content()
 
+        # Fill in screen data!!!
         for x in range(self.display.curr_x_resolution):
             for y in range(self.display.curr_y_resolution):
                 data = self.screen_data[y][x]
