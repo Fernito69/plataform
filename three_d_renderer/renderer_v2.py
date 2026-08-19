@@ -45,10 +45,11 @@ DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 def _get_contribution(distance: float, slope: float | None) -> float:
     # Corrected by the 2/1 ratio between real x and real y
     # TODO: I'm assuming it's a linear relationship with the angle, maybe it's not.
-    distance /= (1 + math.sin(math.atan(slope))) if slope is not None else 2
+    distance /= (1 + abs((math.atan(slope)) / (PI / 2))) if slope is not None else 2
 
     return max(
         1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,
+        # (1 - distance),
         0,
     )
 
@@ -64,7 +65,7 @@ class RendererV2(ThreeDeeRenderer):
         level: Level3D | None = None,
     ):
         ThreeDeeRenderer.__init__(self, player, display, level)
-        self._empty_screen_data()
+        self.empty_screen_data()
 
     def _get_render_v2_list(self) -> list[RenderData]:
         # Order vertices by closest to farthest and exclude those too far away to be rendered
@@ -88,7 +89,7 @@ class RendererV2(ThreeDeeRenderer):
             if data.dist_vector.distance < self.visibility_threshold
         ]
 
-    def _empty_screen_data(self) -> None:
+    def empty_screen_data(self) -> None:
         self.screen_data = []
         for y in range(self.display.curr_y_resolution):
             self.screen_data.append([])
@@ -96,7 +97,7 @@ class RendererV2(ThreeDeeRenderer):
                 self.screen_data[y].append([])
 
     def render_v2(self):
-        self._empty_screen_data()
+        self.empty_screen_data()
         render_list: list[RenderData] = self._get_render_v2_list()
 
         # TODO: calculations should not be part of the rendering
@@ -132,7 +133,7 @@ class RendererV2(ThreeDeeRenderer):
 
                 self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
 
-        new_screen_matrix = self.display.get_screen_content()
+        new_screen_matrix = self._screen_matrix_buffer
 
         # Fill in screen data!!!
         for x in range(self.display.curr_x_resolution):
@@ -213,16 +214,12 @@ class RendererV2(ThreeDeeRenderer):
                         self._add_contribution_to_screen(
                             line=(curr_pixel_pos, connecting_pixel_pos),
                             curr_screen_pos=(x + delta_x, y + delta_y),
-                            distance=data.dist_vector.distance,
                             color=color,
+                            data=data,
                         )
 
     def _add_contribution_to_screen(
-        self,
-        line: tuple[Point2, Point2],
-        curr_screen_pos: Point2,
-        color: RGB,
-        distance: float,
+        self, line: tuple[Point2, Point2], curr_screen_pos: Point2, color: RGB, data: RenderData
     ):
         x, y = curr_screen_pos
 
@@ -240,22 +237,47 @@ class RendererV2(ThreeDeeRenderer):
             middle_lower_subpixel,
         )
 
-        upper_contribution_ratio: float = _get_contribution(upper_res.distance, upper_res.slope)
-        lower_contribution_ratio: float = _get_contribution(lower_res.distance, lower_res.slope)
+        # TODO: this is cheap heuristics, do better
+        upper_contribution_ratio: float = (
+            _get_contribution(upper_res.distance, upper_res.slope)
+            if not any(
+                d.upper_subpixel.pixel_usage_ratio
+                for d in self.screen_data[round(y)][round(x)]
+                if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
+                or d.upper_subpixel.vertex.index != data.vertex.index
+                or d.upper_subpixel.entity_idx != data.entity_idx
+            )
+            else 0
+        )
+        lower_contribution_ratio: float = (
+            _get_contribution(lower_res.distance, lower_res.slope)
+            if not any(
+                d.lower_subpixel.pixel_usage_ratio
+                for d in self.screen_data[round(y)][round(x)]
+                if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
+                or d.upper_subpixel.vertex.index != data.vertex.index
+                or d.lower_subpixel.entity_idx != data.entity_idx
+            )
+            else 0
+        )
 
         if upper_contribution_ratio <= 0 and lower_contribution_ratio <= 0:
             return
 
         upper_subpixel = SubpixelContribution(
             color=color,
-            distance_from_spec=distance,
+            distance_from_spec=data.dist_vector.distance,
             pixel_usage_ratio=upper_contribution_ratio,
+            entity_idx=data.entity_idx,
+            vertex=data.vertex,
         )
 
         lower_subpixel = SubpixelContribution(
             color=color,
-            distance_from_spec=distance,
+            distance_from_spec=data.dist_vector.distance,
             pixel_usage_ratio=lower_contribution_ratio,
+            entity_idx=data.entity_idx,
+            vertex=data.vertex,
         )
 
         contribution = PixelContribution(

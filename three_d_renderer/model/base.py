@@ -24,6 +24,8 @@ class RenderData:
 @dataclass
 class SubpixelContribution:
     distance_from_spec: float
+    entity_idx: int
+    vertex: Vertex3
     """
     Usage is calculated based on how close the line passes to the center of the pixel
     e.g. at pixel (x1, y1), if the line crosses at:

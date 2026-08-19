@@ -8,8 +8,6 @@ from utils import colored, distance_between_points, has_bg_color, subtract_tripl
 
 
 class LegacyRenderer(ThreeDeeRenderer):
-    _screen_matrix_buffer: list[list[str]] = []
-
     def __init__(
         self,
         player: Player3D,
@@ -17,23 +15,7 @@ class LegacyRenderer(ThreeDeeRenderer):
         level: Level3D | None = None,
     ):
         ThreeDeeRenderer.__init__(self, player, display, level)
-        self._reset_screen_buffer()
         self.draw_screen_border()
-
-    def _reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
-        X_RES = self.display.curr_x_resolution
-        Y_RES = self.display.curr_y_resolution
-
-        if keep_border:
-            for y in range(border_thickness, Y_RES - border_thickness):
-                for x in range(border_thickness, X_RES - border_thickness):
-                    self._screen_matrix_buffer[y][x] = DEFAULT_CHAR
-        else:
-            self._screen_matrix_buffer: list[list[str]] = []
-            for y in range(Y_RES):
-                self._screen_matrix_buffer.append([])
-                for _ in range(X_RES):
-                    self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
 
     def draw_screen_border(self):
         X_RES = self.display.curr_x_resolution
@@ -58,7 +40,7 @@ class LegacyRenderer(ThreeDeeRenderer):
         Y_RES = self.display.curr_y_resolution
 
         # we make a matrix representation of the playfield
-        self._reset_screen_buffer(keep_border=True)
+        self.reset_screen_buffer(keep_border=True)
 
         # rendering objects, we sort them first by distance
         self._curr_level.entities = sorted(

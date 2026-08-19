@@ -1,7 +1,18 @@
 import random
 
 from display import Display
-from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
+from factories.theme import (
+    DEFAULT_CHAR,
+    Blue,
+    Cyan,
+    Green,
+    Magenta,
+    Orange,
+    Red,
+    Violet,
+    White,
+    Yellow,
+)
 from model.base import Point2, Point3
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
@@ -25,6 +36,8 @@ class ThreeDeeRenderer:
     _curr_level: Level3D
     display: Display
 
+    _screen_matrix_buffer: list[list[str]] = []
+
     # physics params
     curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
     visibility_threshold: int
@@ -47,6 +60,7 @@ class ThreeDeeRenderer:
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
+        self.reset_screen_buffer()
 
     # This is where the 3D to 2D projection magic happens
     def _get_screen_projection(self, point3: Point3) -> Point2:
@@ -58,3 +72,18 @@ class ThreeDeeRenderer:
             else 0
         )
         return (x_pos, y_pos)
+
+    def reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
+        X_RES = self.display.curr_x_resolution
+        Y_RES = self.display.curr_y_resolution
+
+        if keep_border:
+            for y in range(border_thickness, Y_RES - border_thickness):
+                for x in range(border_thickness, X_RES - border_thickness):
+                    self._screen_matrix_buffer[y][x] = DEFAULT_CHAR
+        else:
+            self._screen_matrix_buffer: list[list[str]] = []
+            for y in range(Y_RES):
+                self._screen_matrix_buffer.append([])
+                for _ in range(X_RES):
+                    self._screen_matrix_buffer[y].append(DEFAULT_CHAR)

@@ -41,6 +41,7 @@ class Game:
         player_3d: Player3D,
         levels: list[Level2D],
         current_level_index: int = 0,
+        status: GameStatus = GameStatus.MODE_3D_V2,
     ):
         self.levels = levels
         self._current_level_index = current_level_index
@@ -48,7 +49,7 @@ class Game:
         self.player2d = player_2d
         self.player2d.set_curr_level(levels[current_level_index])
         self.display = Display(levels[current_level_index])
-        self.status = GameStatus.MODE_3D
+        self.status = status
         self._curr_fps = FPS_3D
         self.display.set_3d_resolution()
         self.legacy_renderer = LegacyRenderer(player=player_3d, display=self.display)
@@ -147,7 +148,11 @@ class Game:
             GameStatus.MODE_3D if self.status == GameStatus.MODE_3D_V2 else GameStatus.MODE_3D_V2
         )
         if self.status == GameStatus.MODE_3D:
+            self.legacy_renderer.reset_screen_buffer()
             self.legacy_renderer.draw_screen_border()
+        else:
+            self.legacy_renderer.reset_screen_buffer()
+            self.renderer_v2.empty_screen_data()
         self._curr_fps = FPS_3D
 
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
