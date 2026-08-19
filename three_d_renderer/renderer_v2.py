@@ -6,7 +6,6 @@ from model.base import Point2
 from model.theme import RGB
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.model.base import PixelContribution, RenderData, SubpixelContribution, Vertex3
-from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import (
     colored,
@@ -62,9 +61,8 @@ class RendererV2(ThreeDeeRenderer):
         self,
         player: Player3D,
         display: Display,
-        level: Level3D | None = None,
     ):
-        ThreeDeeRenderer.__init__(self, player, display, level)
+        ThreeDeeRenderer.__init__(self, player, display)
         self.empty_screen_data()
 
     def _get_render_v2_list(self) -> list[RenderData]:

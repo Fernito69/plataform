@@ -22,7 +22,6 @@ from three_d_renderer.constants import (
 )
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
-from three_d_renderer.scenario.levels_3d import build_level_3d_1
 
 # TODO: this is a temporary hack
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
@@ -50,11 +49,10 @@ class ThreeDeeRenderer:
         self,
         player: Player3D,
         display: Display,
-        level: Level3D | None = None,
     ):
         self.player = player
         self.display = display
-        self._curr_level = level or build_level_3d_1()
+        self._curr_level = display.curr_level_3D
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR

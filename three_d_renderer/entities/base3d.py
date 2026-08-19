@@ -1,6 +1,6 @@
 import math
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from constants import EMPTY_SPACE
 from factories.theme import White
@@ -25,6 +25,9 @@ class Entity3D:
     # TODO: rotation_matrix missing?
     # TODO: should be objVertexes: list[tuple[Point3, Point3]]
     vertices: list[Point3]
+    movMatrix: Point3
+    rotMatrix: Point3
+    rotate: bool
 
     # How vertices in the entity interconnect between them
     # works by index, e.g.: (0, 1) <- vertex 0 connects with 1
@@ -53,19 +56,18 @@ class Entity3D:
         self._char_frames = [EMPTY_SPACE]
         self._default_char_frames = [EMPTY_SPACE]
         self._curr_char_frame_index = 0
-        self.theme = theme or Theme()
-
-        # LEGACY SHIET
         self.position = position
         self.size = size
         self.angle = angle
         self.movMatrix = movMatrix
         self.rotMatrix = rotMatrix
         self.vertices = vertices
+        self.name = name
+        self.rotate = rotMatrix is not None
 
         # For now only color
+        # self.theme = theme or Theme()
         self.theme = Theme(color=color)
-        self.name = name
 
     def is_lazy(self) -> bool:
         # TODO: we are bypassing this, check why the optimization is not working
@@ -109,15 +111,10 @@ class Entity3D:
         self.position[1] += self.movMatrix[1]
         self.position[2] += self.movMatrix[2]
 
-        self.angle[0] -= self.rotMatrix[0]
-        self.angle[1] -= self.rotMatrix[1]
-        self.angle[2] -= self.rotMatrix[2]
-
-    def get_render_v2_obj(self) -> Any:
-        ordered_vertexes = sorted(self.vertices)
-
-        for v in ordered_vertexes:
-            pass
+        if self.rotate:
+            self.angle[0] -= self.rotMatrix[0]
+            self.angle[1] -= self.rotMatrix[1]
+            self.angle[2] -= self.rotMatrix[2]
 
     def apply_rotations(self):
         vertexes = self.vertices
@@ -158,12 +155,6 @@ class Entity3D:
             vertexes[i][2] = -(orig[i][1] - y) * math.sin(aZ) + (orig[i][2] - z) * math.cos(aZ) + z
 
         self.vertices = vertexes
-
-    # TODO!!!: voxels/"objVertexes" are stupid! we should trace a line from the projected point "a" to "b" and draw through the screen, averaging the colors of both halves of the pixel depending on the float
-    # TODO: theoretically, with a (hopefully cheaper) second pass (once all background entities were rendered), we can achieve very pretty effects... or maybe we don't even need a second pass! e.g: if both color and bg are different, apply where it should go!!!!!
-    # for the above we need the locations with decimals, befores rounding
-    def calc_vertexes(self):
-        pass
 
 
 class LivingEntity3D(Entity3D):

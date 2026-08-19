@@ -14,6 +14,7 @@ from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_renderer import LegacyRenderer
 from three_d_renderer.renderer_v2 import RendererV2
+from three_d_renderer.scenario.level_3d import Level3D
 
 
 # TODO: Game should not handle the 2D game directly, it should be a subclass like the 3D renderer
@@ -40,6 +41,7 @@ class Game:
         player_2d: Player2D,
         player_3d: Player3D,
         levels: list[Level2D],
+        levels_3d: list[Level3D],
         current_level_index: int = 0,
         status: GameStatus = GameStatus.MODE_3D_V2,
     ):
@@ -48,10 +50,11 @@ class Game:
 
         self.player2d = player_2d
         self.player2d.set_curr_level(levels[current_level_index])
-        self.display = Display(levels[current_level_index])
+        self.display = Display(curr_level=levels[current_level_index], curr_level_3d=levels_3d[0])
         self.status = status
         self._curr_fps = FPS_3D
         self.display.set_3d_resolution()
+
         self.legacy_renderer = LegacyRenderer(player=player_3d, display=self.display)
         self.renderer_v2 = RendererV2(player=player_3d, display=self.display)
 
@@ -121,7 +124,7 @@ class Game:
         self._print_game()
 
     # Input methods
-    # TODO: all display methods should go in Display class
+    # TODO: all display methods should go in Display class, or Three3d, whatever fits
     @on_key_press(MenuKeys.QUIT)
     def _quit(self):
         self.status = GameStatus.QUIT
@@ -204,11 +207,18 @@ class Game:
                 key=lambda _: 0.5 - random.random(),
             )
 
+    @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
+    def _toggle_rotation(self) -> None:
+        # TODO: this is messy, the renderer shouldn't take care of this
+        self.legacy_renderer._curr_level.toggle_rotation()
+        # self.renderer_v2._curr_level.toggle_rotation()
+
     def handle_player_input(self):
         self._quit()
         self._switch_rendering_mode()
         self._switch_2d_mode()
         self._switch_3d_mode()
+        self._toggle_rotation()
 
         self._increase_fov()
         self._decrease_fov()

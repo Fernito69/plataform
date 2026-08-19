@@ -24,6 +24,7 @@ class MenuKeys(StrEnum):
     QUIT = auto()
     SWITCH_3D_MODE = auto()
     SWITCH_2D_MODE = auto()
+    TOGGLE_ROTATION = auto()
 
 
 class MovementKeys(StrEnum):

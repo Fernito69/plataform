@@ -2,7 +2,6 @@ from display import Display
 from factories.theme import DEFAULT_CHAR
 from model.theme import DoubleLines
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.scenario.level_3d import Level3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
 
@@ -12,9 +11,8 @@ class LegacyRenderer(ThreeDeeRenderer):
         self,
         player: Player3D,
         display: Display,
-        level: Level3D | None = None,
     ):
-        ThreeDeeRenderer.__init__(self, player, display, level)
+        ThreeDeeRenderer.__init__(self, player, display)
         self.draw_screen_border()
 
     def draw_screen_border(self):

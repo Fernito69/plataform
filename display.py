@@ -18,6 +18,7 @@ from three_d_renderer.constants import (
     Y_RESOLUTION_3D,
 )
 from three_d_renderer.entities.player3d import Player3D
+from three_d_renderer.scenario.level_3d import Level3D
 from utils import colored, extract_color_from_string, has_bg_color
 
 _GOOD_HEALTH_LIMIT = 75
@@ -36,6 +37,7 @@ class Display:
     # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
     _curr_level_2D: Level2D
+    curr_level_3D: Level3D
 
     curr_x_resolution: int
     curr_y_resolution: int
@@ -49,11 +51,9 @@ class Display:
 
     antialiasing: bool
 
-    def __init__(
-        self,
-        curr_level: Level2D,
-    ):
+    def __init__(self, curr_level: Level2D, curr_level_3d: Level3D):
         self._curr_level_2D = curr_level
+        self.curr_level_3D = curr_level_3d
         self.populate_level_into_matrix()
         self.curr_3d_char_mode = "█"
         self.antialiasing = True
@@ -77,6 +77,9 @@ class Display:
             self._screen_matrix.append([])
             for x in range(self.curr_x_resolution):
                 self._screen_matrix[y].append(self._curr_level_2D.map[y][x] or EMPTY_SPACE)
+
+    def set_level_3d(self, level: Level3D) -> None:
+        self.curr_level_3D = level
 
     def switch_3d_char_mode(self) -> str | list[str]:
         # THIS IS HORRIBLE, DO PROPERLY
@@ -227,6 +230,7 @@ class Display:
             incr_vis_key = default_keyboard_mapping[DisplayKeys.INCREASE_VISIBILITY]
             shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
             mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
+            rotation_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
 
             def _c(s: str) -> str:
                 return "'" + colored(s.capitalize(), White(1)) + "'"
@@ -243,6 +247,7 @@ class Display:
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
+            hud += f"Rotation: ({_c(rotation_key)}) {ON_STR if self.curr_level_3D.rotation else OFF_STR}{SEP}"
             hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
 
             return print(hud)
