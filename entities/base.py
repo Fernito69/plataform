@@ -1,12 +1,8 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import (
-    EMPTY_SPACE,
-    GRAVITY_ACCELERATION,
-    X_RESOLUTION_2D,
-    Y_RESOLUTION_2D,
-)
+from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from factories.theme import DEFAULT_CHAR
 from model.base import Orientation, Point2, Vector2
 from model.entity import Collision2X, Collision2Y
 from model.theme import Theme
@@ -100,8 +96,13 @@ class Entity2D:
 
     # checks collision with landscape elements
     def _collision_landscape(self, old_pos: Point2) -> None:
+        # raise KeyError(
+        #     f"{int(self.position[0])},{int(self.position[1])} - {len(self._curr_level.map), len(self._curr_level.map[0])}"
+        # )
         if (
             self._curr_level
+            and 0 <= int(self.position[1]) < len(self._curr_level.map)
+            and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
             and self._curr_level.map[int(self.position[1])][int(self.position[0])] != EMPTY_SPACE
         ):
             self.position = old_pos
@@ -127,7 +128,11 @@ class Entity2D:
 
         for i in range(math.floor(self.position[1]), Y_RESOLUTION_2D):
             # checks all the way down in player's current X-position
-            if self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE:
+            if (
+                0 <= int(self.position[1]) < len(self._curr_level.map)
+                and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
+                and self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+            ):
                 y_dist += 1
             else:
                 return Collision2Y(
@@ -147,7 +152,11 @@ class Entity2D:
         y_dist_neg = -1
         for i in range(math.floor(self.position[1]), -1, -1):
             # checks all the way up in player's current X-position
-            if self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE:
+            if (
+                0 <= int(self.position[1]) < len(self._curr_level.map)
+                and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
+                and self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+            ):
                 y_dist_neg += 1
             else:
                 return Collision2Y(
@@ -168,7 +177,10 @@ class Entity2D:
 
         for i in range(math.floor(self.position[0]), X_RESOLUTION_2D):
             # checks all the way to the right in entity's current Y-position
-            if self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
+            if (
+                0 <= math.floor(self.position[1]) < len(self._curr_level.map)
+                and self._curr_level.map[math.floor(self.position[1])][i] == DEFAULT_CHAR
+            ):
                 x_dist += 1
             else:
                 return Collision2X(

@@ -93,7 +93,7 @@ class Legacy3DRenderer(ThreeDeeRenderer):
                 intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
                 # TODO: make these symbols consts
-                _char: str | list[str] = ["▄", "▀"]
+                _char: str | list[str] = self.display.curr_3d_char_mode
                 # TODO: generalize to any length of array
                 char: str = (
                     _char if isinstance(_char, str) else _char[0] if y_pos % 1 > 0.5 else _char[1]

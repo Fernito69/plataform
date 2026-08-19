@@ -59,7 +59,6 @@ class ThreeDeeRenderer:
         # TODO: this is a temporary hack
         self.colors = colors
         self.reset_screen_buffer()
-        self.game = game
 
     # This is where the 3D to 2D projection magic happens
     def _get_screen_projection(self, point3: Point3) -> Point2:

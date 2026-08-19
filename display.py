@@ -46,13 +46,21 @@ class Display:
 
     _debug_str: str | None = None
 
+    # TODO: do this, wire properly!
+    # _curr_level_3D: Level3D
+    #
+    curr_3d_char_mode: str | list[str]
+
     antialiasing: bool
 
     def __init__(self, curr_level: Level2D, curr_level_3d: Level3D, fps: float):
         self.curr_level_2D = curr_level
         self.curr_level_3D = curr_level_3d
+        self.curr_3d_char_mode = "█"
         self.antialiasing = True
         self.curr_fps = fps
+
+        self.switch_3d_char_mode()
 
     def set_2d_resolution(self):
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
@@ -68,6 +76,19 @@ class Display:
 
     def set_level_3d(self, level: Level3D) -> None:
         self.curr_level_3D = level
+
+    def switch_3d_char_mode(self) -> str | list[str]:
+        # THIS IS HORRIBLE, DO PROPERLY
+        char: str | list[str] = "█"
+        if self.curr_3d_char_mode == "█":
+            char = ["▀", "▄"]
+        elif self.curr_3d_char_mode == ["▀", "▄"]:
+            char = "░"
+        if self.curr_3d_char_mode == "░":
+            char = "█"
+
+        self.curr_3d_char_mode = char
+        return self.curr_3d_char_mode
 
     # TODO: border thickness should not be passed here
     def is_in_screen(self, point: Point2, border_thickness: int = 1) -> bool:
@@ -96,7 +117,8 @@ class Display:
         y = math.floor(entity.position[1])
         x = math.floor(entity.position[0])
 
-        self._screen_matrix[y][x] = entity.get_char()
+        if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
+            self._screen_matrix[y][x] = entity.get_char()
 
     # TODO: this is broken
     def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):

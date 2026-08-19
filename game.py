@@ -21,6 +21,10 @@ from two_dee_renderer.two_dee_renderer import TwoDeeRenderer
 class Game:
     status: GameStatus
 
+    # TODO: should go in respective renderer
+    levels_2d: list[Level2D]
+    levels_3d: list[Level3D]
+
     display: Display
 
     # TODO: this should actuaklly go in Display, together with 2D renderer when refactored.
@@ -48,10 +52,12 @@ class Game:
         self.player2d = player_2d
         self.player3d = player_3d
 
-        self.player2d.set_curr_level(levels_2d[current_level_index])
-        self.player3d.set_curr_level(levels_3d[current_level_index])
+        self.player2d.set_curr_level(self.levels2d[current_level_index])
+        self.player3d.set_curr_level(self.levels3d[0])
         self.display = Display(
-            curr_level=levels_2d[current_level_index], curr_level_3d=levels_3d[0], fps=FPS_3D
+            curr_level=self.levels2d[current_level_index],
+            curr_level_3d=self.levels3d[0],
+            fps=FPS_3D,
         )
         self.status = status
         self._curr_fps = FPS_3D
@@ -93,20 +99,18 @@ class Game:
     def game_loop(self) -> None:
         self._frame_delay()
         self.handle_player_input()
+        self._check_game_status()
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
-            self._check_game_status()
             self.legacy_3d_renderer.player.handle_player_input()
             return self.legacy_3d_renderer.visualize_scenario()
 
         if self.status == GameStatus.MODE_3D_V2:
-            self._check_game_status()
             self.renderer_v2.player.handle_player_input()
             return self.renderer_v2.render_v2()
 
         # 2D mode is handled here, TODO: refactor.
-        self._check_game_status()
         self.player2d.handle_player_input()
         self.legacy_2d_renderer.game_loop()
 
