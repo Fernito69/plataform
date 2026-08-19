@@ -17,13 +17,16 @@ def build_level_3d_1() -> Level3D:
     colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
     random.shuffle(colors)
 
+    # TODO: stupid hack, do properly an assign a key
+    rotate = True
+
     ico1 = Ico(
         position=[20, 170, -20],
         size=20,
         angle=[0, 0, 0],
         movMatrix=[0, 0, 0],
         # rotMatrix=[0, 0, 0]
-        # rotMatrix=[1, 0, 0],
+        rotMatrix=[1, 0, 0] if rotate else [0, 0, 0],
         color=colors[1](),
     )
     dode = Dodeca(
@@ -31,7 +34,7 @@ def build_level_3d_1() -> Level3D:
         size=18,
         angle=[0, 30, 0],
         movMatrix=[0, 0, 0],
-        # rotMatrix=[-1, 2, 0],
+        rotMatrix=[-1, 2, 0] if rotate else [0, 0, 0],
         # # rotMatrix=[0, 0, 0]
     )
     cube = Cube(
@@ -40,14 +43,14 @@ def build_level_3d_1() -> Level3D:
         angle=[0, 5, 0],
         movMatrix=[0, 0, 0],
         # # rotMatrix=[0, 0, 0]
-        # rotMatrix=[-3, 3, 1],
+        rotMatrix=[-3, 3, 1] if rotate else [0, 0, 0],
     )
     cube2 = Cube(
         position=[+25, 60, 50],
         size=15,
         angle=[0, -4, 0],
         movMatrix=[0, 0, 0],
-        # rotMatrix=[2, 2, 1],
+        rotMatrix=[2, 2, 1] if rotate else [0, 0, 0],
         # # rotMatrix=[0, 0, 0]
     )
     tetra = Tetra(
@@ -55,7 +58,7 @@ def build_level_3d_1() -> Level3D:
         size=14,
         angle=[0, 17, 0],
         movMatrix=[0, 0, 0],
-        # rotMatrix=[-3, 5, 1],
+        rotMatrix=[-3, 5, 1] if rotate else [0, 0, 0],
         # # rotMatrix=[0, 0, 0]
     )
     universe = Dodeca(
@@ -63,7 +66,7 @@ def build_level_3d_1() -> Level3D:
         size=100,
         angle=[0, 30, 0],
         movMatrix=[0, 0, 0],
-        # rotMatrix=[-1, 2, 0],
+        rotMatrix=[-1, 2, 0] if rotate else [0, 0, 0],
     )
 
     entities: list[Entity3D] = [dode, ico1, cube, tetra, cube2, universe]
