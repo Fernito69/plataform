@@ -15,7 +15,7 @@ def main():
     # hardcoded cool place
     player_3d.position = [18, 84, -33]  # [-3, -126, -48]
 
-    game = Game(player_2d=player, levels=levels_2d, player_3d=player_3d, levels_3d=levels_3d)
+    game = Game(player_2d=player, levels_2d=levels_2d, player_3d=player_3d, levels_3d=levels_3d)
 
     # TODO: should be different loops per game type
     while (

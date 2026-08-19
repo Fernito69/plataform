@@ -1,6 +1,6 @@
 import random
+from typing import TYPE_CHECKING
 
-from display import Display
 from factories.theme import (
     DEFAULT_CHAR,
     Blue,
@@ -23,6 +23,9 @@ from three_d_renderer.constants import (
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 
+if TYPE_CHECKING:
+    from game import Game
+
 # TODO: this is a temporary hack
 colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
 random.shuffle(colors)
@@ -33,7 +36,6 @@ class ThreeDeeRenderer:
     # for now a fixed camera
     player: Player3D
     _curr_level: Level3D
-    display: Display
 
     _screen_matrix_buffer: list[list[str]] = []
 
@@ -45,20 +47,19 @@ class ThreeDeeRenderer:
     # TODO: this is a temporary hack
     colors: list
 
-    def __init__(
-        self,
-        player: Player3D,
-        display: Display,
-    ):
-        self.player = player
-        self.display = display
-        self._curr_level = display.curr_level_3D
+    def __init__(self, game: "Game"):
+        self.game = game
+
+        self.player = self.game.player3d
+        self.display = self.game.display
+        self._curr_level = self.game.display.curr_level_3D
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors
         self.reset_screen_buffer()
+        self.game = game
 
     # This is where the 3D to 2D projection magic happens
     def _get_screen_projection(self, point3: Point3) -> Point2:

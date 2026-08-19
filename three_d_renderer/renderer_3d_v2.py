@@ -1,10 +1,9 @@
 import math
+from typing import TYPE_CHECKING
 
-from display import Display
 from factories.theme import DEFAULT_CHAR, White
 from model.base import Point2
 from model.theme import RGB
-from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.model.base import PixelContribution, RenderData, SubpixelContribution, Vertex3
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import (
@@ -15,6 +14,9 @@ from utils import (
     mix_colors,
     subtract_triplet,
 )
+
+if TYPE_CHECKING:
+    from game import Game
 
 PIXEL = 1
 HALF_PIXEL = 0.5
@@ -53,16 +55,12 @@ def _get_contribution(distance: float, slope: float | None) -> float:
     )
 
 
-class RendererV2(ThreeDeeRenderer):
+class Renderer3DV2(ThreeDeeRenderer):
     # TODO: this should be in display?
     screen_data: list[list[list[PixelContribution]]]
 
-    def __init__(
-        self,
-        player: Player3D,
-        display: Display,
-    ):
-        ThreeDeeRenderer.__init__(self, player, display)
+    def __init__(self, game: "Game"):
+        ThreeDeeRenderer.__init__(self, game)
         self.empty_screen_data()
 
     def _get_render_v2_list(self) -> list[RenderData]:

@@ -3,7 +3,6 @@ import time
 
 from constants import FPS_2D
 from display import Display
-from entities.base import Entity2D
 from entities.player2d import Player2D
 from level_2d import Level2D
 from model.game import GameStatus
@@ -12,27 +11,25 @@ from model.player import PlayerStatus
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.legacy_renderer import LegacyRenderer
-from three_d_renderer.renderer_v2 import RendererV2
+from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
+from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
+from two_dee_renderer.two_dee_renderer import TwoDeeRenderer
 
 
 # TODO: Game should not handle the 2D game directly, it should be a subclass like the 3D renderer
 class Game:
     status: GameStatus
 
-    _curr_fps: int
-    _current_level_index: int
-
-    # TODO: refactor this into its own renderere
-    player2d: Player2D
-    levels: list[Level2D]
-
     display: Display
 
-    # TODO: this should actuaklly go in Display, together with 2D renderer when refactored
-    legacy_renderer: LegacyRenderer
-    renderer_v2: RendererV2
+    # TODO: this should actuaklly go in Display, together with 2D renderer when refactored.
+    # Maybe renderer is not the right term for these classes? Or they should have a Game3D master
+    legacy_3d_renderer: Legacy3DRenderer
+    renderer_v2: Renderer3DV2
+
+    # 2D
+    legacy_2d_renderer: TwoDeeRenderer
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
@@ -40,23 +37,29 @@ class Game:
         self,
         player_2d: Player2D,
         player_3d: Player3D,
-        levels: list[Level2D],
+        levels_2d: list[Level2D],
         levels_3d: list[Level3D],
         current_level_index: int = 0,
-        status: GameStatus = GameStatus.MODE_3D_V2,
+        status: GameStatus = GameStatus.MODE_3D,
     ):
-        self.levels = levels
-        self._current_level_index = current_level_index
+        self.levels2d = levels_2d
+        self.levels3d = levels_3d
 
         self.player2d = player_2d
-        self.player2d.set_curr_level(levels[current_level_index])
-        self.display = Display(curr_level=levels[current_level_index], curr_level_3d=levels_3d[0])
+        self.player3d = player_3d
+
+        self.player2d.set_curr_level(levels_2d[current_level_index])
+        self.player3d.set_curr_level(levels_3d[current_level_index])
+        self.display = Display(
+            curr_level=levels_2d[current_level_index], curr_level_3d=levels_3d[0], fps=FPS_3D
+        )
         self.status = status
         self._curr_fps = FPS_3D
         self.display.set_3d_resolution()
 
-        self.legacy_renderer = LegacyRenderer(player=player_3d, display=self.display)
-        self.renderer_v2 = RendererV2(player=player_3d, display=self.display)
+        self.legacy_3d_renderer = Legacy3DRenderer(game=self)
+        self.renderer_v2 = Renderer3DV2(game=self)
+        self.legacy_2d_renderer = TwoDeeRenderer(game=self, current_level_index=current_level_index)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -68,7 +71,7 @@ class Game:
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        for player in [self.player2d, self.renderer_v2.player, self.legacy_renderer.player]:
+        for player in [self.player2d, self.renderer_v2.player, self.legacy_3d_renderer.player]:
             message: str = ""
 
             match player.status:
@@ -84,15 +87,8 @@ class Game:
             self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
-    def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
-        entity.do_your_thing()
-        self.display._add_2d_entity_to_matrix(entity)
-
     def _frame_delay(self) -> None:
         time.sleep(1 / self._curr_fps)
-
-    def _print_game(self) -> None:
-        self.display.print_curr_screen(self.player2d)
 
     def game_loop(self) -> None:
         self._frame_delay()
@@ -101,8 +97,8 @@ class Game:
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
             self._check_game_status()
-            self.legacy_renderer.player.handle_player_input()
-            return self.legacy_renderer.visualize_scenario()
+            self.legacy_3d_renderer.player.handle_player_input()
+            return self.legacy_3d_renderer.visualize_scenario()
 
         if self.status == GameStatus.MODE_3D_V2:
             self._check_game_status()
@@ -110,18 +106,9 @@ class Game:
             return self.renderer_v2.render_v2()
 
         # 2D mode is handled here, TODO: refactor.
+        self._check_game_status()
         self.player2d.handle_player_input()
-        self.display.populate_level_into_matrix()
-
-        self._compute_actions_and_add_to_screen(self.player2d)
-
-        for enemy in self.levels[self._current_level_index].enemies:
-            self._compute_actions_and_add_to_screen(enemy)
-
-        for exit in self.levels[self._current_level_index].exits:
-            self._compute_actions_and_add_to_screen(exit)
-
-        self._print_game()
+        self.legacy_2d_renderer.game_loop()
 
     # Input methods
     # TODO: all display methods should go in Display class, or Three3d, whatever fits
@@ -151,10 +138,10 @@ class Game:
             GameStatus.MODE_3D if self.status == GameStatus.MODE_3D_V2 else GameStatus.MODE_3D_V2
         )
         if self.status == GameStatus.MODE_3D:
-            self.legacy_renderer.reset_screen_buffer()
-            self.legacy_renderer.draw_screen_border()
+            self.legacy_3d_renderer.reset_screen_buffer()
+            self.legacy_3d_renderer.draw_screen_border()
         else:
-            self.legacy_renderer.reset_screen_buffer()
+            self.legacy_3d_renderer.reset_screen_buffer()
             self.renderer_v2.empty_screen_data()
         self._curr_fps = FPS_3D
 
@@ -181,27 +168,27 @@ class Game:
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):
         # TODO: I don't like this, should be unified. Same for all the rest:
-        self.legacy_renderer.visibility_threshold += 5
+        self.legacy_3d_renderer.visibility_threshold += 5
         self.renderer_v2.visibility_threshold += 5
 
     @on_key_press(DisplayKeys.DECREASE_VISIBILITY)
     def _decrease_visibility(self):
-        self.legacy_renderer.visibility_threshold -= 5
+        self.legacy_3d_renderer.visibility_threshold -= 5
         self.renderer_v2.visibility_threshold -= 5
 
     @on_key_press(DisplayKeys.DECREASE_FOV)
     def _decrease_fov(self):
-        self.legacy_renderer.fov -= 5
+        self.legacy_3d_renderer.fov -= 5
         self.renderer_v2.fov -= 5
 
     @on_key_press(DisplayKeys.INCREASE_FOV)
     def _increase_fov(self):
-        self.legacy_renderer.fov += 5
+        self.legacy_3d_renderer.fov += 5
         self.renderer_v2.fov += 5
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
     def _shuffle_colors(self):
-        for r in [self.legacy_renderer, self.renderer_v2]:
+        for r in [self.legacy_3d_renderer, self.renderer_v2]:
             r.colors = sorted(
                 r.colors,
                 key=lambda _: 0.5 - random.random(),
@@ -210,7 +197,7 @@ class Game:
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
         # TODO: this is messy, the renderer shouldn't take care of this
-        self.legacy_renderer._curr_level.toggle_rotation()
+        self.legacy_3d_renderer._curr_level.toggle_rotation()
         # self.renderer_v2._curr_level.toggle_rotation()
 
     def handle_player_input(self):

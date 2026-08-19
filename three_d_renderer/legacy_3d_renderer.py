@@ -1,18 +1,17 @@
-from display import Display
+from typing import TYPE_CHECKING
+
 from factories.theme import DEFAULT_CHAR
 from model.theme import DoubleLines
-from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
 
+if TYPE_CHECKING:
+    from game import Game
 
-class LegacyRenderer(ThreeDeeRenderer):
-    def __init__(
-        self,
-        player: Player3D,
-        display: Display,
-    ):
-        ThreeDeeRenderer.__init__(self, player, display)
+
+class Legacy3DRenderer(ThreeDeeRenderer):
+    def __init__(self, game: "Game"):
+        ThreeDeeRenderer.__init__(self, game)
         self.draw_screen_border()
 
     def draw_screen_border(self):
@@ -94,7 +93,7 @@ class LegacyRenderer(ThreeDeeRenderer):
                 intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
                 # TODO: make these symbols consts
-                _char: str | list[str] = self.display.curr_3d_char_mode
+                _char: str | list[str] = ["▄", "▀"]
                 # TODO: generalize to any length of array
                 char: str = (
                     _char if isinstance(_char, str) else _char[0] if y_pos % 1 > 0.5 else _char[1]

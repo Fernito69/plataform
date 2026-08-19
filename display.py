@@ -36,29 +36,23 @@ _MESSAGE_TEXT_COLOR = Yellow()
 class Display:
     # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
-    _curr_level_2D: Level2D
+
+    curr_level_2D: Level2D
     curr_level_3D: Level3D
 
+    curr_fps: float
     curr_x_resolution: int
     curr_y_resolution: int
 
     _debug_str: str | None = None
 
-    # TODO: do this, wire properly!
-    # _curr_level_3D: Level3D
-    #
-    curr_3d_char_mode: str | list[str]
-
     antialiasing: bool
 
-    def __init__(self, curr_level: Level2D, curr_level_3d: Level3D):
-        self._curr_level_2D = curr_level
+    def __init__(self, curr_level: Level2D, curr_level_3d: Level3D, fps: float):
+        self.curr_level_2D = curr_level
         self.curr_level_3D = curr_level_3d
-        self.populate_level_into_matrix()
-        self.curr_3d_char_mode = "█"
         self.antialiasing = True
-
-        self.switch_3d_char_mode()
+        self.curr_fps = fps
 
     def set_2d_resolution(self):
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
@@ -69,30 +63,11 @@ class Display:
     def debug_log(self, msg: str) -> None:
         self._debug_str = msg
 
-    def populate_level_into_matrix(self):
-        self.set_2d_resolution()
-        self.put_screen_content([])
-
-        for y in range(self.curr_y_resolution):
-            self._screen_matrix.append([])
-            for x in range(self.curr_x_resolution):
-                self._screen_matrix[y].append(self._curr_level_2D.map[y][x] or EMPTY_SPACE)
+    def set_fps(self, fps: float) -> None:
+        self._curr_fps = fps
 
     def set_level_3d(self, level: Level3D) -> None:
         self.curr_level_3D = level
-
-    def switch_3d_char_mode(self) -> str | list[str]:
-        # THIS IS HORRIBLE, DO PROPERLY
-        char: str | list[str] = "█"
-        if self.curr_3d_char_mode == "█":
-            char = ["▀", "▄"]
-        elif self.curr_3d_char_mode == ["▀", "▄"]:
-            char = "░"
-        if self.curr_3d_char_mode == "░":
-            char = "█"
-
-        self.curr_3d_char_mode = char
-        return self.curr_3d_char_mode
 
     # TODO: border thickness should not be passed here
     def is_in_screen(self, point: Point2, border_thickness: int = 1) -> bool:
