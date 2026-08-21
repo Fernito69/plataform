@@ -153,7 +153,7 @@ class Game:
             self.legacy_3d_renderer.reset_screen_buffer()
             self.legacy_3d_renderer.draw_screen_border()
         else:
-            self.legacy_3d_renderer.reset_screen_buffer()
+            self.renderer_v2.reset_screen_buffer()
             self.renderer_v2.empty_screen_data()
         self._curr_fps = FPS_3D
 

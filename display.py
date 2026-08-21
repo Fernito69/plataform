@@ -77,6 +77,7 @@ class Display:
     def set_level_3d(self, level: Level3D) -> None:
         self.curr_level_3D = level
 
+    # TODO: deprecate
     def switch_3d_char_mode(self) -> str | list[str]:
         # THIS IS HORRIBLE, DO PROPERLY
         char: str | list[str] = "█"

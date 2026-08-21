@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Optional
 from constants import IMMUNE_TIME
 from entities.base import LivingEntity2D
 from factories.theme import Cyan, Green, White
-from model.keyboard import MovementKeys
+from model.keyboard import KeyboardKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
-from terminal import is_pressed
+from terminal import on_key_press
 
 if TYPE_CHECKING:
     from level_2d import Level2D
@@ -24,6 +24,8 @@ class Player2D(LivingEntity2D):
 
     _curr_level: Optional["Level2D"] = None
     _immune_counter: int
+
+    _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(self, player_number: int):
         LivingEntity2D.__init__(self, health=100)
@@ -84,36 +86,32 @@ class Player2D(LivingEntity2D):
                 self.character = "🥴"
                 self.status = PlayerStatus.DEAD
 
+    @on_key_press(MovementKeys.UP)
+    def _jump(self) -> None:
+        if self.y_distance().distance > 0:
+            return
+        self.falling_velocity = -1
+        self._move_by((0, -1))
+        self._calc_collision()
+
+    @on_key_press(MovementKeys.LEFT)
+    def _move_left(self) -> None:
+        old_position = (self.position[0], self.position[1])
+        self._move_by((-1, 0))
+        self._collision_landscape(old_position)
+        self._calc_collision()
+
+    @on_key_press(MovementKeys.RIGHT)
+    def _move_right(self) -> None:
+        old_position = (self.position[0], self.position[1])
+        self._move_by((1, 0))
+        self._collision_landscape(old_position)
+        self._calc_collision()
+
     def handle_player_input(self):
-        ############
-        # MOVEMENT #
-        ############
-        if is_pressed(MovementKeys.UP) and self.y_distance().distance == 0:
-            self.falling_velocity = -1
-            self._move_by((0, -1))
-            self._calc_collision()
-
-        # These are a bit dumb, 
-        if is_pressed(MovementKeys.LEFT):
-            old_position = (self.position[0], self.position[1])
-            self._move_by((-1, 0))
-
-            self._collision_landscape(old_position)
-            self._calc_collision()
-
-        if is_pressed(MovementKeys.RIGHT):
-            old_position = (self.position[0], self.position[1])
-            self._move_by((1, 0))
-
-            self._collision_landscape(old_position)
-            self._calc_collision()
-
-        if is_pressed(MovementKeys.DOWN):
-            old_position = (self.position[0], self.position[1])
-            self._move_by((0, 1))
-
-            self._collision_landscape(old_position)
-            self._calc_collision()
+        self._jump()
+        self._move_left()
+        self._move_right()
 
     def set_curr_level(self, level: "Level2D"):
         self._curr_level = level
