@@ -2,7 +2,6 @@ import math
 from typing import TYPE_CHECKING, Optional
 
 from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
-from factories.theme import DEFAULT_CHAR
 from model.base import Orientation, Point2, Vector2
 from model.entity import Collision2X, Collision2Y
 from model.theme import Theme
@@ -179,7 +178,7 @@ class Entity2D:
             # checks all the way to the right in entity's current Y-position
             if (
                 0 <= math.floor(self.position[1]) < len(self._curr_level.map)
-                and self._curr_level.map[math.floor(self.position[1])][i] == DEFAULT_CHAR
+                and self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE
             ):
                 x_dist += 1
             else:

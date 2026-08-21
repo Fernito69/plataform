@@ -84,7 +84,7 @@ class Player2D(LivingEntity2D):
                 self.character = "🥴"
                 self.status = PlayerStatus.DEAD
 
-    def handle_player_input(self):
+    def handle_player_dawqinput(self):
         ############
         # MOVEMENT #
         ############
@@ -93,7 +93,7 @@ class Player2D(LivingEntity2D):
             self._move_by((0, -1))
             self._calc_collision()
 
-        # These are a bit dumb, refactor
+        # These are a bit dumb, 
         if is_pressed(MovementKeys.LEFT):
             old_position = (self.position[0], self.position[1])
             self._move_by((-1, 0))
