@@ -8,6 +8,7 @@ from level_2d import Level2D
 from model.game import GameStatus
 from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
 from model.player import PlayerStatus
+from physics2d.physics2d import Physics2D
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
@@ -34,6 +35,7 @@ class Game:
 
     # 2D
     legacy_2d_renderer: TwoDeeRenderer
+    physics_2d: Physics2D
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
@@ -121,6 +123,12 @@ class Game:
         self.status = GameStatus.QUIT
         # TODO: fix the quit loop: check why the message is not being printed
         raise
+
+    @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
+    def _switch_physics2d_mode(self):
+        self.status = GameStatus.MODE_PHYSICS_2D
+        self.display.set_2d_resolution()
+        self._curr_fps = FPS_2D
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):

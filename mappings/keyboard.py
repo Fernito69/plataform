@@ -4,6 +4,7 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     MenuKeys.QUIT: "q",
     MenuKeys.SWITCH_3D_MODE: "2",
     MenuKeys.SWITCH_2D_MODE: "1",
+    MenuKeys.SWITCH_PHYSICS_2D_MODE: "3",
     MenuKeys.TOGGLE_ROTATION: "n",
     MovementKeys.UP: "w",
     MovementKeys.LEFT: "a",
