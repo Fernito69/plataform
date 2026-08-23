@@ -6,8 +6,6 @@ from model.theme import RGB
 
 @dataclass
 class RenderInfo:
-    # TODO: should be already diggested distance
     point: Point2
-    # in radians
+    distance_to_pixel_center: float
     color: RGB
-    angle: float = 0

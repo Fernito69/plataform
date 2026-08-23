@@ -1,6 +1,7 @@
 import math
 from typing import TYPE_CHECKING
 
+from constants import HALF_PIXEL, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
 from model.base import Point2
 from model.theme import RGB
@@ -17,10 +18,6 @@ from utils import (
 
 if TYPE_CHECKING:
     from game import Game
-
-PIXEL = 1
-HALF_PIXEL = 0.5
-QUARTER_PIXEL = 0.25
 
 PI = 3.14159265
 
