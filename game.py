@@ -129,7 +129,6 @@ class Game:
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.status = GameStatus.MODE_PHYSICS_2D
-        self.display.set_physics_resolution()
         self._curr_fps = FPS_2D
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)

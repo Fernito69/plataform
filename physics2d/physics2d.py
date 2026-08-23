@@ -28,6 +28,7 @@ class Physics2D:
         self.init_screen_buffer()
 
     def init_screen_buffer(self) -> None:
+        self.display.set_physics_resolution()
         self.screen_buffer_x_res = self.display.curr_x_resolution * 2
         self.screen_buffer_y_res = self.display.curr_y_resolution * 2
 
