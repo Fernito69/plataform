@@ -1,5 +1,4 @@
-from constants import EMPTY_SPACE
-from model.theme import RGB, DoubleLines, Theme
+from model.theme import EMPTY_SPACE, RGB, DoubleLines, Theme
 from utils import colored
 
 """

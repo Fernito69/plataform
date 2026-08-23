@@ -3,6 +3,8 @@ from typing import Literal
 
 # map glyphs
 EMPTY_SPACE = " "
+UPPER_PIXEL_CHAR = "▀"
+LOWER_PIXEL_CHAR = "▄"
 
 
 # Double lines

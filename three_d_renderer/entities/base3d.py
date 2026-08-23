@@ -2,10 +2,9 @@ import math
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Optional
 
-from constants import EMPTY_SPACE
 from factories.theme import White
 from model.base import Point3, Vector3
-from model.theme import RGB, Theme
+from model.theme import EMPTY_SPACE, RGB, Theme
 from utils import add_triplet, colored
 
 if TYPE_CHECKING:

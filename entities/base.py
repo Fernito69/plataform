@@ -1,10 +1,10 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import EMPTY_SPACE, GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from model.base import Orientation, Point2, Vector2
 from model.entity import Collision2X, Collision2Y
-from model.theme import Theme
+from model.theme import EMPTY_SPACE, Theme
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:

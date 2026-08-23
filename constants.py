@@ -1,5 +1,3 @@
-EMPTY_SPACE = " "
-
 # physics / gameplay tuning
 IMMUNE_TIME = 30
 GRAVITY_ACCELERATION = 0.3

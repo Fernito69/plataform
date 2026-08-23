@@ -18,7 +18,6 @@ from three_d_renderer.scenario.level_3d import Level3D
 from two_dee_renderer.two_dee_renderer import TwoDeeRenderer
 
 
-# TODO: Game should not handle the 2D game directly, it should be a subclass like the 3D renderer
 class Game:
     status: GameStatus
 
@@ -68,6 +67,7 @@ class Game:
         self.legacy_3d_renderer = Legacy3DRenderer(game=self)
         self.renderer_v2 = Renderer3DV2(game=self)
         self.legacy_2d_renderer = TwoDeeRenderer(game=self, current_level_index=current_level_index)
+        self.physics_2d = Physics2D(self)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -103,6 +103,9 @@ class Game:
         self.handle_player_input()
         self._check_game_status()
 
+        if self.status == GameStatus.MODE_PHYSICS_2D:
+            return self.physics_2d.game_loop()
+
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
             self.legacy_3d_renderer.player.handle_player_input()
@@ -112,8 +115,6 @@ class Game:
             self.renderer_v2.player.handle_player_input()
             return self.renderer_v2.render_v2()
 
-        # 2D mode is handled here, TODO: refactor.
-        self.player2d.handle_player_input()
         self.legacy_2d_renderer.game_loop()
 
     # Input methods
@@ -127,7 +128,7 @@ class Game:
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.status = GameStatus.MODE_PHYSICS_2D
-        self.display.set_2d_resolution()
+        self.display.set_physics_resolution()
         self._curr_fps = FPS_2D
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
@@ -217,6 +218,7 @@ class Game:
         self._switch_rendering_mode()
         self._switch_2d_mode()
         self._switch_3d_mode()
+        self._switch_physics2d_mode()
         self._toggle_rotation()
 
         self._increase_fov()

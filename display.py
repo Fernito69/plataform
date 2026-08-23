@@ -1,8 +1,6 @@
-"""The Game class: owns the current level and renders each frame."""
-
 import math
 
-from constants import EMPTY_SPACE, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
 from entities.base import Entity2D
 from entities.player2d import Player2D
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
@@ -10,13 +8,10 @@ from level_2d import Level2D
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2, Vector2
 from model.keyboard import DisplayKeys
-from model.theme import DoubleLines
+from model.theme import EMPTY_SPACE, DoubleLines
+from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from terminal import clear
-from three_d_renderer.constants import (
-    ANTIALIASING_INTENSITY,
-    X_RESOLUTION_3D,
-    Y_RESOLUTION_3D,
-)
+from three_d_renderer.constants import ANTIALIASING_INTENSITY, X_RESOLUTION_3D, Y_RESOLUTION_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
 from utils import colored, extract_color_from_string, has_bg_color
@@ -64,6 +59,9 @@ class Display:
 
     def set_2d_resolution(self):
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
+
+    def set_physics_resolution(self):
+        self._set_resolution((X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS))
 
     def set_3d_resolution(self):
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))

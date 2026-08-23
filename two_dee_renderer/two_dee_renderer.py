@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
-from constants import EMPTY_SPACE
 from display import Display
 from entities.base import Entity2D
 from entities.player2d import Player2D
 from level_2d import Level2D
+from model.theme import EMPTY_SPACE
 
 if TYPE_CHECKING:
     from game import Game
