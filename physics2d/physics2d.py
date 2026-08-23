@@ -4,14 +4,6 @@ from display import Display
 from factories.theme import (
     DEFAULT_CHAR,
     RGB,
-    Blue,
-    Cyan,
-    Green,
-    Magenta,
-    Orange,
-    Red,
-    Violet,
-    Yellow,
 )
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
@@ -49,15 +41,6 @@ class Physics2D:
             self.screen_buffer.append([])
             for _ in range(self.screen_buffer_x_res):
                 self.screen_buffer[y].append(None)
-
-        self.screen_buffer[30][45] = RenderInfo(point=(30, 45), color=Red())
-        self.screen_buffer[31][45] = RenderInfo(point=(30, 45), color=Orange())
-        self.screen_buffer[32][46] = RenderInfo(point=(30, 45), color=Yellow())
-        self.screen_buffer[33][47] = RenderInfo(point=(30, 45), color=Green())
-        self.screen_buffer[34][47] = RenderInfo(point=(30, 45), color=Cyan())
-        self.screen_buffer[35][48] = RenderInfo(point=(30, 45), color=Blue())
-        self.screen_buffer[36][49] = RenderInfo(point=(30, 45), color=Violet())
-        self.screen_buffer[37][50] = RenderInfo(point=(30, 45), color=Magenta())
 
     def game_loop(self) -> None:
         self.convert_screen_buffer_to_display_data()
