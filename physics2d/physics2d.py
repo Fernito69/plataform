@@ -1,7 +1,18 @@
 from typing import TYPE_CHECKING
 
 from display import Display
-from factories.theme import DEFAULT_CHAR, Blue, Green, Red
+from factories.theme import (
+    DEFAULT_CHAR,
+    RGB,
+    Blue,
+    Cyan,
+    Green,
+    Magenta,
+    Orange,
+    Red,
+    Violet,
+    Yellow,
+)
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
@@ -40,8 +51,13 @@ class Physics2D:
                 self.screen_buffer[y].append(None)
 
         self.screen_buffer[30][45] = RenderInfo(point=(30, 45), color=Red())
-        self.screen_buffer[31][45] = RenderInfo(point=(30, 45), color=Green())
-        self.screen_buffer[32][46] = RenderInfo(point=(30, 45), color=Blue())
+        self.screen_buffer[31][45] = RenderInfo(point=(30, 45), color=Orange())
+        self.screen_buffer[32][46] = RenderInfo(point=(30, 45), color=Yellow())
+        self.screen_buffer[33][47] = RenderInfo(point=(30, 45), color=Green())
+        self.screen_buffer[34][47] = RenderInfo(point=(30, 45), color=Cyan())
+        self.screen_buffer[35][48] = RenderInfo(point=(30, 45), color=Blue())
+        self.screen_buffer[36][49] = RenderInfo(point=(30, 45), color=Violet())
+        self.screen_buffer[37][50] = RenderInfo(point=(30, 45), color=Magenta())
 
     def game_loop(self) -> None:
         self.convert_screen_buffer_to_display_data()
@@ -49,8 +65,7 @@ class Physics2D:
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
 
-        # TODO: for now, we assume y-res is even
-        # first_y_is_even: bool = self.display.curr_y_resolution - 1 % 2 == 0
+        # TODO: for now, we assume y-res is always even
 
         # Note the step is 2 here
         for y in range(0, self.screen_buffer_y_res, 2):
@@ -71,8 +86,8 @@ class Physics2D:
                 new_screen_matrix[new_y].append(
                     colored(
                         LOWER_PIXEL_CHAR,
-                        color=upper_pixel_info.color if upper_pixel_info else None,
-                        bg_color=lower_pixel_info.color if lower_pixel_info else None,
+                        color=upper_pixel_info.color if upper_pixel_info else RGB(0, 0, 0),
+                        bg_color=lower_pixel_info.color if lower_pixel_info else RGB(0, 0, 0),
                     )
                 )
 
