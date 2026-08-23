@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
 from display import Display
-from model.theme import EMPTY_SPACE, LOWER_PIXEL_CHAR
+from factories.theme import DEFAULT_CHAR, Blue, Green, Red
+from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from utils import colored
@@ -38,43 +39,41 @@ class Physics2D:
             for _ in range(self.screen_buffer_x_res):
                 self.screen_buffer[y].append(None)
 
-    def game_loop(self) -> None:
-        self.render_scenario()
+        self.screen_buffer[30][45] = RenderInfo(point=(30, 45), color=Red())
+        self.screen_buffer[31][45] = RenderInfo(point=(30, 45), color=Green())
+        self.screen_buffer[32][46] = RenderInfo(point=(30, 45), color=Blue())
 
-    def render_scenario(self) -> None:
-        # Transform buffer into screen matrix
+    def game_loop(self) -> None:
+        self.convert_screen_buffer_to_display_data()
+
+    def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
+
         # TODO: for now, we assume y-res is even
         # first_y_is_even: bool = self.display.curr_y_resolution - 1 % 2 == 0
 
         # Note the step is 2 here
-        for y in range(0, self.screen_buffer_y_res - 1, 2):
+        for y in range(0, self.screen_buffer_y_res, 2):
             new_y = int(y / 2)
             backwards_y = self.screen_buffer_y_res - 1 - y
 
             if len(new_screen_matrix) <= new_y:
                 new_screen_matrix.append([])
 
-            for x in range(self.screen_buffer_x_res - 1):
-                # raise NotImplementedError(
-                #     f"SCREEN BUFFER y={len(self.screen_buffer)} x={
-                #         len(self.screen_buffer[0])
-                #     } | SCREEN MATRIX y={len(new_screen_matrix)} x={
-                #         len(new_screen_matrix[0])
-                #     } backwards_y={backwards_y}"
-                # )
-
-                upper_pixel_info = self.screen_buffer[backwards_y][x]
-                lower_pixel_info = self.screen_buffer[backwards_y - 1][x]
+            for x in range(self.screen_buffer_x_res):
+                upper_pixel_info = self.screen_buffer[backwards_y - 1][x]
+                lower_pixel_info = self.screen_buffer[backwards_y][x]
 
                 if not upper_pixel_info and not lower_pixel_info:
-                    new_screen_matrix[new_y].append(EMPTY_SPACE)
+                    new_screen_matrix[new_y].append(DEFAULT_CHAR)
                     continue
 
-                new_screen_matrix[new_y][x] = colored(
-                    LOWER_PIXEL_CHAR,
-                    color=upper_pixel_info.color if upper_pixel_info else None,
-                    bg_color=lower_pixel_info.color if lower_pixel_info else None,
+                new_screen_matrix[new_y].append(
+                    colored(
+                        LOWER_PIXEL_CHAR,
+                        color=upper_pixel_info.color if upper_pixel_info else None,
+                        bg_color=lower_pixel_info.color if lower_pixel_info else None,
+                    )
                 )
 
         self.display.put_screen_content(new_screen_matrix)

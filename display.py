@@ -58,13 +58,17 @@ class Display:
         self.switch_3d_char_mode()
 
     def set_2d_resolution(self):
+        self.antialiasing = True
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
 
     def set_physics_resolution(self):
+        # Handled in-engine
+        self.antialiasing = False
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
         self._set_resolution((X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS / 2))
 
     def set_3d_resolution(self):
+        self.antialiasing = True
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
     def debug_log(self, msg: str) -> None:
