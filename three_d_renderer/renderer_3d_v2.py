@@ -1,7 +1,7 @@
 import math
 from typing import TYPE_CHECKING
 
-from constants import HALF_PIXEL, PIXEL, QUARTER_PIXEL
+from constants import HALF_PIXEL, PI, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
 from model.base import Point2
 from model.theme import RGB
@@ -18,8 +18,6 @@ from utils import (
 
 if TYPE_CHECKING:
     from game import Game
-
-PI = 3.14159265
 
 DIRECTIONS = [
     (-1, 1),

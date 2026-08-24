@@ -29,7 +29,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             (4, Y_RESOLUTION_PHYSICS / 2 - 6),
             (X_RESOLUTION_PHYSICS - 4, Y_RESOLUTION_PHYSICS / 2 + 6),
         ),
-        theme=Theme(color=MakeColor(1, (120, 80, 255))),
+        theme=Theme(color=MakeColor(1, (250, 12, 23))),
         secondary_theme=Theme(color=MakeColor(1, (26, 0, 255))),
         thickness=1,
         floating_multi=0.02,

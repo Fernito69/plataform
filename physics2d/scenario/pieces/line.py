@@ -1,6 +1,6 @@
 import math
 
-from constants import HALF_PIXEL
+from constants import HALF_PIXEL, PI
 from factories.theme import RGB, White
 from model.base import Point2, Vector2
 from model.theme import Theme
@@ -53,7 +53,7 @@ class Line(ScenarioPiece):
         if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
             return
 
-        self._counter += 1 * self._pulsate_freq
+        self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
