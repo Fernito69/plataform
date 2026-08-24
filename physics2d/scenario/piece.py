@@ -143,9 +143,9 @@ class Circunference(ScenarioPiece):
         self,
     ) -> GetCircunferenceEquationResponse:
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (x - self.center[0]) ** 2
-            if root_arg < 0:
+            if self.radius < (x - self.center[0]):
                 return (None, None)
+            root_arg = self.radius**2 - (x - self.center[0]) ** 2
             root = root_arg**0.5
             return (self.center[1] - root, self.center[1] + root)
 
