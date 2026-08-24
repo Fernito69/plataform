@@ -1,10 +1,11 @@
 import math
 
-from factories.theme import White
+from factories.theme import RGB, White
 from model.base import Point2, Vector2
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
+from utils import mix_colors, vector_length
 
 
 class Rectangle(ScenarioPiece):
@@ -17,6 +18,8 @@ class Rectangle(ScenarioPiece):
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: Vector2 = (0, 0),
+        own_gravity: float | None = None,
+        secondary_theme: Theme | None = None,
     ):
         super().__init__(
             name="Rectangle",
@@ -24,6 +27,8 @@ class Rectangle(ScenarioPiece):
             angle=angle,
             affected_by_gravity=affected_by_gravity,
             initial_velocity=initial_velocity,
+            own_gravity=own_gravity,
+            secondary_theme=secondary_theme,
         )
         self.vertices = vertices
 
@@ -34,6 +39,42 @@ class Rectangle(ScenarioPiece):
             (self.vertices[0][0] + self.velocity[0], self.vertices[0][1] + self.velocity[1]),
             (self.vertices[1][0] + self.velocity[0], self.vertices[1][1] + self.velocity[1]),
         )
+
+    def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
+        if not self.secondary_theme:
+            return self.theme.color or White()
+
+        # check which direction is the widest
+
+        vertex_1, vertex_2 = self.vertices
+        width = abs(vertex_1[0] - vertex_2[0])
+        height = abs(vertex_1[1] - vertex_2[1])
+
+        apply_gradient_horizontally: bool = width >= height
+        if (
+            apply_gradient_horizontally
+            and x is None
+            or not apply_gradient_horizontally
+            and y is None
+        ):
+            raise IndexError("What's wrong with you?")
+
+        color_ratio: float = (
+            abs(vertex_1[0] - x) / width
+            if apply_gradient_horizontally and x is not None
+            else abs(vertex_1[1] - y) / height
+            if y is not None
+            else 0
+        )
+
+        color: RGB = mix_colors(
+            [
+                (self.theme.color or White()).with_intensity(color_ratio),
+                (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
+            ]
+        )
+
+        return color
 
     def return_render_info(self) -> list[RenderInfo]:
         piece_info = []
@@ -50,23 +91,40 @@ class Rectangle(ScenarioPiece):
             )
         )
 
-        # eqs_left_side = get_line_equations((min_x, min_y), (min_x, max_y))
-        # eqs_right_side = get_line_equations((max_x, min_y), (max_x, max_y))
-        # eqs_upper_side = get_line_equations((min_x, max_y), (max_x, max_y))
-        # eqs_lower_side = get_line_equations((min_x, min_y), (max_x, min_y))
+        _DELTA = 1
 
         for x in range(math.floor(min_x), math.ceil(max_x)):
             for y in range(math.floor(min_y), math.ceil(max_y)):
                 # TODO: make this with angles, it gets a bit more tricky
-                if max_x >= x >= min_x and max_y >= y >= min_y:
-                    piece_info.append(
-                        RenderInfo(
-                            distance_to_pixel_center=0,
-                            color=self.theme.color.with_intensity()
-                            if self.theme.color
-                            else White(),
-                            point=(x, y),
-                        )
+                if min_x > x > max_x or min_y > y > max_y:
+                    continue
+
+                distance_left_x = abs(x - min_x + 1)
+                distance_right_x = abs(x - max_x)
+                distance_down_y = abs(y - min_y + 1)
+                distance_up_y = abs(y - max_y)
+
+                distance_x = (
+                    1 - distance_left_x
+                    if distance_left_x < _DELTA
+                    else 1 - distance_right_x
+                    if distance_right_x < _DELTA
+                    else 0
+                )
+                distance_y = (
+                    1 - distance_up_y
+                    if distance_up_y < _DELTA
+                    else 1 - distance_down_y
+                    if distance_down_y < _DELTA
+                    else 0
+                )
+
+                piece_info.append(
+                    RenderInfo(
+                        distance_to_pixel_center=vector_length((distance_x, distance_y)),
+                        color=self._get_color(x, y).with_intensity(),
+                        point=(x, y),
                     )
+                )
 
         return piece_info

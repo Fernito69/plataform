@@ -27,6 +27,8 @@ class Circunference(ScenarioPiece):
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: Vector2 = (0, 0),
+        own_gravity: float | None = None,
+        secondary_theme: Theme | None = None,
     ):
         super().__init__(
             name="Circle",
@@ -34,6 +36,8 @@ class Circunference(ScenarioPiece):
             angle=angle,
             initial_velocity=initial_velocity,
             affected_by_gravity=affected_by_gravity,
+            own_gravity=own_gravity,
+            secondary_theme=secondary_theme,
         )
         self.center = center
         self.radius = radius
@@ -91,6 +95,7 @@ class Circunference(ScenarioPiece):
                 if x1 is None or x2 is None:
                     continue
 
+                # TODO: good proxy with good performance, but maybe can be done better
                 distance = min(
                     max(
                         0,
@@ -103,7 +108,7 @@ class Circunference(ScenarioPiece):
                         x1 - x,
                     ),
                 )
-                if distance > 2:
+                if distance > 1:
                     continue
 
                 piece_info.append(

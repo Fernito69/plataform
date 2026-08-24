@@ -21,10 +21,20 @@ class Line(ScenarioPiece):
         thickness: int = 1,
         affected_by_gravity: bool = False,
         initial_velocity: Vector2 = (0, 0),
+        own_gravity: float | None = None,
+        secondary_theme: Theme | None = None,
     ):
         self.points = vertices
         self.thickness = thickness
-        super().__init__("Line", theme, angle, affected_by_gravity, initial_velocity)
+        super().__init__(
+            "Line",
+            theme,
+            angle,
+            affected_by_gravity,
+            initial_velocity,
+            own_gravity,
+            secondary_theme,
+        )
 
     def apply_movement(self) -> None:
         if not any(a != 0 for a in self.velocity):
