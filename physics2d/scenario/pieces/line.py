@@ -23,6 +23,7 @@ class Line(ScenarioPiece):
         initial_velocity: Vector2 = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
+        floating_multi: float = 0,
     ):
         self.points = vertices
         self.thickness = thickness
@@ -34,9 +35,12 @@ class Line(ScenarioPiece):
             initial_velocity,
             own_gravity,
             secondary_theme,
+            floating_multi,
         )
 
     def apply_movement(self) -> None:
+        self._float_around()
+
         if not any(a != 0 for a in self.velocity):
             return
         pass

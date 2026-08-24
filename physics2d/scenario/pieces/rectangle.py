@@ -5,7 +5,7 @@ from model.base import Point2, Vector2
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from utils import mix_colors, vector_length
+from utils import add_tuple, mix_colors, vector_length
 
 
 class Rectangle(ScenarioPiece):
@@ -20,6 +20,7 @@ class Rectangle(ScenarioPiece):
         initial_velocity: Vector2 = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
+        floating_multi: float = 0,
     ):
         super().__init__(
             name="Rectangle",
@@ -29,15 +30,19 @@ class Rectangle(ScenarioPiece):
             initial_velocity=initial_velocity,
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
+            floating_multi=floating_multi,
         )
         self.vertices = vertices
 
     def apply_movement(self) -> None:
+        self._float_around()
+
         if not any(a != 0 for a in self.velocity):
             return
+
         self.vertices = (
-            (self.vertices[0][0] + self.velocity[0], self.vertices[0][1] + self.velocity[1]),
-            (self.vertices[1][0] + self.velocity[0], self.vertices[1][1] + self.velocity[1]),
+            add_tuple(self.vertices[0], self.velocity),
+            add_tuple(self.vertices[1], self.velocity),
         )
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:

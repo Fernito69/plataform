@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
+from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.scenario.piece import ScenarioPiece
 from physics2d.scenario.pieces.circunference import Circunference
 from physics2d.scenario.pieces.line import Line
@@ -43,6 +44,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         radius=6,
         affected_by_gravity=True,
         initial_velocity=(-0.8, 4),
+        floating_multi=0.2,
     )
     circle_5 = Circunference(
         center=(1, 1),
@@ -50,11 +52,22 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         radius=1.5,
         affected_by_gravity=True,
         initial_velocity=(2, 5),
+        floating_multi=0.8,
     )
-    circle_2 = Circunference(center=(38, 37), theme=Theme(color=Blue()), radius=5)
-    circle_3 = Circunference(center=(30, 21), theme=Theme(color=Green()), radius=15)
+    circle_2 = Circunference(
+        center=(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
+        theme=Theme(color=Blue()),
+        radius=5,
+        floating_multi=0.05,
+    )
+    circle_3 = Circunference(
+        center=(30, 21), theme=Theme(color=Green()), radius=15, floating_multi=0.01
+    )
     circle_4 = Circunference(
-        center=(0, 0), theme=Theme(color=MakeColor(1, (134, 89, 177))), radius=25
+        center=(0, 0),
+        theme=Theme(color=MakeColor(1, (134, 89, 177))),
+        radius=25,
+        floating_multi=0.005,
     )
 
     pieces: list[ScenarioPiece] = [
@@ -64,10 +77,10 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         rectangle_1,
         rectangle_2,
         line_2,
+        circle_2,
         circle_1,
         circle_4,
         circle_3,
-        circle_2,
     ]
 
     return Scenario(entities=entities, pieces=pieces, engine=engine)

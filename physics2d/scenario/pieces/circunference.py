@@ -29,6 +29,7 @@ class Circunference(ScenarioPiece):
         initial_velocity: Vector2 = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
+        floating_multi: float = 0,
     ):
         super().__init__(
             name="Circle",
@@ -38,11 +39,14 @@ class Circunference(ScenarioPiece):
             affected_by_gravity=affected_by_gravity,
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
+            floating_multi=floating_multi,
         )
         self.center = center
         self.radius = radius
 
     def apply_movement(self) -> None:
+        self._float_around()
+
         if not any(a != 0 for a in self.velocity):
             return
         self.center = (self.center[0] + self.velocity[0], self.center[1] + self.velocity[1])
@@ -86,6 +90,7 @@ class Circunference(ScenarioPiece):
         for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
             y1, y2 = eq.get_ys(x)
 
+            # TODO: here we need to do something to make the upper border render
             if y1 is None or y2 is None:
                 continue
 
