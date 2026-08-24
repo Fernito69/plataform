@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
-from physics2d.scenario.piece import Circunference, Line, Rectangle, ScenarioPiece
+from physics2d.scenario.piece import ScenarioPiece
+from physics2d.scenario.pieces.circunference import Circunference
+from physics2d.scenario.pieces.line import Line
+from physics2d.scenario.pieces.rectangle import Rectangle
 from physics2d.scenario.scenario import Scenario
 
 if TYPE_CHECKING:
