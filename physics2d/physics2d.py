@@ -6,7 +6,7 @@ from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
-from utils import colored
+from utils import colored, mix_colors
 
 if TYPE_CHECKING:
     from game import Game
@@ -14,9 +14,47 @@ if TYPE_CHECKING:
 R2 = 1.414
 
 
+# TODO: place properly
+def _get_intensity(info: RenderInfo) -> float:
+    return max(
+        0,
+        1 - info.distance_to_pixel_center,
+    )
+    # TODO: fix this
+    # * (1 - prev_info.color.intensity)
+    # if prev_info is not None
+    # else 1
+
+
+# TODO: This won't work until we have a way of separating transparency from intensity
+def get_color(info_list: list[RenderInfo]) -> RGB:
+    curr_index = 0
+    color = (
+        info_list[curr_index].color.with_intensity_v2(_get_intensity(info_list[curr_index]))
+        if len(info_list) > curr_index
+        else RGB(0, 0, 0, intensity=0)
+    )
+    return color
+
+    curr_index += 1
+
+    # if 0 < color.intensity < 1:
+    #     raise NotImplementedError(f"INTENSITY: {color.intensity}, len: {len(info_list)}")
+
+    while color.intensity < 1 and curr_index < len(info_list):
+        color = mix_colors(
+            [
+                color,
+                info_list[curr_index].color.with_intensity_v2((1 - color.intensity)),
+            ]
+        )
+
+    return color
+
+
 class Physics2D:
     display: Display
-    screen_buffer: list[list[RenderInfo | None]]
+    screen_buffer: list[list[list[RenderInfo]]]
 
     screen_buffer_x_res: int
     screen_buffer_y_res: int
@@ -37,20 +75,29 @@ class Physics2D:
         self.screen_buffer_x_res = self.display.curr_x_resolution * 2
         self.screen_buffer_y_res = self.display.curr_y_resolution * 2
 
-        self.screen_buffer: list[list[RenderInfo | None]] = []
+        self.screen_buffer: list[list[list[RenderInfo]]] = []
         for y in range(self.screen_buffer_y_res):
             self.screen_buffer.append([])
             for _ in range(self.screen_buffer_x_res):
-                self.screen_buffer[y].append(None)
+                self.screen_buffer[y].append([])
 
     def game_loop(self) -> None:
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
 
-    def paint_pixel(self, render_info: RenderInfo) -> None:
-        x = min(self.screen_buffer_x_res - 1, max(0, round(render_info.point[0])))
-        y = min(self.screen_buffer_y_res - 1, max(0, round(render_info.point[1])))
-        self.screen_buffer[y][x] = render_info
+    def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
+        if (
+            render_info.point[0] < 0
+            or render_info.point[0] > self.screen_buffer_x_res - 1
+            or render_info.point[1] < 0
+            or render_info.point[1] > self.screen_buffer_y_res - 1
+        ):
+            return
+
+        x = round(render_info.point[0])
+        y = round(render_info.point[1])
+
+        self.screen_buffer[y][x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
@@ -73,22 +120,8 @@ class Physics2D:
                     new_screen_matrix[new_y].append(DEFAULT_CHAR)
                     continue
 
-                def _get_intensity(info: RenderInfo):
-                    return max(
-                        1 - info.distance_to_pixel_center / R2,
-                        0,
-                    )
-
-                upper_color = (
-                    upper_pixel_info.color.with_intensity(_get_intensity(upper_pixel_info))
-                    if upper_pixel_info
-                    else RGB(0, 0, 0)
-                )
-                lower_color = (
-                    lower_pixel_info.color.with_intensity(_get_intensity(lower_pixel_info))
-                    if lower_pixel_info
-                    else RGB(0, 0, 0)
-                )
+                upper_color = get_color(upper_pixel_info)
+                lower_color = get_color(lower_pixel_info)
 
                 new_screen_matrix[new_y].append(
                     colored(

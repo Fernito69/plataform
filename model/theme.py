@@ -74,6 +74,17 @@ class RGB:
             int(self.b * self.intensity),
         )
 
+    def with_intensity_v2(self, intensity: float | None = None) -> "RGB":
+        if intensity is not None:
+            self.intensity = intensity
+
+        return RGB(
+            int(self.r * self.intensity),
+            int(self.g * self.intensity),
+            int(self.b * self.intensity),
+            intensity=self.intensity,
+        )
+
 
 # TODO: make this an enum
 type SequencingType = Literal["random", "sequential", "back&forth"]

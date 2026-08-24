@@ -29,4 +29,4 @@ class Scenario:
 
     def handle_render_info(self, render_info: list[RenderInfo]) -> None:
         for info in render_info:
-            self.engine.paint_pixel(info)
+            self.engine.add_pixel_info_to_buffer(info)
