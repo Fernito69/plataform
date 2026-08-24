@@ -1,12 +1,12 @@
 import math
 
 from constants import HALF_PIXEL
-from factories.theme import White
+from factories.theme import RGB, White
 from model.base import Point2, Vector2
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from utils import add_tuple, distance_from_line_to_point
+from utils import add_tuple, distance_from_line_to_point, mix_colors
 
 
 class Line(ScenarioPiece):
@@ -56,6 +56,41 @@ class Line(ScenarioPiece):
         self._counter += 1 * self._pulsate_freq
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
+    def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
+        if not self.secondary_theme:
+            return self.theme.color or White()
+
+        # check which direction is the widest (literally the same as rectangle)
+        vertex_1, vertex_2 = self.points
+        width = abs(vertex_1[0] - vertex_2[0])
+        height = abs(vertex_1[1] - vertex_2[1])
+
+        apply_gradient_horizontally: bool = width >= height
+        if (
+            apply_gradient_horizontally
+            and x is None
+            or not apply_gradient_horizontally
+            and y is None
+        ):
+            raise IndexError("What's wrong with you?")
+
+        color_ratio: float = (
+            abs(vertex_1[0] - x) / width
+            if apply_gradient_horizontally and x is not None
+            else abs(vertex_1[1] - y) / height
+            if y is not None
+            else 0
+        )
+
+        color: RGB = mix_colors(
+            [
+                (self.theme.color or White()).with_intensity(color_ratio),
+                (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
+            ]
+        )
+
+        return color
+
     def apply_movement(self) -> None:
         self._float_around()
         self._pulsate()
@@ -95,7 +130,7 @@ class Line(ScenarioPiece):
                 piece_info.append(
                     RenderInfo(
                         distance_to_pixel_center=distance / self.thickness or 1,
-                        color=self.theme.color or White(),
+                        color=self._get_color(x, y),
                         point=(x, y),
                     )
                 )
