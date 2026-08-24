@@ -30,6 +30,13 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         initial_velocity=(0.3, 0.5),
         own_gravity=0.005,
     )
+    rectangle_2 = Rectangle(
+        vertices=((110, 0), (115, 3)),
+        theme=Theme(color=MakeColor(1, (244, 25, 45))),
+        secondary_theme=Theme(color=MakeColor(1, (1, 254, 45))),
+        initial_velocity=(-0.5, 0.6),
+        own_gravity=0.005,
+    )
     circle_1 = Circunference(
         center=(40, 40),
         theme=Theme(color=Cyan()),
@@ -53,9 +60,10 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     pieces: list[ScenarioPiece] = [
         line_1,
         line_3,
-        rectangle_1,
-        line_2,
         circle_5,
+        rectangle_1,
+        rectangle_2,
+        line_2,
         circle_1,
         circle_4,
         circle_3,
