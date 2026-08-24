@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.base import Entity
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
@@ -11,13 +12,18 @@ if TYPE_CHECKING:
 class Scenario:
     pieces: list[ScenarioPiece]
     entities: list[Entity]
-    gravity: float
+    gravity_acceleration: float
 
     def __init__(self, entities: list[Entity], pieces: list[ScenarioPiece], engine: "Physics2D"):
         self.entities = entities
         self.pieces = pieces
         self.engine = engine
-        self.gravity = 1
+        self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
+
+    def act(self) -> None:
+        for e in self.pieces:
+            e.apply_movement()
+            e.apply_gravity(self.gravity_acceleration)
 
     def render(self) -> None:
         for e in self.entities:

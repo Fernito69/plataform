@@ -11,8 +11,6 @@ from utils import colored, mix_colors
 if TYPE_CHECKING:
     from game import Game
 
-R2 = 1.414
-
 
 # TODO: place properly
 def _get_intensity(info: RenderInfo) -> float:
@@ -29,25 +27,27 @@ def _get_intensity(info: RenderInfo) -> float:
 # TODO: This won't work until we have a way of separating transparency from intensity
 def get_color(info_list: list[RenderInfo]) -> RGB:
     curr_index = 0
+
+    def _get_color(il: list[RenderInfo], idx: int):
+        return il[idx].color.with_intensity_v2(_get_intensity(il[idx]))
+
     color = (
-        info_list[curr_index].color.with_intensity_v2(_get_intensity(info_list[curr_index]))
+        _get_color(info_list, curr_index)
         if len(info_list) > curr_index
         else RGB(0, 0, 0, intensity=0)
     )
-    return color
 
     curr_index += 1
 
-    # if 0 < color.intensity < 1:
-    #     raise NotImplementedError(f"INTENSITY: {color.intensity}, len: {len(info_list)}")
+    if color.intensity > 0.3 or curr_index >= len(info_list):
+        return color
 
-    while color.intensity < 1 and curr_index < len(info_list):
-        color = mix_colors(
-            [
-                color,
-                info_list[curr_index].color.with_intensity_v2((1 - color.intensity)),
-            ]
-        )
+    color = mix_colors(
+        [
+            color.with_intensity(1),
+            _get_color(info_list, curr_index),
+        ]
+    )
 
     return color
 
@@ -82,6 +82,7 @@ class Physics2D:
                 self.screen_buffer[y].append([])
 
     def game_loop(self) -> None:
+        self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
 
