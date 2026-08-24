@@ -6,19 +6,19 @@ from model.base import Point2, Vector2
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from utils import distance_from_line_to_point
+from utils import add_tuple, distance_from_line_to_point
 
 
 class Line(ScenarioPiece):
     points: tuple[Point2, Point2]
-    thickness: int
+    thickness: float
 
     def __init__(
         self,
         vertices: tuple[Point2, Point2],
         theme: Theme = Theme(),
         angle: float = 0,
-        thickness: int = 1,
+        thickness: float = 1,
         affected_by_gravity: bool = False,
         initial_velocity: Vector2 = (0, 0),
         own_gravity: float | None = None,
@@ -43,7 +43,11 @@ class Line(ScenarioPiece):
 
         if not any(a != 0 for a in self.velocity):
             return
-        pass
+
+        self.points = (
+            add_tuple(self.points[0], self.velocity),
+            add_tuple(self.points[1], self.velocity),
+        )
 
     def return_render_info(self) -> list[RenderInfo]:
         piece_info = []

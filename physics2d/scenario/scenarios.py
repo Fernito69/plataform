@@ -24,6 +24,15 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme=Theme(color=Magenta()),
     )
     line_3 = Line(vertices=((4, 52), (40, 5)), theme=Theme(color=Red()), thickness=2)
+    line_4 = Line(
+        vertices=(
+            (4, Y_RESOLUTION_PHYSICS / 2 - 6),
+            (X_RESOLUTION_PHYSICS - 4, Y_RESOLUTION_PHYSICS / 2 + 6),
+        ),
+        theme=Theme(color=MakeColor(1, (120, 80, 255))),
+        thickness=1,
+        floating_multi=0.1,
+    )
     rectangle_1 = Rectangle(
         vertices=((6, 33), (17, 5)),
         theme=Theme(color=MakeColor(1, (255, 140, 160))),
@@ -45,7 +54,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         ),
         theme=Theme(color=MakeColor(1, (244, 250, 22))),
         secondary_theme=Theme(color=MakeColor(1, (255, 0, 56))),
-        floating_multi=0.02,
+        floating_multi=0.005,
     )
     circle_1 = Circunference(
         center=(40, 40),
@@ -83,6 +92,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         line_1,
         line_3,
         rectangle_3,
+        line_4,
         rectangle_2,
         circle_5,
         rectangle_1,
