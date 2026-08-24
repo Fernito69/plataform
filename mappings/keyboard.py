@@ -1,4 +1,4 @@
-from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys, MovementKeys
+from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys, MovementKeys, PhysicsKey
 
 default_keyboard_mapping: dict[KeyboardKeys, str] = {
     MenuKeys.QUIT: "q",
@@ -23,4 +23,5 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.DECREASE_FOV: "g",
     DisplayKeys.INCREASE_FOV: "f",
     DisplayKeys.SHUFFLE_COLORS: "m",
+    PhysicsKey.RESET_SCENARIO: "r",
 }

@@ -2,10 +2,12 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
+from model.keyboard import PhysicsKey
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
+from terminal import on_key_press
 from utils import colored, mix_colors
 
 if TYPE_CHECKING:
@@ -60,6 +62,8 @@ class Physics2D:
     screen_buffer_y_res: int
 
     scenario: Scenario
+
+    _pressed_key_map: dict[PhysicsKey, bool] = {}
 
     def __init__(
         self,
@@ -134,3 +138,13 @@ class Physics2D:
 
         self.display.put_screen_content(new_screen_matrix)
         self.display.print_curr_screen()
+
+    def handle_player_input(self) -> None:
+        self._reset_scenario()
+
+    @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
+    def _reset_scenario(self):
+        self.scenario = default_scenario(self)
+
+    def _set_pressed_key(self, key: PhysicsKey, val: bool):
+        self._pressed_key_map[key] = val

@@ -37,4 +37,8 @@ class MovementKeys(StrEnum):
     FLY_DOWN = auto()
 
 
-KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys
+class PhysicsKey(StrEnum):
+    RESET_SCENARIO = auto()
+
+
+KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey

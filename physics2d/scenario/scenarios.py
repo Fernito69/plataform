@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White
+from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from physics2d.scenario.piece import Circunference, Line, Rectangle, ScenarioPiece
 from physics2d.scenario.scenario import Scenario
 
@@ -29,18 +29,26 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme=Theme(color=Cyan()),
         radius=6,
         affected_by_gravity=True,
-        initial_velocity=(-0.3, 0.3),
+        initial_velocity=(-0.8, 4),
+    )
+    circle_5 = Circunference(
+        center=(1, 1),
+        theme=Theme(color=Yellow()),
+        radius=1.5,
+        affected_by_gravity=True,
+        initial_velocity=(2, 5),
     )
     circle_2 = Circunference(center=(38, 37), theme=Theme(color=Blue()), radius=5)
     circle_3 = Circunference(center=(30, 21), theme=Theme(color=Green()), radius=15)
     circle_4 = Circunference(
-        center=(0, 0), theme=Theme(color=MakeColor(1, (134, 23, 177))), radius=25
+        center=(0, 0), theme=Theme(color=MakeColor(1, (134, 89, 177))), radius=25
     )
 
     pieces: list[ScenarioPiece] = [
         line_1,
         line_3,
         line_2,
+        circle_5,
         circle_1,
         circle_4,
         circle_3,

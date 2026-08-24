@@ -24,6 +24,7 @@ def main():
         or game.status == GameStatus.MODE_3D_V2
         or game.status == GameStatus.MODE_PHYSICS_2D
     ):
+        game.display.set_3d_resolution()
         game.game_loop()
 
 

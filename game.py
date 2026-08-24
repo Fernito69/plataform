@@ -105,6 +105,7 @@ class Game:
 
         if self.status == GameStatus.MODE_PHYSICS_2D:
             self.physics_2d.init_screen_buffer()
+            self.physics_2d.handle_player_input()
             return self.physics_2d.game_loop()
 
         # TODO: this should not happen here, do properly
