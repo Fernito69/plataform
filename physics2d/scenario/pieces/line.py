@@ -13,6 +13,9 @@ class Line(ScenarioPiece):
     points: tuple[Point2, Point2]
     thickness: float
 
+    _pulsate_freq: float
+    _pulsate_amplitude: float
+
     def __init__(
         self,
         vertices: tuple[Point2, Point2],
@@ -24,9 +27,9 @@ class Line(ScenarioPiece):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        pulsate_freq: float = 0,
+        pulsate_amplitude: float = 0,
     ):
-        self.points = vertices
-        self.thickness = thickness
         super().__init__(
             "Line",
             theme,
@@ -37,9 +40,25 @@ class Line(ScenarioPiece):
             secondary_theme,
             floating_multi,
         )
+        self.points = vertices
+        self.thickness = thickness
+
+        self._pulsate_freq = pulsate_freq
+        self._pulsate_amplitude = pulsate_amplitude
+
+    _curr_amplitude: float = 1
+    _counter: float = 0
+
+    def _pulsate(self) -> None:
+        if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
+            return
+
+        self._counter += 1 * self._pulsate_freq
+        self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
     def apply_movement(self) -> None:
         self._float_around()
+        self._pulsate()
 
         if not any(a != 0 for a in self.velocity):
             return

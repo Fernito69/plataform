@@ -31,7 +31,9 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         ),
         theme=Theme(color=MakeColor(1, (120, 80, 255))),
         thickness=1,
-        floating_multi=0.1,
+        floating_multi=0.02,
+        pulsate_freq=0.5,
+        pulsate_amplitude=0.5,
     )
     rectangle_1 = Rectangle(
         vertices=((6, 33), (17, 5)),
