@@ -16,22 +16,22 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     entities = []
 
     line_1 = Line(
-        vertices=((0, 0), (60, 2)),
+        points=((0, 0), (120, 2)),
         theme=Theme(color=White()),
     )
     line_2 = Line(
-        vertices=((1, 3), (50, 22)),
+        points=((2, 3), (50, 22)),
         theme=Theme(color=Magenta()),
     )
-    line_3 = Line(vertices=((4, 52), (40, 5)), theme=Theme(color=Red()), thickness=2)
+    line_3 = Line(points=((4, 52), (40, 1)), theme=Theme(color=Red()), thickness=2)
     line_4 = Line(
-        vertices=(
+        points=(
             (4, Y_RESOLUTION_PHYSICS / 2 - 6),
-            (X_RESOLUTION_PHYSICS - 4, Y_RESOLUTION_PHYSICS / 2 + 6),
+            (X_RESOLUTION_PHYSICS - 4, Y_RESOLUTION_PHYSICS / 2 + 12),
         ),
-        theme=Theme(color=MakeColor(1, (250, 12, 23))),
-        secondary_theme=Theme(color=MakeColor(1, (26, 0, 255))),
-        thickness=1,
+        theme=Theme(color=MakeColor(1, (12, 250, 23))),
+        secondary_theme=Theme(color=MakeColor(1, (26, 1, 255))),
+        thickness=4,
         floating_multi=0.02,
         pulsate_freq=0.5,
         pulsate_amplitude=0.5,

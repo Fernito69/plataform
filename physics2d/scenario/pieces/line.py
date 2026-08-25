@@ -18,7 +18,7 @@ class Line(ScenarioPiece):
 
     def __init__(
         self,
-        vertices: tuple[Point2, Point2],
+        points: tuple[Point2, Point2],
         theme: Theme = Theme(),
         angle: float = 0,
         thickness: float = 1,
@@ -30,21 +30,28 @@ class Line(ScenarioPiece):
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
     ):
-        super().__init__(
-            "Line",
-            theme,
-            angle,
-            affected_by_gravity,
-            initial_velocity,
-            own_gravity,
-            secondary_theme,
-            floating_multi,
-        )
-        self.points = vertices
+        self.points = points
         self.thickness = thickness
 
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
+
+        center_of_mass = (
+            (self.points[0][0] - self.points[1][0]) / 2,
+            (self.points[0][1] - self.points[1][1]) / 2,
+        )
+
+        super().__init__(
+            "Line",
+            center_of_mass=center_of_mass,
+            theme=theme,
+            angle=angle,
+            affected_by_gravity=affected_by_gravity,
+            initial_velocity=initial_velocity,
+            own_gravity=own_gravity,
+            secondary_theme=secondary_theme,
+            floating_multi=floating_multi,
+        )
 
     _curr_amplitude: float = 1
     _counter: float = 0
@@ -101,6 +108,10 @@ class Line(ScenarioPiece):
         self.points = (
             add_tuple(self.points[0], self.velocity),
             add_tuple(self.points[1], self.velocity),
+        )
+        self.center_of_mass = (
+            self.center_of_mass[0] + self.velocity[0],
+            self.center_of_mass[1] + self.velocity[1],
         )
 
     def return_render_info(self) -> list[RenderInfo]:

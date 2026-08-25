@@ -8,6 +8,7 @@ from level_2d import Level2D
 from model.game import GameStatus
 from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
 from model.player import PlayerStatus
+from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
@@ -45,7 +46,7 @@ class Game:
         levels_2d: list[Level2D],
         levels_3d: list[Level3D],
         current_level_index: int = 0,
-        status: GameStatus = GameStatus.MODE_3D,
+        status: GameStatus = GameStatus.MODE_PHYSICS_2D,
     ):
         self.levels2d = levels_2d
         self.levels3d = levels_3d
@@ -58,11 +59,12 @@ class Game:
         self.display = Display(
             curr_level=self.levels2d[current_level_index],
             curr_level_3d=self.levels3d[0],
-            fps=FPS_3D,
+            fps=FPS_PHYSICS,
         )
         self.status = status
-        self._curr_fps = FPS_3D
-        self.display.set_3d_resolution()
+        # TODO: deprecate, use always display.fps
+        self._curr_fps = FPS_PHYSICS
+        self.display.set_physics_resolution()
 
         self.legacy_3d_renderer = Legacy3DRenderer(game=self)
         self.renderer_v2 = Renderer3DV2(game=self)

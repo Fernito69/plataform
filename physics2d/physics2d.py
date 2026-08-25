@@ -8,50 +8,13 @@ from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
 from terminal import on_key_press
-from utils import colored, mix_colors
+from utils import add_triplet, colored
 
 if TYPE_CHECKING:
     from game import Game
 
-
-# TODO: place properly
-def _get_intensity(info: RenderInfo) -> float:
-    return max(
-        0,
-        1 - info.distance_to_pixel_center,
-    )
-    # TODO: fix this
-    # * (1 - prev_info.color.intensity)
-    # if prev_info is not None
-    # else 1
-
-
-# TODO: This won't work until we have a way of separating transparency from intensity
-def get_color(info_list: list[RenderInfo]) -> RGB:
-    curr_index = 0
-
-    def _get_color(il: list[RenderInfo], idx: int):
-        return il[idx].color.with_intensity_v2(_get_intensity(il[idx]))
-
-    color = (
-        _get_color(info_list, curr_index)
-        if len(info_list) > curr_index
-        else RGB(0, 0, 0, intensity=0)
-    )
-
-    curr_index += 1
-
-    if color.intensity > 0.3 or curr_index >= len(info_list):
-        return color
-
-    color = mix_colors(
-        [
-            color.with_intensity(1),
-            _get_color(info_list, curr_index),
-        ]
-    )
-
-    return color
+# Determines "how much" antialiasing we have
+INTENSITY_BLEND_THRESHOLD = 0.8
 
 
 class Physics2D:
@@ -109,9 +72,16 @@ class Physics2D:
 
         # TODO: for now, we assume y-res is always even
 
-        # Note the step is 2 here
+        # Note the step is 2 here <─────────────────┐
         for y in range(0, self.screen_buffer_y_res, 2):
+            # each pixel represented in the buffer lands
+            # in the actual matrix as the same character actually,
+            # with fg color occupying this part "▄" and bg color occupying this part "▀"
+            # (or the other way around, who knows)
+            # this trick allows us to have "pixels" with a conveniently more square ratio
             new_y = int(y / 2)
+            # we use the backwards index because, in the buffer, `going up == y++`,
+            # whereas in the screen matrix it's actually the opposite
             backwards_y = self.screen_buffer_y_res - 1 - y
 
             if len(new_screen_matrix) <= new_y:
@@ -125,8 +95,8 @@ class Physics2D:
                     new_screen_matrix[new_y].append(DEFAULT_CHAR)
                     continue
 
-                upper_color = get_color(upper_pixel_info)
-                lower_color = get_color(lower_pixel_info)
+                upper_color = Physics2D._calculate_color_with_aa(upper_pixel_info)
+                lower_color = Physics2D._calculate_color_with_aa(lower_pixel_info)
 
                 new_screen_matrix[new_y].append(
                     colored(
@@ -148,3 +118,46 @@ class Physics2D:
 
     def _set_pressed_key(self, key: PhysicsKey, val: bool):
         self._pressed_key_map[key] = val
+
+    @staticmethod
+    def _get_intensity(info: RenderInfo) -> float:
+        return max(
+            0,
+            1 - info.distance_to_pixel_center,
+        )
+        # TODO: fix this
+        # * (1 - prev_info.color.intensity)
+        # if prev_info is not None
+        # else 1
+
+    @staticmethod
+    def _calculate_color_with_aa(info_list: list[RenderInfo]) -> RGB:
+        curr_index = 0
+
+        def _get_color(il: list[RenderInfo], idx: int):
+            return il[idx].color.with_intensity_v2(Physics2D._get_intensity(il[idx]))
+
+        curr_color = (
+            _get_color(info_list, curr_index)
+            if len(info_list) > curr_index
+            else RGB(0, 0, 0, intensity=1)
+        )
+
+        curr_index += 1
+
+        while curr_index < len(info_list) and curr_color.intensity < INTENSITY_BLEND_THRESHOLD:
+            next_object_color = _get_color(info_list, curr_index).with_intensity(
+                (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
+            )
+            curr_color = RGB(
+                *(
+                    min(255, round(c))
+                    for c in add_triplet(
+                        (curr_color.r, curr_color.g, curr_color.b),
+                        (next_object_color.r, next_object_color.g, next_object_color.b),
+                    )
+                )
+            )
+            curr_index += 1
+
+        return curr_color

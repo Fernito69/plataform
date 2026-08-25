@@ -71,8 +71,15 @@ def add_tuple(orig: tuple[Number, Number], add: tuple[Number, Number]) -> tuple[
     return (orig[0] + add[0], orig[1] + add[1])
 
 
+# TODO: these are dumb, there must be a way to generalize
 def scale_tuple(orig: tuple[Number, Number], multi: float) -> tuple[Number, Number]:
     return (orig[0] * multi, orig[1] * multi)
+
+
+def scale_triplet(
+    orig: tuple[Number, Number, Number], multi: float
+) -> tuple[Number, Number, Number]:
+    return (orig[0] * multi, orig[1] * multi, orig[2] * multi)
 
 
 def add_triplet(

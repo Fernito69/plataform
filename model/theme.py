@@ -59,6 +59,7 @@ class RGB:
     g: int = 127
     b: int = 127
 
+    # TODO: intensity is actually transparency, we should rename it
     intensity: float = 1
 
     def __str__(self):

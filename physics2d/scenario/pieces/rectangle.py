@@ -22,6 +22,12 @@ class Rectangle(ScenarioPiece):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
     ):
+        self.vertices = vertices
+        # TODO: refactor into findle_middle_point
+        center_of_mass = (
+            (self.vertices[0][0] - self.vertices[1][0]) / 2,
+            (self.vertices[0][1] - self.vertices[1][1]) / 2,
+        )
         super().__init__(
             name="Rectangle",
             theme=theme,
@@ -31,8 +37,8 @@ class Rectangle(ScenarioPiece):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
+            center_of_mass=center_of_mass,
         )
-        self.vertices = vertices
 
     def apply_movement(self) -> None:
         self._float_around()
@@ -43,6 +49,10 @@ class Rectangle(ScenarioPiece):
         self.vertices = (
             add_tuple(self.vertices[0], self.velocity),
             add_tuple(self.vertices[1], self.velocity),
+        )
+        self.center_of_mass = (
+            self.center_of_mass[0] + self.velocity[0],
+            self.center_of_mass[1] + self.velocity[1],
         )
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:

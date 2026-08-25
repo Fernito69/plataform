@@ -31,6 +31,8 @@ class Circunference(ScenarioPiece):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
     ):
+        self.center = center
+        self.radius = radius
         super().__init__(
             name="Circle",
             theme=theme,
@@ -40,9 +42,8 @@ class Circunference(ScenarioPiece):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
+            center_of_mass=center,
         )
-        self.center = center
-        self.radius = radius
 
     def apply_movement(self) -> None:
         self._float_around()
@@ -50,6 +51,7 @@ class Circunference(ScenarioPiece):
         if not any(a != 0 for a in self.velocity):
             return
         self.center = (self.center[0] + self.velocity[0], self.center[1] + self.velocity[1])
+        self.center_of_mass = self.center
 
     def get_circunference_equations(
         self,
