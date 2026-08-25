@@ -2,13 +2,14 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
-from model.keyboard import PhysicsKey
+from model.base import Point2
+from model.keyboard import MovementKeys, PhysicsKey
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
 from terminal import on_key_press
-from utils import add_triplet, colored
+from utils import add_triplet, add_tuple, colored
 
 if TYPE_CHECKING:
     from game import Game
@@ -28,11 +29,11 @@ class Physics2D:
 
     _pressed_key_map: dict[PhysicsKey, bool] = {}
 
-    def __init__(
-        self,
-        game: "Game",
-    ):
+    screen_corner: Point2
+
+    def __init__(self, game: "Game", initial_screen_corner: Point2 = (0, 0)):
         self.game = game
+        self.screen_corner = initial_screen_corner
         self.display = self.game.display
         self.scenario = default_scenario(self)
         self.init_screen_buffer()
@@ -54,11 +55,12 @@ class Physics2D:
         self.convert_screen_buffer_to_display_data()
 
     def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
+        spec_x, spec_y = self.screen_corner
         if (
-            render_info.point[0] < 0
-            or render_info.point[0] > self.screen_buffer_x_res - 1
-            or render_info.point[1] < 0
-            or render_info.point[1] > self.screen_buffer_y_res - 1
+            render_info.point[0] < -round(spec_x)
+            or render_info.point[0] > (self.screen_buffer_x_res - 1 - round(spec_x))
+            or render_info.point[1] < -round(spec_y)
+            or render_info.point[1] > (self.screen_buffer_y_res - 1 - round(spec_y))
         ):
             return
 
@@ -69,11 +71,12 @@ class Physics2D:
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
+        spec_x, spec_y = self.screen_corner
 
         # TODO: for now, we assume y-res is always even
 
         # Note the step is 2 here <─────────────────┐
-        for y in range(0, self.screen_buffer_y_res, 2):
+        for y in range(-round(spec_y), self.screen_buffer_y_res - round(spec_y), 2):
             # each pixel represented in the buffer lands
             # in the actual matrix as the same character actually,
             # with fg color occupying this part "▄" and bg color occupying this part "▀"
@@ -87,9 +90,13 @@ class Physics2D:
             if len(new_screen_matrix) <= new_y:
                 new_screen_matrix.append([])
 
-            for x in range(self.screen_buffer_x_res):
-                upper_pixel_info = self.screen_buffer[backwards_y - 1][x]
-                lower_pixel_info = self.screen_buffer[backwards_y][x]
+            for x in range(-round(spec_x), self.screen_buffer_x_res - round(spec_x)):
+                upper_pixel_info = self.screen_buffer[backwards_y - 1 - round(spec_y)][
+                    x - round(spec_x)
+                ]
+                lower_pixel_info = self.screen_buffer[backwards_y - round(spec_y)][
+                    x - round(spec_x)
+                ]
 
                 if not upper_pixel_info and not lower_pixel_info:
                     new_screen_matrix[new_y].append(DEFAULT_CHAR)
@@ -111,10 +118,30 @@ class Physics2D:
 
     def handle_player_input(self) -> None:
         self._reset_scenario()
+        self._move_screen_down()
+        self._move_screen_up()
+        self._move_screen_left()
+        self._move_screen_right()
 
     @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
     def _reset_scenario(self):
         self.scenario = default_scenario(self)
+
+    @on_key_press(MovementKeys.UP)
+    def _move_screen_up(self):
+        self.screen_corner = add_tuple(self.screen_corner, (0, -1))
+
+    @on_key_press(MovementKeys.DOWN)
+    def _move_screen_down(self):
+        self.screen_corner = add_tuple(self.screen_corner, (0, 1))
+
+    @on_key_press(MovementKeys.LEFT)
+    def _move_screen_left(self):
+        self.screen_corner = add_tuple(self.screen_corner, (-1, 0))
+
+    @on_key_press(MovementKeys.RIGHT)
+    def _move_screen_right(self):
+        self.screen_corner = add_tuple(self.screen_corner, (1, 0))
 
     def _set_pressed_key(self, key: PhysicsKey, val: bool):
         self._pressed_key_map[key] = val
@@ -125,10 +152,6 @@ class Physics2D:
             0,
             1 - info.distance_to_pixel_center,
         )
-        # TODO: fix this
-        # * (1 - prev_info.color.intensity)
-        # if prev_info is not None
-        # else 1
 
     @staticmethod
     def _calculate_color_with_aa(info_list: list[RenderInfo]) -> RGB:
@@ -149,14 +172,18 @@ class Physics2D:
             next_object_color = _get_color(info_list, curr_index).with_intensity(
                 (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
             )
-            curr_color = RGB(
-                *(
-                    min(255, round(c))
-                    for c in add_triplet(
-                        (curr_color.r, curr_color.g, curr_color.b),
-                        (next_object_color.r, next_object_color.g, next_object_color.b),
+            curr_color = (
+                RGB(
+                    *(
+                        min(255, round(c))
+                        for c in add_triplet(
+                            (curr_color.r, curr_color.g, curr_color.b),
+                            (next_object_color.r, next_object_color.g, next_object_color.b),
+                        )
                     )
                 )
+                if curr_index < 2
+                else RGB(0, 0, 255)
             )
             curr_index += 1
 
