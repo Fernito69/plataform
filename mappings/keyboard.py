@@ -24,4 +24,5 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     DisplayKeys.INCREASE_FOV: "f",
     DisplayKeys.SHUFFLE_COLORS: "m",
     PhysicsKey.RESET_SCENARIO: "r",
+    PhysicsKey.RESET_CAMERA: "o",
 }

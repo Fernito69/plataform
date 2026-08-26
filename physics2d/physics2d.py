@@ -14,6 +14,9 @@ from utils import add_triplet, add_tuple, colored
 if TYPE_CHECKING:
     from game import Game
 
+INITIAL_CORNER = (0, 0)
+CAMERA_MOVEMENT_SPEED = 2
+
 # Determines "how much" antialiasing we have
 INTENSITY_BLEND_THRESHOLD = 0.8
 
@@ -31,7 +34,7 @@ class Physics2D:
 
     screen_corner: Point2
 
-    def __init__(self, game: "Game", initial_screen_corner: Point2 = (0, 0)):
+    def __init__(self, game: "Game", initial_screen_corner: Point2 = INITIAL_CORNER):
         self.game = game
         self.screen_corner = initial_screen_corner
         self.display = self.game.display
@@ -40,7 +43,7 @@ class Physics2D:
 
     def init_screen_buffer(self) -> None:
         self.display.set_physics_resolution()
-        self.screen_buffer_x_res = self.display.curr_x_resolution * 2
+        self.screen_buffer_x_res = self.display.curr_x_resolution
         self.screen_buffer_y_res = self.display.curr_y_resolution * 2
 
         self.screen_buffer: list[list[list[RenderInfo]]] = []
@@ -55,28 +58,28 @@ class Physics2D:
         self.convert_screen_buffer_to_display_data()
 
     def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
-        spec_x, spec_y = self.screen_corner
+        spec_x = self.screen_corner[0]
+        spec_y = self.screen_corner[1]
+        new_x = round(render_info.point[0] - spec_x)
+        new_y = round(render_info.point[1] - spec_y)
+
         if (
-            render_info.point[0] < -round(spec_x)
-            or render_info.point[0] > (self.screen_buffer_x_res - 1 - round(spec_x))
-            or render_info.point[1] < -round(spec_y)
-            or render_info.point[1] > (self.screen_buffer_y_res - 1 - round(spec_y))
+            new_x < 0
+            or new_x > (self.screen_buffer_x_res - 1)
+            or new_y < 0
+            or new_y > (self.screen_buffer_y_res - 1)
         ):
             return
 
-        x = round(render_info.point[0])
-        y = round(render_info.point[1])
-
-        self.screen_buffer[y][x].append(render_info)
+        self.screen_buffer[new_y][new_x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
-        spec_x, spec_y = self.screen_corner
 
         # TODO: for now, we assume y-res is always even
 
         # Note the step is 2 here <─────────────────┐
-        for y in range(-round(spec_y), self.screen_buffer_y_res - round(spec_y), 2):
+        for y in range(0, self.screen_buffer_y_res, 2):
             # each pixel represented in the buffer lands
             # in the actual matrix as the same character actually,
             # with fg color occupying this part "▄" and bg color occupying this part "▀"
@@ -90,13 +93,9 @@ class Physics2D:
             if len(new_screen_matrix) <= new_y:
                 new_screen_matrix.append([])
 
-            for x in range(-round(spec_x), self.screen_buffer_x_res - round(spec_x)):
-                upper_pixel_info = self.screen_buffer[backwards_y - 1 - round(spec_y)][
-                    x - round(spec_x)
-                ]
-                lower_pixel_info = self.screen_buffer[backwards_y - round(spec_y)][
-                    x - round(spec_x)
-                ]
+            for x in range(self.screen_buffer_x_res):
+                upper_pixel_info = self.screen_buffer[backwards_y - 1][x]
+                lower_pixel_info = self.screen_buffer[backwards_y][x]
 
                 if not upper_pixel_info and not lower_pixel_info:
                     new_screen_matrix[new_y].append(DEFAULT_CHAR)
@@ -122,6 +121,7 @@ class Physics2D:
         self._move_screen_up()
         self._move_screen_left()
         self._move_screen_right()
+        self._reset_camera()
 
     @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
     def _reset_scenario(self):
@@ -129,19 +129,23 @@ class Physics2D:
 
     @on_key_press(MovementKeys.UP)
     def _move_screen_up(self):
-        self.screen_corner = add_tuple(self.screen_corner, (0, -1))
+        self.screen_corner = add_tuple(self.screen_corner, (0, CAMERA_MOVEMENT_SPEED))
 
     @on_key_press(MovementKeys.DOWN)
     def _move_screen_down(self):
-        self.screen_corner = add_tuple(self.screen_corner, (0, 1))
+        self.screen_corner = add_tuple(self.screen_corner, (0, -CAMERA_MOVEMENT_SPEED))
 
     @on_key_press(MovementKeys.LEFT)
     def _move_screen_left(self):
-        self.screen_corner = add_tuple(self.screen_corner, (-1, 0))
+        self.screen_corner = add_tuple(self.screen_corner, (-CAMERA_MOVEMENT_SPEED, 0))
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_screen_right(self):
-        self.screen_corner = add_tuple(self.screen_corner, (1, 0))
+        self.screen_corner = add_tuple(self.screen_corner, (CAMERA_MOVEMENT_SPEED, 0))
+
+    @on_key_press(PhysicsKey.RESET_CAMERA)
+    def _reset_camera(self):
+        self.screen_corner = (0, 0)
 
     def _set_pressed_key(self, key: PhysicsKey, val: bool):
         self._pressed_key_map[key] = val

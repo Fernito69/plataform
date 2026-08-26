@@ -39,6 +39,7 @@ class MovementKeys(StrEnum):
 
 class PhysicsKey(StrEnum):
     RESET_SCENARIO = auto()
+    RESET_CAMERA = auto()
 
 
 KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey
