@@ -22,7 +22,6 @@ class Player3D(LivingEntity3D):
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
-
     def __init__(self, player_number: int = 1):
         LivingEntity3D.__init__(self, health=100, vertices=[])
         self._immune_counter: int = 0

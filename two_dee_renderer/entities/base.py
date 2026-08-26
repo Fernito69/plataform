@@ -1,14 +1,14 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from model.base import Orientation, Point2, Vector2
-from model.entity import Collision2X, Collision2Y
 from model.theme import EMPTY_SPACE, Theme
+from two_dee_renderer.constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from two_dee_renderer.model.entity import Collision2X, Collision2Y
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
-    from level_2d import Level2D
+    from two_dee_renderer.level_2d import Level2D
 
 
 # TODO: rename methods properly

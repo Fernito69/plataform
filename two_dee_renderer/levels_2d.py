@@ -1,18 +1,8 @@
-from entities.things2d import Exit2D
-from factories.enemy2d import (
-    DumbBouncingEnemy,
-    DumbFireFloatingEnemy,
-    DumbFloatingEnemy,
-)
-from factories.theme import (
-    BloodTheme,
-    Cyan,
-    DoubleLines,
-    Magenta,
-    Yellow,
-)
-from level_2d import Level2D
+from factories.theme import BloodTheme, Cyan, DoubleLines, Magenta, Yellow
 from model.base import Orientation
+from two_dee_renderer.entities.things2d import Exit2D
+from two_dee_renderer.factories import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
+from two_dee_renderer.level_2d import Level2D
 
 _DEFAULT_LINE_TYPE = DoubleLines
 

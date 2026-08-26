@@ -1,7 +1,7 @@
-from entities.base import Entity2D
 from factories.theme import Red, Yellow
 from model.base import Point2
 from model.theme import Theme
+from two_dee_renderer.entities.base import Entity2D
 
 _EXIT_COLOR = Yellow()
 _EXIT_BG_COLOR = Red()

@@ -1,10 +1,7 @@
 import random
 import time
 
-from constants import FPS_2D
 from display import Display
-from entities.player2d import Player2D
-from level_2d import Level2D
 from model.game import GameStatus
 from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
 from model.player import PlayerStatus
@@ -16,6 +13,9 @@ from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
+from two_dee_renderer.constants import FPS_2D
+from two_dee_renderer.entities.player2d import Player2D
+from two_dee_renderer.level_2d import Level2D
 from two_dee_renderer.two_dee_renderer import TwoDeeRenderer
 
 

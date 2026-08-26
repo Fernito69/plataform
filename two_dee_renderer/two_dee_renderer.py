@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from display import Display
-from entities.base import Entity2D
-from entities.player2d import Player2D
-from level_2d import Level2D
 from model.theme import EMPTY_SPACE
+from two_dee_renderer.entities.base import Entity2D
+from two_dee_renderer.entities.player2d import Player2D
+from two_dee_renderer.level_2d import Level2D
 
 if TYPE_CHECKING:
     from game import Game

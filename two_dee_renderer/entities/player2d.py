@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING, Optional
 
-from constants import IMMUNE_TIME
-from entities.base import LivingEntity2D
 from factories.theme import Cyan, Green, White
 from model.keyboard import KeyboardKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
 from terminal import on_key_press
+from two_dee_renderer.constants import PLAYER_IMMUNE_TIME
+from two_dee_renderer.entities.base import LivingEntity2D
 
 if TYPE_CHECKING:
-    from level_2d import Level2D
+    from two_dee_renderer.level_2d import Level2D
 
 _PLAYER_COLOR = Green()
 _PLAYER_FRAMES = ["☺"]
@@ -80,7 +80,7 @@ class Player2D(LivingEntity2D):
             self.is_same_position(enemy) for enemy in self._curr_level.enemies
         ):  # player loses health and gains immunity!
             self.health -= 20
-            self._immune_counter = IMMUNE_TIME
+            self._immune_counter = PLAYER_IMMUNE_TIME
 
             if self.health <= 0:
                 self.character = "🥴"

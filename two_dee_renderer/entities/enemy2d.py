@@ -1,9 +1,9 @@
 import random
 
-from constants import ENEMY_MOV_FACTOR
-from entities.base import LivingEntity2D
 from model.enemy import EnemyType
 from model.theme import Theme
+from two_dee_renderer.constants import ENEMY_MOV_FACTOR
+from two_dee_renderer.entities.base import LivingEntity2D
 
 _BOUNCE_FRAMES = ["_", "_", "o", "o", "O", "O"]
 _MIN_BOUNCING_RANDOMNESS = 8

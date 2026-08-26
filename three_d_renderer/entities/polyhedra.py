@@ -1,11 +1,8 @@
+from constants import I_PHI, PHI, R2O2
 from model.base import Point3
 from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
 from utils import add_triplet
-
-PHI = 1.618
-I_PHI = 0.618
-R2O2 = 0.707
 
 
 # REFACTOR vertices stuff, it's sooo repetitive
