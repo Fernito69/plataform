@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING, Optional
 
 from model.base import Orientation, Point2, Vector2
 from model.theme import EMPTY_SPACE, Theme
-from two_dee_renderer.constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
-from two_dee_renderer.model.entity import Collision2X, Collision2Y
+from platformer_v1.constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from platformer_v1.model.entity import Collision2X, Collision2Y
 from utils import add_tuple, colored
 
 if TYPE_CHECKING:
-    from two_dee_renderer.level_2d import Level2D
+    from platformer_v1.level_2d import Level2D
 
 
 # TODO: rename methods properly

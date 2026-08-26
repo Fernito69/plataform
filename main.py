@@ -1,9 +1,9 @@
 from game import Game
 from model.game import GameStatus
+from platformer_v1.entities.player2d import Player2D
+from platformer_v1.levels_2d import build_level1
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.levels_3d import build_level_3d_1
-from two_dee_renderer.entities.player2d import Player2D
-from two_dee_renderer.levels_2d import build_level1
 
 
 def main():

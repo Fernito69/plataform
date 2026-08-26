@@ -7,16 +7,16 @@ from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
 from model.player import PlayerStatus
 from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
+from platformer_v1.constants import FPS_2D
+from platformer_v1.entities.player2d import Player2D
+from platformer_v1.level_2d import Level2D
+from platformer_v1.platformer_v1 import PlatformerV1
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
-from two_dee_renderer.constants import FPS_2D
-from two_dee_renderer.entities.player2d import Player2D
-from two_dee_renderer.level_2d import Level2D
-from two_dee_renderer.two_dee_renderer import TwoDeeRenderer
 
 
 class Game:
@@ -31,10 +31,10 @@ class Game:
     # TODO: this should actuaklly go in Display, together with 2D renderer when refactored.
     # Maybe renderer is not the right term for these classes? Or they should have a Game3D master
     legacy_3d_renderer: Legacy3DRenderer
-    renderer_v2: Renderer3DV2
+    renderer_3d_v2: Renderer3DV2
 
     # 2D
-    legacy_2d_renderer: TwoDeeRenderer
+    legacy_2d_renderer: PlatformerV1
     physics_2d: Physics2D
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
@@ -67,8 +67,8 @@ class Game:
         self.display.set_physics_resolution()
 
         self.legacy_3d_renderer = Legacy3DRenderer(game=self)
-        self.renderer_v2 = Renderer3DV2(game=self)
-        self.legacy_2d_renderer = TwoDeeRenderer(game=self, current_level_index=current_level_index)
+        self.renderer_3d_v2 = Renderer3DV2(game=self)
+        self.legacy_2d_renderer = PlatformerV1(game=self, current_level_index=current_level_index)
         self.physics_2d = Physics2D(self)
 
     def _check_game_status(self) -> None:
@@ -81,7 +81,7 @@ class Game:
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        for player in [self.player2d, self.renderer_v2.player, self.legacy_3d_renderer.player]:
+        for player in [self.player2d, self.renderer_3d_v2.player, self.legacy_3d_renderer.player]:
             message: str = ""
 
             match player.status:
@@ -116,8 +116,8 @@ class Game:
             return self.legacy_3d_renderer.visualize_scenario()
 
         if self.status == GameStatus.MODE_3D_V2:
-            self.renderer_v2.player.handle_player_input()
-            return self.renderer_v2.render_v2()
+            self.renderer_3d_v2.player.handle_player_input()
+            return self.renderer_3d_v2.render_v2()
 
         self.legacy_2d_renderer.game_loop()
 
@@ -157,8 +157,8 @@ class Game:
             self.legacy_3d_renderer.reset_screen_buffer()
             self.legacy_3d_renderer.draw_screen_border()
         else:
-            self.renderer_v2.reset_screen_buffer()
-            self.renderer_v2.empty_screen_data()
+            self.renderer_3d_v2.reset_screen_buffer()
+            self.renderer_3d_v2.empty_screen_data()
         self._curr_fps = FPS_3D
 
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
@@ -185,26 +185,26 @@ class Game:
     def _increase_visibility(self):
         # TODO: I don't like this, should be unified. Same for all the rest:
         self.legacy_3d_renderer.visibility_threshold += 5
-        self.renderer_v2.visibility_threshold += 5
+        self.renderer_3d_v2.visibility_threshold += 5
 
     @on_key_press(DisplayKeys.DECREASE_VISIBILITY)
     def _decrease_visibility(self):
         self.legacy_3d_renderer.visibility_threshold -= 5
-        self.renderer_v2.visibility_threshold -= 5
+        self.renderer_3d_v2.visibility_threshold -= 5
 
     @on_key_press(DisplayKeys.DECREASE_FOV)
     def _decrease_fov(self):
         self.legacy_3d_renderer.fov -= 5
-        self.renderer_v2.fov -= 5
+        self.renderer_3d_v2.fov -= 5
 
     @on_key_press(DisplayKeys.INCREASE_FOV)
     def _increase_fov(self):
         self.legacy_3d_renderer.fov += 5
-        self.renderer_v2.fov += 5
+        self.renderer_3d_v2.fov += 5
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
     def _shuffle_colors(self):
-        for r in [self.legacy_3d_renderer, self.renderer_v2]:
+        for r in [self.legacy_3d_renderer, self.renderer_3d_v2]:
             r.colors = sorted(
                 r.colors,
                 key=lambda _: 0.5 - random.random(),

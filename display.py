@@ -6,14 +6,14 @@ from model.base import Point2, Vector2
 from model.keyboard import DisplayKeys
 from model.theme import EMPTY_SPACE, DoubleLines
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
+from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
+from platformer_v1.entities.base import Entity2D
+from platformer_v1.entities.player2d import Player2D
+from platformer_v1.level_2d import Level2D
 from terminal import clear
 from three_d_renderer.constants import ANTIALIASING_INTENSITY, X_RESOLUTION_3D, Y_RESOLUTION_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.scenario.level_3d import Level3D
-from two_dee_renderer.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
-from two_dee_renderer.entities.base import Entity2D
-from two_dee_renderer.entities.player2d import Player2D
-from two_dee_renderer.level_2d import Level2D
 from utils import colored, extract_color_from_string, has_bg_color
 
 _GOOD_HEALTH_LIMIT = 75

@@ -2,15 +2,15 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from model.theme import EMPTY_SPACE
-from two_dee_renderer.entities.base import Entity2D
-from two_dee_renderer.entities.player2d import Player2D
-from two_dee_renderer.level_2d import Level2D
+from platformer_v1.entities.base import Entity2D
+from platformer_v1.entities.player2d import Player2D
+from platformer_v1.level_2d import Level2D
 
 if TYPE_CHECKING:
     from game import Game
 
 
-class TwoDeeRenderer:
+class PlatformerV1:
     levels_2d: list[Level2D]
     _current_level_index: int
     display: Display

@@ -3,9 +3,9 @@ import random
 from factories.theme import DefaultTheme, DoubleLines
 from model.base import Orientation, Point2
 from model.theme import EMPTY_SPACE, RGB, Theme
-from two_dee_renderer.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
-from two_dee_renderer.entities.enemy2d import Enemy2D
-from two_dee_renderer.entities.things2d import Exit2D
+from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
+from platformer_v1.entities.enemy2d import Enemy2D
+from platformer_v1.entities.things2d import Exit2D
 from utils import colored
 
 _DEFAULT_LINE_TYPE = DoubleLines

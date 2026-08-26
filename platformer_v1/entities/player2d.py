@@ -5,11 +5,11 @@ from model.keyboard import KeyboardKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
 from terminal import on_key_press
-from two_dee_renderer.constants import PLAYER_IMMUNE_TIME
-from two_dee_renderer.entities.base import LivingEntity2D
+from platformer_v1.constants import PLAYER_IMMUNE_TIME
+from platformer_v1.entities.base import LivingEntity2D
 
 if TYPE_CHECKING:
-    from two_dee_renderer.level_2d import Level2D
+    from platformer_v1.level_2d import Level2D
 
 _PLAYER_COLOR = Green()
 _PLAYER_FRAMES = ["☺"]
