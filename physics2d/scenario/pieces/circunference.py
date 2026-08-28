@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from factories.theme import White
-from model.base import Point2, Vector2
+from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
@@ -16,17 +16,17 @@ class GetCircunferenceEquationResponse:
 
 
 class Circunference(ScenarioPiece):
-    center: Point2
+    center: Point2F
     radius: float
 
     def __init__(
         self,
-        center: Point2,
+        center: Point2F,
         radius: float,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2 = (0, 0),
+        initial_velocity: Vector2F = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,

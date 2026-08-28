@@ -1,5 +1,5 @@
 from constants import I_PHI, PHI, R2O2
-from model.base import Point3
+from model.base import Point3F
 from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
 from utils import add_triplet
@@ -24,13 +24,13 @@ class Cube(Entity3D):
 
     def __init__(
         self,
-        position: Point3,
+        position: Point3F,
         size: float,
-        angle: Point3,
+        angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3 = [0, 0, 0],
-        rotMatrix: Point3 = [0, 0, 0],
-        vertices: list[Point3] = [],
+        movMatrix: Point3F = (0, 0, 0),
+        rotMatrix: Point3F = (0, 0, 0),
+        vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
             self,
@@ -47,19 +47,19 @@ class Cube(Entity3D):
         # "diameter" for cube is just the size
         return self.size
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
         x, y, z = self.position
         s = self.size
 
-        vertexes.append([x + s / 2, y + s / 2, z + s / 2])  # 0
-        vertexes.append([x + s / 2, y - s / 2, z + s / 2])  # 1
-        vertexes.append([x - s / 2, y + s / 2, z + s / 2])  # 2
-        vertexes.append([x - s / 2, y - s / 2, z + s / 2])  # 3
-        vertexes.append([x + s / 2, y + s / 2, z - s / 2])  # 4
-        vertexes.append([x + s / 2, y - s / 2, z - s / 2])  # 5
-        vertexes.append([x - s / 2, y + s / 2, z - s / 2])  # 6
-        vertexes.append([x - s / 2, y - s / 2, z - s / 2])  # 7
+        vertexes.append((x + s / 2, y + s / 2, z + s / 2))  # 0
+        vertexes.append((x + s / 2, y - s / 2, z + s / 2))  # 1
+        vertexes.append((x - s / 2, y + s / 2, z + s / 2))  # 2
+        vertexes.append((x - s / 2, y - s / 2, z + s / 2))  # 3
+        vertexes.append((x + s / 2, y + s / 2, z - s / 2))  # 4
+        vertexes.append((x + s / 2, y - s / 2, z - s / 2))  # 5
+        vertexes.append((x - s / 2, y + s / 2, z - s / 2))  # 6
+        vertexes.append((x - s / 2, y - s / 2, z - s / 2))  # 7
 
         if apply:
             self.vertices = vertexes
@@ -77,25 +77,25 @@ class Cube(Entity3D):
 
         # "voxels" for the edges
         for i in range(round(s)):
-            vertexes.append([x + s / 2 - i, y + s / 2, z + s / 2])
-            vertexes.append([x + s / 2, y + s / 2 - i, z + s / 2])
-            vertexes.append([x + s / 2, y + s / 2, z + s / 2 - i])
+            vertexes.append((x + s / 2 - i, y + s / 2, z + s / 2))
+            vertexes.append((x + s / 2, y + s / 2 - i, z + s / 2))
+            vertexes.append((x + s / 2, y + s / 2, z + s / 2 - i))
 
-            vertexes.append([x - s / 2, y + s / 2 - i, z + s / 2])
-            vertexes.append([x - s / 2, y + s / 2, z + s / 2 - i])
+            vertexes.append((x - s / 2, y + s / 2 - i, z + s / 2))
+            vertexes.append((x - s / 2, y + s / 2, z + s / 2 - i))
 
-            vertexes.append([x + s / 2 - i, y - s / 2, z + s / 2])
-            vertexes.append([x + s / 2, y - s / 2, z + s / 2 - i])
+            vertexes.append((x + s / 2 - i, y - s / 2, z + s / 2))
+            vertexes.append((x + s / 2, y - s / 2, z + s / 2 - i))
 
-            vertexes.append([x + s / 2 - i, y + s / 2, z - s / 2])
-            vertexes.append([x + s / 2, y + s / 2 - i, z - s / 2])
+            vertexes.append((x + s / 2 - i, y + s / 2, z - s / 2))
+            vertexes.append((x + s / 2, y + s / 2 - i, z - s / 2))
 
-            vertexes.append([x + s / 2 - i, y + s / 2, z - s / 2])
-            vertexes.append([x + s / 2, y + s / 2 - i, z - s / 2])
+            vertexes.append((x + s / 2 - i, y + s / 2, z - s / 2))
+            vertexes.append((x + s / 2, y + s / 2 - i, z - s / 2))
 
-            vertexes.append([x + s / 2 - i, y - s / 2, z - s / 2])
-            vertexes.append([x - s / 2, y + s / 2 - i, z - s / 2])
-            vertexes.append([x - s / 2, y - s / 2, z + s / 2 - i])
+            vertexes.append((x + s / 2 - i, y - s / 2, z - s / 2))
+            vertexes.append((x - s / 2, y + s / 2 - i, z - s / 2))
+            vertexes.append((x - s / 2, y - s / 2, z + s / 2 - i))
 
         self.vertices = vertexes
         self.apply_rotations()
@@ -109,13 +109,13 @@ class Tetra(Entity3D):
 
     def __init__(
         self,
-        position: Point3,
+        position: Point3F,
         size: float,
-        angle: Point3,
+        angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3 = [0, 0, 0],
-        rotMatrix: Point3 = [0, 0, 0],
-        vertices: list[Point3] = [],
+        movMatrix: Point3F = (0, 0, 0),
+        rotMatrix: Point3F = (0, 0, 0),
+        vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
             self,
@@ -133,7 +133,7 @@ class Tetra(Entity3D):
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
         return self.size * R2O2 * 2
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
@@ -141,10 +141,10 @@ class Tetra(Entity3D):
 
         vertexes = []
 
-        vertexes.append([x + s, y, z - R2O2 * s])
-        vertexes.append([x - s, y, z - R2O2 * s])
-        vertexes.append([x, y + s, z + R2O2 * s])
-        vertexes.append([x, y - s, z + R2O2 * s])
+        vertexes.append((x + s, y, z - R2O2 * s))
+        vertexes.append((x - s, y, z - R2O2 * s))
+        vertexes.append((x, y + s, z + R2O2 * s))
+        vertexes.append((x, y - s, z + R2O2 * s))
 
         if apply:
             self.vertices = vertexes
@@ -164,12 +164,12 @@ class Tetra(Entity3D):
         s = self.size
 
         for t in range(round(s * 2)):
-            vertexes.append([(x - s + t), (y), (z - R2O2 * s)])  # 1 - 2
-            vertexes.append([(x + s - t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 3
-            vertexes.append([(x + s - t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 1 - 4
-            vertexes.append([(x - s + t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)])  # 2 - 3
-            vertexes.append([(x - s + t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)])  # 2 - 4
-            vertexes.append([(x), (y - s + t), (z + R2O2 * s)])  # 3 - 4
+            vertexes.append(((x - s + t), (y), (z - R2O2 * s)))  # 1 - 2
+            vertexes.append(((x + s - t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)))  # 1 - 3
+            vertexes.append(((x + s - t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)))  # 1 - 4
+            vertexes.append(((x - s + t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)))  # 2 - 3
+            vertexes.append(((x - s + t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)))  # 2 - 4
+            vertexes.append(((x), (y - s + t), (z + R2O2 * s)))  # 3 - 4
 
         self.vertices = vertexes
         self.apply_rotations()
@@ -211,21 +211,21 @@ class Ico(Entity3D):
 
     def __init__(
         self,
-        position: Point3,
+        position: Point3F,
         size: float,
-        angle: Point3,
+        angle: Point3F,
         color: RGB,
-        movMatrix: Point3 = [0, 0, 0],
-        rotMatrix: Point3 = [0, 0, 0],
-        vertices: list[Point3] = [],
+        movMatrix: Point3F = (0, 0, 0),
+        rotMatrix: Point3F = (0, 0, 0),
+        vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
             self,
             position=position,
             size=size,
             angle=angle,
-            movMatrix=[0, 0, 0],
-            rotMatrix=[0, 0, 0],
+            movMatrix=(0, 0, 0),
+            rotMatrix=(0, 0, 0),
             color=color,
             vertices=vertices,
         )
@@ -241,27 +241,27 @@ class Ico(Entity3D):
         # let's say 2*phi?
         return self.size * 2 * PHI
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
         s = self.size
 
-        vertexes.append([x, y + s, z + PHI * s])  # vertex 1
-        vertexes.append([x, y - s, z + PHI * s])  # vertex 2
-        vertexes.append([x, y + s, z - PHI * s])  # vertex 3
-        vertexes.append([x, y - s, z - PHI * s])  # vertex 4
+        vertexes.append((x, y + s, z + PHI * s))  # vertex 1
+        vertexes.append((x, y - s, z + PHI * s))  # vertex 2
+        vertexes.append((x, y + s, z - PHI * s))  # vertex 3
+        vertexes.append((x, y - s, z - PHI * s))  # vertex 4
 
-        vertexes.append([x + s, y + PHI * s, z])  # vertex 5
-        vertexes.append([x + s, y - PHI * s, z])  # vertex 6
-        vertexes.append([x - s, y + PHI * s, z])  # vertex 7
-        vertexes.append([x - s, y - PHI * s, z])  # vertex 8
+        vertexes.append((x + s, y + PHI * s, z))  # vertex 5
+        vertexes.append((x + s, y - PHI * s, z))  # vertex 6
+        vertexes.append((x - s, y + PHI * s, z))  # vertex 7
+        vertexes.append((x - s, y - PHI * s, z))  # vertex 8
 
-        vertexes.append([x + PHI * s, y, z + s])  # vertex 9
-        vertexes.append([x + PHI * s, y, z - s])  # vertex 10
-        vertexes.append([x - PHI * s, y, z + s])  # vertex 11
-        vertexes.append([x - PHI * s, y, z - s])  # vertex 12
+        vertexes.append((x + PHI * s, y, z + s))  # vertex 9
+        vertexes.append((x + PHI * s, y, z - s))  # vertex 10
+        vertexes.append((x - PHI * s, y, z + s))  # vertex 11
+        vertexes.append((x - PHI * s, y, z - s))  # vertex 12
 
         if apply:
             self.vertices = vertexes
@@ -282,93 +282,93 @@ class Ico(Entity3D):
 
         # edges of icosahedron
         for t in range(round(s)):
-            vertexes.append([(x), (y + s - 2 * t), (z + PHI * s)])  # vertex 1 - 2
+            vertexes.append(((x), (y + s - 2 * t), (z + PHI * s)))  # vertex 1 - 2
             vertexes.append(
-                [(x + t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t)]
+                ((x + t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t))
             )  # vertex 1 - 5
             vertexes.append(
-                [(x - t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t)]
+                ((x - t), (y + s - t * (1 - PHI)), (z + PHI * s - PHI * t))
             )  # vertex 1 - 7
             vertexes.append(
-                [(x + PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1))]
+                ((x + PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1)))
             )  # vertex 1 - 9
             vertexes.append(
-                [(x - PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1))]
+                ((x - PHI * t), (y + s - t), (z + PHI * s - t * (PHI - 1)))
             )  # vertex 1 - 11
 
             vertexes.append(
-                [(x + PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1))]
+                ((x + PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1)))
             )  # vertex 2 - 9
             vertexes.append(
-                [(x + t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t)]
+                ((x + t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t))
             )  # vertex 2 - 6
             vertexes.append(
-                [(x - t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t)]
+                ((x - t), (y - s + t * (1 - PHI)), (z + PHI * s - PHI * t))
             )  # vertex 2 - 8
             vertexes.append(
-                [(x - PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1))]
+                ((x - PHI * t), (y - s + t), (z + PHI * s - t * (PHI - 1)))
             )  # vertex 2 - 11
 
             vertexes.append(
-                [(x + t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t)]
+                ((x + t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t))
             )  # vertex 3 - 5
-            vertexes.append([(x), (y + s - 2 * t), (z - PHI * s)])  # vertex 3 - 4
+            vertexes.append(((x), (y + s - 2 * t), (z - PHI * s)))  # vertex 3 - 4
             vertexes.append(
-                [(x - t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t)]
+                ((x - t), (y + s - t * (1 - PHI)), (z - PHI * s + PHI * t))
             )  # vertex 3 - 7
             vertexes.append(
-                [(x + PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1))]
+                ((x + PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1)))
             )  # vertex 3 - 10
             vertexes.append(
-                [(x - PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1))]
+                ((x - PHI * t), (y + s - t), (z - PHI * s + t * (PHI - 1)))
             )  # vertex 3 - 12
 
             vertexes.append(
-                [(x + t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t)]
+                ((x + t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t))
             )  # vertex 4 - 6
             vertexes.append(
-                [(x - t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t)]
+                ((x - t), (y - s + t * (1 - PHI)), (z - PHI * s + PHI * t))
             )  # vertex 4 - 8
             vertexes.append(
-                [(x + PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1))]
+                ((x + PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1)))
             )  # vertex 4 - 10
             vertexes.append(
-                [(x - PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1))]
+                ((x - PHI * t), (y - s + t), (z - PHI * s + t * (PHI - 1)))
             )  # vertex 4 - 12
 
-            vertexes.append([(x + s - 2 * t), (y + PHI * s), (z)])  # vertex 5 - 7
+            vertexes.append(((x + s - 2 * t), (y + PHI * s), (z)))  # vertex 5 - 7
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t)]
+                ((x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t))
             )  # vertex 5 - 9
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t)]
+                ((x + s - t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t))
             )  # vertex 5 - 10
 
-            vertexes.append([(x + s - 2 * t), (y - PHI * s), (z)])  # vertex 6 - 8
+            vertexes.append(((x + s - 2 * t), (y - PHI * s), (z)))  # vertex 6 - 8
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t)]
+                ((x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t))
             )  # vertex 6 - 9
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t)]
+                ((x + s - t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t))
             )  # vertex 6 - 10
 
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t)]
+                ((x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z + t))
             )  # vertex 7 - 11
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t)]
+                ((x - s + t * (1 - PHI)), (y + PHI * s - PHI * t), (z - t))
             )  # vertex 7 - 12
 
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t)]
+                ((x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z + t))
             )  # vertex 8 - 11
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t)]
+                ((x - s + t * (1 - PHI)), (y - PHI * s + PHI * t), (z - t))
             )  # vertex 8 - 12
 
-            vertexes.append([(x + PHI * s), (y), (z + s - 2 * t)])  # vertex 9 - 10
+            vertexes.append(((x + PHI * s), (y), (z + s - 2 * t)))  # vertex 9 - 10
 
-            vertexes.append([(x - PHI * s), (y), (z + s - 2 * t)])  # vertex 11 - 12
+            vertexes.append(((x - PHI * s), (y), (z + s - 2 * t)))  # vertex 11 - 12
 
         self.vertices = vertexes
 
@@ -406,13 +406,13 @@ class Dodeca(Entity3D):
 
     def __init__(
         self,
-        position: Point3,
+        position: Point3F,
         size: float,
-        angle: Point3,
+        angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3 = [0, 0, 0],
-        rotMatrix: Point3 = [0, 0, 0],
-        vertices: list[Point3] = [],
+        movMatrix: Point3F = (0, 0, 0),
+        rotMatrix: Point3F = (0, 0, 0),
+        vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
             self,
@@ -430,34 +430,34 @@ class Dodeca(Entity3D):
         # similar to ico?
         return self.size * 2 * PHI
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3]:
+    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
         x, y, z = self.position
         s = self.size
 
-        vertexes.append([x + s, y + s, z + s])  # vertex 1
-        vertexes.append([x + s, y - s, z + s])  # vertex 2
-        vertexes.append([x + s, y + s, z - s])  # vertex 3
-        vertexes.append([x + s, y - s, z - s])  # vertex 4
-        vertexes.append([x - s, y + s, z + s])  # vertex 5
-        vertexes.append([x - s, y - s, z + s])  # vertex 6
-        vertexes.append([x - s, y + s, z - s])  # vertex 7
-        vertexes.append([x - s, y - s, z - s])  # vertex 8
+        vertexes.append((x + s, y + s, z + s))  # vertex 1
+        vertexes.append((x + s, y - s, z + s))  # vertex 2
+        vertexes.append((x + s, y + s, z - s))  # vertex 3
+        vertexes.append((x + s, y - s, z - s))  # vertex 4
+        vertexes.append((x - s, y + s, z + s))  # vertex 5
+        vertexes.append((x - s, y - s, z + s))  # vertex 6
+        vertexes.append((x - s, y + s, z - s))  # vertex 7
+        vertexes.append((x - s, y - s, z - s))  # vertex 8
 
-        vertexes.append([x, y + PHI * s, z + I_PHI * s])  # vertex 9
-        vertexes.append([x, y - PHI * s, z + I_PHI * s])  # vertex 10
-        vertexes.append([x, y + PHI * s, z - I_PHI * s])  # vertex 11
-        vertexes.append([x, y - PHI * s, z - I_PHI * s])  # vertex 12
+        vertexes.append((x, y + PHI * s, z + I_PHI * s))  # vertex 9
+        vertexes.append((x, y - PHI * s, z + I_PHI * s))  # vertex 10
+        vertexes.append((x, y + PHI * s, z - I_PHI * s))  # vertex 11
+        vertexes.append((x, y - PHI * s, z - I_PHI * s))  # vertex 12
 
-        vertexes.append([x + I_PHI * s, y, z + PHI * s])  # vertex 13
-        vertexes.append([x + I_PHI * s, y, z - PHI * s])  # vertex 14
-        vertexes.append([x - I_PHI * s, y, z + PHI * s])  # vertex 15
-        vertexes.append([x - I_PHI * s, y, z - PHI * s])  # vertex 16
+        vertexes.append((x + I_PHI * s, y, z + PHI * s))  # vertex 13
+        vertexes.append((x + I_PHI * s, y, z - PHI * s))  # vertex 14
+        vertexes.append((x - I_PHI * s, y, z + PHI * s))  # vertex 15
+        vertexes.append((x - I_PHI * s, y, z - PHI * s))  # vertex 16
 
-        vertexes.append([x + PHI * s, y + I_PHI * s, z])  # vertex 17
-        vertexes.append([x + PHI * s, y - I_PHI * s, z])  # vertex 18
-        vertexes.append([x - PHI * s, y + I_PHI * s, z])  # vertex 19
-        vertexes.append([x - PHI * s, y - I_PHI * s, z])  # vertex 20
+        vertexes.append((x + PHI * s, y + I_PHI * s, z))  # vertex 17
+        vertexes.append((x + PHI * s, y - I_PHI * s, z))  # vertex 18
+        vertexes.append((x - PHI * s, y + I_PHI * s, z))  # vertex 19
+        vertexes.append((x - PHI * s, y - I_PHI * s, z))  # vertex 20
 
         if apply:
             self.vertices = vertexes
@@ -477,91 +477,91 @@ class Dodeca(Entity3D):
         # Instead of looping through the size, we print the line mapped to a char to the screen right away! Should be ok if we do it in order of closeness, right? TODO: order vertexer in order of closeness!
         for t in range(round(s)):
             vertexes.append(
-                [(x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - I_PHI))]
+                ((x + s - t), (y + s - t * (1 - PHI)), (z + s - t * (1 - I_PHI)))
             )  # vertex 1 - 9
             vertexes.append(
-                [(x + s - t * (1 - I_PHI)), (y + s - t), (z + s - t * (1 - PHI))]
+                ((x + s - t * (1 - I_PHI)), (y + s - t), (z + s - t * (1 - PHI)))
             )  # vertex 1 - 13
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z + s - t)]
+                ((x + s - t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z + s - t))
             )  # vertex 1 - 17
 
             vertexes.append(
-                [(x + s - t), (y - s + t * (1 - PHI)), (z + s - t * (1 - I_PHI))]
+                ((x + s - t), (y - s + t * (1 - PHI)), (z + s - t * (1 - I_PHI)))
             )  # vertex 2 - 10
             vertexes.append(
-                [(x + s - t * (1 - I_PHI)), (y - s + t), (z + s - t * (1 - PHI))]
+                ((x + s - t * (1 - I_PHI)), (y - s + t), (z + s - t * (1 - PHI)))
             )  # vertex 2 - 13
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z + s - t)]
+                ((x + s - t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z + s - t))
             )  # vertex 2 - 18 3HBE
 
             vertexes.append(
-                [(x + s - t), (y + s - t * (1 - PHI)), (z - s + t * (1 - I_PHI))]
+                ((x + s - t), (y + s - t * (1 - PHI)), (z - s + t * (1 - I_PHI)))
             )  # vertex 3 - 11
             vertexes.append(
-                [(x + s - t * (1 - I_PHI)), (y + s - t), (z - s + t * (1 - PHI))]
+                ((x + s - t * (1 - I_PHI)), (y + s - t), (z - s + t * (1 - PHI)))
             )  # vertex 3 - 14
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z - s + t)]
+                ((x + s - t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z - s + t))
             )  # vertex 3 - 17 4CEI
 
             vertexes.append(
-                [(x + s - t), (y - s + t * (1 - PHI)), (z - s + t * (1 - I_PHI))]
+                ((x + s - t), (y - s + t * (1 - PHI)), (z - s + t * (1 - I_PHI)))
             )  # vertex 4 - 12
             vertexes.append(
-                [(x + s - t * (1 - I_PHI)), (y - s + t), (z - s + t * (1 - PHI))]
+                ((x + s - t * (1 - I_PHI)), (y - s + t), (z - s + t * (1 - PHI)))
             )  # vertex 4 - 14
             vertexes.append(
-                [(x + s - t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z - s + t)]
+                ((x + s - t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z - s + t))
             )  # vertex 4 - 18 59FJ
 
             vertexes.append(
-                [(x - s + t), (y + s - t * (1 - PHI)), (z + s - t * (1 - I_PHI))]
+                ((x - s + t), (y + s - t * (1 - PHI)), (z + s - t * (1 - I_PHI)))
             )  # vertex 5 - 9
             vertexes.append(
-                [(x - s + t * (1 - I_PHI)), (y + s - t), (z + s - t * (1 - PHI))]
+                ((x - s + t * (1 - I_PHI)), (y + s - t), (z + s - t * (1 - PHI)))
             )  # vertex 5 - 15
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z + s - t)]
+                ((x - s + t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z + s - t))
             )  # vertex 5 - 19 6AFK
 
             vertexes.append(
-                [(x - s + t), (y - s + t * (1 - PHI)), (z + s - t * (1 - I_PHI))]
+                ((x - s + t), (y - s + t * (1 - PHI)), (z + s - t * (1 - I_PHI)))
             )  # vertex 6 - 10
             vertexes.append(
-                [(x - s + t * (1 - I_PHI)), (y - s + t), (z + s - t * (1 - PHI))]
+                ((x - s + t * (1 - I_PHI)), (y - s + t), (z + s - t * (1 - PHI)))
             )  # vertex 6 - 15
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z + s - t)]
+                ((x - s + t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z + s - t))
             )  # vertex 6 - 20 7BGJ
 
             vertexes.append(
-                [(x - s + t), (y + s - t * (1 - PHI)), (z - s + t * (1 - I_PHI))]
+                ((x - s + t), (y + s - t * (1 - PHI)), (z - s + t * (1 - I_PHI)))
             )  # vertex 7 - 11
             vertexes.append(
-                [(x - s + t * (1 - I_PHI)), (y + s - t), (z - s + t * (1 - PHI))]
+                ((x - s + t * (1 - I_PHI)), (y + s - t), (z - s + t * (1 - PHI)))
             )  # vertex 7 - 16
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z - s + t)]
+                ((x - s + t * (1 - PHI)), (y + s - t * (1 - I_PHI)), (z - s + t))
             )  # vertex 7 - 19 8CGK
 
             vertexes.append(
-                [(x - s + t), (y - s + t * (1 - PHI)), (z - s + t * (1 - I_PHI))]
+                ((x - s + t), (y - s + t * (1 - PHI)), (z - s + t * (1 - I_PHI)))
             )  # vertex 8 - 12
             vertexes.append(
-                [(x - s + t * (1 - I_PHI)), (y - s + t), (z - s + t * (1 - PHI))]
+                ((x - s + t * (1 - I_PHI)), (y - s + t), (z - s + t * (1 - PHI)))
             )  # vertex 8 - 16
             vertexes.append(
-                [(x - s + t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z - s + t)]
+                ((x - s + t * (1 - PHI)), (y - s + t * (1 - I_PHI)), (z - s + t))
             )  # vertex 8 - 20
 
-            vertexes.append([(x), (y + PHI * s), (z + I_PHI * s - 2 * I_PHI * t)])  # vertex 9 - 11
-            vertexes.append([(x), (y - PHI * s), (z + I_PHI * s - 2 * I_PHI * t)])  # vertex 10 - 12
-            vertexes.append([(x + I_PHI * s - 2 * I_PHI * t), (y), (z - PHI * s)])  # vertex 13 - 15
-            vertexes.append([(x + I_PHI * s - 2 * I_PHI * t), (y), (z + PHI * s)])  # vertex 14 - 16
-            vertexes.append([(x + PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)])  # vertex 17 - 18
-            vertexes.append([(x - PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)])  # vertex 19 - 20
+            vertexes.append(((x), (y + PHI * s), (z + I_PHI * s - 2 * I_PHI * t)))  # vertex 9 - 11
+            vertexes.append(((x), (y - PHI * s), (z + I_PHI * s - 2 * I_PHI * t)))  # vertex 10 - 12
+            vertexes.append(((x + I_PHI * s - 2 * I_PHI * t), (y), (z - PHI * s)))  # vertex 13 - 15
+            vertexes.append(((x + I_PHI * s - 2 * I_PHI * t), (y), (z + PHI * s)))  # vertex 14 - 16
+            vertexes.append(((x + PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)))  # vertex 17 - 18
+            vertexes.append(((x - PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)))  # vertex 19 - 20
 
         self.vertices = vertexes
         self.apply_rotations()
@@ -579,13 +579,13 @@ CUSTOMSHITTT
 class F_Letter(Entity3D):
     def __init__(
         self,
-        position: Point3,
+        position: Point3F,
         size: float,
-        angle: Point3,
+        angle: Point3F,
         color: RGB,
-        movMatrix=[0, 0, 0],
-        rotMatrix=[0, 0, 0],
-        vertices: list[Point3] = [],
+        movMatrix=(0, 0, 0),
+        rotMatrix=(0, 0, 0),
+        vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
             self,
@@ -625,7 +625,7 @@ class F_Letter(Entity3D):
             prev_x_l, prev_y_l = letter_points[prev_point_index]
 
             # Add main points
-            vertexes.append(list(add_triplet([x_l, y_l, 0], self.position)))
+            vertexes.append(list(add_triplet((x_l, y_l, 0), self.position)))
 
             for x_v, y_v, z_v in vertexes:
                 pass

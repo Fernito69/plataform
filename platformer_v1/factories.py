@@ -1,5 +1,5 @@
 from factories.theme import Blue, Red, Yellow
-from model.base import Point2, Vector2
+from model.base import Point2F, Vector2F
 from model.enemy import EnemyType
 from model.theme import RGB, Theme
 from platformer_v1.entities.enemy2d import Enemy2D
@@ -9,8 +9,8 @@ _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_COLOR = Blue()
 
 
 def DumbBouncingEnemy(
-    position: Point2,
-    movement_type: Vector2,
+    position: Point2F,
+    movement_type: Vector2F,
     speed: int = 1,
     health: int = 40,
     character_frames: list[str] = _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_FRAMES,
@@ -33,8 +33,8 @@ _DEFAULT_DUMB_FLOATING_ENEMY_CHARACTER_COLOR = Red()
 
 
 def DumbFloatingEnemy(
-    position: Point2,
-    movement_type: Vector2,
+    position: Point2F,
+    movement_type: Vector2F,
     speed: int = 1,
     health: int = 50,
     character_frames: list[str] = _DEFAULT_DUMB_FLOATING_ENEMY_CHARACTER_FRAMES,
@@ -74,8 +74,8 @@ _DEFAULT_FIRE_FLOATING_ENEMY_CHARACTER_FRAMES = [
 
 
 def DumbFireFloatingEnemy(
-    position: Point2,
-    movement_type: Vector2,
+    position: Point2F,
+    movement_type: Vector2F,
     health: int = 60,
     speed: int = 4,
     character_frames: list[str] = _DEFAULT_FIRE_FLOATING_ENEMY_CHARACTER_FRAMES,

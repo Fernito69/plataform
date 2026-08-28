@@ -2,7 +2,7 @@ import math
 
 from constants import HALF_PIXEL, PI
 from factories.theme import RGB, White
-from model.base import Point2, Vector2
+from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
@@ -10,7 +10,7 @@ from utils import add_tuple, distance_from_line_to_point, mix_colors
 
 
 class Line(ScenarioPiece):
-    points: tuple[Point2, Point2]
+    points: tuple[Point2F, Point2F]
     thickness: float
 
     _pulsate_freq: float
@@ -18,12 +18,12 @@ class Line(ScenarioPiece):
 
     def __init__(
         self,
-        points: tuple[Point2, Point2],
+        points: tuple[Point2F, Point2F],
         theme: Theme = Theme(),
         angle: float = 0,
         thickness: float = 1,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2 = (0, 0),
+        initial_velocity: Vector2F = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,

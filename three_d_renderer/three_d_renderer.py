@@ -13,7 +13,7 @@ from factories.theme import (
     White,
     Yellow,
 )
-from model.base import Point2, Point3
+from model.base import Point2F, Point3F
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_THRESHOLD,
@@ -61,7 +61,7 @@ class ThreeDeeRenderer:
         self.reset_screen_buffer()
 
     # This is where the 3D to 2D projection magic happens
-    def _get_screen_projection(self, point3: Point3) -> Point2:
+    def _get_screen_projection(self, point3: Point3F) -> Point2F:
         x, y, z = point3
         x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
         y_pos = (

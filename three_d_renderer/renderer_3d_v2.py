@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from constants import HALF_PIXEL, PI, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
-from model.base import Point2
+from model.base import Point2F
 from model.theme import RGB
 from three_d_renderer.model.base import PixelContribution, RenderData, SubpixelContribution, Vertex3
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
@@ -120,10 +120,10 @@ class Renderer3DV2(ThreeDeeRenderer):
 
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_pixel_pos: Point2 = self._get_screen_projection(
+                curr_pixel_pos: Point2F = self._get_screen_projection(
                     subtract_triplet(data.vertex.point, self.player.position)
                 )
-                connecting_pixel_pos: Point2 = self._get_screen_projection(
+                connecting_pixel_pos: Point2F = self._get_screen_projection(
                     subtract_triplet(
                         data.entity.vertices[connecting_vertex_index], self.player.position
                     )
@@ -179,7 +179,7 @@ class Renderer3DV2(ThreeDeeRenderer):
         self.display.put_screen_content(new_screen_matrix)
         self.display.print_curr_screen(self.player)
 
-    def _compute_pixel_contributions(self, data: RenderData, line: tuple[Point2, Point2]) -> None:
+    def _compute_pixel_contributions(self, data: RenderData, line: tuple[Point2F, Point2F]) -> None:
         # Check the affected pixels:
         curr_pixel_pos, connecting_pixel_pos = line
         x1, y1 = curr_pixel_pos
@@ -223,7 +223,7 @@ class Renderer3DV2(ThreeDeeRenderer):
                         )
 
     def _add_contribution_to_screen(
-        self, line: tuple[Point2, Point2], curr_screen_pos: Point2, color: RGB, data: RenderData
+        self, line: tuple[Point2F, Point2F], curr_screen_pos: Point2F, color: RGB, data: RenderData
     ):
         x, y = curr_screen_pos
 

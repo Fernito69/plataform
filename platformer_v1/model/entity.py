@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from model.base import Number, Orientation
+from model.base import Orientation
 
 
 @dataclass
 class Collision2:
-    distance: Number = 0
+    distance: float = 0
     orientation: Orientation = Orientation.HORIZONTAL
 
 

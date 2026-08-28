@@ -2,7 +2,7 @@ from abc import abstractmethod
 from random import random
 
 from factories.theme import RGB
-from model.base import Point2, Vector2
+from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.base import RenderInfo
@@ -16,23 +16,24 @@ class ScenarioPiece:
     name: str
     # in radians
     angle: float
-    center_of_mass: Point2
+    center_of_mass: Point2F
 
     # if > 0, it floats around randomly, like brownian motion
     floating_multi: float
 
     _affected_by_gravity: bool
     _own_gravity_accel: float | None
-    velocity: Vector2
+    velocity: Vector2F
+    angular_velocity: Vector2F
 
     def __init__(
         self,
         name: str,
-        center_of_mass: Point2,
+        center_of_mass: Point2F,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2 = (0, 0),
+        initial_velocity: Vector2F = (0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
@@ -56,6 +57,12 @@ class ScenarioPiece:
             self.velocity[0],
             self.velocity[1] - (self._own_gravity_accel or gravity_accel),
         )
+
+    def apply_angular_momentum(self) -> None:
+        pass
+
+    def rotate(self) -> None:
+        pass
 
     @abstractmethod
     def _get_color(cls, x: int | None = None, y: int | None = None) -> RGB:

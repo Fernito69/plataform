@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from model.base import DistVector3D, Point3
+from model.base import DistVector3D, Point3F
 from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
 
@@ -10,7 +10,7 @@ from three_d_renderer.entities.base3d import Entity3D
 class Vertex3:
     # Index of vertex in the Entity (check calc_vertex_v2 method)
     index: int
-    point: Point3
+    point: Point3F
 
 
 @dataclass
