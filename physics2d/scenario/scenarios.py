@@ -41,6 +41,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         floating_multi=0.02,
         pulsate_freq=0.5,
         pulsate_amplitude=0.5,
+        initial_angular_velocity=200,
     )
     rectangle_1 = Rectangle(
         vertices=((6, 33), (17, 5)),

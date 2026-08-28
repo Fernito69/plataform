@@ -1,6 +1,7 @@
 import math
 from collections.abc import Callable
 from dataclasses import dataclass
+from random import random
 from typing import Any
 
 from model.base import DistVector3D, Point2F, Point3F, Vector2F, Vector3F
@@ -11,6 +12,13 @@ _FG_CODE = "\033[38;2;"
 _BG_CODE = "\033[48;2;"
 
 # TODO: separate functions here
+
+
+def shuffle_list(_: Any | None = None) -> float:
+    """
+    returns a random number between -.5 and .5, good for shuffling lists
+    """
+    return 0.5 - random()
 
 
 def _encode_rgb(color: RGB) -> str:

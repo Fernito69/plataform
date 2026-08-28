@@ -1,4 +1,3 @@
-import random
 import time
 
 from display import Display
@@ -17,6 +16,7 @@ from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
+from utils import shuffle_list
 
 
 class Game:
@@ -204,11 +204,15 @@ class Game:
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
     def _shuffle_colors(self):
-        for r in [self.legacy_3d_renderer, self.renderer_3d_v2]:
-            r.colors = sorted(
-                r.colors,
-                key=lambda _: 0.5 - random.random(),
-            )
+        renderers = [self.legacy_3d_renderer, self.renderer_3d_v2]
+
+        new_colors = sorted(
+            renderers[0].colors,
+            key=shuffle_list,
+        )
+
+        for r in renderers:
+            r.colors = new_colors
 
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:

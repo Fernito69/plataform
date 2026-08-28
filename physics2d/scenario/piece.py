@@ -1,12 +1,11 @@
 from abc import abstractmethod
-from random import random
 
 from factories.theme import RGB
 from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.base import RenderInfo
-from utils import add_tuple
+from utils import add_tuple, shuffle_list
 
 
 class ScenarioPiece:
@@ -87,7 +86,7 @@ class ScenarioPiece:
 
         self.velocity = add_tuple(
             self.velocity,
-            (self.floating_multi * (0.5 - random()), self.floating_multi * (0.5 - random())),
+            (self.floating_multi * shuffle_list(), self.floating_multi * shuffle_list()),
         )
 
     @abstractmethod
