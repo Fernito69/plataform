@@ -20,8 +20,6 @@ from three_d_renderer.constants import (
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
-from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.scenario.level_3d import Level3D
 
 if TYPE_CHECKING:
     from game import Game
@@ -33,10 +31,6 @@ random.shuffle(colors)
 
 # TODO: this should reuse display and set_resolution()
 class ThreeDeeRenderer:
-    # for now a fixed camera
-    player: Player3D
-    _curr_level: Level3D
-
     _screen_matrix_buffer: list[list[str]] = []
 
     # physics params
@@ -49,10 +43,7 @@ class ThreeDeeRenderer:
 
     def __init__(self, game: "Game"):
         self.game = game
-
-        self.player = self.game.player3d
         self.display = self.game.display
-        self._curr_level = self.game.display.curr_level_3D
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR

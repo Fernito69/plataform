@@ -76,21 +76,21 @@ class Line(ScenarioPiece):
         )
 
     def rotate(self) -> None:
+        new_angle = 0
         if self.angular_velocity != 0:
             distance_from_center_to_farthest_point = distance_between_points(
                 self.center_of_mass, self.points[0]
             ).distance
             new_angle = self.angular_velocity / (distance_from_center_to_farthest_point or 0.01)
 
-            self.angle = new_angle
-
-        if self.angle == 0:
+        if not new_angle:
             return
 
         self.points = (
-            rotate_point(self.points[0], self.center_of_mass, self.angle),
-            rotate_point(self.points[1], self.center_of_mass, self.angle),
+            rotate_point(self.points[0], self.center_of_mass, new_angle),
+            rotate_point(self.points[1], self.center_of_mass, new_angle),
         )
+        self.angle = new_angle
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:

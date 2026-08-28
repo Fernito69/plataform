@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
@@ -8,8 +9,16 @@ from physics2d.scenario.piece import ScenarioPiece
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
+# TODO: use this for "pieces"
+# pieces in same layer collide with each other
+@dataclass
+class PieceHierarchy:
+    layer_index: int
+    pieces: list[ScenarioPiece]
+
 
 class Scenario:
+    # TODO: refactor this
     pieces: list[ScenarioPiece]
     entities: list[Entity]
     gravity_acceleration: float

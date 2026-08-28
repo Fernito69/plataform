@@ -24,11 +24,11 @@ class PlatformerV1:
         self.game = game
         self._current_level_index = current_level_index
 
-        self.levels = self.game.levels2d
+        self.levels_2d = self.game.levels2d
         self.display = self.game.display
 
         self.player2d = self.game.player2d
-        self.player2d.set_curr_level(self.levels[self._current_level_index])
+        self.player2d.set_curr_level(self.levels_2d[self._current_level_index])
 
     # Legacy
     def game_loop(self) -> None:
@@ -37,10 +37,10 @@ class PlatformerV1:
 
         self._compute_actions_and_add_to_screen(self.player2d)
 
-        for enemy in self.levels[self._current_level_index].enemies:
+        for enemy in self.levels_2d[self._current_level_index].enemies:
             self._compute_actions_and_add_to_screen(enemy)
 
-        for exit in self.levels[self._current_level_index].exits:
+        for exit in self.levels_2d[self._current_level_index].exits:
             self._compute_actions_and_add_to_screen(exit)
 
         self._print_game()
@@ -60,4 +60,6 @@ class PlatformerV1:
         for y in range(d.curr_y_resolution):
             d._screen_matrix.append([])
             for x in range(d.curr_x_resolution):
-                d._screen_matrix[y].append(d.curr_level_2D.map[y][x] or EMPTY_SPACE)
+                d._screen_matrix[y].append(
+                    self.levels_2d[self._current_level_index].map[y][x] or EMPTY_SPACE
+                )

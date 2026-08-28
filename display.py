@@ -9,11 +9,9 @@ from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.base import Entity2D
 from platformer_v1.entities.player2d import Player2D
-from platformer_v1.level_2d import Level2D
 from terminal import clear
 from three_d_renderer.constants import ANTIALIASING_INTENSITY, X_RESOLUTION_3D, Y_RESOLUTION_3D
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.scenario.level_3d import Level3D
 from utils import colored, extract_color_from_string, has_bg_color
 
 _GOOD_HEALTH_LIMIT = 75
@@ -27,13 +25,9 @@ _MESSAGE_BORDER_COLOR = Red()
 _MESSAGE_TEXT_COLOR = Yellow()
 
 
-# TODO: add status (2d, 3d)
 class Display:
     # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
-
-    curr_level_2D: Level2D
-    curr_level_3D: Level3D
 
     curr_fps: float
     curr_x_resolution: int
@@ -46,9 +40,7 @@ class Display:
 
     antialiasing: bool
 
-    def __init__(self, curr_level: Level2D, curr_level_3d: Level3D, fps: float):
-        self.curr_level_2D = curr_level
-        self.curr_level_3D = curr_level_3d
+    def __init__(self, fps: float):
         self.curr_3d_char_mode = "█"
         self.antialiasing = True
         self.curr_fps = fps
@@ -74,9 +66,6 @@ class Display:
 
     def set_fps(self, fps: float) -> None:
         self._curr_fps = fps
-
-    def set_level_3d(self, level: Level3D) -> None:
-        self.curr_level_3D = level
 
     # TODO: deprecate
     def switch_3d_char_mode(self) -> str | list[str]:
@@ -122,7 +111,7 @@ class Display:
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
             self._screen_matrix[y][x] = entity.get_char()
 
-    # TODO: this is broken
+    # TODO: this is broken, fix
     def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
         if len(message) <= 0:
             return
@@ -246,7 +235,6 @@ class Display:
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
-            hud += f"Rotation: ({_c(rotation_key)}) {ON_STR if self.curr_level_3D.rotation else OFF_STR}{SEP}"
             hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
 
             return print(hud)

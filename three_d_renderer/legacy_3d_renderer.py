@@ -33,6 +33,10 @@ class Legacy3DRenderer(ThreeDeeRenderer):
 
     # Legacy voxel renderer
     def visualize_scenario(self):
+        player = self.game.player3d
+        if not player.curr_level:
+            return
+
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
 
@@ -40,14 +44,14 @@ class Legacy3DRenderer(ThreeDeeRenderer):
         self.reset_screen_buffer(keep_border=True)
 
         # rendering objects, we sort them first by distance
-        self._curr_level.entities = sorted(
-            self._curr_level.entities,
+        player.curr_level.entities = sorted(
+            player.curr_level.entities,
             key=lambda e: (
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
                 distance_between_points(
-                    e.position, self.player.position, e.get_diameter()
+                    e.position, player.position, e.get_diameter()
                 ).distance_to_edge
                 or 0
             ),
@@ -55,7 +59,7 @@ class Legacy3DRenderer(ThreeDeeRenderer):
 
         # TODO: find a way to find what's behind the player to not render it
         # TODO: refactor, beri messy right now
-        for entity in self._curr_level.entities:
+        for entity in player.curr_level.entities:
             # calculate movement
             entity.calc_legacy_voxels()
             entity.movement()
@@ -66,7 +70,7 @@ class Legacy3DRenderer(ThreeDeeRenderer):
             vertices_to_render = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.vertices:
-                normalized_vertex = subtract_triplet(vertex, self.player.position)
+                normalized_vertex = subtract_triplet(vertex, player.position)
                 x_pos, y_pos = self._get_screen_projection(normalized_vertex)
 
                 if (
@@ -119,4 +123,4 @@ class Legacy3DRenderer(ThreeDeeRenderer):
                     self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] = _char
 
         self.display.put_screen_content(self._screen_matrix_buffer)
-        self.display.print_curr_screen(self.player)
+        self.display.print_curr_screen(player)

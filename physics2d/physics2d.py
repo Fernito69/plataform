@@ -30,7 +30,7 @@ class Physics2D:
 
     scenario: Scenario
 
-    _pressed_key_map: dict[PhysicsKey, bool] = {}
+    _pressed_key_map: dict[PhysicsKey | MovementKeys, bool] = {}
 
     screen_corner: Point2F
 
@@ -77,7 +77,7 @@ class Physics2D:
         new_screen_matrix: list[list[str]] = []
         for p in self.scenario.pieces:
             if p.name == "LINEA MIA":
-                # self.display.debug_log(f"angle: PI*{p.angle} radians, {self.angy}")
+                self.display.debug_log(f"angle: PI*{p.angle} radians, {p.angular_velocity}")
                 pass
 
         # TODO: for now, we assume y-res is always evenaaaaaaaq

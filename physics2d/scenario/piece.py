@@ -13,7 +13,7 @@ class ScenarioPiece:
     secondary_theme: Theme | None
 
     name: str
-    # in degrees, radian transformation
+    # in radians
     angle: float
     center_of_mass: Point2F
 

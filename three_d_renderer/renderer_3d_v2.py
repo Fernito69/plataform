@@ -59,6 +59,11 @@ class Renderer3DV2(ThreeDeeRenderer):
         self.empty_screen_data()
 
     def _get_render_v2_list(self) -> list[RenderData]:
+        player = self.game.player3d
+
+        if not player.curr_level:
+            return []
+
         # Order vertices by closest to farthest and exclude those too far away to be rendered
         return [
             data
@@ -68,11 +73,9 @@ class Renderer3DV2(ThreeDeeRenderer):
                         entity_idx=entity_idx,
                         entity=entity,
                         vertex=Vertex3(point=vertex, index=vertex_idx),
-                        dist_vector=distance_between_points(
-                            vertex, self.player.position, entity=entity
-                        ),
+                        dist_vector=distance_between_points(vertex, player.position, entity=entity),
                     )
-                    for entity_idx, entity in enumerate(self._curr_level.entities)
+                    for entity_idx, entity in enumerate(player.curr_level.entities)
                     for vertex_idx, vertex in enumerate(entity.vertices)
                 ],
                 key=self._sort_vertices,
@@ -103,9 +106,12 @@ class Renderer3DV2(ThreeDeeRenderer):
     def render_v2(self):
         self.empty_screen_data()
         render_list: list[RenderData] = self._get_render_v2_list()
+        curr_level = self.game.player3d.curr_level
+        if not curr_level:
+            return
 
         # TODO: calculations should not be part of the rendering
-        for entity in self._curr_level.entities:
+        for entity in curr_level.entities:
             entity.calc_main_vertexes(apply=True)
             entity.movement()
 
@@ -120,11 +126,11 @@ class Renderer3DV2(ThreeDeeRenderer):
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
                 curr_pixel_pos: Point2F = self._get_screen_projection(
-                    subtract_triplet(data.vertex.point, self.player.position)
+                    subtract_triplet(data.vertex.point, self.game.player3d.position)
                 )
                 connecting_pixel_pos: Point2F = self._get_screen_projection(
                     subtract_triplet(
-                        data.entity.vertices[connecting_vertex_index], self.player.position
+                        data.entity.vertices[connecting_vertex_index], self.game.player3d.position
                     )
                 )
 
@@ -176,7 +182,7 @@ class Renderer3DV2(ThreeDeeRenderer):
                 new_screen_matrix[y][x] = colored("▀", color=color, bg_color=bg_color)
 
         self.display.put_screen_content(new_screen_matrix)
-        self.display.print_curr_screen(self.player)
+        self.display.print_curr_screen(self.game.player3d)
 
     def _compute_pixel_contributions(self, data: RenderData, line: tuple[Point2F, Point2F]) -> None:
         # Check the affected pixels:

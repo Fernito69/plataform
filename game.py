@@ -9,6 +9,7 @@ from physics2d.physics2d import Physics2D
 from platformer_v1.constants import FPS_2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.level_2d import Level2D
+from platformer_v1.levels_2d import build_level1
 from platformer_v1.platformer_v1 import PlatformerV1
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
@@ -16,6 +17,7 @@ from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
+from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import shuffle_list
 
 
@@ -40,25 +42,19 @@ class Game:
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(
-        self,
-        player_2d: Player2D,
-        player_3d: Player3D,
-        levels_2d: list[Level2D],
-        levels_3d: list[Level3D],
-        current_level_index: int = 0,
-        status: GameStatus = GameStatus.MODE_PHYSICS_2D,
+        self, status: GameStatus = GameStatus.MODE_PHYSICS_2D, current_level_index: int = 0
     ):
-        self.levels2d = levels_2d
-        self.levels3d = levels_3d
+        self.levels2d = [build_level1()]
+        self.levels3d = [build_level_3d_1()]
 
-        self.player2d = player_2d
-        self.player3d = player_3d
+        self.player2d = Player2D(1)
+        self.player3d = Player3D(1)
+        # hardcoded cool initial place
+        self.player3d.position = (18, 84, -33)
 
         self.player2d.set_curr_level(self.levels2d[current_level_index])
-        self.player3d.set_curr_level(self.levels3d[0])
+        self.player3d.set_curr_level(self.levels3d[current_level_index])
         self.display = Display(
-            curr_level=self.levels2d[current_level_index],
-            curr_level_3d=self.levels3d[0],
             fps=FPS_PHYSICS,
         )
         self.status = status
@@ -81,7 +77,7 @@ class Game:
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        for player in [self.player2d, self.renderer_3d_v2.player, self.legacy_3d_renderer.player]:
+        for player in [self.player2d, self.player3d]:
             message: str = ""
 
             match player.status:
@@ -112,11 +108,11 @@ class Game:
 
         # TODO: this should not happen here, do properly
         if self.status == GameStatus.MODE_3D:
-            self.legacy_3d_renderer.player.handle_player_input()
+            self.player3d.handle_player_input()
             return self.legacy_3d_renderer.visualize_scenario()
 
         if self.status == GameStatus.MODE_3D_V2:
-            self.renderer_3d_v2.player.handle_player_input()
+            self.player2d.handle_player_input()
             return self.renderer_3d_v2.render_v2()
 
         self.legacy_2d_renderer.game_loop()
@@ -216,9 +212,9 @@ class Game:
 
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
-        # TODO: this is messy, the renderer shouldn't take care of this
-        self.legacy_3d_renderer._curr_level.toggle_rotation()
-        # self.renderer_v2._curr_level.toggle_rotation()
+        if not self.player3d.curr_level:
+            return
+        self.player3d.curr_level.toggle_rotation()
 
     def handle_player_input(self):
         self._quit()
