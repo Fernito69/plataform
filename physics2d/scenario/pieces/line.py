@@ -6,7 +6,13 @@ from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from utils import add_tuple, distance_from_line_to_point, mix_colors
+from utils import (
+    add_tuple,
+    distance_between_points,
+    distance_from_line_to_point,
+    mix_colors,
+    rotate_point,
+)
 
 
 class Line(ScenarioPiece):
@@ -29,6 +35,7 @@ class Line(ScenarioPiece):
         floating_multi: float = 0,
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
+        initial_angular_velocity: float = 0,
     ):
         self.points = points
         self.thickness = thickness
@@ -36,14 +43,11 @@ class Line(ScenarioPiece):
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
 
-        center_of_mass = (
-            (self.points[0][0] - self.points[1][0]) / 2,
-            (self.points[0][1] - self.points[1][1]) / 2,
-        )
+        self.calc_center_of_mass()
 
         super().__init__(
             "Line",
-            center_of_mass=center_of_mass,
+            center_of_mass=self.center_of_mass,
             theme=theme,
             angle=angle,
             affected_by_gravity=affected_by_gravity,
@@ -51,6 +55,7 @@ class Line(ScenarioPiece):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
+            initial_angular_velocity=initial_angular_velocity,
         )
 
     _curr_amplitude: float = 1
@@ -62,6 +67,27 @@ class Line(ScenarioPiece):
 
         self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
+
+    def calc_center_of_mass(self) -> None:
+        self.center_of_mass = (
+            (self.points[0][0] + self.points[1][0]) / 2,
+            (self.points[0][1] + self.points[1][1]) / 2,
+        )
+
+    def rotate(self) -> None:
+        # TODO: calculate
+        distance_from_center_to_farthest_point = distance_between_points(
+            self.center_of_mass, self.points[0]
+        ).distance
+        self.angle = self.angle + (self.angular_velocity / distance_from_center_to_farthest_point)
+
+        if self.angle == 0:
+            return
+
+        self.points = (
+            rotate_point(self.points[0], self.center_of_mass, self.angle),
+            rotate_point(self.points[1], self.center_of_mass, self.angle),
+        )
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:
@@ -101,6 +127,7 @@ class Line(ScenarioPiece):
     def apply_movement(self) -> None:
         self._float_around()
         self._pulsate()
+        self.rotate()
 
         if not any(a != 0 for a in self.velocity):
             return
@@ -109,10 +136,7 @@ class Line(ScenarioPiece):
             add_tuple(self.points[0], self.velocity),
             add_tuple(self.points[1], self.velocity),
         )
-        self.center_of_mass = (
-            self.center_of_mass[0] + self.velocity[0],
-            self.center_of_mass[1] + self.velocity[1],
-        )
+        self.calc_center_of_mass()
 
     def return_render_info(self) -> list[RenderInfo]:
         piece_info = []

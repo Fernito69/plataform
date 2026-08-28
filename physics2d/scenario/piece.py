@@ -24,7 +24,7 @@ class ScenarioPiece:
     _affected_by_gravity: bool
     _own_gravity_accel: float | None
     velocity: Vector2F
-    angular_velocity: Vector2F
+    angular_velocity: float
 
     def __init__(
         self,
@@ -34,6 +34,7 @@ class ScenarioPiece:
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: Vector2F = (0, 0),
+        initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
@@ -47,7 +48,7 @@ class ScenarioPiece:
         self._own_gravity_accel = own_gravity
         self.secondary_theme = secondary_theme
         self.floating_multi = floating_multi
-
+        self.angular_velocity = initial_angular_velocity
         self.center_of_mass = center_of_mass
 
     def apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
@@ -58,11 +59,19 @@ class ScenarioPiece:
             self.velocity[1] - (self._own_gravity_accel or gravity_accel),
         )
 
-    def apply_angular_momentum(self) -> None:
+    def apply_angular_momentum(self, momentum: Vector2F) -> None:
+        # TODO: implement
         pass
 
-    def rotate(self) -> None:
-        pass
+    @abstractmethod
+    def calc_center_of_mass(cls) -> None:
+        # Each entity should do its thing
+        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a calc_center_of_mass method")
+
+    @abstractmethod
+    def rotate(cls) -> None:
+        # Each entity should do its thing
+        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a rotate method")
 
     @abstractmethod
     def _get_color(cls, x: int | None = None, y: int | None = None) -> RGB:

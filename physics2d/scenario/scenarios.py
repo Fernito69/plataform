@@ -23,7 +23,9 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         points=((2, 3), (50, 22)),
         theme=Theme(color=Magenta()),
     )
-    line_3 = Line(points=((4, 52), (40, 1)), theme=Theme(color=Red()), thickness=2)
+    line_3 = Line(
+        points=((4, 52), (40, 1)), theme=Theme(color=Red()), thickness=2, initial_angular_velocity=1
+    )
     line_4 = Line(
         points=(
             (4, Y_RESOLUTION_PHYSICS / 2 - 6),

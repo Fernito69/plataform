@@ -30,6 +30,7 @@ class Circunference(ScenarioPiece):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        initial_angular_velocity: float = 0,
     ):
         self.center = center
         self.radius = radius
@@ -43,6 +44,7 @@ class Circunference(ScenarioPiece):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             center_of_mass=center,
+            initial_angular_velocity=initial_angular_velocity
         )
 
     def apply_movement(self) -> None:
@@ -71,6 +73,9 @@ class Circunference(ScenarioPiece):
             return (self.center[0] - root, self.center[0] + root)
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
+
+    def rotate(self) -> None:
+        pass
 
     def return_render_info(self) -> list[RenderInfo]:
         piece_info = []

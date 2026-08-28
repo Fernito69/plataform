@@ -21,6 +21,7 @@ class Rectangle(ScenarioPiece):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        initial_angular_velocity: float = 0,
     ):
         self.vertices = vertices
         # TODO: refactor into findle_middle_point
@@ -38,6 +39,7 @@ class Rectangle(ScenarioPiece):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             center_of_mass=center_of_mass,
+            initial_angular_velocity=initial_angular_velocity,
         )
 
     def apply_movement(self) -> None:
@@ -54,6 +56,9 @@ class Rectangle(ScenarioPiece):
             self.center_of_mass[0] + self.velocity[0],
             self.center_of_mass[1] + self.velocity[1],
         )
+
+    def rotate(self) -> None:
+        pass
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:

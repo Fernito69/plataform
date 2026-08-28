@@ -1,3 +1,4 @@
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -126,7 +127,6 @@ def distance_between_points(
     z = p1[2] - p2[0]
 
     if len(p1) == 3 and len(p2) == 3:
-        # TODO: type properly
         vector = (x, y, z)
         distance = vector_length(vector)
         # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex. this factor should become 1
@@ -145,6 +145,18 @@ def distance_between_points(
 
 def vector_length(v: Vector3F | Vector2F) -> float:
     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
+
+
+def rotate_point(point: Point2F, center: Point2F, angle: float) -> Point2F:
+    if angle == 0:
+        return point
+    a = math.radians(angle)
+    x1, y1 = point
+    x_center, y_center = center
+    return (
+        (x1 - x_center) * math.cos(a) - (y1 - y_center) * math.sin(a) + x_center,
+        (x1 - x_center) * math.sin(a) + (y1 - y_center) * math.cos(a) + y_center,
+    )
 
 
 @dataclass
