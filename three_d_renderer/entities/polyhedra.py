@@ -28,8 +28,8 @@ class Cube(Entity3D):
         size: float,
         angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3F = (0, 0, 0),
-        rotMatrix: Point3F = (0, 0, 0),
+        mov_vector: Point3F = (0, 0, 0),
+        rot_vector: Point3F = (0, 0, 0),
         vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
@@ -37,8 +37,8 @@ class Cube(Entity3D):
             position=position,
             size=size,
             angle=angle,
-            movMatrix=movMatrix,
-            rotMatrix=rotMatrix,
+            mov_vector=mov_vector,
+            rot_vector=rot_vector,
             vertices=vertices,
             color=color,
         )
@@ -48,7 +48,7 @@ class Cube(Entity3D):
         return self.size
 
     def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
-        vertexes = []
+        vertexes: list[Point3F] = []
         x, y, z = self.position
         s = self.size
 
@@ -98,7 +98,6 @@ class Cube(Entity3D):
             vertexes.append((x - s / 2, y - s / 2, z + s / 2 - i))
 
         self.vertices = vertexes
-        self.apply_rotations()
 
 
 ################
@@ -113,8 +112,8 @@ class Tetra(Entity3D):
         size: float,
         angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3F = (0, 0, 0),
-        rotMatrix: Point3F = (0, 0, 0),
+        mov_vector: Point3F = (0, 0, 0),
+        rot_vector: Point3F = (0, 0, 0),
         vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
@@ -122,8 +121,8 @@ class Tetra(Entity3D):
             position=position,
             size=size,
             angle=angle,
-            movMatrix=movMatrix,
-            rotMatrix=rotMatrix,
+            mov_vector=mov_vector,
+            rot_vector=rot_vector,
             vertices=vertices,
             color=color,
         )
@@ -172,7 +171,6 @@ class Tetra(Entity3D):
             vertexes.append(((x), (y - s + t), (z + R2O2 * s)))  # 3 - 4
 
         self.vertices = vertexes
-        self.apply_rotations()
 
 
 ################
@@ -215,8 +213,8 @@ class Ico(Entity3D):
         size: float,
         angle: Point3F,
         color: RGB,
-        movMatrix: Point3F = (0, 0, 0),
-        rotMatrix: Point3F = (0, 0, 0),
+        mov_vector: Point3F = (0, 0, 0),
+        rot_vector: Point3F = (0, 0, 0),
         vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
@@ -224,16 +222,16 @@ class Ico(Entity3D):
             position=position,
             size=size,
             angle=angle,
-            movMatrix=(0, 0, 0),
-            rotMatrix=(0, 0, 0),
+            mov_vector=(0, 0, 0),
+            rot_vector=(0, 0, 0),
             color=color,
             vertices=vertices,
         )
         self.position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
-        self.movMatrix = movMatrix
-        self.rotMatrix = rotMatrix
+        self.mov_vector = mov_vector
+        self.rot_vector = rot_vector
         self.name = "Icosahedron"
         self.vertices = vertices
 
@@ -265,8 +263,6 @@ class Ico(Entity3D):
 
         if apply:
             self.vertices = vertexes
-            # print("VERTICES:" + str(self.vertices))
-            # raise InterruptedError("popo")
 
         return vertexes
 
@@ -410,8 +406,8 @@ class Dodeca(Entity3D):
         size: float,
         angle: Point3F,
         color: RGB = RGB(),
-        movMatrix: Point3F = (0, 0, 0),
-        rotMatrix: Point3F = (0, 0, 0),
+        mov_vector: Point3F = (0, 0, 0),
+        rot_vector: Point3F = (0, 0, 0),
         vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
@@ -419,8 +415,8 @@ class Dodeca(Entity3D):
             position=position,
             size=size,
             angle=angle,
-            movMatrix=movMatrix,
-            rotMatrix=rotMatrix,
+            mov_vector=mov_vector,
+            rot_vector=rot_vector,
             vertices=vertices,
             color=color,
         )
@@ -564,7 +560,6 @@ class Dodeca(Entity3D):
             vertexes.append(((x - PHI * s), (y + I_PHI * s - 2 * I_PHI * t), (z)))  # vertex 19 - 20
 
         self.vertices = vertexes
-        self.apply_rotations()
 
 
 ####
@@ -583,8 +578,8 @@ class F_Letter(Entity3D):
         size: float,
         angle: Point3F,
         color: RGB,
-        movMatrix=(0, 0, 0),
-        rotMatrix=(0, 0, 0),
+        mov_vector=(0, 0, 0),
+        rot_vector=(0, 0, 0),
         vertices: list[Point3F] = [],
     ):
         Entity3D.__init__(
@@ -592,8 +587,8 @@ class F_Letter(Entity3D):
             position=position,
             size=size,
             angle=angle,
-            movMatrix=movMatrix,
-            rotMatrix=rotMatrix,
+            mov_vector=mov_vector,
+            rot_vector=rot_vector,
             vertices=vertices,
             color=color,
         )
@@ -642,4 +637,3 @@ class F_Letter(Entity3D):
                 #     )
 
         self.vertices = vertexes
-        self.apply_rotations()

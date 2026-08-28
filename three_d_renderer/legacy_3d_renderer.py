@@ -57,9 +57,8 @@ class Legacy3DRenderer(ThreeDeeRenderer):
         # TODO: refactor, beri messy right now
         for entity in self._curr_level.entities:
             # calculate movement
-            entity.movement()
             entity.calc_legacy_voxels()
-            entity.apply_rotations()
+            entity.movement()
             # we get vertexes from object
 
             # we add the vertexes to the screen matrix

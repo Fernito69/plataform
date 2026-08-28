@@ -107,7 +107,6 @@ class Renderer3DV2(ThreeDeeRenderer):
         # TODO: calculations should not be part of the rendering
         for entity in self._curr_level.entities:
             entity.calc_main_vertexes(apply=True)
-            entity.apply_rotations()
             entity.movement()
 
         for data in render_list:

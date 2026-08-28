@@ -112,10 +112,6 @@ def distance_between_points(
     diameter_p2: float | None = 0.0,
     entity: Any = None,
 ) -> DistVector3D:
-
-    if isinstance(p1, int):
-        raise IndexError("CACA")
-
     if len(p1) != len(p2):
         print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
         raise IndexError("They should have the same length")

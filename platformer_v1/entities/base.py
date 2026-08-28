@@ -95,9 +95,6 @@ class Entity2D:
 
     # checks collision with landscape elements
     def _collision_landscape(self, old_pos: Point2F) -> None:
-        # raise KeyError(
-        #     f"{int(self.position[0])},{int(self.position[1])} - {len(self._curr_level.map), len(self._curr_level.map[0])}"
-        # )
         if (
             self._curr_level
             and 0 <= int(self.position[1]) < len(self._curr_level.map)
