@@ -57,7 +57,6 @@ class PlatformerV1:
         d = self.display
         d.set_2d_resolution()
         d.put_screen_content([])
-        # raise KeyError(d.curr_level_2D.map[0][0])
         for y in range(d.curr_y_resolution):
             d._screen_matrix.append([])
             for x in range(d.curr_x_resolution):

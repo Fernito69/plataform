@@ -1,7 +1,7 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from model.base import Orientation, Point2, Vector2
+from model.base import Orientation, Point2F, Vector2F
 from model.theme import EMPTY_SPACE, Theme
 from platformer_v1.constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.model.entity import Collision2X, Collision2Y
@@ -84,7 +84,7 @@ class Entity2D:
         pass
 
     # TODO: this should calculate player collision before moving ()
-    def _move_by(self, vector: Vector2) -> None:
+    def _move_by(self, vector: Vector2F) -> None:
         self.position = add_tuple(self.position, vector)
 
     def is_same_position(self, entity: "Entity2D") -> bool:
@@ -94,10 +94,7 @@ class Entity2D:
         return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
 
     # checks collision with landscape elements
-    def _collision_landscape(self, old_pos: Point2) -> None:
-        # raise KeyError(
-        #     f"{int(self.position[0])},{int(self.position[1])} - {len(self._curr_level.map), len(self._curr_level.map[0])}"
-        # )
+    def _collision_landscape(self, old_pos: Point2F) -> None:
         if (
             self._curr_level
             and 0 <= int(self.position[1]) < len(self._curr_level.map)

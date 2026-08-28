@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-Number = int | float
+type Tuple2[T: int | float] = tuple[T, T]
 
-Vector2 = tuple[Number, Number]
-Point2 = Vector2
+type Vector2F = Tuple2[float]
+type Vector2I = Tuple2[int]
+type Point2F = Tuple2[float]
+type Point2I = Tuple2[int]
 
-# Vector3 = tuple[Number, Number, Number]
-# Point3 = tuple[Number, Number, Number]
+type Tuple3[T: int | float] = tuple[T, T, T]
 
-# TODO: these sholud be 3-tuples
-Vector3 = list[Number]
-Point3 = list[Number]
+type Vector3F = Tuple3[float]
+type Point3F = Tuple3[float]
 
 
 @dataclass
@@ -21,12 +21,12 @@ class DistCoordBase:
 
 @dataclass
 class DistVector2D(DistCoordBase):
-    vector: Vector2
+    vector: Vector2F
 
 
 @dataclass
 class DistVector3D(DistCoordBase):
-    vector: Vector3
+    vector: Vector3F
     distance_to_edge: float | None = None
 
 

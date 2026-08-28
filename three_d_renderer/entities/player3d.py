@@ -32,27 +32,27 @@ class Player3D(LivingEntity3D):
 
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:
-        self._move_by([0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0])
+        self._move_by((0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0))
 
     @on_key_press(MovementKeys.DOWN)
     def _move_backward(self) -> None:
-        self._move_by([0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0])
+        self._move_by((0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0))
 
     @on_key_press(MovementKeys.LEFT)
     def _strafe_left(self) -> None:
-        self._move_by([-1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0])
+        self._move_by((-1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0))
 
     @on_key_press(MovementKeys.RIGHT)
     def _strafe_right(self) -> None:
-        self._move_by([1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0])
+        self._move_by((1 * PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0))
 
     @on_key_press(MovementKeys.FLY_UP)
     def _fly_up(self) -> None:
-        self._move_by([0, 0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR])
+        self._move_by((0, 0, -1 * PLAYER_3D_MOVING_SPEED_FACTOR))
 
     @on_key_press(MovementKeys.FLY_DOWN)
     def _fly_down(self) -> None:
-        self._move_by([0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR])
+        self._move_by((0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR))
 
     def handle_player_input(self):
         self._move_forward()

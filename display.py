@@ -2,8 +2,8 @@ import math
 
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
-from model.base import Point2, Vector2
-from model.keyboard import DisplayKeys
+from model.base import Point2F, Point2I, Vector2I
+from model.keyboard import DisplayKeys, MenuKeys
 from model.theme import EMPTY_SPACE, DoubleLines
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
@@ -41,9 +41,7 @@ class Display:
 
     _debug_str: str | None = None
 
-    # TODO: do this, wire properly!
-    # _curr_level_3D: Level3D
-    #
+    # TODO: deprecate
     curr_3d_char_mode: str | list[str]
 
     antialiasing: bool
@@ -65,7 +63,7 @@ class Display:
         # Handled in-engine
         self.antialiasing = False
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
-        self._set_resolution((X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS / 2))
+        self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
 
     def set_3d_resolution(self):
         self.antialiasing = True
@@ -95,7 +93,7 @@ class Display:
         return self.curr_3d_char_mode
 
     # TODO: border thickness should not be passed here
-    def is_in_screen(self, point: Point2, border_thickness: int = 1) -> bool:
+    def is_in_screen(self, point: Point2F, border_thickness: int = 1) -> bool:
         return (
             point[0] >= border_thickness
             and point[0] < self.curr_x_resolution - border_thickness
@@ -103,15 +101,15 @@ class Display:
             and point[1] < self.curr_y_resolution - border_thickness
         )
 
-    def modify_resolution(self, amount: Vector2) -> None:
-        self.curr_x_resolution += int(amount[0])
-        self.curr_y_resolution += int(amount[1])
+    def modify_resolution(self, amount: Vector2I) -> None:
+        self.curr_x_resolution += amount[0]
+        self.curr_y_resolution += amount[1]
 
-    def _set_resolution(self, resolution: Vector2) -> None:
-        self.curr_x_resolution = int(resolution[0])
-        self.curr_y_resolution = int(resolution[1])
+    def _set_resolution(self, resolution: Point2I) -> None:
+        self.curr_x_resolution = resolution[0]
+        self.curr_y_resolution = resolution[1]
 
-    def _put_char_in_pixel(self, char: str, position: Point2):
+    def _put_char_in_pixel(self, char: str, position: Point2F):
         y = math.floor(position[1])
         x = math.floor(position[0])
 
@@ -231,7 +229,7 @@ class Display:
             incr_vis_key = default_keyboard_mapping[DisplayKeys.INCREASE_VISIBILITY]
             shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
             mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
-            rotation_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
+            rotation_key = default_keyboard_mapping[MenuKeys.TOGGLE_ROTATION]
 
             def _c(s: str) -> str:
                 return "'" + colored(s.capitalize(), White(1)) + "'"

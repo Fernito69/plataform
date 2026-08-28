@@ -4,9 +4,9 @@ from factories.theme import Cyan, Green, White
 from model.keyboard import KeyboardKeys, MovementKeys
 from model.player import PlayerStatus
 from model.theme import Theme
-from terminal import on_key_press
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
+from terminal import on_key_press
 
 if TYPE_CHECKING:
     from platformer_v1.level_2d import Level2D

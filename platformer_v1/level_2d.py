@@ -1,7 +1,7 @@
 import random
 
 from factories.theme import DefaultTheme, DoubleLines
-from model.base import Orientation, Point2
+from model.base import Orientation, Point2F
 from model.theme import EMPTY_SPACE, RGB, Theme
 from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.enemy2d import Enemy2D
@@ -16,7 +16,7 @@ class Level2D:
     enemies: list[Enemy2D]
     exits: list[Exit2D]
     name: str
-    player_starting_position: Point2
+    player_starting_position: Point2F
     theme: Theme
 
     def __init__(
@@ -25,7 +25,7 @@ class Level2D:
         enemies: list[Enemy2D],
         exits: list[Exit2D],
         theme: Theme | None,
-        player_starting_position: Point2 = (1, 1),
+        player_starting_position: Point2F = (1, 1),
     ):
         self.enemies = enemies
         self.name = name
@@ -74,7 +74,7 @@ class Level2D:
     def add_char(
         self,
         char: str,
-        position: Point2,
+        position: Point2F,
         color: RGB | None = None,
         bg_color: RGB | None = None,
     ):
@@ -127,7 +127,7 @@ class Level2D:
     # TODO: implement animated map parts :O with a self.do_your_thing() method
     def add_line(
         self,
-        initial_position: Point2,
+        initial_position: Point2F,
         length: int = 3,
         orientation: Orientation = Orientation.HORIZONTAL,
         # TODO: refactor Theme here!!!

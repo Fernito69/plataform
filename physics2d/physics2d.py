@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
-from model.base import Point2
+from model.base import Point2F
 from model.keyboard import MovementKeys, PhysicsKey
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
@@ -32,9 +32,9 @@ class Physics2D:
 
     _pressed_key_map: dict[PhysicsKey, bool] = {}
 
-    screen_corner: Point2
+    screen_corner: Point2F
 
-    def __init__(self, game: "Game", initial_screen_corner: Point2 = INITIAL_CORNER):
+    def __init__(self, game: "Game", initial_screen_corner: Point2F = INITIAL_CORNER):
         self.game = game
         self.screen_corner = initial_screen_corner
         self.display = self.game.display

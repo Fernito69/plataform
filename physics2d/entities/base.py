@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from model.base import Point2, Vector2
+from model.base import Point2F, Vector2F
 from model.theme import Theme
 
 if TYPE_CHECKING:
@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class Entity:
-    position: Point2
-    velocity: Vector2
+    position: Point2F
+    velocity: Vector2F
 
     theme: Theme
 
@@ -23,8 +23,8 @@ class Entity:
         scenario: "Scenario",
         name: str | None,
         density: int = 1,
-        position: Point2 = (0, 0),
-        velocity: Vector2 = (0, 0),
+        position: Point2F = (0, 0),
+        velocity: Vector2F = (0, 0),
         theme: Theme = Theme(),
     ):
         self.scenario = scenario
