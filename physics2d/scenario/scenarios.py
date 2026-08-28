@@ -24,7 +24,11 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme=Theme(color=Magenta()),
     )
     line_3 = Line(
-        points=((4, 52), (40, 1)), theme=Theme(color=Red()), thickness=2, initial_angular_velocity=1
+        points=((4, 52), (40, 1)),
+        theme=Theme(color=Red()),
+        thickness=2,
+        initial_angular_velocity=10,
+        name="LINEA MIA",
     )
     line_4 = Line(
         points=(

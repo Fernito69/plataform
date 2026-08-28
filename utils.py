@@ -147,15 +147,15 @@ def vector_length(v: Vector3F | Vector2F) -> float:
     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
-def rotate_point(point: Point2F, center: Point2F, angle: float) -> Point2F:
+def rotate_point(point: Point2F, rotation_axis: Point2F, angle: float) -> Point2F:
     if angle == 0:
         return point
     a = math.radians(angle)
     x1, y1 = point
-    x_center, y_center = center
+    x_axis, y_axis = rotation_axis
     return (
-        (x1 - x_center) * math.cos(a) - (y1 - y_center) * math.sin(a) + x_center,
-        (x1 - x_center) * math.sin(a) + (y1 - y_center) * math.cos(a) + y_center,
+        (x1 - x_axis) * math.cos(a) - (y1 - y_axis) * math.sin(a) + x_axis,
+        (x1 - x_axis) * math.sin(a) + (y1 - y_axis) * math.cos(a) + y_axis,
     )
 
 

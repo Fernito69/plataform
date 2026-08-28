@@ -14,7 +14,7 @@ class ScenarioPiece:
     secondary_theme: Theme | None
 
     name: str
-    # in radians
+    # in degrees, radian transformation
     angle: float
     center_of_mass: Point2F
 
@@ -59,14 +59,17 @@ class ScenarioPiece:
             self.velocity[1] - (self._own_gravity_accel or gravity_accel),
         )
 
+    @abstractmethod
     def apply_angular_momentum(self, momentum: Vector2F) -> None:
         # TODO: implement
         pass
 
     @abstractmethod
-    def calc_center_of_mass(cls) -> None:
+    def update_center_of_mass(cls) -> None:
         # Each entity should do its thing
-        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a calc_center_of_mass method")
+        raise NotImplementedError(
+            f"{cls.name or 'UnknownPiece'} must have a calc_center_of_mass method"
+        )
 
     @abstractmethod
     def rotate(cls) -> None:

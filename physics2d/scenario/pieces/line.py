@@ -36,6 +36,7 @@ class Line(ScenarioPiece):
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
         initial_angular_velocity: float = 0,
+        name: str = "Line",
     ):
         self.points = points
         self.thickness = thickness
@@ -43,10 +44,10 @@ class Line(ScenarioPiece):
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
 
-        self.calc_center_of_mass()
+        self.update_center_of_mass()
 
         super().__init__(
-            "Line",
+            name=name,
             center_of_mass=self.center_of_mass,
             theme=theme,
             angle=angle,
@@ -68,18 +69,20 @@ class Line(ScenarioPiece):
         self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
-    def calc_center_of_mass(self) -> None:
+    def update_center_of_mass(self) -> None:
         self.center_of_mass = (
             (self.points[0][0] + self.points[1][0]) / 2,
             (self.points[0][1] + self.points[1][1]) / 2,
         )
 
     def rotate(self) -> None:
-        # TODO: calculate
-        distance_from_center_to_farthest_point = distance_between_points(
-            self.center_of_mass, self.points[0]
-        ).distance
-        self.angle = self.angle + (self.angular_velocity / distance_from_center_to_farthest_point)
+        if self.angular_velocity != 0:
+            distance_from_center_to_farthest_point = distance_between_points(
+                self.center_of_mass, self.points[0]
+            ).distance
+            new_angle = self.angular_velocity / (distance_from_center_to_farthest_point or 0.01)
+
+            self.angle = new_angle
 
         if self.angle == 0:
             return
@@ -136,7 +139,7 @@ class Line(ScenarioPiece):
             add_tuple(self.points[0], self.velocity),
             add_tuple(self.points[1], self.velocity),
         )
-        self.calc_center_of_mass()
+        self.update_center_of_mass()
 
     def return_render_info(self) -> list[RenderInfo]:
         piece_info = []
@@ -164,7 +167,7 @@ class Line(ScenarioPiece):
 
                 piece_info.append(
                     RenderInfo(
-                        distance_to_pixel_center=distance / self.thickness or 1,
+                        distance_to_pixel_center=distance / (abs(self.thickness) or 0.1),
                         color=self._get_color(x, y),
                         point=(x, y),
                     )

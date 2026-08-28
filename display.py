@@ -203,7 +203,7 @@ class Display:
         clear()
 
         if self._debug_str:
-            matrix_string += colored(" DEBUG: ", Red()) + self._debug_str
+            matrix_string += colored("\nDEBUG: ", Red()) + self._debug_str
 
         print(matrix_string)
 

@@ -75,8 +75,12 @@ class Physics2D:
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
+        for p in self.scenario.pieces:
+            if p.name == "LINEA MIA":
+                # self.display.debug_log(f"angle: PI*{p.angle} radians, {self.angy}")
+                pass
 
-        # TODO: for now, we assume y-res is always even
+        # TODO: for now, we assume y-res is always evenaaaaaaaq
 
         # Note the step is 2 here <─────────────────┐
         for y in range(0, self.screen_buffer_y_res, 2):
@@ -165,9 +169,7 @@ class Physics2D:
             return il[idx].color.with_intensity_v2(Physics2D._get_intensity(il[idx]))
 
         curr_color = (
-            _get_color(info_list, curr_index)
-            if len(info_list) > curr_index
-            else RGB(0, 0, 0, intensity=1)
+            _get_color(info_list, curr_index) if len(info_list) > curr_index else RGB(0, 0, 0)
         )
 
         curr_index += 1
@@ -176,6 +178,7 @@ class Physics2D:
             next_object_color = _get_color(info_list, curr_index).with_intensity(
                 (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
             )
+            # TODO: fix this shit
             curr_color = (
                 RGB(
                     *(
@@ -187,7 +190,7 @@ class Physics2D:
                     )
                 )
                 if curr_index < 2
-                else RGB(0, 0, 255)
+                else RGB(0, 0, 0)
             )
             curr_index += 1
 
