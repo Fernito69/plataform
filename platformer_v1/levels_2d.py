@@ -1,5 +1,6 @@
 from factories.theme import BloodTheme, Cyan, DoubleLines, Magenta, Yellow
 from model.base import Orientation
+from platformer_v1.entities.player2d import Player2D
 from platformer_v1.entities.things2d import Exit2D
 from platformer_v1.factories import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
 from platformer_v1.level_2d import Level2D
@@ -7,7 +8,7 @@ from platformer_v1.level_2d import Level2D
 _DEFAULT_LINE_TYPE = DoubleLines
 
 
-def build_level1() -> Level2D:
+def build_level1(player: Player2D) -> Level2D:
     enemies = [
         DumbFloatingEnemy(movement_type=(1, 0), position=(10, 5), speed=2),
         DumbFloatingEnemy(movement_type=(0, 1), position=(9, 7), speed=6),
@@ -34,6 +35,7 @@ def build_level1() -> Level2D:
 
     level = Level2D(
         name="Level 1",
+        player=player,
         enemies=enemies,
         exits=exits,
         theme=BloodTheme,

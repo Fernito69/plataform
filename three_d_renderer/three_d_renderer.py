@@ -46,6 +46,7 @@ class ThreeDeeRenderer:
         self.display = self.game.display
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
+        # TODO: this doesn't go here
         self.curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
         # TODO: this is a temporary hack
         self.colors = colors

@@ -5,6 +5,7 @@ from model.theme import EMPTY_SPACE
 from platformer_v1.entities.base import Entity2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.level_2d import Level2D
+from platformer_v1.levels_2d import build_level1
 
 if TYPE_CHECKING:
     from game import Game
@@ -19,23 +20,22 @@ class PlatformerV1:
     def __init__(
         self,
         game: "Game",
-        current_level_index: int,
+        current_level_index: int = 0,
     ):
         self.game = game
         self._current_level_index = current_level_index
 
-        self.levels_2d = self.game.levels2d
         self.display = self.game.display
 
         self.player2d = self.game.player2d
-        self.player2d.set_curr_level(self.levels_2d[self._current_level_index])
+        self.levels_2d = [build_level1(self.player2d)]
 
     # Legacy
     def game_loop(self) -> None:
         self.player2d.handle_player_input()
         self.populate_level_into_matrix()
 
-        self._compute_actions_and_add_to_screen(self.player2d)
+        self._compute_actions_and_add_to_screen(self.levels_2d[self._current_level_index].player)
 
         for enemy in self.levels_2d[self._current_level_index].enemies:
             self._compute_actions_and_add_to_screen(enemy)

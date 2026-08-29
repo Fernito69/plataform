@@ -8,8 +8,6 @@ from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
 from platformer_v1.constants import FPS_2D
 from platformer_v1.entities.player2d import Player2D
-from platformer_v1.level_2d import Level2D
-from platformer_v1.levels_2d import build_level1
 from platformer_v1.platformer_v1 import PlatformerV1
 from terminal import on_key_press
 from three_d_renderer.constants import FPS_3D
@@ -17,7 +15,6 @@ from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
 from three_d_renderer.scenario.level_3d import Level3D
-from three_d_renderer.scenario.levels_3d import build_level_3d_1
 from utils import shuffle_list
 
 
@@ -25,7 +22,6 @@ class Game:
     status: GameStatus
 
     # TODO: should go in respective renderer
-    levels_2d: list[Level2D]
     levels_3d: list[Level3D]
 
     display: Display
@@ -36,24 +32,18 @@ class Game:
     renderer_3d_v2: Renderer3DV2
 
     # 2D
-    legacy_2d_renderer: PlatformerV1
+    platformer_v1: PlatformerV1
     physics_2d: Physics2D
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(
-        self, status: GameStatus = GameStatus.MODE_PHYSICS_2D, current_level_index: int = 0
+        self,
+        status: GameStatus = GameStatus.MODE_PHYSICS_2D,
     ):
-        self.levels2d = [build_level1()]
-        self.levels3d = [build_level_3d_1()]
-
         self.player2d = Player2D(1)
         self.player3d = Player3D(1)
-        # hardcoded cool initial place
-        self.player3d.position = (18, 84, -33)
 
-        self.player2d.set_curr_level(self.levels2d[current_level_index])
-        self.player3d.set_curr_level(self.levels3d[current_level_index])
         self.display = Display(
             fps=FPS_PHYSICS,
         )
@@ -62,10 +52,14 @@ class Game:
         self._curr_fps = FPS_PHYSICS
         self.display.set_physics_resolution()
 
-        self.legacy_3d_renderer = Legacy3DRenderer(game=self)
-        self.renderer_3d_v2 = Renderer3DV2(game=self)
-        self.legacy_2d_renderer = PlatformerV1(game=self, current_level_index=current_level_index)
+        self.platformer_v1 = PlatformerV1(self)
         self.physics_2d = Physics2D(self)
+
+        self.legacy_3d_renderer = Legacy3DRenderer(self)
+        self.renderer_3d_v2 = Renderer3DV2(self)
+
+        # hardcoded cool initial place
+        self.player3d.position = (18, 84, -33)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -115,7 +109,7 @@ class Game:
             self.player2d.handle_player_input()
             return self.renderer_3d_v2.render_v2()
 
-        self.legacy_2d_renderer.game_loop()
+        self.platformer_v1.game_loop()
 
     # Input methods
     # TODO: all display methods should go in Display class, or Three3d, whatever fits

@@ -1,10 +1,11 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from model.keyboard import KeyboardKeys, MovementKeys
 from model.player import PlayerStatus
 from terminal import on_key_press
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
+from three_d_renderer.scenario.levels_3d import build_level_3d_1
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
@@ -17,7 +18,7 @@ class Player3D(LivingEntity3D):
     points: int
     player_number: int
 
-    curr_level: Optional["Level3D"] = None
+    curr_level: "Level3D"
     _immune_counter: int
 
     _pressed_key_map: dict[KeyboardKeys, bool] = {}
@@ -29,6 +30,7 @@ class Player3D(LivingEntity3D):
         self.lives: int = 3
         self.points = 0
         self.status = PlayerStatus.PLAYING
+        self.set_curr_level(build_level_3d_1())
 
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:

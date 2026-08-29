@@ -5,6 +5,7 @@ from model.base import Orientation, Point2F
 from model.theme import EMPTY_SPACE, RGB, Theme
 from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.enemy2d import Enemy2D
+from platformer_v1.entities.player2d import Player2D
 from platformer_v1.entities.things2d import Exit2D
 from utils import colored
 
@@ -14,6 +15,7 @@ _DEFAULT_LINE_TYPE = DoubleLines
 class Level2D:
     map: list[list[str]]  # matrix representation of the level data
     enemies: list[Enemy2D]
+    player: Player2D
     exits: list[Exit2D]
     name: str
     player_starting_position: Point2F
@@ -22,11 +24,13 @@ class Level2D:
     def __init__(
         self,
         name: str,
+        player: Player2D,
         enemies: list[Enemy2D],
         exits: list[Exit2D],
         theme: Theme | None,
         player_starting_position: Point2F = (1, 1),
     ):
+        self.player = player
         self.enemies = enemies
         self.name = name
         self.map = []
@@ -34,8 +38,9 @@ class Level2D:
         self.exits = exits
         self.theme = theme or DefaultTheme
 
-        # Init enemies
-        for enemy in enemies:
+        # Init enemies and player
+        self.player.set_curr_level(self)
+        for enemy in self.enemies:
             enemy.set_curr_level(self)
 
         for i in range(Y_RESOLUTION_2D):
