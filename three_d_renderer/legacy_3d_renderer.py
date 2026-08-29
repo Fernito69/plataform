@@ -51,7 +51,7 @@ class VoxelRenderer(ThreeDeeRenderer):
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
                 # TODO: this shold be distance to vertex!!!!????
                 distance_between_points(
-                    e.position, player.position, e.get_diameter()
+                    e._position, player._position, e.get_diameter()
                 ).distance_to_edge
                 or 0
             ),
@@ -70,7 +70,7 @@ class VoxelRenderer(ThreeDeeRenderer):
             vertices_to_render = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.vertices:
-                normalized_vertex = subtract_triplet(vertex, player.position)
+                normalized_vertex = subtract_triplet(vertex, player._position)
                 x_pos, y_pos = self._get_screen_projection(normalized_vertex)
 
                 if (

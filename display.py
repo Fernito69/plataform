@@ -1,5 +1,6 @@
 import math
 import time
+from typing import Callable
 
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
@@ -19,6 +20,8 @@ from three_d_renderer.constants import (
 )
 from three_d_renderer.entities.player3d import Player3D
 from utils import colored, extract_color_from_string, has_bg_color
+
+_DEFAULT_FPS = FPS_PHYSICS
 
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
@@ -45,7 +48,7 @@ class Display:
 
     antialiasing: bool
 
-    def __init__(self, fps: float):
+    def __init__(self, fps: float = _DEFAULT_FPS):
         self.curr_3d_char_mode = "█"
         self.antialiasing = True
         self.curr_fps = fps
@@ -173,8 +176,14 @@ class Display:
     def get_screen_content(self) -> list[list[str]]:
         return self._screen_matrix
 
-    def frame_delay(self) -> None:
-        time.sleep(1 / (self._curr_fps or 1))
+    def fps_throttle(self, func: Callable) -> None:
+        period = 1 / (self._curr_fps or 1)
+
+        start = time.perf_counter()
+        func()
+        elapsed = time.perf_counter() - start
+
+        time.sleep(max(0, period - elapsed))
 
     def print_curr_screen(self, player: Player2D | Player3D | None = None):
         matrix_string = ""
@@ -244,7 +253,7 @@ class Display:
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
-            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
+            hud += f"Curr pos: {colored((f'({player._position[0]},{player._position[1]},{player._position[2]})'))}{SEP}"
 
             return print(hud)
 

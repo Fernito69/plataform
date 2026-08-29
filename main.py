@@ -6,7 +6,7 @@ def main():
     game = Game()
 
     while game.status == GameStatus.RUNNING:
-        game.game_loop()
+        game.main_loop()
 
 
 if __name__ == "__main__":

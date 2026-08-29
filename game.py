@@ -3,7 +3,6 @@ from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
 from model.shared import KeyboardHandler
-from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
@@ -37,14 +36,11 @@ class Game(KeyboardHandler):
         self.status = status
         self.mode = mode
 
+        self.display = Display()
+        self.display.set_physics_mode()
+
         self.player2d = Player2D(1)
         self.player3d = Player3D(1)
-
-        self.display = Display(
-            fps=FPS_PHYSICS,
-        )
-
-        self.display.set_physics_mode()
 
         self.platformer_v1 = PlatformerV1(self)
         self.physics_engine = Physics2D(self)
@@ -53,7 +49,7 @@ class Game(KeyboardHandler):
         self.line_renderer = LineRenderer(self)
 
         # hardcoded cool initial place
-        self.player3d.position = (18, 84, -33)
+        self.player3d._position = (18, 84, -33)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -81,28 +77,29 @@ class Game(KeyboardHandler):
             self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
-    def game_loop(self) -> None:
-        # TODO: game calculations and framerate should not be linked
-        self.display.frame_delay()
-        self.handle_player_input()
-        self._check_game_status()
+    def main_loop(self) -> None:
+        def _main_loop():
+            self.handle_player_input()
+            self._check_game_status()
 
-        match self.mode:
-            case GameMode.MODE_PHYSICS_2D:
-                self.physics_engine.init_screen_buffer()
-                self.physics_engine.handle_player_input()
-                return self.physics_engine.game_loop()
+            match self.mode:
+                case GameMode.MODE_PHYSICS_2D:
+                    self.physics_engine.init_screen_buffer()
+                    self.physics_engine.handle_player_input()
+                    return self.physics_engine.game_loop()
 
-            case GameMode.MODE_3D:
-                self.player3d.handle_player_input()
-                return self.voxel_renderer.visualize_scenario()
+                case GameMode.MODE_3D:
+                    self.player3d.handle_player_input()
+                    return self.voxel_renderer.visualize_scenario()
 
-            case GameMode.MODE_3D_V2:
-                self.player2d.handle_player_input()
-                return self.line_renderer.render_v2()
+                case GameMode.MODE_3D_V2:
+                    self.player2d.handle_player_input()
+                    return self.line_renderer.render_v2()
 
-            case GameMode.MODE_2D:
-                return self.platformer_v1.game_loop()
+                case GameMode.MODE_2D:
+                    return self.platformer_v1.game_loop()
+
+        self.display.fps_throttle(_main_loop)
 
     # Input methods
     # TODO: all display methods should go in Display class, or Three3d, whatever fits

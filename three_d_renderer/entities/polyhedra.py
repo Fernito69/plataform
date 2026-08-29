@@ -49,7 +49,7 @@ class Cube(Entity3D):
 
     def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes: list[Point3F] = []
-        x, y, z = self.position
+        x, y, z = self._position
         s = self.size
 
         vertexes.append((x + s / 2, y + s / 2, z + s / 2))  # 0
@@ -72,7 +72,7 @@ class Cube(Entity3D):
             return
 
         vertexes = self.calc_main_vertexes()
-        x, y, z = self.position
+        x, y, z = self._position
         s = self.size
 
         # "voxels" for the edges
@@ -133,9 +133,9 @@ class Tetra(Entity3D):
         return self.size * R2O2 * 2
 
     def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x = self._position[0]
+        y = self._position[1]
+        z = self._position[2]
         s = self.size
 
         vertexes = []
@@ -156,9 +156,9 @@ class Tetra(Entity3D):
             return
 
         vertexes = self.calc_main_vertexes()
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x = self._position[0]
+        y = self._position[1]
+        z = self._position[2]
 
         s = self.size
 
@@ -227,7 +227,7 @@ class Ico(Entity3D):
             color=color,
             vertices=vertices,
         )
-        self.position = position
+        self._position = position
         self.size = size
         self.angle = angle  # XY, XZ, YZ
         self.mov_vector = mov_vector
@@ -241,9 +241,9 @@ class Ico(Entity3D):
 
     def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x = self._position[0]
+        y = self._position[1]
+        z = self._position[2]
         s = self.size
 
         vertexes.append((x, y + s, z + PHI * s))  # vertex 1
@@ -273,7 +273,7 @@ class Ico(Entity3D):
 
         vertexes = self.calc_main_vertexes()
 
-        x, y, z = self.position
+        x, y, z = self._position
         s = self.size
 
         # edges of icosahedron
@@ -428,7 +428,7 @@ class Dodeca(Entity3D):
 
     def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
-        x, y, z = self.position
+        x, y, z = self._position
         s = self.size
 
         vertexes.append((x + s, y + s, z + s))  # vertex 1
@@ -466,7 +466,7 @@ class Dodeca(Entity3D):
             return
 
         vertexes = self.calc_main_vertexes()
-        x, y, z = self.position
+        x, y, z = self._position
         s = self.size
 
         # TODO: create a mapping of segments that are joined and use that instead.
@@ -620,7 +620,7 @@ class F_Letter(Entity3D):
             prev_x_l, prev_y_l = letter_points[prev_point_index]
 
             # Add main points
-            vertexes.append(list(add_triplet((x_l, y_l, 0), self.position)))
+            vertexes.append(list(add_triplet((x_l, y_l, 0), self._position)))
 
             for x_v, y_v, z_v in vertexes:
                 pass

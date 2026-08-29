@@ -67,6 +67,9 @@ def clear():
 
 
 def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
+    """Any class that uses this decorator has to inherit
+    from the KeyboardHandler mixin in model.shared"""
+
     def decorator(func):
         @wraps(func)
         def wrapper(self, *args, **kwargs):

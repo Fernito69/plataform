@@ -73,7 +73,7 @@ class LineRenderer(ThreeDeeRenderer):
                         entity_idx=entity_idx,
                         entity=entity,
                         vertex=Vertex3(point=vertex, index=vertex_idx),
-                        dist_vector=distance_between_points(vertex, player.position, entity=entity),
+                        dist_vector=distance_between_points(vertex, player._position, entity=entity),
                     )
                     for entity_idx, entity in enumerate(player._curr_level.entities)
                     for vertex_idx, vertex in enumerate(entity.vertices)
@@ -126,11 +126,11 @@ class LineRenderer(ThreeDeeRenderer):
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
                 curr_pixel_pos: Point2F = self._get_screen_projection(
-                    subtract_triplet(data.vertex.point, self.game.player3d.position)
+                    subtract_triplet(data.vertex.point, self.game.player3d._position)
                 )
                 connecting_pixel_pos: Point2F = self._get_screen_projection(
                     subtract_triplet(
-                        data.entity.vertices[connecting_vertex_index], self.game.player3d.position
+                        data.entity.vertices[connecting_vertex_index], self.game.player3d._position
                     )
                 )
 
