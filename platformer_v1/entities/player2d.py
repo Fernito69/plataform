@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Optional
 
 from factories.theme import Cyan, Green, White
-from model.keyboard import KeyboardKeys, MovementKeys
+from model.keyboard import MovementKeys
 from model.player import PlayerStatus
+from model.shared import KeyboardHandler
 from model.theme import Theme
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
@@ -16,7 +17,7 @@ _PLAYER_FRAMES = ["☺"]
 _PLAYER_FLASHING_FRAMES = ["☻"]
 
 
-class Player2D(LivingEntity2D):
+class Player2D(KeyboardHandler, LivingEntity2D):
     status: PlayerStatus
     lives: int
     points: int
@@ -24,8 +25,6 @@ class Player2D(LivingEntity2D):
 
     curr_level: Optional["Level2D"] = None
     _immune_counter: int
-
-    _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(self, player_number: int):
         LivingEntity2D.__init__(self, health=100)

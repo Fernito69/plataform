@@ -2,8 +2,9 @@ import time
 
 from display import Display
 from model.game import GameStatus
-from model.keyboard import DisplayKeys, KeyboardKeys, MenuKeys
+from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
+from model.shared import KeyboardHandler
 from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
 from platformer_v1.constants import FPS_2D
@@ -18,7 +19,7 @@ from three_d_renderer.scenario.level_3d import Level3D
 from utils import shuffle_list
 
 
-class Game:
+class Game(KeyboardHandler):
     status: GameStatus
 
     # TODO: should go in respective renderer
@@ -34,8 +35,6 @@ class Game:
     # 2D
     platformer_v1: PlatformerV1
     physics_2d: Physics2D
-
-    _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(
         self,
@@ -210,7 +209,7 @@ class Game:
             return
         self.player3d.curr_level.toggle_rotation()
 
-    def handle_player_input(self):
+    def handle_player_input(self) -> None:
         self._quit()
         self._switch_rendering_mode()
         self._switch_2d_mode()
@@ -233,6 +232,3 @@ class Game:
         self._decrease_visibility()
 
         self._shuffle_colors()
-
-    def _set_pressed_key(self, key: KeyboardKeys, val: bool):
-        self._pressed_key_map[key] = val

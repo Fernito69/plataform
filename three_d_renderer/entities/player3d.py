@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
-from model.keyboard import KeyboardKeys, MovementKeys
+from model.keyboard import MovementKeys
 from model.player import PlayerStatus
+from model.shared import KeyboardHandler
 from terminal import on_key_press
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 
 # for now a fixed camera
-class Player3D(LivingEntity3D):
+class Player3D(KeyboardHandler, LivingEntity3D):
     status: PlayerStatus
     lives: int
     points: int
@@ -20,8 +21,6 @@ class Player3D(LivingEntity3D):
 
     curr_level: "Level3D"
     _immune_counter: int
-
-    _pressed_key_map: dict[KeyboardKeys, bool] = {}
 
     def __init__(self, player_number: int = 1):
         LivingEntity3D.__init__(self, health=100, vertices=[])
