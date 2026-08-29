@@ -35,7 +35,7 @@ class PlatformerV1:
         self.player2d.handle_player_input()
         self.populate_level_into_matrix()
 
-        self._compute_actions_and_add_to_screen(self.levels_2d[self._current_level_index].player)
+        self._compute_actions_and_add_to_screen(self.player2d)
 
         for enemy in self.levels_2d[self._current_level_index].enemies:
             self._compute_actions_and_add_to_screen(enemy)

@@ -5,7 +5,7 @@ from model.game import GameStatus
 def main():
     game = Game()
 
-    while game.status not in [GameStatus.QUIT, GameStatus.GAMEOVER]:
+    while game.status == GameStatus.RUNNING:
         game.game_loop()
 
 

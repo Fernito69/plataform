@@ -50,7 +50,7 @@ def _get_contribution(distance: float, slope: float | None) -> float:
     )
 
 
-class Renderer3DV2(ThreeDeeRenderer):
+class LineRenderer(ThreeDeeRenderer):
     # TODO: this should be in display?
     screen_data: list[list[list[PixelContribution]]]
 

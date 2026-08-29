@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from game import Game
 
 
-class Legacy3DRenderer(ThreeDeeRenderer):
+class VoxelRenderer(ThreeDeeRenderer):
     def __init__(self, game: "Game"):
         ThreeDeeRenderer.__init__(self, game)
         self.draw_screen_border()
