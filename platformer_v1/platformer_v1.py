@@ -55,7 +55,7 @@ class PlatformerV1:
     # TODO: this shouldn't be here?
     def populate_level_into_matrix(self):
         d = self.display
-        d.set_2d_resolution()
+        d.set_2d_mode()
         d.put_screen_content([])
         for y in range(d.curr_y_resolution):
             d._screen_matrix.append([])

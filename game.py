@@ -1,5 +1,3 @@
-import time
-
 from display import Display
 from model.game import GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
@@ -7,28 +5,24 @@ from model.player import PlayerStatus
 from model.shared import KeyboardHandler
 from physics2d.constants import FPS_PHYSICS
 from physics2d.physics2d import Physics2D
-from platformer_v1.constants import FPS_2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
 from terminal import on_key_press
-from three_d_renderer.constants import FPS_3D
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.legacy_3d_renderer import Legacy3DRenderer
 from three_d_renderer.renderer_3d_v2 import Renderer3DV2
-from three_d_renderer.scenario.level_3d import Level3D
 from utils import shuffle_list
 
 
 class Game(KeyboardHandler):
     status: GameStatus
 
-    # TODO: should go in respective renderer
-    levels_3d: list[Level3D]
-
     display: Display
 
     # TODO: this should actuaklly go in Display, together with 2D renderer when refactored.
     # Maybe renderer is not the right term for these classes? Or they should have a Game3D master
+
+    # 3D
     legacy_3d_renderer: Legacy3DRenderer
     renderer_3d_v2: Renderer3DV2
 
@@ -40,16 +34,16 @@ class Game(KeyboardHandler):
         self,
         status: GameStatus = GameStatus.MODE_PHYSICS_2D,
     ):
+        self.status = status
+
         self.player2d = Player2D(1)
         self.player3d = Player3D(1)
 
         self.display = Display(
             fps=FPS_PHYSICS,
         )
-        self.status = status
-        # TODO: deprecate, use always display.fps
-        self._curr_fps = FPS_PHYSICS
-        self.display.set_physics_resolution()
+
+        self.display.set_physics_mode()
 
         self.platformer_v1 = PlatformerV1(self)
         self.physics_2d = Physics2D(self)
@@ -86,11 +80,9 @@ class Game(KeyboardHandler):
             self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
-    def _frame_delay(self) -> None:
-        time.sleep(1 / self._curr_fps)
-
     def game_loop(self) -> None:
-        self._frame_delay()
+        # TODO: game calculations and framerate should not be linked
+        self.display.frame_delay()
         self.handle_player_input()
         self._check_game_status()
 
@@ -121,21 +113,17 @@ class Game(KeyboardHandler):
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.status = GameStatus.MODE_PHYSICS_2D
-        self._curr_fps = FPS_2D
+        self.display.set_physics_mode()
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
         self.status = GameStatus.MODE_2D
-        self.display.set_2d_resolution()
-        # TODO: this should be part of Display, and go into the method .set_2d_resolution()
-        self._curr_fps = FPS_2D
+        self.display.set_2d_mode()
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
         self.status = GameStatus.MODE_3D
-        self.display.set_3d_resolution()
-        # TODO: this should be part of Display, and go into the method .set_3d_resolution()
-        self._curr_fps = FPS_3D
+        self.display.set_3d_mode()
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_rendering_mode(self):
@@ -148,7 +136,6 @@ class Game(KeyboardHandler):
         else:
             self.renderer_3d_v2.reset_screen_buffer()
             self.renderer_3d_v2.empty_screen_data()
-        self._curr_fps = FPS_3D
 
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
     def _increase_x_resolution(self):

@@ -41,7 +41,6 @@ class Physics2D(KeyboardHandler):
         self.init_screen_buffer()
 
     def init_screen_buffer(self) -> None:
-        self.display.set_physics_resolution()
         self.screen_buffer_x_res = self.display.curr_x_resolution
         self.screen_buffer_y_res = self.display.curr_y_resolution * 2
 
@@ -57,10 +56,8 @@ class Physics2D(KeyboardHandler):
         self.convert_screen_buffer_to_display_data()
 
     def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
-        spec_x = self.screen_corner[0]
-        spec_y = self.screen_corner[1]
-        new_x = round(render_info.point[0] - spec_x)
-        new_y = round(render_info.point[1] - spec_y)
+        new_x = round(render_info.point[0] - self.screen_corner[0])
+        new_y = round(render_info.point[1] - self.screen_corner[1])
 
         if (
             new_x < 0
@@ -149,9 +146,6 @@ class Physics2D(KeyboardHandler):
     @on_key_press(PhysicsKey.RESET_CAMERA)
     def _reset_camera(self):
         self.screen_corner = (0, 0)
-
-    def _set_pressed_key(self, key: PhysicsKey, val: bool):
-        self._pressed_key_map[key] = val
 
     @staticmethod
     def _get_intensity(info: RenderInfo) -> float:

@@ -1,16 +1,22 @@
 import math
+import time
 
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
-from model.keyboard import DisplayKeys, MenuKeys
+from model.keyboard import DisplayKeys
 from model.theme import EMPTY_SPACE, DoubleLines
-from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
-from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
+from physics2d.constants import FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
+from platformer_v1.constants import FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.base import Entity2D
 from platformer_v1.entities.player2d import Player2D
 from terminal import clear
-from three_d_renderer.constants import ANTIALIASING_INTENSITY, X_RESOLUTION_3D, Y_RESOLUTION_3D
+from three_d_renderer.constants import (
+    ANTIALIASING_INTENSITY,
+    FPS_3D,
+    X_RESOLUTION_3D,
+    Y_RESOLUTION_3D,
+)
 from three_d_renderer.entities.player3d import Player3D
 from utils import colored, extract_color_from_string, has_bg_color
 
@@ -26,7 +32,6 @@ _MESSAGE_TEXT_COLOR = Yellow()
 
 
 class Display:
-    # we use a matrix representation of the playfield
     _screen_matrix: list[list[str]]
 
     curr_fps: float
@@ -47,24 +52,27 @@ class Display:
 
         self.switch_3d_char_mode()
 
-    def set_2d_resolution(self):
+    def set_2d_mode(self):
         self.antialiasing = True
+        self._set_fps(FPS_2D)
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
 
-    def set_physics_resolution(self):
+    def set_physics_mode(self):
         # Handled in-engine
         self.antialiasing = False
+        self._set_fps(FPS_PHYSICS)
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
         self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
 
-    def set_3d_resolution(self):
+    def set_3d_mode(self):
+        self._set_fps(FPS_3D)
         self.antialiasing = True
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
     def debug_log(self, msg: str) -> None:
         self._debug_str = msg
 
-    def set_fps(self, fps: float) -> None:
+    def _set_fps(self, fps: float) -> None:
         self._curr_fps = fps
 
     # TODO: deprecate
@@ -165,6 +173,9 @@ class Display:
     def get_screen_content(self) -> list[list[str]]:
         return self._screen_matrix
 
+    def frame_delay(self) -> None:
+        time.sleep(1 / (self._curr_fps or 1))
+
     def print_curr_screen(self, player: Player2D | Player3D | None = None):
         matrix_string = ""
 
@@ -196,7 +207,6 @@ class Display:
 
         print(matrix_string)
 
-        # TODO: we can use this in 3d to show controls
         if player:
             self._print_hud(player)
 
@@ -218,7 +228,6 @@ class Display:
             incr_vis_key = default_keyboard_mapping[DisplayKeys.INCREASE_VISIBILITY]
             shuffle_key = default_keyboard_mapping[DisplayKeys.SHUFFLE_COLORS]
             mode_key = default_keyboard_mapping[DisplayKeys.SWITCH_RENDERING_MODE]
-            rotation_key = default_keyboard_mapping[MenuKeys.TOGGLE_ROTATION]
 
             def _c(s: str) -> str:
                 return "'" + colored(s.capitalize(), White(1)) + "'"
