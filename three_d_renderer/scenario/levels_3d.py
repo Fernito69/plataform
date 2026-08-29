@@ -66,3 +66,9 @@ def build_level_3d_1() -> Level3D:
         e.theme.color = colors[i]()
 
     return Level3D(entities=entities)
+
+
+def build_3d_levels() -> list[Level3D]:
+    return [
+        build_level_3d_1(),
+    ]

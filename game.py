@@ -16,6 +16,7 @@ from utils import shuffle_list
 
 class Game(KeyboardHandler):
     display: Display
+
     status: GameStatus
     mode: GameMode
 
@@ -191,9 +192,9 @@ class Game(KeyboardHandler):
 
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
-        if not self.player3d.curr_level:
+        if not self.player3d._curr_level:
             return
-        self.player3d.curr_level.toggle_rotation()
+        self.player3d._curr_level.toggle_rotation()
 
     def handle_player_input(self) -> None:
         self._quit()

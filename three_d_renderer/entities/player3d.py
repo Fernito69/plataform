@@ -6,7 +6,7 @@ from model.shared import KeyboardHandler
 from terminal import on_key_press
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
-from three_d_renderer.scenario.levels_3d import build_level_3d_1
+from three_d_renderer.scenario.levels_3d import build_3d_levels
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
@@ -19,7 +19,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
     points: int
     player_number: int
 
-    curr_level: "Level3D"
+    _curr_level: "Level3D"
     _immune_counter: int
 
     def __init__(self, player_number: int = 1):
@@ -29,7 +29,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
         self.lives: int = 3
         self.points = 0
         self.status = PlayerStatus.PLAYING
-        self.set_curr_level(build_level_3d_1())
+        self.set_curr_level(build_3d_levels()[0])
 
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:
@@ -64,5 +64,5 @@ class Player3D(KeyboardHandler, LivingEntity3D):
         self._fly_down()
 
     def set_curr_level(self, level: "Level3D"):
-        self.curr_level = level
+        self._curr_level = level
         self.position = level.player_starting_position

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from factories.theme import Cyan, Green, White
 from model.keyboard import MovementKeys
@@ -23,7 +23,6 @@ class Player2D(KeyboardHandler, LivingEntity2D):
     points: int
     player_number: int
 
-    curr_level: Optional["Level2D"] = None
     _immune_counter: int
 
     def __init__(self, player_number: int):
@@ -51,16 +50,16 @@ class Player2D(KeyboardHandler, LivingEntity2D):
 
     # checks collision with everything
     def _collision_things(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return
 
-        for exit in self.curr_level.exits:
+        for exit in self._curr_level.exits:
             if self.is_same_position(exit):
                 self.status = PlayerStatus.END_LEVEL_2D
 
     # checks collision with enemies
     def _collision_enemies(self):
-        if self.curr_level is None:
+        if self._curr_level is None:
             return
 
         if self._immune_counter > 0:
@@ -76,7 +75,7 @@ class Player2D(KeyboardHandler, LivingEntity2D):
             self.theme.color = _PLAYER_COLOR
 
         if any(
-            self.is_same_position(enemy) for enemy in self.curr_level.enemies
+            self.is_same_position(enemy) for enemy in self._curr_level.enemies
         ):  # player loses health and gains immunity!
             self.health -= 20
             self._immune_counter = PLAYER_IMMUNE_TIME
@@ -113,5 +112,5 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         self._move_right()
 
     def set_curr_level(self, level: "Level2D"):
-        self.curr_level = level
+        self._curr_level = level
         self.position = level.player_starting_position

@@ -61,7 +61,7 @@ class LineRenderer(ThreeDeeRenderer):
     def _get_render_v2_list(self) -> list[RenderData]:
         player = self.game.player3d
 
-        if not player.curr_level:
+        if not player._curr_level:
             return []
 
         # Order vertices by closest to farthest and exclude those too far away to be rendered
@@ -75,7 +75,7 @@ class LineRenderer(ThreeDeeRenderer):
                         vertex=Vertex3(point=vertex, index=vertex_idx),
                         dist_vector=distance_between_points(vertex, player.position, entity=entity),
                     )
-                    for entity_idx, entity in enumerate(player.curr_level.entities)
+                    for entity_idx, entity in enumerate(player._curr_level.entities)
                     for vertex_idx, vertex in enumerate(entity.vertices)
                 ],
                 key=self._sort_vertices,
@@ -106,7 +106,7 @@ class LineRenderer(ThreeDeeRenderer):
     def render_v2(self):
         self.empty_screen_data()
         render_list: list[RenderData] = self._get_render_v2_list()
-        curr_level = self.game.player3d.curr_level
+        curr_level = self.game.player3d._curr_level
         if not curr_level:
             return
 

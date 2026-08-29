@@ -34,7 +34,7 @@ class VoxelRenderer(ThreeDeeRenderer):
     # Legacy voxel renderer
     def visualize_scenario(self):
         player = self.game.player3d
-        if not player.curr_level:
+        if not player._curr_level:
             return
 
         X_RES = self.display.curr_x_resolution
@@ -44,8 +44,8 @@ class VoxelRenderer(ThreeDeeRenderer):
         self.reset_screen_buffer(keep_border=True)
 
         # rendering objects, we sort them first by distance
-        player.curr_level.entities = sorted(
-            player.curr_level.entities,
+        player._curr_level.entities = sorted(
+            player._curr_level.entities,
             key=lambda e: (
                 # TODO: if I add the size it does it wrong, figure out what the shit
                 # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
@@ -59,7 +59,7 @@ class VoxelRenderer(ThreeDeeRenderer):
 
         # TODO: find a way to find what's behind the player to not render it
         # TODO: refactor, beri messy right now
-        for entity in player.curr_level.entities:
+        for entity in player._curr_level.entities:
             # calculate movement
             entity.calc_legacy_voxels()
             entity.movement()

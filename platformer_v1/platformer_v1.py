@@ -5,7 +5,7 @@ from model.theme import EMPTY_SPACE
 from platformer_v1.entities.base import Entity2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.level_2d import Level2D
-from platformer_v1.levels_2d import build_level1
+from platformer_v1.levels_2d import build_2d_levels
 
 if TYPE_CHECKING:
     from game import Game
@@ -28,7 +28,8 @@ class PlatformerV1:
         self.display = self.game.display
 
         self.player2d = self.game.player2d
-        self.levels_2d = [build_level1(self.player2d)]
+        self.levels_2d = build_2d_levels()
+        self.player2d.set_curr_level(self.levels_2d[self._current_level_index])
 
     # Legacy
     def game_loop(self) -> None:
