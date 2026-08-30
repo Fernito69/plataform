@@ -48,6 +48,7 @@ class Display(KeyboardHandler):
     curr_y_resolution: int
 
     _debug_str: str | None = None
+    _message: str | None
 
     antialiasing: bool
 
@@ -63,6 +64,7 @@ class Display(KeyboardHandler):
         self.antialiasing = True
         self.curr_fps = fps
         self._print_fps = print_fps
+        self._message = None
 
     def set_mode(self, mode: GameMode) -> None:
         match mode:
@@ -96,11 +98,11 @@ class Display(KeyboardHandler):
             self._screen_matrix[y][x] = char
 
     # TODO: allow color in the message string instead of hardcoding it
-    def print_message(self, message: str, padding_x: int = 12, padding_y: int = 4):
-        if len(message) <= 0:
+    def print_message(self, padding_x: int = 12, padding_y: int = 4):
+        if self._message is None or len(self._message) <= 0:
             return
 
-        message_parts: list[str] = message.split(BR)
+        message_parts: list[str] = self._message.split(BR)
         message_height: int = len(message_parts)
         max_message_lenght = max(len(p) for p in message_parts)
 
@@ -116,8 +118,8 @@ class Display(KeyboardHandler):
         starting_border_y: int = mid_y - padding_y
         ending_border_y: int = mid_y + padding_y + message_height
 
-        if len(message) < len(range(starting_message_x - ending_message_x)):
-            raise IndexError("WTF?: " + message)
+        if len(self._message) < len(range(starting_message_x - ending_message_x)):
+            raise IndexError("WTF?: " + self._message)
 
         # Print border
         for x in range(starting_border_x, ending_border_x):
@@ -187,8 +189,6 @@ class Display(KeyboardHandler):
 
                 self._screen_matrix[new_y_idx][x] = _c(index)
 
-        self.print_curr_screen()
-
     def put_screen_content(self, new_screen_matrix: list[list[str]]) -> None:
         self._screen_matrix = new_screen_matrix
 
@@ -246,6 +246,9 @@ class Display(KeyboardHandler):
         if self._print_fps:
             _sep = SEPARATOR if isinstance(player, Player2D) else EMPTY_SPACE if player else BR
             matrix_string += f"{_sep}{colored('FPS:', Green())} {str(round(self._measured_fps, 2))}"
+
+        if self._message:
+            self.print_curr_screen()
 
         clear()
         print(matrix_string)
