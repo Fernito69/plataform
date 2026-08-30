@@ -34,6 +34,10 @@ class Entity2D:
         self._curr_char_frame_index = 0
         self.theme = theme or Theme()
 
+    def _do_the_bare_minimum(self) -> None:
+        self._advance_character_frame()
+        # TODO: unify more methods that are now scattered among other entities and put them here
+
     def _advance_character_frame(self) -> None:
         if len(self._default_char_frames) == 0:
             return

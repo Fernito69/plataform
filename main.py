@@ -8,6 +8,8 @@ def main():
     while game.status == GameStatus.RUNNING:
         game.main_loop()
 
+    game.display.print_message("BYE BYE!")
+
 
 if __name__ == "__main__":
     main()

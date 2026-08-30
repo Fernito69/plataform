@@ -27,15 +27,10 @@ if TYPE_CHECKING:
 
 _DEFAULT_FPS = FPS_PHYSICS
 
-_GOOD_HEALTH_LIMIT = 75
-_BAD_HEALTH_LIMIT = 25
-
-_GOOD_HEALTH_COLOR = Green()
-_BAD_HEALTH_COLOR = Red()
-_MID_HEALTH_COLOR = Yellow()
-
 _MESSAGE_BORDER_COLOR = Red()
 _MESSAGE_TEXT_COLOR = Yellow()
+
+# TODO: move all these and methods that use them to platformer_v1
 
 
 class Display(KeyboardHandler):
@@ -47,18 +42,12 @@ class Display(KeyboardHandler):
 
     _debug_str: str | None = None
 
-    # TODO: deprecate
-    curr_3d_char_mode: str | list[str]
-
     antialiasing: bool
 
     def __init__(self, game: "Game", fps: float = _DEFAULT_FPS):
         self.game = game
-        self.curr_3d_char_mode = "█"
         self.antialiasing = True
         self.curr_fps = fps
-
-        self.switch_3d_char_mode()
 
     def set_mode(self, mode: GameMode) -> None:
         match mode:
@@ -71,20 +60,6 @@ class Display(KeyboardHandler):
 
     def debug_log(self, msg: str) -> None:
         self._debug_str = msg
-
-    # TODO: deprecate
-    def switch_3d_char_mode(self) -> str | list[str]:
-        # THIS IS HORRIBLE, DO PROPERLY
-        char: str | list[str] = "█"
-        if self.curr_3d_char_mode == "█":
-            char = ["▀", "▄"]
-        elif self.curr_3d_char_mode == ["▀", "▄"]:
-            char = "░"
-        if self.curr_3d_char_mode == "░":
-            char = "█"
-
-        self.curr_3d_char_mode = char
-        return self.curr_3d_char_mode
 
     # TODO: border thickness should not be passed here
     def is_in_screen(self, point: Point2F, border_thickness: int = 1) -> bool:
@@ -105,8 +80,8 @@ class Display(KeyboardHandler):
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
             self._screen_matrix[y][x] = char
 
-    # TODO: this is broken, fix
-    def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
+    # TODO: this is not working well, fix
+    def print_message(self, message: str, padding_x: int = 4, padding_y: int = 2):
         if len(message) <= 0:
             return
 
@@ -123,35 +98,63 @@ class Display(KeyboardHandler):
         starting_border_y: int = mid_y - padding_y
         ending_border_y: int = mid_y + padding_y + 1
 
+        if len(message) < len(range(starting_message_x - ending_message_x)):
+            raise IndexError("WTF?: " + message)
+
         # Print border
         for x in range(starting_border_x, ending_border_x):
             for y in range(starting_border_y, ending_border_y):
-                char = EMPTY_SPACE
+
+                def _col(ch: str) -> str:
+                    return colored(
+                        ch,
+                        color=_MESSAGE_BORDER_COLOR,
+                        bg_color=extract_color_from_string(
+                            self._screen_matrix[y][x]
+                        ).with_intensity(1),
+                    )
+
+                char = self._screen_matrix[y][x]
 
                 if y == starting_border_y:
                     if x == starting_border_x:
-                        char = colored(DoubleLines.UL, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.UL)
                     elif x == ending_border_x - 1:
-                        char = colored(DoubleLines.UR, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.UR)
                     else:
-                        char = colored(DoubleLines.H, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.H)
                 elif y == ending_border_y - 1:
                     if x == starting_border_x:
-                        char = colored(DoubleLines.LL, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.LL)
                     elif x == ending_border_x - 1:
-                        char = colored(DoubleLines.LR, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.LR)
                     else:
-                        char = colored(DoubleLines.H, _MESSAGE_BORDER_COLOR)
+                        char = _col(DoubleLines.H)
                 elif x == starting_border_x or x == ending_border_x - 1:
-                    char = colored(DoubleLines.V, _MESSAGE_BORDER_COLOR)
+                    char = _col(DoubleLines.V)
 
                 self._screen_matrix[y][x] = char
 
         # Display message
         for index, x in enumerate(range(starting_message_x, ending_message_x)):
-            self._screen_matrix[mid_y][index] = colored(message[x], _MESSAGE_TEXT_COLOR)
 
+            def _c(index: int) -> str:
+                return colored(
+                    message[index] if index < len(message) else self._screen_matrix[mid_y][x],
+                    color=_MESSAGE_TEXT_COLOR,
+                    bg_color=extract_color_from_string(
+                        self._screen_matrix[mid_y][x]
+                    ).with_intensity(0.5)
+                    if self._screen_matrix[mid_y][x] != EMPTY_SPACE
+                    else RGB(0, 0, 0, 0),
+                )
+
+            self._screen_matrix[mid_y][x] = _c(index)
+
+        _curr_antialiasing = self.antialiasing
+        self.antialiasing = True
         self.print_curr_screen()
+        self.antialiasing = _curr_antialiasing
 
     def put_screen_content(self, new_screen_matrix: list[list[str]]) -> None:
         self._screen_matrix = new_screen_matrix
@@ -264,15 +267,7 @@ class Display(KeyboardHandler):
 
             return print(hud)
 
-        health = str(player.health)
-
-        # TODO: refactor it to go continuously from green, to yellow, to red
-        if player.health <= _BAD_HEALTH_LIMIT:
-            health = colored(health, _BAD_HEALTH_COLOR)
-        elif _BAD_HEALTH_LIMIT < player.health <= _GOOD_HEALTH_LIMIT:
-            health = colored(health, _MID_HEALTH_COLOR)
-        elif player.health > _GOOD_HEALTH_LIMIT:
-            health = colored(health, _GOOD_HEALTH_COLOR)
+        health = player.get_health()
 
         hud = "Score: " + str(player.points) + " | Health: " + health
         hud += " | Pos: (" + str(player.position[0]) + ", " + str(player.position[1]) + ") | Vy: "

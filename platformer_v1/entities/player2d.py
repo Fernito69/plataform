@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from factories.theme import Cyan, Green, White
+from factories.theme import Cyan, Green, Red, White, Yellow
 from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from model.shared import KeyboardHandler
@@ -8,13 +8,23 @@ from model.theme import Theme
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
 from terminal import on_key_press
+from utils import colored
 
 if TYPE_CHECKING:
     from platformer_v1.level_2d import Level2D
 
 _PLAYER_COLOR = Green()
 _PLAYER_FRAMES = ["☺"]
+
+_PLAYER_IMMUNE_COLOR = Cyan()
 _PLAYER_FLASHING_FRAMES = ["☻"]
+
+_GOOD_HEALTH_LIMIT = 75
+_BAD_HEALTH_LIMIT = 25
+
+_GOOD_HEALTH_COLOR = Green()
+_MID_HEALTH_COLOR = Yellow()
+_BAD_HEALTH_COLOR = Red()
 
 
 class Player2D(KeyboardHandler, LivingEntity2D):
@@ -38,17 +48,15 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         self.status = PlayerStatus.PLAYING
 
     def do_your_thing(self):
+        self._do_the_bare_minimum()
         self._apply_gravity()
         self._calc_collision()
-        self._advance_character_frame()
 
-    # checks collision with everything
     def _calc_collision(self):
         self._collision_enemies()
         self._collision_things()
         self._collision_jump()
 
-    # checks collision with everything
     def _collision_things(self):
         if self.curr_level is None:
             return
@@ -57,15 +65,26 @@ class Player2D(KeyboardHandler, LivingEntity2D):
             if self.is_same_position(exit):
                 self.status = PlayerStatus.END_LEVEL_2D
 
-    # checks collision with enemies
+    def get_health(self) -> str:
+        health = str(self.health)
+
+        # TODO: refactor it to go continuously from green, to yellow, to red
+        if self.health <= _BAD_HEALTH_LIMIT:
+            health = colored(health, _BAD_HEALTH_COLOR)
+        elif _BAD_HEALTH_LIMIT < self.health <= _GOOD_HEALTH_LIMIT:
+            health = colored(health, _MID_HEALTH_COLOR)
+        elif self.health > _GOOD_HEALTH_LIMIT:
+            health = colored(health, _GOOD_HEALTH_COLOR)
+
+        return health
+
     def _collision_enemies(self):
         if self.curr_level is None:
             return
 
         if self._immune_counter > 0:
-            self.theme.color = Cyan() if self._immune_counter % 2 == 0 else White()
+            self.theme.color = _PLAYER_IMMUNE_COLOR if self._immune_counter % 2 == 0 else White()
             self.theme.bg_color = White() if self._immune_counter % 2 == 0 else None
-
             self._set_char_frames(_PLAYER_FLASHING_FRAMES)
             self._immune_counter -= 1
             return

@@ -1,5 +1,3 @@
-import time
-
 from display import Display
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
@@ -33,9 +31,8 @@ class Game(KeyboardHandler):
     def __init__(
         self,
         mode: GameMode = GameMode.PHYSICS_2D,
-        status: GameStatus = GameStatus.RUNNING,
     ):
-        self.status = status
+        self.status = GameStatus.RUNNING
         self.mode = mode
 
         self.display = Display(self)
@@ -55,8 +52,10 @@ class Game(KeyboardHandler):
 
     def main_loop(self) -> None:
         def _main_loop():
-            self.handle_player_input()
             self._check_game_status()
+
+            self.handle_player_input()
+            self.display.handle_player_input()
 
             match self.mode:
                 case GameMode.PHYSICS_2D:
@@ -69,7 +68,7 @@ class Game(KeyboardHandler):
 
                 case GameMode.LINES_3D:
                     self.player2d.handle_player_input()
-                    return self.line_renderer.render_v2()
+                    return self.line_renderer.render()
 
                 case GameMode.PLATFORMER_V1:
                     return self.platformer_v1.game_loop()
@@ -86,6 +85,7 @@ class Game(KeyboardHandler):
         self._check_player_status()
 
     def _check_player_status(self) -> None:
+        # TODO: type properly
         for player in [self.player2d, self.player3d]:
             message: str = ""
 
@@ -127,9 +127,9 @@ class Game(KeyboardHandler):
 
     @on_key_press(MenuKeys.QUIT)
     def _quit(self):
+        self.display.print_message("BYE BYE")
         self.status = GameStatus.QUIT
         # TODO: fix the quit loop, check why the message is not being printed
-        time.sleep(0.5)
 
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):

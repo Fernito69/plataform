@@ -103,7 +103,7 @@ class LineRenderer(ThreeDeeRenderer):
             for _ in range(self.display.curr_x_resolution):
                 self.screen_data[y].append([])
 
-    def render_v2(self):
+    def render(self):
         self.empty_screen_data()
         render_list: list[RenderData] = self._get_render_v2_list()
         curr_level = self.game.player3d.curr_level

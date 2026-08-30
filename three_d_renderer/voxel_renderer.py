@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR
-from model.theme import DoubleLines
+from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR, DoubleLines
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
 
@@ -97,9 +97,8 @@ class VoxelRenderer(ThreeDeeRenderer):
                 d: float = vector_length(vector)
                 intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
-                # TODO: make these symbols consts
-                _char: str | list[str] = self.display.curr_3d_char_mode
-                # TODO: generalize to any length of array
+                # TODO: make this better
+                _char: str | list[str] = [UPPER_PIXEL_CHAR, LOWER_PIXEL_CHAR]
                 char: str = (
                     _char if isinstance(_char, str) else _char[0] if y_pos % 1 > 0.5 else _char[1]
                 )
@@ -109,8 +108,6 @@ class VoxelRenderer(ThreeDeeRenderer):
                 # checks if another vertex has been drawn in the specified coord and draws only the one closest to the spectator
                 rounded_x_pos = round(x_pos)
                 rounded_y_pos = round(y_pos)
-
-                # curr_pixel: str = screen_matrix[rounded_y_pos][rounded_x_pos]
 
                 if self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] == DEFAULT_CHAR:
                     self._screen_matrix_buffer[rounded_y_pos][rounded_x_pos] = defchar
