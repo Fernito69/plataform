@@ -5,7 +5,7 @@ from constants import HALF_PIXEL, PI, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
 from model.base import Point2F
 from model.theme import RGB
-from three_d_renderer.model.base import PixelContribution, RenderData, SubpixelContribution, Vertex3
+from three_d_renderer.model.base import PixelContribution, SubpixelContribution, Vertex3, WorldData
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import (
     colored,
@@ -32,7 +32,7 @@ DIRECTIONS = [
 ]
 
 
-# What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
+# What's the max distance? from the middle to the corner -> √(.25^2+.5^2) -> 0.559
 # We take that as 0% contribution, and 0 as 100%
 DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 
@@ -51,14 +51,13 @@ def _get_contribution(distance: float, slope: float | None) -> float:
 
 
 class LineRenderer(ThreeDeeRenderer):
-    # TODO: this should be in display?
-    screen_data: list[list[list[PixelContribution]]]
+    world_data: list[list[list[PixelContribution]]]
 
     def __init__(self, game: "Game"):
         ThreeDeeRenderer.__init__(self, game)
-        self.empty_screen_data()
+        self.reset_world_data()
 
-    def _get_render_v2_list(self) -> list[RenderData]:
+    def _get_world_data(self) -> list[WorldData]:
         player = self.game.player3d
 
         if not player.curr_level:
@@ -69,7 +68,7 @@ class LineRenderer(ThreeDeeRenderer):
             data
             for data in sorted(
                 [
-                    RenderData(
+                    WorldData(
                         entity_idx=entity_idx,
                         entity=entity,
                         vertex=Vertex3(point=vertex, index=vertex_idx),
@@ -83,7 +82,7 @@ class LineRenderer(ThreeDeeRenderer):
             if data.dist_vector.distance < self.visibility_threshold
         ]
 
-    def _sort_vertices(self, r: RenderData) -> float:
+    def _sort_vertices(self, r: WorldData) -> float:
         # TODO: do right
         # connections = [
         #     c
@@ -96,18 +95,18 @@ class LineRenderer(ThreeDeeRenderer):
 
         return r.dist_vector.distance
 
-    def empty_screen_data(self) -> None:
-        self.screen_data = []
+    def reset_world_data(self) -> None:
+        self.world_data = []
         for y in range(self.display.curr_y_resolution):
-            self.screen_data.append([])
+            self.world_data.append([])
             for _ in range(self.display.curr_x_resolution):
-                self.screen_data[y].append([])
+                self.world_data[y].append([])
 
     def render(self):
-        self.empty_screen_data()
-        render_list: list[RenderData] = self._get_render_v2_list()
-        curr_level = self.game.player3d.curr_level
-        if not curr_level:
+        self.reset_world_data()
+        world_data: list[WorldData] = self._get_world_data()
+
+        if not (curr_level := self.game.player3d.curr_level):
             return
 
         # TODO: calculations should not be part of the rendering
@@ -115,7 +114,7 @@ class LineRenderer(ThreeDeeRenderer):
             entity.calc_main_vertices(apply=True)
             entity.movement()
 
-        for data in render_list:
+        for data in world_data:
             # 1) Take vertices and trace lines
             # 2) Figure out pixels the line goes through
             # 3) Figure out pixel_usage_ratio
@@ -147,7 +146,7 @@ class LineRenderer(ThreeDeeRenderer):
         # Fill in screen data!!!
         for x in range(self.display.curr_x_resolution):
             for y in range(self.display.curr_y_resolution):
-                data = self.screen_data[y][x]
+                data = self.world_data[y][x]
 
                 if len(data) == 0:
                     new_screen_matrix[y][x] = DEFAULT_CHAR
@@ -184,7 +183,7 @@ class LineRenderer(ThreeDeeRenderer):
         self.display.put_screen_content(new_screen_matrix)
         self.display.print_curr_screen(self.game.player3d)
 
-    def _compute_pixel_contributions(self, data: RenderData, line: tuple[Point2F, Point2F]) -> None:
+    def _compute_pixel_contributions(self, data: WorldData, line: tuple[Point2F, Point2F]) -> None:
         # Check the affected pixels:
         curr_pixel_pos, connecting_pixel_pos = line
         x1, y1 = curr_pixel_pos
@@ -207,8 +206,8 @@ class LineRenderer(ThreeDeeRenderer):
                 calculated_x = eq.get_x(calculated_y)
 
                 if y <= calculated_y <= (y + PIXEL) and x <= calculated_x <= (x + PIXEL):
-                    # color hack
                     # color = data.entity.theme.color
+                    # HACK: hardcoded colors
                     color = self.colors[round(data.entity.size) % len(self.colors)]()
 
                     # check the bleeding in all directions:
@@ -228,7 +227,7 @@ class LineRenderer(ThreeDeeRenderer):
                         )
 
     def _add_contribution_to_screen(
-        self, line: tuple[Point2F, Point2F], curr_screen_pos: Point2F, color: RGB, data: RenderData
+        self, line: tuple[Point2F, Point2F], curr_screen_pos: Point2F, color: RGB, data: WorldData
     ):
         x, y = curr_screen_pos
 
@@ -251,7 +250,7 @@ class LineRenderer(ThreeDeeRenderer):
             _get_contribution(upper_res.distance, upper_res.slope)
             if not any(
                 d.upper_subpixel.pixel_usage_ratio
-                for d in self.screen_data[round(y)][round(x)]
+                for d in self.world_data[round(y)][round(x)]
                 if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
                 or d.upper_subpixel.vertex.index != data.vertex.index
                 or d.upper_subpixel.entity_idx != data.entity_idx
@@ -262,7 +261,7 @@ class LineRenderer(ThreeDeeRenderer):
             _get_contribution(lower_res.distance, lower_res.slope)
             if not any(
                 d.lower_subpixel.pixel_usage_ratio
-                for d in self.screen_data[round(y)][round(x)]
+                for d in self.world_data[round(y)][round(x)]
                 if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
                 or d.upper_subpixel.vertex.index != data.vertex.index
                 or d.lower_subpixel.entity_idx != data.entity_idx
@@ -293,4 +292,4 @@ class LineRenderer(ThreeDeeRenderer):
             upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
         )
 
-        self.screen_data[round(curr_screen_pos[1])][round(curr_screen_pos[0])] += [contribution]
+        self.world_data[round(curr_screen_pos[1])][round(curr_screen_pos[0])] += [contribution]

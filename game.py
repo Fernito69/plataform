@@ -155,7 +155,7 @@ class Game(KeyboardHandler):
             self.voxel_renderer.reset_screen_buffer()
         else:
             self.line_renderer.reset_screen_buffer()
-            self.line_renderer.empty_screen_data()
+            self.line_renderer.reset_world_data()
 
     @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
     def _switch_antialiasing(self):

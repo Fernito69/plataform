@@ -1,4 +1,4 @@
-from constants import I_PHI, PHI, R2O2
+from constants import I_PHI, PHI, R2_2
 from model.base import Point3F
 from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
@@ -129,7 +129,7 @@ class Tetra(Entity3D):
 
     def get_diameter(self) -> float:
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
-        return self.size * R2O2 * 2
+        return self.size * R2_2 * 2
 
     def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         x = self.position[0]
@@ -139,10 +139,10 @@ class Tetra(Entity3D):
 
         vertexes = []
 
-        vertexes.append((x + s, y, z - R2O2 * s))
-        vertexes.append((x - s, y, z - R2O2 * s))
-        vertexes.append((x, y + s, z + R2O2 * s))
-        vertexes.append((x, y - s, z + R2O2 * s))
+        vertexes.append((x + s, y, z - R2_2 * s))
+        vertexes.append((x - s, y, z - R2_2 * s))
+        vertexes.append((x, y + s, z + R2_2 * s))
+        vertexes.append((x, y - s, z + R2_2 * s))
 
         if apply:
             self.vertices = vertexes
@@ -162,12 +162,12 @@ class Tetra(Entity3D):
         s = self.size
 
         for t in range(round(s * 2)):
-            vertexes.append(((x - s + t), (y), (z - R2O2 * s)))  # 1 - 2
-            vertexes.append(((x + s - t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)))  # 1 - 3
-            vertexes.append(((x + s - t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)))  # 1 - 4
-            vertexes.append(((x - s + t / 2), (y + t / 2), (z - R2O2 * s + R2O2 * t)))  # 2 - 3
-            vertexes.append(((x - s + t / 2), (y - t / 2), (z - R2O2 * s + R2O2 * t)))  # 2 - 4
-            vertexes.append(((x), (y - s + t), (z + R2O2 * s)))  # 3 - 4
+            vertexes.append(((x - s + t), (y), (z - R2_2 * s)))  # 1 - 2
+            vertexes.append(((x + s - t / 2), (y + t / 2), (z - R2_2 * s + R2_2 * t)))  # 1 - 3
+            vertexes.append(((x + s - t / 2), (y - t / 2), (z - R2_2 * s + R2_2 * t)))  # 1 - 4
+            vertexes.append(((x - s + t / 2), (y + t / 2), (z - R2_2 * s + R2_2 * t)))  # 2 - 3
+            vertexes.append(((x - s + t / 2), (y - t / 2), (z - R2_2 * s + R2_2 * t)))  # 2 - 4
+            vertexes.append(((x), (y - s + t), (z + R2_2 * s)))  # 3 - 4
 
         self.vertices = vertexes
 

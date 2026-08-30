@@ -14,7 +14,7 @@ class Vertex3:
 
 
 @dataclass
-class RenderData:
+class WorldData:
     entity_idx: int
     entity: Entity3D
     vertex: Vertex3
