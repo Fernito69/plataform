@@ -73,10 +73,10 @@ class Physics2D(KeyboardHandler):
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []
-        for p in self.scenario.pieces:
-            if p.name == "LINEA MIA":
-                self.display.debug_log(f"angle: PI*{p.angle} radians, {p.angular_velocity}")
-                pass
+        # for p in self.scenario.pieces:
+        #     if p.name == "LINEA MIA":
+        #         self.display.debug_log(f"angle: PI*{p.angle} radians, {p.angular_velocity}")
+        #         pass
 
         # TODO: for now, we assume y-res is always evenaaaaaaaq
 

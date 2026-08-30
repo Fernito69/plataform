@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR
+from model.base import Point2F, Point3F
 from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR, DoubleLines
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
@@ -31,7 +32,6 @@ class VoxelRenderer(ThreeDeeRenderer):
             self._screen_matrix_buffer[0][x] = DoubleLines.H
             self._screen_matrix_buffer[Y_RES - 1][x] = DoubleLines.H
 
-    # Legacy voxel renderer
     def visualize_scenario(self):
         self.draw_screen_border()
 
@@ -49,9 +49,7 @@ class VoxelRenderer(ThreeDeeRenderer):
         player.curr_level.entities = sorted(
             player.curr_level.entities,
             key=lambda e: (
-                # TODO: if I add the size it does it wrong, figure out what the shit
-                # TODO: figured out the shit! it requires a factor now because size is not normalized between entities
-                # TODO: this shold be distance to vertex!!!!????
+                # TODO: this distance_to_edge is sus af, make it right
                 distance_between_points(
                     e.position, player.position, e.get_diameter()
                 ).distance_to_edge
@@ -68,8 +66,7 @@ class VoxelRenderer(ThreeDeeRenderer):
             # we get vertexes from object
 
             # we add the vertexes to the screen matrix
-            # TODO: type this shit properly
-            vertices_to_render = []
+            vertices_to_render: list[tuple[Point3F, Point2F]] = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.vertices:
                 normalized_vertex = subtract_triplet(vertex, player.position)
@@ -83,7 +80,7 @@ class VoxelRenderer(ThreeDeeRenderer):
                     and y_pos > 1
                     and self._screen_matrix_buffer[round(y_pos)][round(x_pos)] == DEFAULT_CHAR
                 ):
-                    vertices_to_render.append([normalized_vertex, (x_pos, y_pos)])
+                    vertices_to_render.append((normalized_vertex, (x_pos, y_pos)))
 
             color = self.colors[round(entity.size) % len(self.colors)]
 

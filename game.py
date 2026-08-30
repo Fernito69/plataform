@@ -148,7 +148,7 @@ class Game(KeyboardHandler):
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_3d_rendering_mode(self):
-        self.mode = GameMode.VOXELS_3D if self.status == GameMode.LINES_3D else GameMode.LINES_3D
+        self.mode = GameMode.VOXELS_3D if self.mode == GameMode.LINES_3D else GameMode.LINES_3D
         self.display.set_mode(self.mode)
 
         if self.mode == GameMode.VOXELS_3D:

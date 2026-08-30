@@ -9,13 +9,13 @@ from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
 from model.theme import EMPTY_SPACE, DoubleLines
-from physics2d.constants import FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
-from platformer_v1.constants import FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
+from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
+from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
 from terminal import clear, on_key_press
 from three_d_renderer.constants import (
     ANTIALIASING_INTENSITY,
-    FPS_3D,
+    MAX_FPS_3D,
     X_RESOLUTION_3D,
     Y_RESOLUTION_3D,
 )
@@ -25,7 +25,7 @@ from utils import colored, extract_color_from_string, has_bg_color
 if TYPE_CHECKING:
     from game import Game
 
-_DEFAULT_FPS = FPS_PHYSICS
+_DEFAULT_FPS = MAX_FPS_PHYSICS
 
 _MESSAGE_BORDER_COLOR = Red()
 _MESSAGE_TEXT_COLOR = Yellow()
@@ -44,10 +44,18 @@ class Display(KeyboardHandler):
 
     antialiasing: bool
 
-    def __init__(self, game: "Game", fps: float = _DEFAULT_FPS):
+    _print_fps: bool
+
+    def __init__(
+        self,
+        game: "Game",
+        fps: float = _DEFAULT_FPS,
+        print_fps: bool = True,
+    ):
         self.game = game
         self.antialiasing = True
         self.curr_fps = fps
+        self._print_fps = print_fps
 
     def set_mode(self, mode: GameMode) -> None:
         match mode:
@@ -162,14 +170,20 @@ class Display(KeyboardHandler):
     def get_screen_content(self) -> list[list[str]]:
         return self._screen_matrix
 
+    _measured_fps: float = 0
+
     def fps_throttle(self, func: Callable[[], None]) -> None:
         period = 1 / (self._curr_fps or 1)
 
         start = time.perf_counter()
         func()
-        elapsed = time.perf_counter() - start
+        ellapsed = time.perf_counter() - start
 
-        time.sleep(max(0, period - elapsed))
+        raw_diff = period - ellapsed
+
+        self._measured_fps = min(1 / ((period - raw_diff) or 0.001), self._curr_fps)
+
+        time.sleep(max(0, raw_diff))
 
     def print_curr_screen(self, player: Player2D | Player3D | None = None):
         matrix_string = ""
@@ -200,26 +214,29 @@ class Display(KeyboardHandler):
         if self._debug_str:
             matrix_string += colored("\nDEBUG: ", Red()) + self._debug_str
 
-        print(matrix_string)
-
         if player:
             self._print_hud(player)
 
+        if self._print_fps:
+            matrix_string += f"{colored('\nFPS: ', Green())} {str(round(self._measured_fps, 2))}"
+
+        print(matrix_string)
+
     def _set_2d_mode(self):
         self.antialiasing = True
-        self._set_fps(FPS_2D)
+        self._set_fps(MAX_FPS_2D)
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
 
     def _set_physics_mode(self):
         # Handled in-engine
         self.antialiasing = False
-        self._set_fps(FPS_PHYSICS)
+        self._set_fps(MAX_FPS_PHYSICS)
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
         self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
 
     def _set_3d_mode(self):
         self.antialiasing = True
-        self._set_fps(FPS_3D)
+        self._set_fps(MAX_FPS_3D)
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
     def _set_fps(self, fps: float) -> None:

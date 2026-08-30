@@ -206,9 +206,9 @@ class LineRenderer(ThreeDeeRenderer):
                 calculated_x = eq.get_x(calculated_y)
 
                 if y <= calculated_y <= (y + PIXEL) and x <= calculated_x <= (x + PIXEL):
-                    # color = data.entity.theme.color
                     # HACK: hardcoded colors
                     color = self.colors[round(data.entity.size) % len(self.colors)]()
+                    # color = data.entity.theme.color
 
                     # check the bleeding in all directions:
                     for delta_x, delta_y in [
@@ -230,6 +230,7 @@ class LineRenderer(ThreeDeeRenderer):
         self, line: tuple[Point2F, Point2F], curr_screen_pos: Point2F, color: RGB, data: WorldData
     ):
         x, y = curr_screen_pos
+        int_x, int_y = (round(i) for i in curr_screen_pos)
 
         # Upper pixel limits -> (x,y) (x+1, y + .5)
         middle_upper_subpixel = (x + HALF_PIXEL, y + QUARTER_PIXEL)
@@ -250,7 +251,7 @@ class LineRenderer(ThreeDeeRenderer):
             _get_contribution(upper_res.distance, upper_res.slope)
             if not any(
                 d.upper_subpixel.pixel_usage_ratio
-                for d in self.world_data[round(y)][round(x)]
+                for d in self.world_data[int_y][int_x]
                 if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
                 or d.upper_subpixel.vertex.index != data.vertex.index
                 or d.upper_subpixel.entity_idx != data.entity_idx
@@ -261,7 +262,7 @@ class LineRenderer(ThreeDeeRenderer):
             _get_contribution(lower_res.distance, lower_res.slope)
             if not any(
                 d.lower_subpixel.pixel_usage_ratio
-                for d in self.world_data[round(y)][round(x)]
+                for d in self.world_data[int_y][int_x]
                 if d.upper_subpixel.distance_from_spec > data.dist_vector.distance
                 or d.upper_subpixel.vertex.index != data.vertex.index
                 or d.lower_subpixel.entity_idx != data.entity_idx
@@ -292,4 +293,4 @@ class LineRenderer(ThreeDeeRenderer):
             upper_subpixel=upper_subpixel, lower_subpixel=lower_subpixel
         )
 
-        self.world_data[round(curr_screen_pos[1])][round(curr_screen_pos[0])] += [contribution]
+        self.world_data[int_y][int_x] += [contribution]
