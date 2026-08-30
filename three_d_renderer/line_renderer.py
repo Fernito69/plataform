@@ -34,7 +34,7 @@ DIRECTIONS = [
 
 # What's the max distance? from the middle to the corner -> sqrt(.25^2+.5^2) -> 0.559
 # We take that as 0% contribution, and 0 as 100%
-DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 1  # 0.559
+DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 
 
 # TODO: move this function elsewhere or make it static method
