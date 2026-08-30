@@ -2,7 +2,8 @@ from display import Display
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
-from model.shared import KeyboardHandler
+from model.shared import Engine, KeyboardHandler
+from model.theme import BR
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
@@ -12,8 +13,11 @@ from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import shuffle_list
 
+_WELCOME_TIMER = 50
+_WELCOME_TEXT = "Welcome! :)"
 
-class Game(KeyboardHandler):
+
+class Game(Engine, KeyboardHandler):
     display: Display
 
     status: GameStatus
@@ -27,6 +31,8 @@ class Game(KeyboardHandler):
     # 2D modes
     platformer_v1: PlatformerV1
     physics_engine: Physics2D
+
+    _welcome_message_timer: int = _WELCOME_TIMER
 
     def __init__(
         self,
@@ -50,9 +56,41 @@ class Game(KeyboardHandler):
         # hardcoded cool initial place
         self.player3d.position = (18, 84, -33)
 
+    def handle_quit(self) -> None:
+        self.display.set_message("BYE BYE!" + BR + "Thanks for playing :)", 0.7)
+        self.status = GameStatus.QUIT
+
+    def _handle_welcome_message(self) -> None:
+        _W = int(_WELCOME_TIMER / 2)
+
+        if self._welcome_message_timer >= 0:
+            _text = (
+                _WELCOME_TEXT
+                # TODO: check why this doesn't work
+                # [
+                #     0 : min(
+                #         len(_WELCOME_TEXT) + 1,
+                #         (
+                #             1
+                #             + int(
+                #                 ((_W - self._welcome_message_timer) / _W) * (len(_WELCOME_TEXT) - 1)
+                #             )
+                #         ),
+                #     )
+                # ]
+                if self._welcome_message_timer > _W - 5
+                else _WELCOME_TEXT
+            )
+            intensity = 1 - ((_WELCOME_TIMER - self._welcome_message_timer) / _WELCOME_TIMER)
+            self.display.set_message(_text, intensity=intensity)
+            self._welcome_message_timer -= 1
+        elif self.display.has_message():
+            self.display.set_message(None)
+
     def main_loop(self) -> None:
         def _main_loop():
             self._check_game_status()
+            self._handle_welcome_message()
 
             self.handle_player_input()
             self.display.handle_player_input()
@@ -76,12 +114,6 @@ class Game(KeyboardHandler):
         self.display.fps_throttle(_main_loop)
 
     def _check_game_status(self) -> None:
-        match self.status:
-            case GameStatus.QUIT:
-                message = "BYE BYE"
-                self.display.print_message(message)
-                self.status = GameStatus.GAMEOVER
-
         self._check_player_status()
 
     def _check_player_status(self) -> None:
@@ -94,12 +126,12 @@ class Game(KeyboardHandler):
                     message = "GAME OVER"
 
             if message != "":
-                self.display.print_message(message)
+                self.display.set_message(message)
                 self.status = GameStatus.GAMEOVER
 
         if self.player2d.status == PlayerStatus.END_LEVEL_2D:
             message = "YOU WON!!! :D"
-            self.display.print_message(message)
+            self.display.set_message(message)
             self.status = GameStatus.GAMEOVER
 
     ##############
@@ -107,7 +139,7 @@ class Game(KeyboardHandler):
     ##############
 
     def handle_player_input(self) -> None:
-        self._quit()
+        self._press_quit()
         self._switch_3d_rendering_mode()
         self._switch_2d_mode()
         self._switch_3d_mode()
@@ -126,10 +158,8 @@ class Game(KeyboardHandler):
         self._shuffle_colors()
 
     @on_key_press(MenuKeys.QUIT)
-    def _quit(self):
-        self.display.print_message("BYE BYE")
-        self.status = GameStatus.QUIT
-        # TODO: fix the quit loop, check why the message is not being printed
+    def _press_quit(self):
+        self.handle_quit()
 
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
