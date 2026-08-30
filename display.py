@@ -57,11 +57,11 @@ class Display:
 
     def set_mode(self, mode: GameMode) -> None:
         match mode:
-            case GameMode.MODE_2D:
+            case GameMode.PLATFORMER_V1:
                 self._set_2d_mode()
-            case GameMode.MODE_3D, GameMode.MODE_3D_V2:
+            case GameMode.LINES_3D | GameMode.VOXELS_3D:
                 self._set_3d_mode()
-            case GameMode.MODE_PHYSICS_2D:
+            case GameMode.PHYSICS_2D:
                 self._set_physics_mode()
 
     def debug_log(self, msg: str) -> None:
@@ -210,8 +210,8 @@ class Display:
         self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
 
     def _set_3d_mode(self):
-        self._set_fps(FPS_3D)
         self.antialiasing = True
+        self._set_fps(FPS_3D)
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
     def _set_fps(self, fps: float) -> None:

@@ -2,10 +2,10 @@ from enum import StrEnum, auto
 
 
 class GameMode(StrEnum):
-    MODE_2D = auto()
-    MODE_PHYSICS_2D = auto()
-    MODE_3D = auto()
-    MODE_3D_V2 = auto()
+    PLATFORMER_V1 = auto()
+    PHYSICS_2D = auto()
+    VOXELS_3D = auto()
+    LINES_3D = auto()
 
 
 class GameStatus(StrEnum):

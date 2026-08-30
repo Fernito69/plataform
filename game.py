@@ -30,7 +30,7 @@ class Game(KeyboardHandler):
 
     def __init__(
         self,
-        mode: GameMode = GameMode.MODE_PHYSICS_2D,
+        mode: GameMode = GameMode.PHYSICS_2D,
         status: GameStatus = GameStatus.RUNNING,
     ):
         self.status = status
@@ -57,19 +57,19 @@ class Game(KeyboardHandler):
             self._check_game_status()
 
             match self.mode:
-                case GameMode.MODE_PHYSICS_2D:
+                case GameMode.PHYSICS_2D:
                     self.physics_engine.handle_player_input()
                     return self.physics_engine.game_loop()
 
-                case GameMode.MODE_3D:
+                case GameMode.VOXELS_3D:
                     self.player3d.handle_player_input()
                     return self.voxel_renderer.visualize_scenario()
 
-                case GameMode.MODE_3D_V2:
+                case GameMode.LINES_3D:
                     self.player2d.handle_player_input()
                     return self.line_renderer.render_v2()
 
-                case GameMode.MODE_2D:
+                case GameMode.PLATFORMER_V1:
                     return self.platformer_v1.game_loop()
 
         self.display.fps_throttle(_main_loop)
@@ -110,30 +110,29 @@ class Game(KeyboardHandler):
 
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
-        self.mode = GameMode.MODE_PHYSICS_2D
-        self.display.set_mode(self.mode)
+        self.mode = GameMode.PHYSICS_2D
+        self.display.set_mode(GameMode.PHYSICS_2D)
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
-        self.mode = GameMode.MODE_2D
-        self.display.set_mode(self.mode)
+        self.mode = GameMode.PLATFORMER_V1
+        self.display.set_mode(GameMode.PLATFORMER_V1)
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
-        self.mode = GameMode.MODE_3D
-        self.display.set_mode(self.mode)
+        self.display.set_mode(GameMode.VOXELS_3D)
+        self.mode = GameMode.VOXELS_3D
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_rendering_mode(self):
-        self.mode = GameMode.MODE_3D if self.status == GameMode.MODE_3D_V2 else GameMode.MODE_3D_V2
-        if self.mode == GameMode.MODE_3D:
+        self.mode = GameMode.VOXELS_3D if self.status == GameMode.LINES_3D else GameMode.LINES_3D
+        if self.mode == GameMode.VOXELS_3D:
             self.voxel_renderer.reset_screen_buffer()
-            self.voxel_renderer.draw_screen_border()
         else:
             self.line_renderer.reset_screen_buffer()
             self.line_renderer.empty_screen_data()
 
-    # TODO: increase res functionality is broken, fix
+    # TODO: increase res functionality is broken, fix
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
     def _increase_x_resolution(self):
         self.display.modify_resolution((1, 0))
@@ -204,7 +203,7 @@ class Game(KeyboardHandler):
         self._increase_fov()
         self._decrease_fov()
 
-        if self.mode == GameMode.MODE_2D:
+        if self.mode == GameMode.PLATFORMER_V1:
             return
 
         self._increase_x_resolution()
