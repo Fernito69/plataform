@@ -33,6 +33,8 @@ class VoxelRenderer(ThreeDeeRenderer):
 
     # Legacy voxel renderer
     def visualize_scenario(self):
+        self.draw_screen_border()
+
         player = self.game.player3d
         if not player._curr_level:
             return

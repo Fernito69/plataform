@@ -47,7 +47,7 @@ class Cube(Entity3D):
         # "diameter" for cube is just the size
         return self.size
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         vertexes: list[Point3F] = []
         x, y, z = self._position
         s = self.size
@@ -71,7 +71,7 @@ class Cube(Entity3D):
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_main_vertexes()
+        vertexes = self.calc_main_vertices()
         x, y, z = self._position
         s = self.size
 
@@ -132,7 +132,7 @@ class Tetra(Entity3D):
         # hmmm also roughly sqrt2? the size? TODO: do proper calc later
         return self.size * R2O2 * 2
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         x = self._position[0]
         y = self._position[1]
         z = self._position[2]
@@ -155,7 +155,7 @@ class Tetra(Entity3D):
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_main_vertexes()
+        vertexes = self.calc_main_vertices()
         x = self._position[0]
         y = self._position[1]
         z = self._position[2]
@@ -239,7 +239,7 @@ class Ico(Entity3D):
         # let's say 2*phi?
         return self.size * 2 * PHI
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
         x = self._position[0]
         y = self._position[1]
@@ -271,7 +271,7 @@ class Ico(Entity3D):
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_main_vertexes()
+        vertexes = self.calc_main_vertices()
 
         x, y, z = self._position
         s = self.size
@@ -426,7 +426,7 @@ class Dodeca(Entity3D):
         # similar to ico?
         return self.size * 2 * PHI
 
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         vertexes = []
         x, y, z = self._position
         s = self.size
@@ -465,7 +465,7 @@ class Dodeca(Entity3D):
         if self.is_lazy() and self.vertices and len(self.vertices) > 0:
             return
 
-        vertexes = self.calc_main_vertexes()
+        vertexes = self.calc_main_vertices()
         x, y, z = self._position
         s = self.size
 

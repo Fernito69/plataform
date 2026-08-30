@@ -51,23 +51,25 @@ class Physics2D(KeyboardHandler):
                 self.screen_buffer[y].append([])
 
     def game_loop(self) -> None:
+        self.init_screen_buffer()
         self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
+
+    def is_visible(self, point: Point2F) -> bool:
+        return (
+            point[0] >= 0
+            and point[0] < self.screen_buffer_x_res
+            and point[1] >= 0
+            and point[1] < self.screen_buffer_y_res
+        )
 
     def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
         new_x = round(render_info.point[0] - self.screen_corner[0])
         new_y = round(render_info.point[1] - self.screen_corner[1])
 
-        if (
-            new_x < 0
-            or new_x > (self.screen_buffer_x_res - 1)
-            or new_y < 0
-            or new_y > (self.screen_buffer_y_res - 1)
-        ):
-            return
-
-        self.screen_buffer[new_y][new_x].append(render_info)
+        if self.is_visible((new_x, new_y)):
+            self.screen_buffer[new_y][new_x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_matrix: list[list[str]] = []

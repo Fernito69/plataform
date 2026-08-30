@@ -66,11 +66,16 @@ class Entity3D:
         return False and self.mov_vector == (0, 0, 0) and self.rot_vector == (0, 0, 0)
 
     @abstractmethod
+    def do_your_thing(cls) -> None:
+        # This method should be overwritten by the inheriting classes
+        pass
+
+    @abstractmethod
     def get_diameter(cls) -> float:
         pass
 
     @abstractmethod
-    def calc_main_vertexes(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
         pass
 
     @abstractmethod
@@ -86,10 +91,6 @@ class Entity3D:
             self.theme.color,
             self.theme.bg_color,
         )
-
-    def do_your_thing(self) -> None:
-        # This method should be overwritten by the inheriting classes
-        pass
 
     # TODO: this should calculate player collision before moving ()
     def move_by(self, vector: Vector3F) -> None:

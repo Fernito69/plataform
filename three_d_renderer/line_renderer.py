@@ -112,7 +112,7 @@ class LineRenderer(ThreeDeeRenderer):
 
         # TODO: calculations should not be part of the rendering
         for entity in curr_level.entities:
-            entity.calc_main_vertexes(apply=True)
+            entity.calc_main_vertices(apply=True)
             entity.movement()
 
         for data in render_list:

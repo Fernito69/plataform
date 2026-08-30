@@ -52,17 +52,6 @@ class ThreeDeeRenderer:
         self.colors = colors
         self.reset_screen_buffer()
 
-    # This is where the 3D to 2D projection magic happens
-    def _get_screen_projection(self, point3: Point3F) -> Point2F:
-        x, y, z = point3
-        x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
-        y_pos = (
-            (((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
-            if y > 0
-            else 0
-        )
-        return (x_pos, y_pos)
-
     def reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
         X_RES = self.display.curr_x_resolution
         Y_RES = self.display.curr_y_resolution
@@ -77,3 +66,14 @@ class ThreeDeeRenderer:
                 self._screen_matrix_buffer.append([])
                 for _ in range(X_RES):
                     self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
+
+    # This is where the 3D to 2D projection magic happens
+    def _get_screen_projection(self, point3: Point3F) -> Point2F:
+        x, y, z = point3
+        x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
+        y_pos = (
+            (((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
+            if y > 0
+            else 0
+        )
+        return (x_pos, y_pos)

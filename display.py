@@ -5,11 +5,11 @@ from typing import Callable
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
+from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.theme import EMPTY_SPACE, DoubleLines
 from physics2d.constants import FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
-from platformer_v1.entities.base import Entity2D
 from platformer_v1.entities.player2d import Player2D
 from terminal import clear
 from three_d_renderer.constants import (
@@ -55,28 +55,17 @@ class Display:
 
         self.switch_3d_char_mode()
 
-    def set_2d_mode(self):
-        self.antialiasing = True
-        self._set_fps(FPS_2D)
-        self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
-
-    def set_physics_mode(self):
-        # Handled in-engine
-        self.antialiasing = False
-        self._set_fps(FPS_PHYSICS)
-        # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
-        self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
-
-    def set_3d_mode(self):
-        self._set_fps(FPS_3D)
-        self.antialiasing = True
-        self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
+    def set_mode(self, mode: GameMode) -> None:
+        match mode:
+            case GameMode.MODE_2D:
+                self._set_2d_mode()
+            case GameMode.MODE_3D, GameMode.MODE_3D_V2:
+                self._set_3d_mode()
+            case GameMode.MODE_PHYSICS_2D:
+                self._set_physics_mode()
 
     def debug_log(self, msg: str) -> None:
         self._debug_str = msg
-
-    def _set_fps(self, fps: float) -> None:
-        self._curr_fps = fps
 
     # TODO: deprecate
     def switch_3d_char_mode(self) -> str | list[str]:
@@ -105,22 +94,11 @@ class Display:
         self.curr_x_resolution += amount[0]
         self.curr_y_resolution += amount[1]
 
-    def _set_resolution(self, resolution: Point2I) -> None:
-        self.curr_x_resolution = resolution[0]
-        self.curr_y_resolution = resolution[1]
-
-    def _put_char_in_pixel(self, char: str, position: Point2F):
+    def put_char_in_pixel(self, char: str, position: Point2F):
         y = math.floor(position[1])
         x = math.floor(position[0])
-
-        self._screen_matrix[y][x] = char
-
-    def _add_2d_entity_to_matrix(self, entity: Entity2D):
-        y = math.floor(entity.position[1])
-        x = math.floor(entity.position[0])
-
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
-            self._screen_matrix[y][x] = entity.get_char()
+            self._screen_matrix[y][x] = char
 
     # TODO: this is broken, fix
     def print_message(self, message: str, padding_x: int = 2, padding_y: int = 1):
@@ -165,7 +143,7 @@ class Display:
                 self._screen_matrix[y][x] = char
 
         # Display message
-        for x, index in enumerate(range(starting_message_x, ending_message_x)):
+        for index, x in enumerate(range(starting_message_x, ending_message_x)):
             self._screen_matrix[mid_y][index] = colored(message[x], _MESSAGE_TEXT_COLOR)
 
         self.print_curr_screen()
@@ -176,7 +154,7 @@ class Display:
     def get_screen_content(self) -> list[list[str]]:
         return self._screen_matrix
 
-    def fps_throttle(self, func: Callable) -> None:
+    def fps_throttle(self, func: Callable[[], None]) -> None:
         period = 1 / (self._curr_fps or 1)
 
         start = time.perf_counter()
@@ -218,6 +196,30 @@ class Display:
 
         if player:
             self._print_hud(player)
+
+    def _set_2d_mode(self):
+        self.antialiasing = True
+        self._set_fps(FPS_2D)
+        self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
+
+    def _set_physics_mode(self):
+        # Handled in-engine
+        self.antialiasing = False
+        self._set_fps(FPS_PHYSICS)
+        # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
+        self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
+
+    def _set_3d_mode(self):
+        self._set_fps(FPS_3D)
+        self.antialiasing = True
+        self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
+
+    def _set_fps(self, fps: float) -> None:
+        self._curr_fps = fps
+
+    def _set_resolution(self, resolution: Point2I) -> None:
+        self.curr_x_resolution = resolution[0]
+        self.curr_y_resolution = resolution[1]
 
     def _print_hud(self, player: Player2D | Player3D | None = None):
         if not player:

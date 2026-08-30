@@ -8,8 +8,8 @@ from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
 from terminal import on_key_press
 from three_d_renderer.entities.player3d import Player3D
-from three_d_renderer.legacy_3d_renderer import VoxelRenderer
-from three_d_renderer.renderer_3d_v2 import LineRenderer
+from three_d_renderer.line_renderer import LineRenderer
+from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import shuffle_list
 
 
@@ -37,7 +37,7 @@ class Game(KeyboardHandler):
         self.mode = mode
 
         self.display = Display()
-        self.display.set_physics_mode()
+        self.display.set_mode(self.mode)
 
         self.player2d = Player2D(1)
         self.player3d = Player3D(1)
@@ -50,6 +50,29 @@ class Game(KeyboardHandler):
 
         # hardcoded cool initial place
         self.player3d._position = (18, 84, -33)
+
+    def main_loop(self) -> None:
+        def _main_loop():
+            self.handle_player_input()
+            self._check_game_status()
+
+            match self.mode:
+                case GameMode.MODE_PHYSICS_2D:
+                    self.physics_engine.handle_player_input()
+                    return self.physics_engine.game_loop()
+
+                case GameMode.MODE_3D:
+                    self.player3d.handle_player_input()
+                    return self.voxel_renderer.visualize_scenario()
+
+                case GameMode.MODE_3D_V2:
+                    self.player2d.handle_player_input()
+                    return self.line_renderer.render_v2()
+
+                case GameMode.MODE_2D:
+                    return self.platformer_v1.game_loop()
+
+        self.display.fps_throttle(_main_loop)
 
     def _check_game_status(self) -> None:
         match self.status:
@@ -77,30 +100,6 @@ class Game(KeyboardHandler):
             self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
-    def main_loop(self) -> None:
-        def _main_loop():
-            self.handle_player_input()
-            self._check_game_status()
-
-            match self.mode:
-                case GameMode.MODE_PHYSICS_2D:
-                    self.physics_engine.init_screen_buffer()
-                    self.physics_engine.handle_player_input()
-                    return self.physics_engine.game_loop()
-
-                case GameMode.MODE_3D:
-                    self.player3d.handle_player_input()
-                    return self.voxel_renderer.visualize_scenario()
-
-                case GameMode.MODE_3D_V2:
-                    self.player2d.handle_player_input()
-                    return self.line_renderer.render_v2()
-
-                case GameMode.MODE_2D:
-                    return self.platformer_v1.game_loop()
-
-        self.display.fps_throttle(_main_loop)
-
     # Input methods
     # TODO: all display methods should go in Display class, or Three3d, whatever fits
     @on_key_press(MenuKeys.QUIT)
@@ -112,17 +111,17 @@ class Game(KeyboardHandler):
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.mode = GameMode.MODE_PHYSICS_2D
-        self.display.set_physics_mode()
+        self.display.set_mode(self.mode)
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
         self.mode = GameMode.MODE_2D
-        self.display.set_2d_mode()
+        self.display.set_mode(self.mode)
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
         self.mode = GameMode.MODE_3D
-        self.display.set_3d_mode()
+        self.display.set_mode(self.mode)
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_rendering_mode(self):
@@ -134,6 +133,7 @@ class Game(KeyboardHandler):
             self.line_renderer.reset_screen_buffer()
             self.line_renderer.empty_screen_data()
 
+    # TODO: increase res functionality is broken, fix
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
     def _increase_x_resolution(self):
         self.display.modify_resolution((1, 0))
