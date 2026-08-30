@@ -237,8 +237,6 @@ class Display(KeyboardHandler):
             if i < self.curr_y_resolution - 1:
                 matrix_string += BR
 
-        clear()
-
         if self._debug_str:
             matrix_string += colored(BR + "DEBUG: ", Red()) + self._debug_str
 
@@ -246,9 +244,10 @@ class Display(KeyboardHandler):
             matrix_string += BR + self._get_hud_string(player)
 
         if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
+            _sep = SEPARATOR if isinstance(player, Player2D) else EMPTY_SPACE if player else BR
             matrix_string += f"{_sep}{colored('FPS:', Green())} {str(round(self._measured_fps, 2))}"
 
+        clear()
         print(matrix_string)
 
     def _set_2d_mode(self):

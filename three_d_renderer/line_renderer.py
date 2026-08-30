@@ -54,7 +54,7 @@ class LineRenderer(ThreeDeeRenderer):
     world_data: list[list[list[PixelContribution]]]
 
     def __init__(self, game: "Game"):
-        ThreeDeeRenderer.__init__(self, game)
+        super().__init__(game)
         self.reset_world_data()
 
     def _get_world_data(self) -> list[WorldData]:
@@ -102,10 +102,7 @@ class LineRenderer(ThreeDeeRenderer):
             for _ in range(self.display.curr_x_resolution):
                 self.world_data[y].append([])
 
-    def render(self):
-        self.reset_world_data()
-        world_data: list[WorldData] = self._get_world_data()
-
+    def calculate_world(self) -> None:
         if not (curr_level := self.game.player3d.curr_level):
             return
 
@@ -113,6 +110,15 @@ class LineRenderer(ThreeDeeRenderer):
         for entity in curr_level.entities:
             entity.calc_main_vertices(apply=True)
             entity.movement()
+
+    def main_loop(self) -> None:
+        self.reset_world_data()
+        self.calculate_world()
+        self.render()
+
+    def render(self):
+
+        world_data: list[WorldData] = self._get_world_data()
 
         for data in world_data:
             # 1) Take vertices and trace lines

@@ -60,18 +60,18 @@ class Game(KeyboardHandler):
             match self.mode:
                 case GameMode.PHYSICS_2D:
                     self.physics_engine.handle_player_input()
-                    return self.physics_engine.game_loop()
+                    return self.physics_engine.main_loop()
 
                 case GameMode.VOXELS_3D:
                     self.player3d.handle_player_input()
-                    return self.voxel_renderer.visualize_scenario()
+                    return self.voxel_renderer.main_loop()
 
                 case GameMode.LINES_3D:
                     self.player3d.handle_player_input()
-                    return self.line_renderer.render()
+                    return self.line_renderer.main_loop()
 
                 case GameMode.PLATFORMER_V1:
-                    return self.platformer_v1.game_loop()
+                    return self.platformer_v1.main_loop()
 
         self.display.fps_throttle(_main_loop)
 

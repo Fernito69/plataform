@@ -32,9 +32,11 @@ class VoxelRenderer(ThreeDeeRenderer):
             self._screen_matrix_buffer[0][x] = DoubleLines.H
             self._screen_matrix_buffer[Y_RES - 1][x] = DoubleLines.H
 
-    def visualize_scenario(self):
+    def main_loop(self) -> None:
         self.draw_screen_border()
+        self.visualize_scenario()
 
+    def visualize_scenario(self):
         player = self.game.player3d
         if not player.curr_level:
             return

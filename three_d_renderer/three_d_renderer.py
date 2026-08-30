@@ -14,6 +14,7 @@ from factories.theme import (
     Yellow,
 )
 from model.base import Point2F, Point3F
+from model.shared import Engine
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_THRESHOLD,
@@ -29,8 +30,7 @@ colors = [White, Cyan, Red, Blue, Green, Magenta, Yellow, Violet, Orange]
 random.shuffle(colors)
 
 
-# TODO: this should reuse display and set_resolution()
-class ThreeDeeRenderer:
+class ThreeDeeRenderer(Engine):
     _screen_matrix_buffer: list[list[str]] = []
 
     # physics params

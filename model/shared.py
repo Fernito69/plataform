@@ -14,3 +14,9 @@ class KeyboardHandler:
     @abstractmethod
     def handle_player_input(cls) -> None:
         pass
+
+
+class Engine:
+    @abstractmethod
+    def main_loop(cls) -> None:
+        pass

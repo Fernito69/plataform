@@ -4,7 +4,7 @@ from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
 from model.base import Point2F
 from model.keyboard import MovementKeys, PhysicsKey
-from model.shared import KeyboardHandler
+from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
 from physics2d.model.base import RenderInfo
 from physics2d.scenario.scenario import Scenario
@@ -22,7 +22,7 @@ CAMERA_MOVEMENT_SPEED = 2
 INTENSITY_BLEND_THRESHOLD = 0.8
 
 
-class Physics2D(KeyboardHandler):
+class Physics2D(Engine, KeyboardHandler):
     display: Display
     screen_buffer: list[list[list[RenderInfo]]]
 
@@ -50,7 +50,7 @@ class Physics2D(KeyboardHandler):
             for _ in range(self.screen_buffer_x_res):
                 self.screen_buffer[y].append([])
 
-    def game_loop(self) -> None:
+    def main_loop(self) -> None:
         self.init_screen_buffer()
         self.scenario.act()
         self.scenario.render()
