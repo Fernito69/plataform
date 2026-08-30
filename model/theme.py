@@ -4,6 +4,7 @@ from typing import Literal
 EMPTY_SPACE = " "
 UPPER_PIXEL_CHAR = "▀"
 LOWER_PIXEL_CHAR = "▄"
+BR = "\n"
 
 
 # Double lines

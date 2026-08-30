@@ -64,6 +64,10 @@ def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) ->
     return f"{fg_code}{bg_code}{text}{reset_code}"
 
 
+def get_raw_string(s: str) -> str:
+    return s.split(_RESET)[0] if _RESET in s else s
+
+
 def has_color(text: str) -> bool:
     return _FG_CODE in text
 

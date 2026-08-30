@@ -9,7 +9,7 @@ from model.base import Point2F, Point2I, Vector2I
 from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
-from model.theme import EMPTY_SPACE, LOWER_PIXEL_CHAR
+from model.theme import BR, EMPTY_SPACE, LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
@@ -21,17 +21,23 @@ from three_d_renderer.constants import (
     Y_RESOLUTION_3D,
 )
 from three_d_renderer.entities.player3d import Player3D
-from utils import colored, extract_bg_color_from_string, extract_color_from_string, has_bg_color
+from utils import (
+    colored,
+    extract_bg_color_from_string,
+    extract_color_from_string,
+    has_bg_color,
+    mix_colors,
+)
 
 if TYPE_CHECKING:
     from game import Game
 
 _DEFAULT_FPS = MAX_FPS_PHYSICS
 
-_MESSAGE_BORDER_COLOR = RGB(215, 160, 255).with_intensity(0.7)
-_MESSAGE_TEXT_COLOR = Yellow()
+_MESSAGE_UPPER_BORDER_COLOR = RGB(0, 255, 100)
+_MESSAGE_LOWER_BORDER_COLOR = RGB(170, 80, 255)
 
-# TODO: move all these and methods that use them to platformer_v1
+_MESSAGE_TEXT_COLOR = Yellow()
 
 
 class Display(KeyboardHandler):
@@ -89,42 +95,53 @@ class Display(KeyboardHandler):
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
             self._screen_matrix[y][x] = char
 
-    def print_message(self, message: str, padding_x: int = 4, padding_y: int = 2):
+    # TODO: allow color in the message string instead of hardcoding it
+    def print_message(self, message: str, padding_x: int = 12, padding_y: int = 4):
         if len(message) <= 0:
             return
+
+        message_parts: list[str] = message.split(BR)
+        message_height: int = len(message_parts)
+        max_message_lenght = max(len(p) for p in message_parts)
 
         mid_x = round(self.curr_x_resolution / 2)
         mid_y = round(self.curr_y_resolution / 2)
 
-        # Message position
-        starting_message_x = round(mid_x - len(message) / 2)
-        ending_message_x = round(mid_x + len(message) / 2)
-
         # Set up border
+        # TODO: de-dup code
+        starting_message_x = round(mid_x - max_message_lenght / 2)
+        ending_message_x = round(mid_x + max_message_lenght / 2)
         starting_border_x: int = starting_message_x - padding_x
         ending_border_x: int = ending_message_x + padding_x
         starting_border_y: int = mid_y - padding_y
-        ending_border_y: int = mid_y + padding_y + 1
+        ending_border_y: int = mid_y + padding_y + message_height
 
         if len(message) < len(range(starting_message_x - ending_message_x)):
             raise IndexError("WTF?: " + message)
 
         # Print border
         for x in range(starting_border_x, ending_border_x):
-            for y in range(starting_border_y, ending_border_y):
+            y_range = range(starting_border_y, ending_border_y)
+            for idx, y in enumerate(y_range):
 
                 def _col(ch: str) -> str:
+                    intensity: float = (1 - (idx / len(y_range))) ** 2
                     return colored(
                         ch,
-                        color=_MESSAGE_BORDER_COLOR,
+                        color=mix_colors(
+                            [
+                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(intensity),
+                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - intensity),
+                            ]
+                        ),
                         bg_color=extract_color_from_string(
                             self._screen_matrix[y][x]
                         ).with_intensity(0.5),
                     )
 
-                # TODO: This is hacky, do better
+                # TODO: This is hacky, do better. Voxel still prints them flipped
                 char: str = colored(
-                    LOWER_PIXEL_CHAR,
+                    LOWER_PIXEL_CHAR if self.game.mode == GameMode.PHYSICS_2D else UPPER_PIXEL_CHAR,
                     color=extract_color_from_string(self._screen_matrix[y][x]).with_intensity(0.5),
                     bg_color=extract_bg_color_from_string(self._screen_matrix[y][x]).with_intensity(
                         0.5
@@ -151,18 +168,24 @@ class Display(KeyboardHandler):
                 self._screen_matrix[y][x] = char
 
         # Display message
-        for index, x in enumerate(range(starting_message_x, ending_message_x)):
+        for msg_idx, line in enumerate(message_parts):
+            # Message position
+            starting_line_x = round(mid_x - len(line) / 2)
+            ending_line_x = round(mid_x + len(line) / 2)
 
-            def _c(index: int) -> str:
-                return colored(
-                    message[index] if index < len(message) else self._screen_matrix[mid_y][x],
-                    color=_MESSAGE_TEXT_COLOR,
-                    bg_color=extract_bg_color_from_string(self._screen_matrix[mid_y][x])
-                    if self._screen_matrix[mid_y][x] != EMPTY_SPACE
-                    else RGB(0, 0, 0, 0),
-                )
+            for index, x in enumerate(range(starting_line_x, ending_line_x)):
+                new_y_idx = mid_y + msg_idx
 
-            self._screen_matrix[mid_y][x] = _c(index)
+                def _c(index: int) -> str:
+                    return colored(
+                        line[index] if index < len(line) else self._screen_matrix[new_y_idx][x],
+                        color=_MESSAGE_TEXT_COLOR,
+                        bg_color=extract_bg_color_from_string(self._screen_matrix[new_y_idx][x])
+                        if self._screen_matrix[new_y_idx][x] != EMPTY_SPACE
+                        else RGB(0, 0, 0, 0),
+                    )
+
+                self._screen_matrix[new_y_idx][x] = _c(index)
 
         self.print_curr_screen()
 
@@ -212,18 +235,18 @@ class Display(KeyboardHandler):
                     )
                 )
             if i < self.curr_y_resolution - 1:
-                matrix_string += "\n"
+                matrix_string += BR
 
         clear()
 
         if self._debug_str:
-            matrix_string += colored("\nDEBUG: ", Red()) + self._debug_str
+            matrix_string += colored(BR + "DEBUG: ", Red()) + self._debug_str
 
         if player:
-            matrix_string += "\n" + self._get_hud_string(player)
+            matrix_string += BR + self._get_hud_string(player)
 
         if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else "\n"
+            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
             matrix_string += f"{_sep}{colored('FPS:', Green())} {str(round(self._measured_fps, 2))}"
 
         print(matrix_string)
@@ -282,7 +305,7 @@ class Display(KeyboardHandler):
             hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEPARATOR}"
             hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEPARATOR}"
             hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEPARATOR}"
-            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEPARATOR}"
+            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}{BR}{SEPARATOR}"
             hud += f"Mode: {_c(mode_key)}{SEPARATOR}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEPARATOR}"
             hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEPARATOR}"
