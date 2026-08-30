@@ -1,3 +1,5 @@
+import time
+
 from display import Display
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
@@ -36,7 +38,7 @@ class Game(KeyboardHandler):
         self.status = status
         self.mode = mode
 
-        self.display = Display()
+        self.display = Display(self)
         self.display.set_mode(self.mode)
 
         self.player2d = Player2D(1)
@@ -49,7 +51,7 @@ class Game(KeyboardHandler):
         self.line_renderer = LineRenderer(self)
 
         # hardcoded cool initial place
-        self.player3d._position = (18, 84, -33)
+        self.player3d.position = (18, 84, -33)
 
     def main_loop(self) -> None:
         def _main_loop():
@@ -100,13 +102,34 @@ class Game(KeyboardHandler):
             self.display.print_message(message)
             self.status = GameStatus.GAMEOVER
 
-    # Input methods
-    # TODO: all display methods should go in Display class, or Three3d, whatever fits
+    ##############
+    # PLAYER INPUT
+    ##############
+
+    def handle_player_input(self) -> None:
+        self._quit()
+        self._switch_3d_rendering_mode()
+        self._switch_2d_mode()
+        self._switch_3d_mode()
+        self._switch_physics2d_mode()
+        self._toggle_rotation()
+
+        if self.mode == GameMode.PLATFORMER_V1:
+            return
+
+        self._increase_fov()
+        self._decrease_fov()
+
+        self._increase_visibility()
+        self._decrease_visibility()
+
+        self._shuffle_colors()
+
     @on_key_press(MenuKeys.QUIT)
     def _quit(self):
         self.status = GameStatus.QUIT
-        # TODO: fix the quit loop: check why the message is not being printed
-        raise
+        # TODO: fix the quit loop, check why the message is not being printed
+        time.sleep(0.5)
 
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
@@ -124,30 +147,15 @@ class Game(KeyboardHandler):
         self.mode = GameMode.VOXELS_3D
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
-    def _switch_rendering_mode(self):
+    def _switch_3d_rendering_mode(self):
         self.mode = GameMode.VOXELS_3D if self.status == GameMode.LINES_3D else GameMode.LINES_3D
+        self.display.set_mode(self.mode)
+
         if self.mode == GameMode.VOXELS_3D:
             self.voxel_renderer.reset_screen_buffer()
         else:
             self.line_renderer.reset_screen_buffer()
             self.line_renderer.empty_screen_data()
-
-    # TODO: increase res functionality is broken, fix
-    @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
-    def _increase_x_resolution(self):
-        self.display.modify_resolution((1, 0))
-
-    @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
-    def _decrease_x_resolution(self):
-        self.display.modify_resolution((-1, 0))
-
-    @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
-    def _increase_y_resolution(self):
-        self.display.modify_resolution((0, 1))
-
-    @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
-    def _decrease_y_resolution(self):
-        self.display.modify_resolution((0, -1))
 
     @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
     def _switch_antialiasing(self):
@@ -155,7 +163,7 @@ class Game(KeyboardHandler):
 
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):
-        # TODO: I don't like this, should be unified. Same for all the rest:
+        # TODO: I don't like this, should be a single source of truth. Same for all the rest.
         self.voxel_renderer.visibility_threshold += 5
         self.line_renderer.visibility_threshold += 5
 
@@ -188,30 +196,6 @@ class Game(KeyboardHandler):
 
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
-        if not self.player3d._curr_level:
+        if not self.player3d.curr_level:
             return
-        self.player3d._curr_level.toggle_rotation()
-
-    def handle_player_input(self) -> None:
-        self._quit()
-        self._switch_rendering_mode()
-        self._switch_2d_mode()
-        self._switch_3d_mode()
-        self._switch_physics2d_mode()
-        self._toggle_rotation()
-
-        self._increase_fov()
-        self._decrease_fov()
-
-        if self.mode == GameMode.PLATFORMER_V1:
-            return
-
-        self._increase_x_resolution()
-        self._decrease_x_resolution()
-        self._increase_y_resolution()
-        self._decrease_y_resolution()
-
-        self._increase_visibility()
-        self._decrease_visibility()
-
-        self._shuffle_colors()
+        self.player3d.curr_level.toggle_rotation()

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 # TODO: rename methods properly
 # TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
 class Entity2D:
-    _curr_level: Optional["Level2D"] = None
+    curr_level: Optional["Level2D"] = None
     position: tuple[float, float] = (0, 0)
     falling_velocity: float = 0
 
@@ -28,7 +28,7 @@ class Entity2D:
 
     def __init__(self, level: Optional["Level2D"] = None, theme: Theme | None = None):
         # x and y coordinates
-        self._curr_level = level
+        self.curr_level = level
         self._char_frames = [EMPTY_SPACE]
         self._default_char_frames = [EMPTY_SPACE]
         self._curr_char_frame_index = 0
@@ -96,10 +96,10 @@ class Entity2D:
     # checks collision with landscape elements
     def _collision_landscape(self, old_pos: Point2F) -> None:
         if (
-            self._curr_level
-            and 0 <= int(self.position[1]) < len(self._curr_level.map)
-            and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
-            and self._curr_level.map[int(self.position[1])][int(self.position[0])] != EMPTY_SPACE
+            self.curr_level
+            and 0 <= int(self.position[1]) < len(self.curr_level.map)
+            and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
+            and self.curr_level.map[int(self.position[1])][int(self.position[0])] != EMPTY_SPACE
         ):
             self.position = old_pos
 
@@ -117,7 +117,7 @@ class Entity2D:
 
     # calculates Y-axis distance DOWN to landscape
     def y_distance(self) -> Collision2Y:
-        if self._curr_level is None:
+        if self.curr_level is None:
             return Collision2Y()
 
         y_dist = -1
@@ -125,9 +125,9 @@ class Entity2D:
         for i in range(math.floor(self.position[1]), Y_RESOLUTION_2D):
             # checks all the way down in player's current X-position
             if (
-                0 <= int(self.position[1]) < len(self._curr_level.map)
-                and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
-                and self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+                0 <= int(self.position[1]) < len(self.curr_level.map)
+                and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
+                and self.curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
             ):
                 y_dist += 1
             else:
@@ -142,16 +142,16 @@ class Entity2D:
     # calculates Y-axis distance UP to landscape
     # checks from current entity position to the upper part of the screen
     def y_distance_neg(self) -> Collision2Y:
-        if self._curr_level is None:
+        if self.curr_level is None:
             return Collision2Y()
 
         y_dist_neg = -1
         for i in range(math.floor(self.position[1]), -1, -1):
             # checks all the way up in player's current X-position
             if (
-                0 <= int(self.position[1]) < len(self._curr_level.map)
-                and 0 <= int(self.position[0]) < len(self._curr_level.map[0])
-                and self._curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+                0 <= int(self.position[1]) < len(self.curr_level.map)
+                and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
+                and self.curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
             ):
                 y_dist_neg += 1
             else:
@@ -166,7 +166,7 @@ class Entity2D:
     # calculates X-axis distance to landscape to the RIGHT
     # checks from current entity position to the leftmost part of the screen
     def x_distance(self) -> Collision2X:
-        if self._curr_level is None:
+        if self.curr_level is None:
             return Collision2X()
 
         x_dist = -1
@@ -174,8 +174,8 @@ class Entity2D:
         for i in range(math.floor(self.position[0]), X_RESOLUTION_2D):
             # checks all the way to the right in entity's current Y-position
             if (
-                0 <= math.floor(self.position[1]) < len(self._curr_level.map)
-                and self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE
+                0 <= math.floor(self.position[1]) < len(self.curr_level.map)
+                and self.curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE
             ):
                 x_dist += 1
             else:
@@ -190,13 +190,13 @@ class Entity2D:
     # calculates X-axis distance to landscape to the LEFT
     # checks from current entity position to the upper part of the screen
     def x_distance_neg(self) -> Collision2X:
-        if self._curr_level is None:
+        if self.curr_level is None:
             return Collision2X()
 
         x_dist_neg = -1
         for i in range(math.floor(self.position[0]), -1, -1):
             # checks all the way to the left in entity's current Y-position
-            if self._curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
+            if self.curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
                 x_dist_neg += 1
             else:
                 return Collision2X(
@@ -208,7 +208,7 @@ class Entity2D:
         return Collision2X()
 
     def set_curr_level(self, level: "Level2D"):
-        self._curr_level = level
+        self.curr_level = level
 
 
 class LivingEntity2D(Entity2D):

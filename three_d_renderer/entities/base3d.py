@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Entity3D:
-    _position: Point3F = (0, 0, 0)
+    position: Point3F = (0, 0, 0)
     falling_velocity: float = 0
     vertices: list[Point3F]
     mov_vector: Vector3F
@@ -44,11 +44,11 @@ class Entity3D:
     ):
         # x and y coordinates
         # TODO: should we keep previous state to calculate instant velocity?
-        self._curr_level = level
+        self.curr_level = level
         self._char_frames = [EMPTY_SPACE]
         self._default_char_frames = [EMPTY_SPACE]
         self._curr_char_frame_index = 0
-        self._position = position
+        self.position = position
         self.size = size
         self.angle = angle
         self.mov_vector = mov_vector
@@ -94,16 +94,16 @@ class Entity3D:
 
     # TODO: this should calculate player collision before moving ()
     def move_by(self, vector: Vector3F) -> None:
-        self._position = add_triplet(self._position, vector)
+        self.position = add_triplet(self.position, vector)
 
     def move_to(self, new_position: Vector3F) -> None:
-        self._position = new_position
+        self.position = new_position
 
     def is_same_position(self, entity: "Entity3D") -> bool:
-        return all(a == b for a, b in zip(self._position, entity._position))
+        return all(a == b for a, b in zip(self.position, entity.position))
 
     def movement(self):
-        self._position = add_triplet(self._position, self.mov_vector)
+        self.position = add_triplet(self.position, self.mov_vector)
 
         if self.rotate:
             self.angle = subtract_triplet(self.angle, self.rot_vector)
@@ -113,7 +113,7 @@ class Entity3D:
     def apply_rotations(self):
         vertexes = self.vertices
 
-        x, y, z = self._position
+        x, y, z = self.position
 
         a_x = math.radians(self.angle[0])
         a_y = math.radians(self.angle[1])

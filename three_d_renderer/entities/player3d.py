@@ -19,7 +19,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
     points: int
     player_number: int
 
-    _curr_level: "Level3D"
+    curr_level: "Level3D"
     _immune_counter: int
 
     def __init__(self, player_number: int = 1):
@@ -64,5 +64,5 @@ class Player3D(KeyboardHandler, LivingEntity3D):
         self._fly_down()
 
     def set_curr_level(self, level: "Level3D"):
-        self._curr_level = level
-        self._position = level.player_starting_position
+        self.curr_level = level
+        self.position = level.player_starting_position

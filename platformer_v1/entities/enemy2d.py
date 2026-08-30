@@ -35,7 +35,7 @@ class Enemy2D(LivingEntity2D):
         self.theme = theme or Theme()
 
     def collision(self) -> bool:
-        if self._curr_level is None:
+        if self.curr_level is None:
             return False
 
         colliding_x = self.movement_type[0] > 0 and (
@@ -56,7 +56,7 @@ class Enemy2D(LivingEntity2D):
         self.movement()
 
     def movement(self):
-        if self._curr_level is None:
+        if self.curr_level is None:
             return
 
         # Bounce enemy

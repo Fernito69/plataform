@@ -1,17 +1,18 @@
 import math
 import time
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
 from model.game import GameMode
 from model.keyboard import DisplayKeys
+from model.shared import KeyboardHandler
 from model.theme import EMPTY_SPACE, DoubleLines
 from physics2d.constants import FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
-from terminal import clear
+from terminal import clear, on_key_press
 from three_d_renderer.constants import (
     ANTIALIASING_INTENSITY,
     FPS_3D,
@@ -20,6 +21,9 @@ from three_d_renderer.constants import (
 )
 from three_d_renderer.entities.player3d import Player3D
 from utils import colored, extract_color_from_string, has_bg_color
+
+if TYPE_CHECKING:
+    from game import Game
 
 _DEFAULT_FPS = FPS_PHYSICS
 
@@ -34,7 +38,7 @@ _MESSAGE_BORDER_COLOR = Red()
 _MESSAGE_TEXT_COLOR = Yellow()
 
 
-class Display:
+class Display(KeyboardHandler):
     _screen_matrix: list[list[str]]
 
     curr_fps: float
@@ -48,7 +52,8 @@ class Display:
 
     antialiasing: bool
 
-    def __init__(self, fps: float = _DEFAULT_FPS):
+    def __init__(self, game: "Game", fps: float = _DEFAULT_FPS):
+        self.game = game
         self.curr_3d_char_mode = "█"
         self.antialiasing = True
         self.curr_fps = fps
@@ -255,7 +260,7 @@ class Display:
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
             hud += f"Mode: {_c(mode_key)}{SEP}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
-            hud += f"Curr pos: {colored((f'({player._position[0]},{player._position[1]},{player._position[2]})'))}{SEP}"
+            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
 
             return print(hud)
 
@@ -274,3 +279,32 @@ class Display:
         hud += str(round(player.falling_velocity, 3))
 
         print(hud)
+
+    ##############
+    # PLAYER INPUT
+    ##############
+    def handle_player_input(self) -> None:
+        if self.game.mode == GameMode.PLATFORMER_V1:
+            return
+
+        self._increase_x_resolution()
+        self._decrease_x_resolution()
+        self._increase_y_resolution()
+        self._decrease_y_resolution()
+
+    # TODO: increase res functionality is broken, fix
+    @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
+    def _increase_x_resolution(self):
+        self.modify_resolution((1, 0))
+
+    @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
+    def _decrease_x_resolution(self):
+        self.modify_resolution((-1, 0))
+
+    @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
+    def _increase_y_resolution(self):
+        self.modify_resolution((0, 1))
+
+    @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
+    def _decrease_y_resolution(self):
+        self.modify_resolution((0, -1))
