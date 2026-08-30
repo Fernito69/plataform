@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from constants import ALMOST_ZERO
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.scenario.piece import ScenarioPiece
@@ -89,7 +90,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         floating_multi=0.05,
     )
     circle_3 = Circunference(
-        center=(30, 21), theme=Theme(color=Green()), radius=15, floating_multi=0.01
+        center=(30, 21), theme=Theme(color=Green()), radius=15, floating_multi=ALMOST_ZERO
     )
     circle_4 = Circunference(
         center=(0, 0),

@@ -2,6 +2,7 @@ import math
 import time
 from typing import TYPE_CHECKING, Callable
 
+from constants import ALMOST_ZERO
 from factories.theme import RGB, Blue, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
@@ -181,7 +182,10 @@ class Display(KeyboardHandler):
 
         raw_diff = period - ellapsed
 
-        self._measured_fps = min(1 / ((period - raw_diff) or 0.001), self._curr_fps)
+        self._measured_fps = min(
+            self._curr_fps,
+            1 / (ellapsed or ALMOST_ZERO),
+        )
 
         time.sleep(max(0, raw_diff))
 
@@ -224,22 +228,22 @@ class Display(KeyboardHandler):
 
     def _set_2d_mode(self):
         self.antialiasing = True
-        self._set_fps(MAX_FPS_2D)
+        self._set_max_fps(MAX_FPS_2D)
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
 
     def _set_physics_mode(self):
         # Handled in-engine
         self.antialiasing = False
-        self._set_fps(MAX_FPS_PHYSICS)
+        self._set_max_fps(MAX_FPS_PHYSICS)
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
         self._set_resolution((X_RESOLUTION_PHYSICS, round(Y_RESOLUTION_PHYSICS / 2)))
 
     def _set_3d_mode(self):
         self.antialiasing = True
-        self._set_fps(MAX_FPS_3D)
+        self._set_max_fps(MAX_FPS_3D)
         self._set_resolution((X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
-    def _set_fps(self, fps: float) -> None:
+    def _set_max_fps(self, fps: float) -> None:
         self._curr_fps = fps
 
     def _set_resolution(self, resolution: Point2I) -> None:

@@ -1,6 +1,6 @@
 import math
 
-from constants import HALF_PIXEL, PI
+from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import RGB, White
 from model.base import Point2F, Vector2F
 from model.theme import Theme
@@ -81,7 +81,9 @@ class Line(ScenarioPiece):
             distance_from_center_to_farthest_point = distance_between_points(
                 self.center_of_mass, self.points[0]
             ).distance
-            new_angle = self.angular_velocity / (distance_from_center_to_farthest_point or 0.01)
+            new_angle = self.angular_velocity / (
+                distance_from_center_to_farthest_point or ALMOST_ZERO
+            )
 
         if not new_angle:
             return
