@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
-from factories.theme import DEFAULT_CHAR
+from factories.theme import DEFAULT_CHAR, DoubleLines
 from model.base import Point2F, Point3F
-from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR, DoubleLines
+from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
 

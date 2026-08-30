@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Literal
 
-# map glyphs
 EMPTY_SPACE = " "
 UPPER_PIXEL_CHAR = "▀"
 LOWER_PIXEL_CHAR = "▄"
@@ -21,36 +20,6 @@ class Line:
     CD: str
     CU: str
     CA: str
-
-
-DoubleLines = Line(
-    UL="╔",
-    UR="╗",
-    LL="╚",
-    LR="╝",
-    H="═",
-    V="║",
-    CR="╠",
-    CL="╣",
-    CD="╦",
-    CU="╩",
-    CA="╬",
-)
-
-
-SingleLines = Line(
-    UL="┌",
-    UR="┐",
-    LL="└",
-    LR="┘",
-    H="─",
-    V="│",
-    CR="├",
-    CL="┤",
-    CD="┬",
-    CU="┴",
-    CA="┼",
-)
 
 
 @dataclass

@@ -1,17 +1,38 @@
-from model.theme import EMPTY_SPACE, RGB, DoubleLines, Theme
+from model.theme import EMPTY_SPACE, RGB, Line, Theme
 from utils import colored
-
-"""
-CHARACTERS
-"""
-
-
-DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=RGB(0,0,0))
-
 
 """
 COLORS
 """
+
+DoubleLines = Line(
+    UL="╔",
+    UR="╗",
+    LL="╚",
+    LR="╝",
+    H="═",
+    V="║",
+    CR="╠",
+    CL="╣",
+    CD="╦",
+    CU="╩",
+    CA="╬",
+)
+
+
+SingleLines = Line(
+    UL="┌",
+    UR="┐",
+    LL="└",
+    LR="┘",
+    H="─",
+    V="│",
+    CR="├",
+    CL="┤",
+    CD="┬",
+    CU="┴",
+    CA="┼",
+)
 
 
 # Receives a float between 0 and 1
@@ -113,3 +134,11 @@ CandyTheme = Theme(
     custom_line_chars=[" ", "▄", "█▀", "▀"],
     custom_line_type="sequential",
 )
+
+"""
+CHARACTERS
+"""
+
+
+DEFAULT_CHAR = colored(EMPTY_SPACE, bg_color=RGB(0, 0, 0))
+SEPARATOR = f" {colored('|', Blue(0.8))} "

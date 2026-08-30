@@ -47,9 +47,9 @@ def mix_colors(colores: list[RGB]) -> RGB:
     )
 
 
-def extract_bg_color_from_string(text: str) -> RGB | None:
+def extract_bg_color_from_string(text: str) -> RGB:
     if not has_bg_color(text):
-        return None
+        return RGB(0, 0, 0)
 
     rgb_string = text.split(_BG_CODE)[1].split("m")[0]
     r, g, b = rgb_string.split(";")

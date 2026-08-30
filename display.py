@@ -3,13 +3,13 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import RGB, Blue, Green, Red, White, Yellow
+from factories.theme import RGB, SEPARATOR, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
 from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
-from model.theme import EMPTY_SPACE, DoubleLines
+from model.theme import EMPTY_SPACE, LOWER_PIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
@@ -21,14 +21,14 @@ from three_d_renderer.constants import (
     Y_RESOLUTION_3D,
 )
 from three_d_renderer.entities.player3d import Player3D
-from utils import colored, extract_color_from_string, has_bg_color
+from utils import colored, extract_bg_color_from_string, extract_color_from_string, has_bg_color
 
 if TYPE_CHECKING:
     from game import Game
 
 _DEFAULT_FPS = MAX_FPS_PHYSICS
 
-_MESSAGE_BORDER_COLOR = Red()
+_MESSAGE_BORDER_COLOR = RGB(215, 160, 255).with_intensity(0.7)
 _MESSAGE_TEXT_COLOR = Yellow()
 
 # TODO: move all these and methods that use them to platformer_v1
@@ -89,7 +89,6 @@ class Display(KeyboardHandler):
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
             self._screen_matrix[y][x] = char
 
-    # TODO: this is not working well, fix
     def print_message(self, message: str, padding_x: int = 4, padding_y: int = 2):
         if len(message) <= 0:
             return
@@ -120,10 +119,17 @@ class Display(KeyboardHandler):
                         color=_MESSAGE_BORDER_COLOR,
                         bg_color=extract_color_from_string(
                             self._screen_matrix[y][x]
-                        ).with_intensity(1),
+                        ).with_intensity(0.5),
                     )
 
-                char = self._screen_matrix[y][x]
+                # TODO: This is hacky, do better
+                char: str = colored(
+                    LOWER_PIXEL_CHAR,
+                    color=extract_color_from_string(self._screen_matrix[y][x]).with_intensity(0.5),
+                    bg_color=extract_bg_color_from_string(self._screen_matrix[y][x]).with_intensity(
+                        0.5
+                    ),
+                )
 
                 if y == starting_border_y:
                     if x == starting_border_x:
@@ -151,19 +157,14 @@ class Display(KeyboardHandler):
                 return colored(
                     message[index] if index < len(message) else self._screen_matrix[mid_y][x],
                     color=_MESSAGE_TEXT_COLOR,
-                    bg_color=extract_color_from_string(
-                        self._screen_matrix[mid_y][x]
-                    ).with_intensity(0.5)
+                    bg_color=extract_bg_color_from_string(self._screen_matrix[mid_y][x])
                     if self._screen_matrix[mid_y][x] != EMPTY_SPACE
                     else RGB(0, 0, 0, 0),
                 )
 
             self._screen_matrix[mid_y][x] = _c(index)
 
-        _curr_antialiasing = self.antialiasing
-        self.antialiasing = True
         self.print_curr_screen()
-        self.antialiasing = _curr_antialiasing
 
     def put_screen_content(self, new_screen_matrix: list[list[str]]) -> None:
         self._screen_matrix = new_screen_matrix
@@ -219,10 +220,11 @@ class Display(KeyboardHandler):
             matrix_string += colored("\nDEBUG: ", Red()) + self._debug_str
 
         if player:
-            self._print_hud(player)
+            matrix_string += "\n" + self._get_hud_string(player)
 
         if self._print_fps:
-            matrix_string += f"{colored('\nFPS: ', Green())} {str(round(self._measured_fps, 2))}"
+            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else "\n"
+            matrix_string += f"{_sep}{colored('FPS:', Green())} {str(round(self._measured_fps, 2))}"
 
         print(matrix_string)
 
@@ -250,11 +252,9 @@ class Display(KeyboardHandler):
         self.curr_x_resolution = resolution[0]
         self.curr_y_resolution = resolution[1]
 
-    def _print_hud(self, player: Player2D | Player3D | None = None):
-        if not player:
-            return
-
+    def _get_hud_string(self, player: Player2D | Player3D) -> str:
         hud = ""
+
         # Horrible branching
         if isinstance(player, Player3D):
             switch_aa_key = default_keyboard_mapping[DisplayKeys.SWITCH_ANTIALIASING]
@@ -274,19 +274,20 @@ class Display(KeyboardHandler):
 
             ON_STR = colored("ON", Green(0.8))
             OFF_STR = colored("OFF", Red(0.8))
-            SEP = f" {colored('|', Blue(0.8))} "
 
             hud += f"{colored('KEYS REFERENCE', Yellow(0.9))}: "
-            hud += f"AA: ({_c(switch_aa_key)}) {ON_STR if self.antialiasing else OFF_STR}{SEP}"
-            hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEP}"
-            hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEP}"
-            hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEP}"
-            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEP}"
-            hud += f"Mode: {_c(mode_key)}{SEP}"
-            hud += f"Shuffle!: {_c(shuffle_key)}{SEP}"
-            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEP}"
+            hud += (
+                f"AA: ({_c(switch_aa_key)}) {ON_STR if self.antialiasing else OFF_STR}{SEPARATOR}"
+            )
+            hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEPARATOR}"
+            hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEPARATOR}"
+            hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEPARATOR}"
+            hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}\n{SEPARATOR}"
+            hud += f"Mode: {_c(mode_key)}{SEPARATOR}"
+            hud += f"Shuffle!: {_c(shuffle_key)}{SEPARATOR}"
+            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEPARATOR}"
 
-            return print(hud)
+            return hud
 
         health = player.get_health()
 
@@ -294,7 +295,7 @@ class Display(KeyboardHandler):
         hud += " | Pos: (" + str(player.position[0]) + ", " + str(player.position[1]) + ") | Vy: "
         hud += str(round(player.falling_velocity, 3))
 
-        print(hud)
+        return hud
 
     ##############
     # PLAYER INPUT
