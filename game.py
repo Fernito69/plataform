@@ -67,7 +67,7 @@ class Game(KeyboardHandler):
                     return self.voxel_renderer.visualize_scenario()
 
                 case GameMode.LINES_3D:
-                    self.player2d.handle_player_input()
+                    self.player3d.handle_player_input()
                     return self.line_renderer.render()
 
                 case GameMode.PLATFORMER_V1:
