@@ -107,6 +107,7 @@ class Display(KeyboardHandler):
         self._message_intensity = intensity if message else 0
 
     # TODO: allow color in the message string instead of hardcoding it
+    # TODO: this logic is all sooo hacky, do better
     def _add_message_to_matrix(
         self, padding_x: int = 12, padding_y: int = 4
     ) -> tuple[Point2I, Point2I] | None:
@@ -136,20 +137,20 @@ class Display(KeyboardHandler):
         for x in range(starting_border_x, ending_border_x):
             y_range = range(starting_border_y, ending_border_y)
             for y_idx, y in enumerate(y_range):
-                intensity: float = 1 - (y_idx / len(y_range))
+                _color_intensity: float = 1 - (y_idx / len(y_range))
 
                 def _col(ch: str) -> str:
                     return colored(
                         ch,
                         color=mix_colors(
                             [
-                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(intensity),
-                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - intensity),
+                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(_color_intensity),
+                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _color_intensity),
                             ]
                         ).with_intensity(self._message_intensity),
                         bg_color=extract_color_from_string(
                             self._screen_matrix[y][x]
-                        ).with_intensity(0.5),
+                        ).with_intensity((1 - self._message_intensity)),
                     )
 
                 # TODO: This is hacky, do better.
@@ -157,10 +158,10 @@ class Display(KeyboardHandler):
                 char: str = colored(
                     LOWER_PIXEL_CHAR if self.game.mode == GameMode.PHYSICS_2D else UPPER_PIXEL_CHAR,
                     color=extract_color_from_string(self._screen_matrix[y][x]).with_intensity(
-                        1 - intensity
+                        1 - _color_intensity
                     ),
                     bg_color=extract_bg_color_from_string(self._screen_matrix[y][x]).with_intensity(
-                        1 - intensity
+                        1 - _color_intensity
                     ),
                 )
 
