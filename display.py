@@ -102,7 +102,7 @@ class Display(KeyboardHandler):
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
             self._screen_matrix[y][x] = char
 
-    def set_message(self, message: str | None, intensity: float = 1) -> None:
+    def set_message(self, message: str | None, intensity: float = 0.7) -> None:
         self._message = message
         self._message_intensity = intensity if message else 0
 
@@ -137,15 +137,15 @@ class Display(KeyboardHandler):
         for x in range(starting_border_x, ending_border_x):
             y_range = range(starting_border_y, ending_border_y)
             for y_idx, y in enumerate(y_range):
-                _color_intensity: float = 1 - (y_idx / len(y_range))
+                _border_intensity: float = 1 - (y_idx / len(y_range))
 
-                def _col(ch: str) -> str:
+                def _border_col(ch: str) -> str:
                     return colored(
                         ch,
                         color=mix_colors(
                             [
-                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(_color_intensity),
-                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _color_intensity),
+                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(_border_intensity),
+                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity),
                             ]
                         ).with_intensity(self._message_intensity),
                         bg_color=extract_color_from_string(
@@ -155,32 +155,33 @@ class Display(KeyboardHandler):
 
                 # TODO: This is hacky, do better.
                 # TODO: Voxel still prints them flipped, fix!
+                _bg_intensity = 1 - self._message_intensity if self._message_intensity else 0.7
                 char: str = colored(
                     LOWER_PIXEL_CHAR if self.game.mode == GameMode.PHYSICS_2D else UPPER_PIXEL_CHAR,
                     color=extract_color_from_string(self._screen_matrix[y][x]).with_intensity(
-                        1 - _color_intensity
+                        _bg_intensity
                     ),
                     bg_color=extract_bg_color_from_string(self._screen_matrix[y][x]).with_intensity(
-                        1 - _color_intensity
+                        _bg_intensity
                     ),
                 )
 
                 if y == starting_border_y:
                     if x == starting_border_x:
-                        char = _col(DoubleLines.UL)
+                        char = _border_col(DoubleLines.UL)
                     elif x == ending_border_x - 1:
-                        char = _col(DoubleLines.UR)
+                        char = _border_col(DoubleLines.UR)
                     else:
-                        char = _col(DoubleLines.H)
+                        char = _border_col(DoubleLines.H)
                 elif y == ending_border_y - 1:
                     if x == starting_border_x:
-                        char = _col(DoubleLines.LL)
+                        char = _border_col(DoubleLines.LL)
                     elif x == ending_border_x - 1:
-                        char = _col(DoubleLines.LR)
+                        char = _border_col(DoubleLines.LR)
                     else:
-                        char = _col(DoubleLines.H)
+                        char = _border_col(DoubleLines.H)
                 elif x == starting_border_x or x == ending_border_x - 1:
-                    char = _col(DoubleLines.V)
+                    char = _border_col(DoubleLines.V)
 
                 self._screen_matrix[y][x] = char
 

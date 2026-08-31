@@ -7,8 +7,6 @@ def main():
 
     while game.status == GameStatus.RUNNING:
         game.main_loop()
-    else:
-        game.handle_quit()
 
 
 if __name__ == "__main__":
