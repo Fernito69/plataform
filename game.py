@@ -56,7 +56,7 @@ class Game(Engine, KeyboardHandler):
         # hardcoded cool initial place
         self.player3d.position = (18, 84, -33)
 
-    def quite_game(self, message: str = "BYE BYE!" + BR + "Thanks for playing :)") -> None:
+    def quit_game(self, message: str = "BYE BYE!" + BR + "Thanks for playing :)") -> None:
         self.display.set_message(message)
         self.display.print_curr_screen()
         self.status = GameStatus.QUIT
@@ -67,7 +67,7 @@ class Game(Engine, KeyboardHandler):
 
         _W = int(_WELCOME_TIMER / 2)
 
-        if self._welcome_message_timer < 0:
+        if self._welcome_message_timer == -99:
             # negative means it's already shown
             return
         elif self._welcome_message_timer >= 0:
@@ -92,8 +92,8 @@ class Game(Engine, KeyboardHandler):
             self.display.set_message(_text, intensity=intensity)
             self._welcome_message_timer -= 1
         elif self.display.has_message():
-            self._welcome_message_timer = -99
             self.display.set_message(None)
+            self._welcome_message_timer = -99
 
     def main_loop(self) -> None:
         def _main_loop():
@@ -128,10 +128,10 @@ class Game(Engine, KeyboardHandler):
         for player in [self.player2d, self.player3d]:
             match player.status:
                 case PlayerStatus.DEAD:
-                    return self.quite_game("GAME OVER")
+                    return self.quit_game("GAME OVER")
 
         if self.player2d.status == PlayerStatus.END_LEVEL_2D:
-            return self.quite_game("YOU WON!!! :D")
+            return self.quit_game("YOU WON!!! :D")
 
     ##############
     # PLAYER INPUT
@@ -158,7 +158,7 @@ class Game(Engine, KeyboardHandler):
 
     @on_key_press(MenuKeys.QUIT)
     def _press_quit(self):
-        self.quite_game()
+        self.quit_game()
 
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):

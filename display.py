@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import RGB, SEPARATOR, DoubleLines, Green, Red, White, Yellow
+from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
 from model.game import GameMode
@@ -278,7 +278,7 @@ class Display(KeyboardHandler):
 
         if self._print_fps:
             _sep = SEPARATOR if isinstance(player, Player2D) else EMPTY_SPACE if player else BR
-            matrix_string += f"{_sep}{colored('FPS:', Green())} {str(round(self._measured_fps, 2))}"
+            matrix_string += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps, 2))}"
 
         clear()
         print(matrix_string)
