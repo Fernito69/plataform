@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
+from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import Point2F, Point2I, Vector2I
 from model.game import GameMode
@@ -41,18 +41,16 @@ _MESSAGE_TEXT_COLOR = Yellow()
 
 
 class Display(KeyboardHandler):
-    _screen_grid: list[list[str]]
-
-    curr_fps: float
     curr_x_resolution: int
     curr_y_resolution: int
+    antialiasing: bool
 
+    _screen_grid: list[list[str]]
+
+    _curr_fps: float
     _debug_str: str | None = None
     _message: str | None
     _message_intensity: float
-
-    antialiasing: bool
-
     _print_fps: bool
 
     def __init__(
@@ -63,7 +61,7 @@ class Display(KeyboardHandler):
     ):
         self.game = game
         self.antialiasing = True
-        self.curr_fps = fps
+        self._curr_fps = fps
         self._print_fps = print_fps
         self._message = None
         self._message_intensity = 0
@@ -311,7 +309,6 @@ class Display(KeyboardHandler):
 
         # Horrible branching
         if isinstance(player, Player3D):
-            switch_aa_key = default_keyboard_mapping[DisplayKeys.SWITCH_ANTIALIASING]
             fov_decr_key = default_keyboard_mapping[DisplayKeys.DECREASE_FOV]
             fov_incr_key = default_keyboard_mapping[DisplayKeys.INCREASE_FOV]
             decr_x_key = default_keyboard_mapping[DisplayKeys.DECREASE_X_RESOLUTION]
@@ -326,13 +323,7 @@ class Display(KeyboardHandler):
             def _c(s: str) -> str:
                 return "'" + colored(s.capitalize(), White(1)) + "'"
 
-            ON_STR = colored("ON", Green(0.8))
-            OFF_STR = colored("OFF", Red(0.8))
-
             hud += f"{colored('KEYS REFERENCE', Yellow(0.9))}: "
-            hud += (
-                f"AA: ({_c(switch_aa_key)}) {ON_STR if self.antialiasing else OFF_STR}{SEPARATOR}"
-            )
             hud += f"FOV (-/+): {_c(fov_incr_key)}, {_c(fov_decr_key)}{SEPARATOR}"
             hud += f"X (-/+): {_c(decr_x_key)}, {_c(incr_x_key)}{SEPARATOR}"
             hud += f"Y (-/+): {_c(decr_y_key)}, {_c(incr_y_key)}{SEPARATOR}"
