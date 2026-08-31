@@ -277,8 +277,8 @@ class Display(KeyboardHandler):
             matrix_string += BR + self._get_hud_string(player)
 
         if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else EMPTY_SPACE if player else BR
-            matrix_string += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps, 2))}"
+            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
+            matrix_string += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps))}"
 
         clear()
         print(matrix_string)
@@ -340,8 +340,8 @@ class Display(KeyboardHandler):
             hud += f"Visibility (-/+): {_c(decr_fog_key)}, {_c(incr_vis_key)}{BR}{SEPARATOR}"
             hud += f"Mode: {_c(mode_key)}{SEPARATOR}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEPARATOR}"
-            hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEPARATOR}"
-            hud += f"Angle: {colored((f'({player._angle[0]},{player._angle[1]},{player._angle[2]})'))}{SEPARATOR}"
+            hud += f"Curr pos: {colored((f'({int(player.position[0])},{int(player.position[1])},{int(player.position[2])})'))}{SEPARATOR}"
+            hud += f"Angle: {colored((f'({int(player._angle[0])},{int(player._angle[1])},{int(player._angle[2])})'))}{SEPARATOR}"
 
             return hud
 
