@@ -13,7 +13,7 @@ from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import shuffle_list
 
-_WELCOME_TIMER = 100
+_WELCOME_TIMER = 50
 _WELCOME_TEXT = "Welcome! :)"
 
 
@@ -54,7 +54,7 @@ class Game(Engine, KeyboardHandler):
         self.line_renderer = LineRenderer(self)
 
         # hardcoded cool initial place
-        self.player3d.position = (18, 84, -33)
+        self.player3d.position = (9, -44, -33)
 
     def quit_game(self, message: str = "BYE BYE!" + BR + "Thanks for playing :)") -> None:
         self.display.set_message(message)

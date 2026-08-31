@@ -341,6 +341,7 @@ class Display(KeyboardHandler):
             hud += f"Mode: {_c(mode_key)}{SEPARATOR}"
             hud += f"Shuffle!: {_c(shuffle_key)}{SEPARATOR}"
             hud += f"Curr pos: {colored((f'({player.position[0]},{player.position[1]},{player.position[2]})'))}{SEPARATOR}"
+            hud += f"Angle: {colored((f'({player._angle[0]},{player._angle[1]},{player._angle[2]})'))}{SEPARATOR}"
 
             return hud
 

@@ -228,7 +228,7 @@ class Ico(Entity3D):
         )
         self.position = position
         self.size = size
-        self.angle = angle  # XY, XZ, YZ
+        self._angle = angle  # XY, XZ, YZ
         self.mov_vector = mov_vector
         self.rot_vector = rot_vector
         self.name = "Icosahedron"

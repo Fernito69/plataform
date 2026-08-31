@@ -20,6 +20,7 @@ class Entity3D:
     mov_vector: Vector3F
     rot_vector: Vector3F
     rotate: bool
+    _angle: Vector3F = (0, 0, 0)
 
     # How vertices in the entity interconnect between them
     # works by index, e.g.: (0, 1) <- vertex 0 connects with 1
@@ -50,7 +51,7 @@ class Entity3D:
         self._curr_char_frame_index = 0
         self.position = position
         self.size = size
-        self.angle = angle
+        self._angle = angle
         self.mov_vector = mov_vector
         self.rot_vector = rot_vector
         self.vertices = vertices
@@ -106,7 +107,7 @@ class Entity3D:
         self.position = add_triplet(self.position, self.mov_vector)
 
         if self.rotate:
-            self.angle = subtract_triplet(self.angle, self.rot_vector)
+            self.set_angle(subtract_triplet(self._angle, self.rot_vector))
 
         self.apply_rotations()
 
@@ -115,9 +116,9 @@ class Entity3D:
 
         x, y, z = self.position
 
-        a_x = math.radians(self.angle[0])
-        a_y = math.radians(self.angle[1])
-        a_z = math.radians(self.angle[2])
+        a_x = math.radians(self._angle[0])
+        a_y = math.radians(self._angle[1])
+        a_z = math.radians(self._angle[2])
 
         # XY
         # TODO: find out, wtf is this step for?
@@ -151,6 +152,13 @@ class Entity3D:
             vertexes[i] = (vertexes[i][0], new_y, new_z)
 
         self.vertices = vertexes
+
+    def set_angle(self, angle: Vector3F) -> None:
+        self._angle = (
+            angle[0] % 360,
+            angle[1] % 360,
+            angle[2] % 360,
+        )
 
 
 class LivingEntity3D(Entity3D):
