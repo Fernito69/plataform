@@ -6,7 +6,8 @@ from model.base import Point2F
 from model.keyboard import MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
-from physics2d.model.base import RenderInfo
+from physics2d.entities.player_blob import PlayerBlob
+from physics2d.model.shared import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
 from terminal import on_key_press
@@ -29,6 +30,7 @@ class Physics2D(Engine, KeyboardHandler):
     screen_buffer_x_res: int
     screen_buffer_y_res: int
 
+    player: PlayerBlob
     scenario: Scenario
 
     screen_corner: Point2F
@@ -37,7 +39,9 @@ class Physics2D(Engine, KeyboardHandler):
         self.game = game
         self.screen_corner = initial_screen_corner
         self.display = self.game.display
+        self.player = PlayerBlob(position=(20, 20))
         self.scenario = default_scenario(self)
+        self.player.set_scenario(self.scenario)
         self.init_screen_buffer()
 
     def init_screen_buffer(self) -> None:

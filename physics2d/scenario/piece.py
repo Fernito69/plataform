@@ -4,7 +4,7 @@ from factories.theme import RGB
 from model.base import Point2F, Vector2F
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.model.base import RenderInfo
+from physics2d.model.shared import RenderInfo
 from utils import add_tuple, shuffle_list
 
 

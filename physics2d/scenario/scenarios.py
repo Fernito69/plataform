@@ -4,7 +4,7 @@ from constants import ALMOST_ZERO
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.scenario.piece import ScenarioPiece
-from physics2d.scenario.pieces.circunference import Circunference
+from physics2d.scenario.pieces.circunference import CircunferencePiece
 from physics2d.scenario.pieces.line import Line
 from physics2d.scenario.pieces.rectangle import Rectangle
 from physics2d.scenario.scenario import Scenario
@@ -67,7 +67,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         secondary_theme=Theme(color=MakeColor(1, (255, 0, 56))),
         floating_multi=0.005,
     )
-    circle_1 = Circunference(
+    circle_1 = CircunferencePiece(
         center=(40, 40),
         theme=Theme(color=Cyan()),
         radius=6,
@@ -75,7 +75,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         initial_velocity=(-0.8, 4),
         floating_multi=0.2,
     )
-    circle_5 = Circunference(
+    circle_5 = CircunferencePiece(
         center=(1, 1),
         theme=Theme(color=Yellow()),
         radius=1.5,
@@ -83,16 +83,16 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         initial_velocity=(2, 5),
         floating_multi=0.8,
     )
-    circle_2 = Circunference(
+    circle_2 = CircunferencePiece(
         center=(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
         theme=Theme(color=Blue()),
         radius=5,
         floating_multi=0.05,
     )
-    circle_3 = Circunference(
+    circle_3 = CircunferencePiece(
         center=(30, 21), theme=Theme(color=Green()), radius=15, floating_multi=ALMOST_ZERO
     )
-    circle_4 = Circunference(
+    circle_4 = CircunferencePiece(
         center=(0, 0),
         theme=Theme(color=MakeColor(1, (134, 89, 177))),
         radius=25,
@@ -114,4 +114,4 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         circle_3,
     ]
 
-    return Scenario(entities=entities, pieces=pieces, engine=engine)
+    return Scenario(entities=entities, pieces=pieces, engine=engine, player=engine.player)

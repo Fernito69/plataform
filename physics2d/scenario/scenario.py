@@ -3,11 +3,13 @@ from typing import TYPE_CHECKING
 
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.base import Entity
-from physics2d.model.base import RenderInfo
+from physics2d.entities.player_blob import PlayerBlob
+from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+
 
 # TODO: use this for "pieces"
 # pieces in same layer collide with each other
@@ -22,12 +24,20 @@ class Scenario:
     pieces: list[ScenarioPiece]
     entities: list[Entity]
     gravity_acceleration: float
+    player: PlayerBlob
 
-    def __init__(self, entities: list[Entity], pieces: list[ScenarioPiece], engine: "Physics2D"):
+    def __init__(
+        self,
+        entities: list[Entity],
+        pieces: list[ScenarioPiece],
+        engine: "Physics2D",
+        player: PlayerBlob,
+    ):
         self.entities = entities
         self.pieces = pieces
         self.engine = engine
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
+        self.player = player
 
     def act(self) -> None:
         for e in self.pieces:
@@ -35,6 +45,8 @@ class Scenario:
             e.apply_gravity(self.gravity_acceleration)
 
     def render(self) -> None:
+        self.handle_render_info(self.player.return_render_info())
+
         for e in self.entities:
             _ = e.return_render_info()
             # TODO: do something

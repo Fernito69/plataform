@@ -1,11 +1,9 @@
-import math
 from dataclasses import dataclass
 from typing import Callable
 
-from factories.theme import White
 from model.base import Point2F, Vector2F
 from model.theme import Theme
-from physics2d.model.base import RenderInfo
+from physics2d.model.shapes import Circunference
 from physics2d.scenario.piece import ScenarioPiece
 
 
@@ -15,7 +13,7 @@ class GetCircunferenceEquationResponse:
     get_xs: Callable[[float], tuple[float, float] | tuple[None, None]]
 
 
-class Circunference(ScenarioPiece):
+class CircunferencePiece(Circunference, ScenarioPiece):
     center: Point2F
     radius: float
 
@@ -32,9 +30,9 @@ class Circunference(ScenarioPiece):
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
     ):
-        self.center = center
-        self.radius = radius
-        super().__init__(
+        Circunference.__init__(self, center, radius, theme)
+        ScenarioPiece.__init__(
+            self,
             name="Circle",
             theme=theme,
             angle=angle,
@@ -44,7 +42,7 @@ class Circunference(ScenarioPiece):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             center_of_mass=center,
-            initial_angular_velocity=initial_angular_velocity
+            initial_angular_velocity=initial_angular_velocity,
         )
 
     def apply_movement(self) -> None:
@@ -76,59 +74,3 @@ class Circunference(ScenarioPiece):
 
     def rotate(self) -> None:
         pass
-
-    def return_render_info(self) -> list[RenderInfo]:
-        piece_info = []
-        min_x, max_x = sorted(
-            (
-                self.center[0] + self.radius,
-                self.center[0] - self.radius,
-            )
-        )
-        min_y, max_y = sorted(
-            (
-                self.center[1] + self.radius,
-                self.center[1] - self.radius,
-            )
-        )
-
-        eq = self.get_circunference_equations()
-
-        for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
-            y1, y2 = eq.get_ys(x)
-
-            # TODO: here we need to do something to make the upper border render
-            if y1 is None or y2 is None:
-                continue
-
-            for y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
-                x1, x2 = eq.get_xs(y)
-
-                if x1 is None or x2 is None:
-                    continue
-
-                # TODO: good proxy with good performance, but maybe can be done better
-                distance = min(
-                    max(
-                        0,
-                        y - y2,
-                        y1 - y,
-                    ),
-                    max(
-                        0,
-                        x - x2,
-                        x1 - x,
-                    ),
-                )
-                if distance > 1:
-                    continue
-
-                piece_info.append(
-                    RenderInfo(
-                        distance_to_pixel_center=distance,
-                        color=self.theme.color or White(),
-                        point=(x, y),
-                    )
-                )
-
-        return piece_info

@@ -4,7 +4,7 @@ from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import RGB, White
 from model.base import Point2F, Vector2F
 from model.theme import Theme
-from physics2d.model.base import RenderInfo
+from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 from utils import (
     add_tuple,
