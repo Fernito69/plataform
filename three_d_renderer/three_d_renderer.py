@@ -21,6 +21,8 @@ from three_d_renderer.constants import (
     PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
+from three_d_renderer.entities.base3d import Entity3D
+from utils import rotate_point, subtract_triplet
 
 if TYPE_CHECKING:
     from game import Game
@@ -68,6 +70,7 @@ class ThreeDeeRenderer(Engine):
                     self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
 
     # This is where the 3D to 2D projection magic happens
+    # TODO: this guy should be aware of the play and correct by angle and position
     def _get_screen_projection(self, point3: Point3F) -> Point2F:
         x, y, z = point3
         x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
@@ -77,3 +80,13 @@ class ThreeDeeRenderer(Engine):
             else 0
         )
         return (x_pos, y_pos)
+
+    def _normalize_vertex_to_entity(self, vertex1: Point3F, entity: Entity3D) -> Point3F:
+        # Normalize by position
+        x, y, z = subtract_triplet(vertex1, entity.position)
+        # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
+        new_x, new_y = rotate_point(
+            (x, y), (entity.position[0], entity.position[1]), -entity._angle[0]
+        )
+
+        return (new_x, new_y, z)

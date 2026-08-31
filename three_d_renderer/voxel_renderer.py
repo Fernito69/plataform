@@ -4,7 +4,7 @@ from factories.theme import DEFAULT_CHAR, DoubleLines
 from model.base import Point2F, Point3F
 from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
-from utils import colored, distance_between_points, has_bg_color, subtract_triplet, vector_length
+from utils import colored, distance_between_points, has_bg_color, vector_length
 
 if TYPE_CHECKING:
     from game import Game
@@ -71,7 +71,7 @@ class VoxelRenderer(ThreeDeeRenderer):
             vertices_to_render: list[tuple[Point3F, Point2F]] = []
             # TODO: Hmmm here is where we should filter out by distance to fix the error with the big dodeca?
             for vertex in entity.vertices:
-                normalized_vertex = subtract_triplet(vertex, player.position)
+                normalized_vertex = self._normalize_vertex_to_entity(vertex, player)
                 x_pos, y_pos = self._get_screen_projection(normalized_vertex)
 
                 if (

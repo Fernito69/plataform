@@ -33,9 +33,12 @@ class Player3D(KeyboardHandler, LivingEntity3D):
         self.status = PlayerStatus.PLAYING
         self.set_curr_level(build_3d_levels()[0])
 
+    def _normalize_by_angle(self) -> None:
+        return
+
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:
-        # TODO: unify logic "normatlize by angle"
+        # TODO: unify logic "normatlize by angle" ^
         a_x = math.radians(self._angle[0])
         self.move_by(
             (
@@ -58,11 +61,25 @@ class Player3D(KeyboardHandler, LivingEntity3D):
 
     @on_key_press(MovementKeys.LEFT)
     def _strafe_left(self) -> None:
-        self.move_by((-PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0))
+        a_x = math.radians(self._angle[0])
+        self.move_by(
+            (
+                -PLAYER_3D_MOVING_SPEED_FACTOR * math.cos(a_x),
+                -PLAYER_3D_MOVING_SPEED_FACTOR * math.sin(a_x),
+                0,
+            )
+        )
 
     @on_key_press(MovementKeys.RIGHT)
     def _strafe_right(self) -> None:
-        self.move_by((PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0))
+        a_x = math.radians(self._angle[0])
+        self.move_by(
+            (
+                PLAYER_3D_MOVING_SPEED_FACTOR * math.cos(a_x),
+                PLAYER_3D_MOVING_SPEED_FACTOR * math.sin(a_x),
+                0,
+            )
+        )
 
     @on_key_press(MovementKeys.ROTATE_RIGHT)
     def _rotate_right(self) -> None:

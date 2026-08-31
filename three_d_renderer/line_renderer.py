@@ -13,7 +13,6 @@ from utils import (
     distance_from_line_to_point,
     get_line_equations,
     mix_colors,
-    subtract_triplet,
 )
 
 if TYPE_CHECKING:
@@ -131,11 +130,11 @@ class LineRenderer(ThreeDeeRenderer):
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
                 curr_pixel_pos: Point2F = self._get_screen_projection(
-                    subtract_triplet(data.vertex.point, self.game.player3d.position)
+                    self._normalize_vertex_to_entity(data.vertex.point, self.game.player3d)
                 )
                 connecting_pixel_pos: Point2F = self._get_screen_projection(
-                    subtract_triplet(
-                        data.entity.vertices[connecting_vertex_index], self.game.player3d.position
+                    self._normalize_vertex_to_entity(
+                        data.entity.vertices[connecting_vertex_index], self.game.player3d
                     )
                 )
 
