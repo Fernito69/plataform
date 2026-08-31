@@ -14,7 +14,6 @@ from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import shuffle_list
 
 _WELCOME_TIMER = 150
-_WELCOME_MESSAGE_SHOWN = -99
 _WELCOME_TEXT: str = str.join(
     BR,
     [
@@ -67,16 +66,53 @@ class Game(Engine, KeyboardHandler):
         # hardcoded cool initial place
         self.player3d.position = (9, -44, -33)
 
+    def main_loop(self) -> None:
+        def _main_loop():
+            self._check_game_status()
+            self._handle_welcome_message()
+
+            self.handle_player_input()
+            self.display.handle_player_input()
+
+            match self.mode:
+                case GameMode.PHYSICS_2D:
+                    return self.physics_engine.main_loop()
+
+                case GameMode.VOXELS_3D:
+                    return self.voxel_renderer.main_loop()
+
+                case GameMode.LINES_3D:
+                    return self.line_renderer.main_loop()
+
+                case GameMode.PLATFORMER_V1:
+                    return self.platformer_v1.main_loop()
+
+        self.display.fps_throttle(_main_loop)
+
     def quit_game(self, message: str = "BYE BYE!" + BR + "Thanks for playing :)") -> None:
         self.display.set_message(message)
         self.display.print_curr_screen()
         self.status = GameStatus.QUIT
 
-    def _handle_welcome_message(self) -> None:
-        if not self.status == GameStatus.RUNNING:
-            return
+    def _check_game_status(self) -> None:
+        self._check_player_status()
 
-        if self._welcome_message_timer == _WELCOME_MESSAGE_SHOWN:
+    def _check_player_status(self) -> None:
+        for player in [self.player2d, self.player3d]:
+            match player.status:
+                case PlayerStatus.DEAD:
+                    return self.quit_game(message="GAME OVER")
+
+        if self.player2d.status == PlayerStatus.END_LEVEL_2D:
+            return self.quit_game(message="YOU WON!!! :D")
+
+    def _handle_welcome_message(self) -> None:
+        _WELCOME_MESSAGE_SHOWN = -99
+
+        if (
+            not self.status == GameStatus.RUNNING
+            or self._welcome_message_timer == _WELCOME_MESSAGE_SHOWN
+        ):
             return
         elif self._welcome_message_timer >= 0:
             _text = _WELCOME_TEXT
@@ -90,44 +126,6 @@ class Game(Engine, KeyboardHandler):
         elif self.display.has_message():
             self.display.set_message(None)
             self._welcome_message_timer = _WELCOME_MESSAGE_SHOWN
-
-    def main_loop(self) -> None:
-        def _main_loop():
-            self._check_game_status()
-            self._handle_welcome_message()
-
-            self.handle_player_input()
-            self.display.handle_player_input()
-
-            match self.mode:
-                case GameMode.PHYSICS_2D:
-                    self.physics_engine.handle_player_input()
-                    return self.physics_engine.main_loop()
-
-                case GameMode.VOXELS_3D:
-                    self.player3d.handle_player_input()
-                    return self.voxel_renderer.main_loop()
-
-                case GameMode.LINES_3D:
-                    self.player3d.handle_player_input()
-                    return self.line_renderer.main_loop()
-
-                case GameMode.PLATFORMER_V1:
-                    return self.platformer_v1.main_loop()
-
-        self.display.fps_throttle(_main_loop)
-
-    def _check_game_status(self) -> None:
-        self._check_player_status()
-
-    def _check_player_status(self) -> None:
-        for player in [self.player2d, self.player3d]:
-            match player.status:
-                case PlayerStatus.DEAD:
-                    return self.quit_game("GAME OVER")
-
-        if self.player2d.status == PlayerStatus.END_LEVEL_2D:
-            return self.quit_game("YOU WON!!! :D")
 
     ##############
     # PLAYER INPUT
@@ -209,6 +207,7 @@ class Game(Engine, KeyboardHandler):
         self.line_renderer.fov += 5
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
+    # TODO: this is a hack, do properly
     def _shuffle_colors(self):
         renderers = [self.voxel_renderer, self.line_renderer]
 

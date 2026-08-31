@@ -33,7 +33,7 @@ random.shuffle(colors)
 
 
 class ThreeDeeRenderer(Engine):
-    _screen_matrix_buffer: list[list[str]] = []
+    _screen_buffer: list[list[str]] = []
 
     # physics params
     curr_player_speed = PLAYER_3D_MOVING_SPEED_FACTOR
@@ -61,18 +61,18 @@ class ThreeDeeRenderer(Engine):
         if keep_border:
             for y in range(border_thickness, Y_RES - border_thickness):
                 for x in range(border_thickness, X_RES - border_thickness):
-                    self._screen_matrix_buffer[y][x] = DEFAULT_CHAR
+                    self._screen_buffer[y][x] = DEFAULT_CHAR
         else:
-            self._screen_matrix_buffer: list[list[str]] = []
+            self._screen_buffer: list[list[str]] = []
             for y in range(Y_RES):
-                self._screen_matrix_buffer.append([])
+                self._screen_buffer.append([])
                 for _ in range(X_RES):
-                    self._screen_matrix_buffer[y].append(DEFAULT_CHAR)
+                    self._screen_buffer[y].append(DEFAULT_CHAR)
 
     # This is where the 3D to 2D projection magic happens
-    # TODO: this guy should be aware of the play and correct by angle and position
-    def _get_screen_projection(self, point3: Point3F) -> Point2F:
-        x, y, z = point3
+    def _get_screen_projection(self, point3: Point3F, player: Entity3D | None = None) -> Point2F:
+        x, y, z = self._normalize_vertex_to_entity(point3, player) if player else point3
+
         x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
         y_pos = (
             (((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
@@ -82,6 +82,7 @@ class ThreeDeeRenderer(Engine):
         return (x_pos, y_pos)
 
     def _normalize_vertex_to_entity(self, vertex1: Point3F, entity: Entity3D) -> Point3F:
+        """takes an absolutely-positioned vertex and transforms it according to an entities' position and angle"""
         # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
         rotated_vertex = (
             *rotate_point(

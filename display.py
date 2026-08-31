@@ -41,7 +41,7 @@ _MESSAGE_TEXT_COLOR = Yellow()
 
 
 class Display(KeyboardHandler):
-    _screen_matrix: list[list[str]]
+    _screen_grid: list[list[str]]
 
     curr_fps: float
     curr_x_resolution: int
@@ -100,15 +100,85 @@ class Display(KeyboardHandler):
         y = math.floor(position[1])
         x = math.floor(position[0])
         if 0 <= y < self.curr_y_resolution and 0 <= x < self.curr_x_resolution:
-            self._screen_matrix[y][x] = char
+            self._screen_grid[y][x] = char
 
     def set_message(self, message: str | None, intensity: float = 0.7) -> None:
         self._message = message
         self._message_intensity = intensity if message else 0
 
+    def put_screen_content(self, new_grid: list[list[str]]) -> None:
+        self._screen_grid = new_grid
+
+    def get_screen_content(self) -> list[list[str]]:
+        return self._screen_grid
+
+    _measured_fps: float = 0
+
+    def fps_throttle(self, func: Callable[[], None]) -> None:
+        period = 1 / (self._curr_fps or 1)
+
+        start = time.perf_counter()
+        func()
+        ellapsed = time.perf_counter() - start
+
+        self._measured_fps = min(
+            self._curr_fps,
+            1 / (ellapsed or ALMOST_ZERO),
+        )
+
+        time.sleep(max(0, period - ellapsed))
+
+    def print_curr_screen(self, player: Player2D | Player3D | None = None):
+        message_container_coords: tuple[Point2I, Point2I] | None = None
+        if self._message:
+            message_container_coords = self._add_message_to_screen_grid()
+
+        screen_content = ""
+
+        for y in range(self.curr_y_resolution):
+            for x in range(self.curr_x_resolution):
+                is_part_of_message: bool = (
+                    message_container_coords[1][1] <= y <= message_container_coords[1][0]
+                    or message_container_coords[0][1] <= x <= message_container_coords[0][0]
+                    if message_container_coords
+                    else False
+                )
+                # TODO: all this looks nice but is really hacky. Do properly.
+                screen_content += (
+                    self._screen_grid[y][x]
+                    if has_bg_color(self._screen_grid[y][x], black_is_not_condidered_bg=False)
+                    # TODO: it should not override the color behind it in the case of superposing objects
+                    # check if it belongs to the same entity!! we can do that in the loop I think
+                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
+                    # use a precomputed store with the not rounded coord, aka subpixel??
+                    else colored(
+                        self._screen_grid[y][x],
+                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
+                            ANTIALIASING_INTENSITY
+                        )
+                        if (self.antialiasing and not is_part_of_message)
+                        else RGB(0, 0, 0),
+                    )
+                )
+            if y < self.curr_y_resolution - 1:
+                screen_content += BR
+
+        if self._debug_str:
+            screen_content += colored(BR + "DEBUG: ", Red()) + self._debug_str
+
+        if player:
+            screen_content += BR + self._get_hud_string(player)
+
+        if self._print_fps:
+            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
+            screen_content += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps))}"
+
+        clear()
+        print(screen_content)
+
     # TODO: allow color in the message string instead of hardcoding it
     # TODO: this logic is all sooo hacky, do better
-    def _add_message_to_matrix(
+    def _add_message_to_screen_grid(
         self, padding_x: int = 12, padding_y: int = 4
     ) -> tuple[Point2I, Point2I] | None:
         if self._message is None or len(self._message) <= 0:
@@ -148,9 +218,9 @@ class Display(KeyboardHandler):
                                 _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity),
                             ]
                         ).with_intensity(self._message_intensity),
-                        bg_color=extract_color_from_string(
-                            self._screen_matrix[y][x]
-                        ).with_intensity((1 - self._message_intensity)),
+                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
+                            (1 - self._message_intensity)
+                        ),
                     )
 
                 # TODO: This is hacky, do better.
@@ -158,10 +228,10 @@ class Display(KeyboardHandler):
                 _bg_intensity = 1 - self._message_intensity if self._message_intensity else 0.7
                 char: str = colored(
                     LOWER_PIXEL_CHAR if self.game.mode == GameMode.PHYSICS_2D else UPPER_PIXEL_CHAR,
-                    color=extract_color_from_string(self._screen_matrix[y][x]).with_intensity(
+                    color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                         _bg_intensity
                     ),
-                    bg_color=extract_bg_color_from_string(self._screen_matrix[y][x]).with_intensity(
+                    bg_color=extract_bg_color_from_string(self._screen_grid[y][x]).with_intensity(
                         _bg_intensity
                     ),
                 )
@@ -183,7 +253,7 @@ class Display(KeyboardHandler):
                 elif x == starting_border_x or x == ending_border_x - 1:
                     char = _border_col(DoubleLines.V)
 
-                self._screen_matrix[y][x] = char
+                self._screen_grid[y][x] = char
 
         # Add actual message content
         for msg_idx, row in enumerate(message_parts):
@@ -196,92 +266,21 @@ class Display(KeyboardHandler):
 
                 def _c(index: int) -> str:
                     return colored(
-                        row[index] if index < len(row) else self._screen_matrix[new_y_idx][x],
+                        row[index] if index < len(row) else self._screen_grid[new_y_idx][x],
                         color=_MESSAGE_TEXT_COLOR,
                         bg_color=extract_bg_color_from_string(
-                            self._screen_matrix[new_y_idx][x]
+                            self._screen_grid[new_y_idx][x]
                         ).with_intensity(1 - self._message_intensity)
-                        if self._screen_matrix[new_y_idx][x] != EMPTY_SPACE
+                        if self._screen_grid[new_y_idx][x] != EMPTY_SPACE
                         else RGB(0, 0, 0, 0),
                     )
 
-                self._screen_matrix[new_y_idx][x] = _c(index)
+                self._screen_grid[new_y_idx][x] = _c(index)
 
         return (
             (starting_border_x, starting_border_y),
             (ending_border_y, ending_border_y),
         )
-
-    def put_screen_content(self, new_screen_matrix: list[list[str]]) -> None:
-        self._screen_matrix = new_screen_matrix
-
-    def get_screen_content(self) -> list[list[str]]:
-        return self._screen_matrix
-
-    _measured_fps: float = 0
-
-    def fps_throttle(self, func: Callable[[], None]) -> None:
-        period = 1 / (self._curr_fps or 1)
-
-        start = time.perf_counter()
-        func()
-        ellapsed = time.perf_counter() - start
-
-        raw_diff = period - ellapsed
-
-        self._measured_fps = min(
-            self._curr_fps,
-            1 / (ellapsed or ALMOST_ZERO),
-        )
-
-        time.sleep(max(0, raw_diff))
-
-    def print_curr_screen(self, player: Player2D | Player3D | None = None):
-        message_points: tuple[Point2I, Point2I] | None = None
-        if self._message:
-            message_points = self._add_message_to_matrix()
-
-        matrix_string = ""
-
-        for y in range(self.curr_y_resolution):
-            for x in range(self.curr_x_resolution):
-                is_message: bool = (
-                    message_points[1][1] <= y <= message_points[1][0]
-                    or message_points[0][1] <= x <= message_points[0][0]
-                    if message_points
-                    else False
-                )
-                matrix_string += (
-                    self._screen_matrix[y][x]
-                    if has_bg_color(self._screen_matrix[y][x], black_is_not_condidered_bg=False)
-                    # TODO: it should not override the color behind it in the case of superposing objects
-                    # check if it belongs to the same entity!! we can do that in the loop I think
-                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
-                    # use a precomputed store with the not rounded coord, aka subpixel??
-                    else colored(
-                        self._screen_matrix[y][x],
-                        bg_color=extract_color_from_string(
-                            self._screen_matrix[y][x]
-                        ).with_intensity(ANTIALIASING_INTENSITY)
-                        if (self.antialiasing and not is_message)
-                        else RGB(0, 0, 0),
-                    )
-                )
-            if y < self.curr_y_resolution - 1:
-                matrix_string += BR
-
-        if self._debug_str:
-            matrix_string += colored(BR + "DEBUG: ", Red()) + self._debug_str
-
-        if player:
-            matrix_string += BR + self._get_hud_string(player)
-
-        if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
-            matrix_string += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps))}"
-
-        clear()
-        print(matrix_string)
 
     def _set_2d_mode(self):
         self.antialiasing = True

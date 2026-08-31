@@ -12,7 +12,7 @@ _DEFAULT_LINE_TYPE = DoubleLines
 
 
 class Level2D:
-    map: list[list[str]]  # matrix representation of the level data
+    map: list[list[str]]  # grid representation of the level data
     enemies: list[Enemy2D]
     exits: list[Exit2D]
     name: str

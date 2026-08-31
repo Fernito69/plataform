@@ -35,7 +35,7 @@ class PlatformerV1(Engine):
 
     def main_loop(self) -> None:
         self.player2d.handle_player_input()
-        self.populate_level_into_matrix()
+        self.populate_level_into_screen_grid()
 
         self._compute_actions_and_add_to_screen(self.player2d)
 
@@ -59,12 +59,12 @@ class PlatformerV1(Engine):
         self.display.print_curr_screen(self.player2d)
 
     # TODO: this shouldn't be here?
-    def populate_level_into_matrix(self):
+    def populate_level_into_screen_grid(self):
         d = self.display
         d.put_screen_content([])
         for y in range(d.curr_y_resolution):
-            d._screen_matrix.append([])
+            d._screen_grid.append([])
             for x in range(d.curr_x_resolution):
-                d._screen_matrix[y].append(
+                d._screen_grid[y].append(
                     self.levels_2d[self._current_level_index].map[y][x] or EMPTY_SPACE
                 )

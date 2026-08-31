@@ -112,6 +112,7 @@ class LineRenderer(ThreeDeeRenderer):
 
     def main_loop(self) -> None:
         self.reset_world_data()
+        self.game.player3d.handle_player_input()
         self.calculate_world()
         self.render()
 
@@ -130,12 +131,10 @@ class LineRenderer(ThreeDeeRenderer):
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
                 curr_pixel_pos: Point2F = self._get_screen_projection(
-                    self._normalize_vertex_to_entity(data.vertex.point, self.game.player3d)
+                    data.vertex.point, self.game.player3d
                 )
                 connecting_pixel_pos: Point2F = self._get_screen_projection(
-                    self._normalize_vertex_to_entity(
-                        data.entity.vertices[connecting_vertex_index], self.game.player3d
-                    )
+                    data.entity.vertices[connecting_vertex_index], self.game.player3d
                 )
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
@@ -146,7 +145,7 @@ class LineRenderer(ThreeDeeRenderer):
 
                 self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
 
-        new_screen_matrix = self._screen_matrix_buffer
+        new_screen_buffer = self._screen_buffer
 
         # Fill in screen data!!!
         for x in range(self.display.curr_x_resolution):
@@ -154,7 +153,7 @@ class LineRenderer(ThreeDeeRenderer):
                 data = self.world_data[y][x]
 
                 if len(data) == 0:
-                    new_screen_matrix[y][x] = DEFAULT_CHAR
+                    new_screen_buffer[y][x] = DEFAULT_CHAR
                     continue
 
                 def _get_intensity(c: SubpixelContribution):
@@ -183,9 +182,9 @@ class LineRenderer(ThreeDeeRenderer):
                     ]
                 )
                 # TODO: do properly
-                new_screen_matrix[y][x] = colored("▀", color=color, bg_color=bg_color)
+                new_screen_buffer[y][x] = colored("▀", color=color, bg_color=bg_color)
 
-        self.display.put_screen_content(new_screen_matrix)
+        self.display.put_screen_content(new_screen_buffer)
         self.display.print_curr_screen(self.game.player3d)
 
     def _compute_pixel_contributions(self, data: WorldData, line: tuple[Point2F, Point2F]) -> None:

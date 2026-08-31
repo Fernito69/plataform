@@ -52,6 +52,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
+        self.handle_player_input()
         self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
@@ -72,7 +73,7 @@ class Physics2D(Engine, KeyboardHandler):
             self.screen_buffer[new_y][new_x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
-        new_screen_matrix: list[list[str]] = []
+        new_screen_grid: list[list[str]] = []
         # for p in self.scenario.pieces:
         #     if p.name == "LINEA MIA":
         #         self.display.debug_log(f"angle: PI*{p.angle} radians, {p.angular_velocity}")
@@ -89,24 +90,24 @@ class Physics2D(Engine, KeyboardHandler):
             # this trick allows us to have "pixels" with a conveniently more square ratio
             new_y = int(y / 2)
             # we use the backwards index because, in the buffer, `going up == y++`,
-            # whereas in the screen matrix it's actually the opposite
+            # whereas in the screen grid it's actually the opposite
             backwards_y = self.screen_buffer_y_res - 1 - y
 
-            if len(new_screen_matrix) <= new_y:
-                new_screen_matrix.append([])
+            if len(new_screen_grid) <= new_y:
+                new_screen_grid.append([])
 
             for x in range(self.screen_buffer_x_res):
                 upper_pixel_info = self.screen_buffer[backwards_y - 1][x]
                 lower_pixel_info = self.screen_buffer[backwards_y][x]
 
                 if not upper_pixel_info and not lower_pixel_info:
-                    new_screen_matrix[new_y].append(DEFAULT_CHAR)
+                    new_screen_grid[new_y].append(DEFAULT_CHAR)
                     continue
 
                 upper_color = Physics2D._calculate_color_with_aa(upper_pixel_info)
                 lower_color = Physics2D._calculate_color_with_aa(lower_pixel_info)
 
-                new_screen_matrix[new_y].append(
+                new_screen_grid[new_y].append(
                     colored(
                         LOWER_PIXEL_CHAR,
                         color=upper_color,
@@ -114,7 +115,7 @@ class Physics2D(Engine, KeyboardHandler):
                     )
                 )
 
-        self.display.put_screen_content(new_screen_matrix)
+        self.display.put_screen_content(new_screen_grid)
         self.display.print_curr_screen()
 
     def handle_player_input(self) -> None:
