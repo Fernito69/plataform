@@ -82,11 +82,14 @@ class ThreeDeeRenderer(Engine):
         return (x_pos, y_pos)
 
     def _normalize_vertex_to_entity(self, vertex1: Point3F, entity: Entity3D) -> Point3F:
-        # Normalize by position
-        x, y, z = subtract_triplet(vertex1, entity.position)
         # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
-        new_x, new_y = rotate_point(
-            (x, y), (entity.position[0], entity.position[1]), -entity._angle[0]
+        rotated_vertex = (
+            *rotate_point(
+                (vertex1[0], vertex1[1]),
+                (entity.position[0], entity.position[1]),
+                -entity._angle[0],
+            ),
+            vertex1[2],
         )
-
-        return (new_x, new_y, z)
+        # Normalize by position
+        return subtract_triplet(rotated_vertex, entity.position)

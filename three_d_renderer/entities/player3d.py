@@ -59,7 +59,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
             )
         )
 
-    @on_key_press(MovementKeys.LEFT)
+    @on_key_press(MovementKeys.STRAFE_LEFT)
     def _strafe_left(self) -> None:
         a_x = math.radians(self._angle[0])
         self.move_by(
@@ -70,7 +70,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
             )
         )
 
-    @on_key_press(MovementKeys.RIGHT)
+    @on_key_press(MovementKeys.STRAFE_RIGHT)
     def _strafe_right(self) -> None:
         a_x = math.radians(self._angle[0])
         self.move_by(

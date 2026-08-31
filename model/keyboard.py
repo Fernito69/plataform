@@ -37,6 +37,8 @@ class MovementKeys(StrEnum):
     FLY_DOWN = auto()
     ROTATE_LEFT = auto()
     ROTATE_RIGHT = auto()
+    STRAFE_LEFT = auto()
+    STRAFE_RIGHT = auto()
 
 
 class PhysicsKey(StrEnum):
