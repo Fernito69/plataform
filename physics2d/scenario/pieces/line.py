@@ -59,7 +59,6 @@ class Line(ScenarioPiece):
             initial_angular_velocity=initial_angular_velocity,
         )
 
-    _curr_amplitude: float = 1
     _counter: float = 0
 
     def _pulsate(self) -> None:
@@ -169,7 +168,7 @@ class Line(ScenarioPiece):
 
                 piece_info.append(
                     RenderInfo(
-                        distance_to_pixel_center=distance / (abs(self.thickness) or 0.1),
+                        distance_to_pixel_center=distance / (abs(self.thickness) or ALMOST_ZERO),
                         color=self._get_color(x, y),
                         point=(x, y),
                     )

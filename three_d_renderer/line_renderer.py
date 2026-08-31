@@ -112,7 +112,7 @@ class LineRenderer(ThreeDeeRenderer):
 
     def main_loop(self) -> None:
         self.reset_world_data()
-        self.game.player3d.handle_player_input()
+        self.game.player3d.handle_keyboard_input()
         self.calculate_world()
         self.render()
 

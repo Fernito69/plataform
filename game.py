@@ -52,14 +52,12 @@ class Game(Engine, KeyboardHandler):
         self.mode = mode
 
         self.display = Display(self)
-        self.display.set_mode(self.mode)
 
         self.player2d = Player2D(1)
-        self.player3d = Player3D(1)
-
         self.platformer_v1 = PlatformerV1(self)
         self.physics_engine = Physics2D(self)
 
+        self.player3d = Player3D(1)
         self.voxel_renderer = VoxelRenderer(self)
         self.line_renderer = LineRenderer(self)
 
@@ -71,8 +69,8 @@ class Game(Engine, KeyboardHandler):
             self._check_game_status()
             self._handle_welcome_message()
 
-            self.handle_player_input()
-            self.display.handle_player_input()
+            self.handle_keyboard_input()
+            self.display.handle_keyboard_input()
 
             match self.mode:
                 case GameMode.PHYSICS_2D:
@@ -89,7 +87,7 @@ class Game(Engine, KeyboardHandler):
 
         self.display.fps_throttle(_main_loop)
 
-    def quit_game(self, message: str = "BYE BYE!" + BR + "Thanks for playing :)") -> None:
+    def quit_game(self, message: str = f"BYE BYE!{BR}Thanks for playing :)") -> None:
         self.display.set_message(message)
         self.display.print_curr_screen()
         self.status = GameStatus.QUIT
@@ -131,7 +129,7 @@ class Game(Engine, KeyboardHandler):
     # PLAYER INPUT
     ##############
 
-    def handle_player_input(self) -> None:
+    def handle_keyboard_input(self) -> None:
         self._press_quit()
         self._switch_3d_rendering_mode()
         self._switch_2d_mode()
@@ -157,23 +155,23 @@ class Game(Engine, KeyboardHandler):
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.mode = GameMode.PHYSICS_2D
-        self.display.set_mode(GameMode.PHYSICS_2D)
+        self.display.set_mode()
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
         self.mode = GameMode.PLATFORMER_V1
-        self.display.set_mode(GameMode.PLATFORMER_V1)
+        self.display.set_mode()
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
         self.mode = GameMode.VOXELS_3D
-        self.display.set_mode(GameMode.VOXELS_3D)
+        self.display.set_mode()
         self.voxel_renderer.reset_screen_buffer()
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_3d_rendering_mode(self):
         self.mode = GameMode.VOXELS_3D if self.mode == GameMode.LINES_3D else GameMode.LINES_3D
-        self.display.set_mode(self.mode)
+        self.display.set_mode()
 
         if self.mode == GameMode.VOXELS_3D:
             self.voxel_renderer.reset_screen_buffer()
@@ -221,6 +219,4 @@ class Game(Engine, KeyboardHandler):
 
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
-        if not self.player3d.curr_level:
-            return
         self.player3d.curr_level.toggle_rotation()

@@ -71,29 +71,26 @@ class Level2D:
             bg_color or self.theme.bg_color,
         )
 
-    def add_char(
-        self,
-        char: str,
-        position: Point2F,
-        color: RGB | None = None,
-        bg_color: RGB | None = None,
-    ):
-        char = self._get_custom_theme_char(char[0])
-        color = color or self.theme.color
-        bg_color = bg_color or self.theme.bg_color
+    def add_char(self, char: str, position: Point2F, theme: Theme | None = None):
+        theme = theme or self.theme
+        char = self._get_custom_theme_char(char[0], theme)
         # TODO: check whether round or math.floor works better here
-        self.map[round(position[1])][round(position[0])] = self._color(char, color, bg_color)
+        self.map[round(position[1])][round(position[0])] = self._color(
+            char, theme.color, theme.bg_color
+        )
 
     _curr_custom_char_index: int = 0
     _directions = (1, -1)
     _curr_direction_index: int = 0
 
-    def _get_custom_theme_char(self, fallback: str) -> str:
-        if self.theme.custom_line_chars:
+    def _get_custom_theme_char(self, fallback: str, theme: Theme | None = None) -> str:
+        theme = theme or self.theme
+
+        if theme.custom_line_chars:
             index: int
-            match self.theme.custom_line_type:
+            match theme.custom_line_type:
                 case "random":
-                    index = int(random.random() * len(self.theme.custom_line_chars))
+                    index = int(random.random() * len(theme.custom_line_chars))
                 # TODO: check why this is not returning the last char
                 case "sequential":
                     index = self._curr_custom_char_index
@@ -101,7 +98,7 @@ class Level2D:
                     # bump the index
                     self._curr_custom_char_index = (
                         self._curr_custom_char_index + 1
-                        if self._curr_custom_char_index < len(self.theme.custom_line_chars) - 1
+                        if self._curr_custom_char_index < len(theme.custom_line_chars) - 1
                         else 0
                     )
                 case "back&forth":
@@ -115,13 +112,13 @@ class Level2D:
                     # flip the direction if need be
                     if (
                         direction == 1
-                        and self._curr_custom_char_index >= len(self.theme.custom_line_chars) - 1
+                        and self._curr_custom_char_index >= len(theme.custom_line_chars) - 1
                     ):
                         self._curr_direction_index = 1
                     elif direction == -1 and self._curr_custom_char_index <= 0:
                         self._curr_direction_index = 0
 
-            return self.theme.custom_line_chars[index]
+            return theme.custom_line_chars[index]
         return fallback
 
     # TODO: implement animated map parts :O with a self.do_your_thing() method
@@ -130,11 +127,10 @@ class Level2D:
         initial_position: Point2F,
         length: int = 3,
         orientation: Orientation = Orientation.HORIZONTAL,
-        # TODO: refactor Theme here!!!
-        color: RGB | None = None,
-        bg_color: RGB | None = None,
+        theme: Theme | None = None,
     ):
         x1, y1 = initial_position
+        theme = theme or self.theme
 
         for i in range(length):
             x = max(
@@ -151,14 +147,14 @@ class Level2D:
                 ),
                 0,
             )
-            line = self.theme.line_type or _DEFAULT_LINE_TYPE
+            line = theme.line_type or _DEFAULT_LINE_TYPE
             char = (
-                self._get_custom_theme_char(line.H)
+                self._get_custom_theme_char(line.H, theme)
                 if orientation == Orientation.HORIZONTAL
-                else self._get_custom_theme_char(line.V)
+                else self._get_custom_theme_char(line.V, theme)
             )
             self.map[int(y)][int(x)] = self._color(
                 char=char,
-                color=color or self.theme.color,
-                bg_color=bg_color or self.theme.bg_color,
+                color=theme.color,
+                bg_color=theme.bg_color,
             )

@@ -33,4 +33,4 @@ class Exit2D(Entity2D):
         self.theme = Theme(color=_EXIT_COLOR, bg_color=_EXIT_BG_COLOR)
 
     def do_your_thing(self):
-        self._advance_character_frame()
+        self._do_the_bare_minimum()

@@ -131,8 +131,25 @@ BloodTheme = Theme(
 CandyTheme = Theme(
     color=Red(),
     bg_color=MakeColor(1, (255, 212, 232)),
-    custom_line_chars=[" ", "▄", "█▀", "▀"],
+    custom_line_chars=[" ", "▄", "█", "▀"],
     custom_line_type="sequential",
+)
+
+WaterTheme = Theme(
+    color=RGB(0, 0, 255).with_intensity(0.7),
+    bg_color=RGB(150, 127, 255).with_intensity(.8),
+    custom_line_chars=[
+        "▓",
+        "█",
+        "▓",
+        "▒",
+        "░",
+        "░",
+        " ",
+        "▄",
+        "▀",
+    ],
+    custom_line_type="random",
 )
 
 """

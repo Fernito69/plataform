@@ -52,7 +52,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
-        self.handle_player_input()
+        self.handle_keyboard_input()
         self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
@@ -83,8 +83,9 @@ class Physics2D(Engine, KeyboardHandler):
 
         # Note the step is 2 here <─────────────────┐
         for y in range(0, self.screen_buffer_y_res, 2):
+            # TODO: this explanation is bad, improve
             # each pixel represented in the buffer lands
-            # in the actual matrix as the same character actually,
+            # in the actual matrix as part the same character actually,
             # with fg color occupying this part "▄" and bg color occupying this part "▀"
             # (or the other way around, who knows)
             # this trick allows us to have "pixels" with a conveniently more square ratio
@@ -118,7 +119,7 @@ class Physics2D(Engine, KeyboardHandler):
         self.display.put_screen_content(new_screen_grid)
         self.display.print_curr_screen()
 
-    def handle_player_input(self) -> None:
+    def handle_keyboard_input(self) -> None:
         self._reset_scenario()
         self._move_screen_down()
         self._move_screen_up()

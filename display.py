@@ -65,9 +65,10 @@ class Display(KeyboardHandler):
         self._print_fps = print_fps
         self._message = None
         self._message_intensity = 0
+        self.set_mode()
 
-    def set_mode(self, mode: GameMode) -> None:
-        match mode:
+    def set_mode(self) -> None:
+        match self.game.mode:
             case GameMode.PLATFORMER_V1:
                 self._set_2d_mode()
             case GameMode.VOXELS_3D | GameMode.LINES_3D:
@@ -346,7 +347,7 @@ class Display(KeyboardHandler):
     ##############
     # PLAYER INPUT
     ##############
-    def handle_player_input(self) -> None:
+    def handle_keyboard_input(self) -> None:
         if self.game.mode == GameMode.PLATFORMER_V1:
             return
 

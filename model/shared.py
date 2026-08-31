@@ -12,7 +12,7 @@ class KeyboardHandler:
         self._pressed_key_map[key] = val
 
     @abstractmethod
-    def handle_player_input(cls) -> None:
+    def handle_keyboard_input(cls) -> None:
         pass
 
 

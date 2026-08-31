@@ -34,7 +34,7 @@ class VoxelRenderer(ThreeDeeRenderer):
 
     def main_loop(self) -> None:
         self.draw_screen_border()
-        self.game.player3d.handle_player_input()
+        self.game.player3d.handle_keyboard_input()
         self.calculate_scenario()
         self.visualize_scenario()
 

@@ -107,7 +107,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
     def _fly_down(self) -> None:
         self.move_by((0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR))
 
-    def handle_player_input(self):
+    def handle_keyboard_input(self):
         self._move_forward()
         self._move_backward()
         self._strafe_left()

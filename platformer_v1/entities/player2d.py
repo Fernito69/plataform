@@ -125,7 +125,7 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         self._collision_landscape(old_position)
         self._calc_collision()
 
-    def handle_player_input(self):
+    def handle_keyboard_input(self):
         self._jump()
         self._move_left()
         self._move_right()

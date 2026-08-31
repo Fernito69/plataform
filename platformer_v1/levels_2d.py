@@ -1,4 +1,14 @@
-from factories.theme import BloodTheme, Blue, Cyan, DoubleLines, Magenta, Red, Yellow
+from factories.theme import (
+    BloodTheme,
+    Blue,
+    Cyan,
+    DoubleLines,
+    JungleTheme,
+    Magenta,
+    Red,
+    WaterTheme,
+    Yellow,
+)
 from model.base import Orientation
 from platformer_v1.entities.things2d import Exit2D
 from platformer_v1.factories import DumbBouncingEnemy, DumbFireFloatingEnemy, DumbFloatingEnemy
@@ -20,12 +30,12 @@ def build_level1() -> Level2D:
             movement_type=(1, 0), position=(20, 1), speed=10, bg_color=Blue(), color=Red()
         ),
         # Jumpy enemies
-        DumbBouncingEnemy(movement_type=(1, 0), position=(11, 23), color=Cyan(), speed=8),
-        DumbBouncingEnemy(movement_type=(1, 0), position=(12, 23), speed=-5),
-        DumbBouncingEnemy(movement_type=(1.2, 0), position=(12, 23), color=Magenta(), speed=1),
+        DumbBouncingEnemy(movement_type=(1, 0), position=(11, 22), color=Cyan(), speed=8),
+        DumbBouncingEnemy(movement_type=(1, 0), position=(12, 22), speed=-5),
+        DumbBouncingEnemy(movement_type=(1.2, 0), position=(12, 22), color=Magenta(), speed=1),
         DumbBouncingEnemy(
             movement_type=(2, 0),
-            position=(65, 23),
+            position=(65, 22),
             color=Yellow(),
             speed=0,
         ),
@@ -47,16 +57,16 @@ def build_level1() -> Level2D:
     level.add_char(l.UR, (4, 5))
 
     level.add_line(initial_position=(1, 5))
-    level.add_line((6, 21))
-    level.add_line((9, 19))
+    level.add_line((6, 21), theme=JungleTheme)
+    level.add_line((9, 19), theme=JungleTheme)
     level.add_line((5, 17))
-    level.add_line((10, 15))
+    level.add_line((10, 15), theme=JungleTheme)
     level.add_line((16, 13))
     level.add_line((22, 14))
-    level.add_line((9, 19))
+    level.add_line((9, 19), theme=JungleTheme)
     level.add_line((29, 11))
     level.add_line((31, 9))
-    level.add_line((36, 8))
+    level.add_line((36, 8), theme=JungleTheme)
     level.add_line((39, 5))
     level.add_line((31, 4))
     level.add_line((31, 4))
@@ -71,6 +81,8 @@ def build_level1() -> Level2D:
     level.add_char(l.CR, (0, 22))
     level.add_char(l.CR, (4, 17))
     level.add_char(l.LR, (4, 22))
+
+    level.add_line((1, 23), 78, theme=WaterTheme)
 
     return level
 

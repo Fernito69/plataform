@@ -5,7 +5,7 @@ from model.theme import Theme
 from platformer_v1.constants import ENEMY_MOV_FACTOR
 from platformer_v1.entities.base import LivingEntity2D
 
-_BOUNCE_FRAMES = ["_", "_", "o", "o", "O", "O"]
+_BOUNCE_FRAMES = ["_", "‗", "_","o", "O", "|", "¯", "|", "O", "o"]
 _MIN_BOUNCING_RANDOMNESS = 8
 _MAX_BOUNCING_RANDOMNESS = 12
 
@@ -59,6 +59,8 @@ class Enemy2D(LivingEntity2D):
         if self.curr_level is None:
             return
 
+        self._do_the_bare_minimum()
+
         # Bounce enemy
         # TODO: do proper polymorphism?
         if self.enemy_type == EnemyType.DUMB_BOUNCING:
@@ -95,7 +97,5 @@ class Enemy2D(LivingEntity2D):
                 self.movement_type[1] * ENEMY_MOV_FACTOR * self.speed,
             )
         )
-
-        self._advance_character_frame()
 
         self.collision()
