@@ -72,7 +72,7 @@ class Display(KeyboardHandler):
         match mode:
             case GameMode.PLATFORMER_V1:
                 self._set_2d_mode()
-            case GameMode.LINES_3D | GameMode.VOXELS_3D:
+            case GameMode.VOXELS_3D | GameMode.LINES_3D:
                 self._set_3d_mode()
             case GameMode.PHYSICS_2D:
                 self._set_physics_mode()
@@ -185,7 +185,7 @@ class Display(KeyboardHandler):
 
                 self._screen_matrix[y][x] = char
 
-        # Display message
+        # Add actual message content
         for msg_idx, row in enumerate(message_parts):
             # Message position
             starting_row_x = round(mid_x - len(row) / 2)
@@ -285,8 +285,8 @@ class Display(KeyboardHandler):
 
     def _set_2d_mode(self):
         self.antialiasing = True
-        self._set_max_fps(MAX_FPS_2D)
         self._set_resolution((X_RESOLUTION_2D, Y_RESOLUTION_2D))
+        self._set_max_fps(MAX_FPS_2D)
 
     def _set_physics_mode(self):
         # Handled in-engine

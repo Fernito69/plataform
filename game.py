@@ -13,8 +13,19 @@ from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import shuffle_list
 
-_WELCOME_TIMER = 50
-_WELCOME_TEXT = "Welcome! :)"
+_WELCOME_TIMER = 150
+_WELCOME_MESSAGE_SHOWN = -99
+_WELCOME_TEXT: str = str.join(
+    BR,
+    [
+        "Welcome! :)",
+        "",
+        "Press 1 for legacy platformer",
+        "Press 2 for 3D mode",
+        "Press V to switch 3D rendering mode",
+        "Press P for the 2D physics engine",
+    ],
+)
 
 
 class Game(Engine, KeyboardHandler):
@@ -36,7 +47,7 @@ class Game(Engine, KeyboardHandler):
 
     def __init__(
         self,
-        mode: GameMode = GameMode.PHYSICS_2D,
+        mode: GameMode = GameMode.PLATFORMER_V1,
     ):
         self.status = GameStatus.RUNNING
         self.mode = mode
@@ -65,35 +76,20 @@ class Game(Engine, KeyboardHandler):
         if not self.status == GameStatus.RUNNING:
             return
 
-        _W = int(_WELCOME_TIMER / 2)
-
-        if self._welcome_message_timer == -99:
-            # negative means it's already shown
+        if self._welcome_message_timer == _WELCOME_MESSAGE_SHOWN:
             return
         elif self._welcome_message_timer >= 0:
-            _text = (
-                _WELCOME_TEXT
-                # TODO: check why this doesn't work
-                # [
-                #     0 : min(
-                #         len(_WELCOME_TEXT) + 1,
-                #         (
-                #             1
-                #             + int(
-                #                 ((_W - self._welcome_message_timer) / _W) * (len(_WELCOME_TEXT) - 1)
-                #             )
-                #         ),
-                #     )
-                # ]
-                if self._welcome_message_timer > _W - 5
-                else _WELCOME_TEXT
-            )
+            _text = _WELCOME_TEXT
+            # TODO: fix this
+            # _WELCOME_TEXT[
+            #     0 : (len(_WELCOME_TEXT) - (_WELCOME_TIMER - self._welcome_message_timer))
+            # ]
             intensity = 1 - ((_WELCOME_TIMER - self._welcome_message_timer) / _WELCOME_TIMER)
             self.display.set_message(_text, intensity=intensity)
             self._welcome_message_timer -= 1
         elif self.display.has_message():
             self.display.set_message(None)
-            self._welcome_message_timer = -99
+            self._welcome_message_timer = _WELCOME_MESSAGE_SHOWN
 
     def main_loop(self) -> None:
         def _main_loop():
@@ -172,8 +168,9 @@ class Game(Engine, KeyboardHandler):
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
-        self.display.set_mode(GameMode.VOXELS_3D)
         self.mode = GameMode.VOXELS_3D
+        self.display.set_mode(GameMode.VOXELS_3D)
+        self.voxel_renderer.reset_screen_buffer()
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_3d_rendering_mode(self):
