@@ -40,9 +40,10 @@ class Scenario:
         self.player = player
 
     def act(self) -> None:
+        self.player.do_your_thing()
+        
         for e in self.pieces:
-            e.apply_movement()
-            e.apply_gravity(self.gravity_acceleration)
+            e.do_your_thing(self.gravity_acceleration)
 
     def render(self) -> None:
         self.handle_render_info(self.player.return_render_info())

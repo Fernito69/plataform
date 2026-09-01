@@ -50,7 +50,11 @@ class ScenarioPiece:
         self.angular_velocity = initial_angular_velocity
         self.center_of_mass = center_of_mass
 
-    def apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
+    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
+        self._apply_gravity(gravity_accel)
+        self._apply_movement()
+
+    def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:
             return
         self.velocity = (
@@ -97,7 +101,7 @@ class ScenarioPiece:
         )
 
     @abstractmethod
-    def apply_movement(cls) -> None:
+    def _apply_movement(cls) -> None:
         # Each entity should do its thing
         raise NotImplementedError(
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"

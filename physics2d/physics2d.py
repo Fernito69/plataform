@@ -56,7 +56,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
-        self.handle_keyboard_input()
+        # self.handle_keyboard_input()
         self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()

@@ -128,7 +128,7 @@ class Line(ScenarioPiece):
 
         return color
 
-    def apply_movement(self) -> None:
+    def _apply_movement(self) -> None:
         self._float_around()
         self._pulsate()
         self.rotate()

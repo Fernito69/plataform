@@ -45,7 +45,7 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             initial_angular_velocity=initial_angular_velocity,
         )
 
-    def apply_movement(self) -> None:
+    def _apply_movement(self) -> None:
         self._float_around()
 
         if not any(a != 0 for a in self.velocity):

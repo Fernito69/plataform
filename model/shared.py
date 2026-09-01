@@ -11,6 +11,9 @@ class KeyboardHandler:
     def _set_pressed_key(self, key: KeyboardKeys, val: bool):
         self._pressed_key_map[key] = val
 
+    def _is_pressed(self, key: KeyboardKeys) -> bool:
+        return self._pressed_key_map.get(key) or False
+
     @abstractmethod
     def handle_keyboard_input(cls) -> None:
         pass
