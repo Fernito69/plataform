@@ -40,8 +40,8 @@ class Scenario:
         self.player = player
 
     def act(self) -> None:
-        self.player.do_your_thing()
-        
+        self.player.do_your_thing(self.gravity_acceleration)
+
         for e in self.pieces:
             e.do_your_thing(self.gravity_acceleration)
 
