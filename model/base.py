@@ -3,31 +3,20 @@ from enum import StrEnum, auto
 
 type Tuple2[T: int | float] = tuple[T, T]
 
-type Vector2F = Tuple2[float]
-type Vector2I = Tuple2[int]
-type Point2F = Tuple2[float]
-type Point2I = Tuple2[int]
+# type Vector2F = Tuple2[float]
+# type Vector2I = Tuple2[int]
+# # type Point2F = Tuple2[float]
+# type Point2I = Tuple2[int]
 
 type Tuple3[T: int | float] = tuple[T, T, T]
 
-type Vector3F = Tuple3[float]
-type Point3F = Tuple3[float]
+# type Vector3F = Tuple3[float]
+# type Point3F = Tuple3[float]
 
 
 @dataclass
 class DistCoordBase:
     distance: float
-
-
-@dataclass
-class DistVector2D(DistCoordBase):
-    vector: Vector2F
-
-
-@dataclass
-class DistVector3D(DistCoordBase):
-    vector: Vector3F
-    distance_to_edge: float | None = None
 
 
 # TODO: unify this for 3D too
@@ -38,41 +27,81 @@ class Orientation(StrEnum):
 
 # TODO: refactor using these vectors:
 @dataclass
-class VectorF:
-    x: float
-    y: float
-    z: float | None = None
+class PointF:
+    x: float | int
+    y: float | int
+    z: float | int = 0
 
-    def __neg__(self) -> "VectorF":
-        return VectorF(x=-self.x, y=-self.y, z=-self.z if self.z else None)
+    def as_vector(self) -> "VectorF":
+        return VectorF(x=self.x, y=self.y, z=self.z)
 
-    def __add__(self, other: "VectorF") -> "VectorF":
-        return VectorF(
+    def as_point(self) -> "PointF":
+        return PointF(x=self.x, y=self.y, z=self.z)
+
+    def __str__(self) -> str:
+        return f"({self.x},{self.y}{f',{self.z}' if self.z else ''})"
+
+    def __neg__(self) -> "PointF":
+        return PointF(x=-self.x, y=-self.y, z=-self.z)
+
+    def __add__(self, other: "PointF") -> "PointF":
+        return PointF(
             x=self.x + other.x,
             y=self.y + other.y,
-            z=(self.z + other.z if self.z is not None and other.z is not None else None),
+            z=self.z + other.z,
         )
 
-    def __sub__(self, other: "VectorF") -> "VectorF":
-        return VectorF(
+    def __sub__(self, other: "PointF") -> "PointF":
+        return PointF(
             x=self.x - other.x,
             y=self.y - other.y,
-            z=(self.z - other.z if self.z is not None and other.z is not None else None),
+            z=self.z - other.z,
         )
 
-    def __mul__(self, scalar: float) -> "VectorF":
-        return VectorF(
+    def __mul__(self, scalar: float) -> "PointF":
+        return PointF(
             self.x * scalar,
             self.y * scalar,
-            None if self.z is None else self.z * scalar,
+            self.z * scalar,
         )
 
-    def __rmul__(self, scalar: float) -> "VectorF":
+    def __rmul__(self, scalar: float) -> "PointF":
         return self * scalar
 
+    def __len__(self) -> int:
+        return 2 if not self.z else 3
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+
     def __abs__(self) -> float:
-        """get magnitude"""
-        return (self.x**2 + self.y**2 + (self.z**2 if self.z else 0)) ** 0.5
+        """Gets magnitude"""
+        return (self.x**2 + self.y**2 + self.z**2) ** 0.5
 
 
-class PointF(VectorF): ...
+@dataclass
+class VectorF(PointF): ...
+
+
+@dataclass
+class PointI(PointF):
+    x: int
+    y: int
+    z: int | None = None
+
+
+@dataclass
+class VectorI(PointI): ...
+
+
+@dataclass
+class DistVector2D(DistCoordBase):
+    vector: VectorF
+
+
+@dataclass
+class DistVector3D(DistCoordBase):
+    vector: VectorF
+    distance_to_edge: float | None = None

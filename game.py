@@ -1,4 +1,5 @@
 from display import Display
+from model.base import PointF
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
@@ -62,7 +63,7 @@ class Game(Engine, KeyboardHandler):
         self.line_renderer = LineRenderer(self)
 
         # hardcoded cool initial place
-        self.player3d.position = (9, -44, -33)
+        self.player3d.position = PointF(9, -44, -33)
 
     def main_loop(self) -> None:
         def _main_loop():

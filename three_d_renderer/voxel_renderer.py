@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR, DoubleLines
-from model.base import Point2F, Point3F
+from model.base import PointF
 from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
-from utils import colored, distance_between_points, has_bg_color, vector_length
+from utils import colored, distance_between_points, has_bg_color
 
 if TYPE_CHECKING:
     from game import Game
@@ -67,35 +67,35 @@ class VoxelRenderer(ThreeDeeRenderer):
         )
 
         for entity in player.curr_level.entities:
-            vertices_to_render: list[tuple[Point3F, Point2F]] = []
+            vertices_to_render: list[tuple[PointF, PointF]] = []
 
             # TODO: render distance is not working well, fix
             for vertex in entity.vertices:
-                vertex_seen_from_player: Point3F = self._normalize_vertex_to_entity(vertex, player)
-                screen_x_pos, screen_y_pos = self._get_screen_projection(vertex_seen_from_player)
+                vertex_seen_from_player: PointF = self._normalize_vertex_to_entity(vertex, player)
+                screen_pos = self._get_screen_projection(vertex_seen_from_player)
 
                 if (
-                    screen_x_pos < X_RES - border_thickness
-                    and screen_y_pos < Y_RES - border_thickness
-                    and screen_x_pos > border_thickness
-                    and screen_y_pos > border_thickness
-                    and self._screen_buffer[round(screen_y_pos)][round(screen_x_pos)]
+                    screen_pos.x < X_RES - border_thickness
+                    and screen_pos.y < Y_RES - border_thickness
+                    and screen_pos.x > border_thickness
+                    and screen_pos.y > border_thickness
+                    and self._screen_buffer[round(screen_pos.y)][round(screen_pos.x)]
                     == DEFAULT_CHAR
                 ):
                     vertices_to_render.append(
-                        (vertex_seen_from_player, (screen_x_pos, screen_y_pos))
+                        (vertex_seen_from_player, PointF(screen_pos.x, screen_pos.y))
                     )
 
             color = self.colors[round(entity.size) % len(self.colors)]
 
             vertices_to_render = sorted(
                 vertices_to_render,
-                key=lambda e: vector_length(e[0]),
+                key=lambda e: abs(e[0]),
             )
 
             for vector, screen_position in vertices_to_render:
-                x_pos, y_pos = screen_position
-                d: float = vector_length(vector)
+                x_pos, y_pos, _ = screen_position
+                d: float = abs(vector)
                 intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
                 char: str = UPPER_PIXEL_CHAR if y_pos % 1 > 0.5 else LOWER_PIXEL_CHAR

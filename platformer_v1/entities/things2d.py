@@ -1,5 +1,5 @@
 from factories.theme import Red, Yellow
-from model.base import Point2F
+from model.base import PointF
 from model.theme import Theme
 from platformer_v1.entities.base import Entity2D
 
@@ -26,7 +26,7 @@ _EXIT_FRAMES = [
 
 
 class Exit2D(Entity2D):
-    def __init__(self, position: Point2F):
+    def __init__(self, position: PointF):
         Entity2D.__init__(self)
         self.position = position
         self._char_frames = _EXIT_FRAMES

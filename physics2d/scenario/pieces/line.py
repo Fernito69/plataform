@@ -2,12 +2,11 @@ import math
 
 from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import RGB, White
-from model.base import Point2F, Vector2F
+from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 from utils import (
-    add_tuple,
     distance_between_points,
     distance_from_line_to_point,
     mix_colors,
@@ -16,7 +15,7 @@ from utils import (
 
 
 class Line(ScenarioPiece):
-    points: tuple[Point2F, Point2F]
+    points: tuple[PointF, PointF]
     thickness: float
 
     _pulsate_freq: float
@@ -24,12 +23,12 @@ class Line(ScenarioPiece):
 
     def __init__(
         self,
-        points: tuple[Point2F, Point2F],
+        points: tuple[PointF, PointF],
         theme: Theme = Theme(),
         angle: float = 0,
         thickness: float = 1,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2F = (0, 0),
+        initial_velocity: VectorF = VectorF(0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
@@ -69,9 +68,9 @@ class Line(ScenarioPiece):
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
     def update_center_of_mass(self) -> None:
-        self.center_of_mass = (
-            (self.points[0][0] + self.points[1][0]) / 2,
-            (self.points[0][1] + self.points[1][1]) / 2,
+        self.center_of_mass = PointF(
+            (self.points[0].x + self.points[1].x) / 2,
+            (self.points[0].y + self.points[1].y) / 2,
         )
 
     def rotate(self) -> None:
@@ -99,8 +98,8 @@ class Line(ScenarioPiece):
 
         # check which direction is the widest (literally the same as rectangle)
         vertex_1, vertex_2 = self.points
-        width = abs(vertex_1[0] - vertex_2[0])
-        height = abs(vertex_1[1] - vertex_2[1])
+        width = abs(vertex_1.x - vertex_2.x)
+        height = abs(vertex_1.y - vertex_2.y)
 
         apply_gradient_horizontally: bool = width >= height
         if (
@@ -112,9 +111,9 @@ class Line(ScenarioPiece):
             raise IndexError("What's wrong with you?")
 
         color_ratio: float = (
-            abs(vertex_1[0] - x) / width
+            abs(vertex_1.x - x) / width
             if apply_gradient_horizontally and x is not None
-            else abs(vertex_1[1] - y) / height
+            else abs(vertex_1.y - y) / height
             if y is not None
             else 0
         )
@@ -137,8 +136,8 @@ class Line(ScenarioPiece):
             return
 
         self.points = (
-            add_tuple(self.points[0], self.velocity),
-            add_tuple(self.points[1], self.velocity),
+            (self.points[0] + self.velocity),
+            (self.points[1] + self.velocity),
         )
         self.update_center_of_mass()
 
@@ -146,21 +145,21 @@ class Line(ScenarioPiece):
         piece_info = []
         min_x, max_x = sorted(
             (
-                self.points[0][0],
-                self.points[1][0],
+                self.points[0].x,
+                self.points[1].x,
             )
         )
         min_y, max_y = sorted(
             (
-                self.points[0][1],
-                self.points[1][1],
+                self.points[0].y,
+                self.points[1].y,
             )
         )
 
         for x in range(math.floor(min_x - self.thickness), math.ceil(max_x + self.thickness)):
             for y in range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness)):
                 distance = distance_from_line_to_point(
-                    self.points, (x + HALF_PIXEL, y + HALF_PIXEL)
+                    self.points, PointF(x + HALF_PIXEL, y + HALF_PIXEL)
                 ).distance
 
                 if distance > self.thickness:
@@ -170,7 +169,7 @@ class Line(ScenarioPiece):
                     RenderInfo(
                         distance_to_pixel_center=distance / (abs(self.thickness) or ALMOST_ZERO),
                         color=self._get_color(x, y),
-                        point=(x, y),
+                        point=PointF(x, y),
                     )
                 )
 

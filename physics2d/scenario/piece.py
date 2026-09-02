@@ -1,11 +1,11 @@
 from abc import abstractmethod
 
 from factories.theme import RGB
-from model.base import Point2F, Vector2F
+from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.shared import RenderInfo
-from utils import add_tuple, shuffle_list
+from utils import shuffle_list
 
 
 class ScenarioPiece:
@@ -15,24 +15,24 @@ class ScenarioPiece:
     name: str
     # in radians
     angle: float
-    center_of_mass: Point2F
+    center_of_mass: PointF
 
     # if > 0, it floats around randomly, like brownian motion
     floating_multi: float
 
     _affected_by_gravity: bool
     _own_gravity_accel: float | None
-    velocity: Vector2F
+    velocity: VectorF
     angular_velocity: float
 
     def __init__(
         self,
         name: str,
-        center_of_mass: Point2F,
+        center_of_mass: PointF,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2F = (0, 0),
+        initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
@@ -57,13 +57,13 @@ class ScenarioPiece:
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:
             return
-        self.velocity = (
-            self.velocity[0],
-            self.velocity[1] - (self._own_gravity_accel or gravity_accel),
+        self.velocity = VectorF(
+            self.velocity.x,
+            self.velocity.y - (self._own_gravity_accel or gravity_accel),
         )
 
     @abstractmethod
-    def apply_angular_momentum(self, momentum: Vector2F) -> None:
+    def apply_angular_momentum(self, momentum: VectorF) -> None:
         # TODO: implement
         pass
 
@@ -88,10 +88,10 @@ class ScenarioPiece:
         if self.floating_multi == 0:
             return
 
-        self.velocity = add_tuple(
-            self.velocity,
-            (self.floating_multi * shuffle_list(), self.floating_multi * shuffle_list()),
-        )
+        self.velocity = (
+            self.velocity
+            + VectorF(self.floating_multi * shuffle_list(), self.floating_multi * shuffle_list())
+        ).as_vector()
 
     @abstractmethod
     def return_render_info(cls) -> list[RenderInfo]:

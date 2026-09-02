@@ -1,23 +1,23 @@
 import math
 
 from factories.theme import RGB, White
-from model.base import Point2F, Vector2F
+from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from utils import add_tuple, mix_colors, vector_length
+from utils import mix_colors
 
 
 class Rectangle(ScenarioPiece):
-    vertices: tuple[Point2F, Point2F]
+    vertices: tuple[PointF, PointF]
 
     def __init__(
         self,
-        vertices: tuple[Point2F, Point2F],
+        vertices: tuple[PointF, PointF],
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
-        initial_velocity: Vector2F = (0, 0),
+        initial_velocity: VectorF = VectorF(0, 0),
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
@@ -25,9 +25,9 @@ class Rectangle(ScenarioPiece):
     ):
         self.vertices = vertices
         # TODO: refactor into findle_middle_point
-        center_of_mass = (
-            (self.vertices[0][0] - self.vertices[1][0]) / 2,
-            (self.vertices[0][1] - self.vertices[1][1]) / 2,
+        center_of_mass = PointF(
+            (self.vertices[0].x + self.vertices[1].x) / 2,
+            (self.vertices[0].y + self.vertices[1].y) / 2,
         )
         super().__init__(
             name="Rectangle",
@@ -49,13 +49,10 @@ class Rectangle(ScenarioPiece):
             return
 
         self.vertices = (
-            add_tuple(self.vertices[0], self.velocity),
-            add_tuple(self.vertices[1], self.velocity),
+            (self.vertices[0] + self.velocity),
+            (self.vertices[1] + self.velocity),
         )
-        self.center_of_mass = (
-            self.center_of_mass[0] + self.velocity[0],
-            self.center_of_mass[1] + self.velocity[1],
-        )
+        self.center_of_mass = self.center_of_mass + self.velocity
 
     def rotate(self) -> None:
         pass
@@ -67,8 +64,8 @@ class Rectangle(ScenarioPiece):
         # check which direction is the widest
 
         vertex_1, vertex_2 = self.vertices
-        width = abs(vertex_1[0] - vertex_2[0])
-        height = abs(vertex_1[1] - vertex_2[1])
+        width = abs(vertex_1.x - vertex_2.x)
+        height = abs(vertex_1.y - vertex_2.y)
 
         apply_gradient_horizontally: bool = width >= height
         if (
@@ -80,9 +77,9 @@ class Rectangle(ScenarioPiece):
             raise IndexError("What's wrong with you?")
 
         color_ratio: float = (
-            abs(vertex_1[0] - x) / width
+            abs(vertex_1.x - x) / width
             if apply_gradient_horizontally and x is not None
-            else abs(vertex_1[1] - y) / height
+            else abs(vertex_1.y - y) / height
             if y is not None
             else 0
         )
@@ -100,14 +97,14 @@ class Rectangle(ScenarioPiece):
         piece_info = []
         min_x, max_x = sorted(
             (
-                self.vertices[0][0],
-                self.vertices[1][0],
+                self.vertices[0].x,
+                self.vertices[1].x,
             )
         )
         min_y, max_y = sorted(
             (
-                self.vertices[0][1],
-                self.vertices[1][1],
+                self.vertices[0].y,
+                self.vertices[1].y,
             )
         )
 
@@ -141,9 +138,9 @@ class Rectangle(ScenarioPiece):
 
                 piece_info.append(
                     RenderInfo(
-                        distance_to_pixel_center=vector_length((distance_x, distance_y)),
+                        distance_to_pixel_center=abs(VectorF(distance_x, distance_y)),
                         color=self._get_color(x, y).with_intensity(),
-                        point=(x, y),
+                        point=PointF(x, y),
                     )
                 )
 
