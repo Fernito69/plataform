@@ -105,6 +105,18 @@ class Line(Shape):
         )
         self.angle = new_angle
 
+    def is_in_hitbox_area(self, point: PointF, offset: float = 0) -> bool:
+        p1, p2 = self.points
+        x1, x2 = sorted((p1.x, p2.x))
+        y1, y2 = sorted((p1.y, p2.y))
+        total_offset = self.thickness + offset
+        return (
+            point.x >= x1 - total_offset
+            and point.x <= x2 + total_offset
+            and point.y >= y1 - total_offset
+            and point.y <= y2 + total_offset
+        )
+
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:
             return self.theme.color or White()

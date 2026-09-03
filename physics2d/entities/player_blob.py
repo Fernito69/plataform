@@ -24,7 +24,7 @@ _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def __init__(
-        self, engine: "Physics2D", position: PointF = PointF(20, 20), velocity=VectorF(0, 0)
+        self, engine: "Physics2D", position: PointF = PointF(20, 10), velocity=VectorF(0, 0)
     ):
         PhyEntity().__init__(name="Player", position=position, velocity=velocity)
         Circunference(center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME).__init__(
@@ -58,8 +58,13 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
     def _apply_movement(self) -> None:
         # only solid pieces can interact with the player
-        if any(self.would_collide(piece) for piece in self.engine.scenario.solid_pieces):
-            return
+        # TODO: we should filter by those that are visible on ecreen
+        if colliding_piece := next(
+            (piece for piece in self.engine.scenario.solid_pieces if self.would_collide(piece)),
+            None,
+        ):
+            # TODO: should be according to the normal of the colliding point
+            self.velocity = (-self.velocity).as_vector()
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:

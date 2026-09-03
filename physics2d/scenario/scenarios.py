@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from constants import ALMOST_ZERO
-from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, Violet, White, Yellow
+from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from model.base import PointF, VectorF
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.scenario.piece import ScenarioPiece
@@ -70,7 +70,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     )
     bg_circle_1 = CircunferencePiece(
         center=PointF(40, 40),
-        theme=Theme(color=Cyan().with_intensity(0.5)),
+        theme=Theme(color=Cyan().with_intensity(0.3)),
         radius=6,
         affected_by_gravity=True,
         initial_velocity=VectorF(-0.8, 4),
@@ -78,7 +78,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     )
     bg_circle_5 = CircunferencePiece(
         center=PointF(1, 1),
-        theme=Theme(color=Yellow().with_intensity(0.5)),
+        theme=Theme(color=Yellow().with_intensity(0.3)),
         radius=1.5,
         affected_by_gravity=True,
         initial_velocity=VectorF(2, 5),
@@ -86,19 +86,19 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     )
     bg_circle_2 = CircunferencePiece(
         center=PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
-        theme=Theme(color=Blue().with_intensity(0.5)),
+        theme=Theme(color=Blue().with_intensity(0.3)),
         radius=5,
         floating_multi=0.05,
     )
     bg_circle_3 = CircunferencePiece(
         center=PointF(30, 21),
-        theme=Theme(color=Green().with_intensity(0.5)),
+        theme=Theme(color=Green().with_intensity(0.3)),
         radius=15,
         floating_multi=ALMOST_ZERO,
     )
     bg_circle_4 = CircunferencePiece(
         center=PointF(0, 0),
-        theme=Theme(color=MakeColor(0.5, (134, 89, 177))),
+        theme=Theme(color=MakeColor(0.3, (134, 89, 177))),
         radius=25,
         floating_multi=0.005,
     )
@@ -119,6 +119,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             initial_velocity=VectorF(0, 0),
         ),
         line_3,
+        line_1,
     ]
 
     bg_pieces: list[ScenarioPiece] = [

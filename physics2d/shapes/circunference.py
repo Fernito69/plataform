@@ -1,15 +1,13 @@
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import Callable
 
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
+from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
 from utils import distance_from_line_to_point
-
-if TYPE_CHECKING:
-    from physics2d.shapes.line import Line
 
 
 @dataclass
@@ -142,19 +140,25 @@ class Circunference(Shape):
     def rotate(self) -> None:
         pass
 
-    # TODO: unify
+    # TODO: generalize this, every entity should know what to do!
+    # TODO: this should somehow return the normal of the collision point
     def would_collide(self, colliding_shape: Shape) -> bool:
         new_pos = self.velocity + self.center
 
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
-            return abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius
+            if collides := (
+                abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius
+            ):
+                return collides
 
         if isinstance(colliding_shape, Line):
-            return (
-                distance_from_line_to_point(colliding_shape.points, self.center).distance
-                <= self.radius + colliding_shape.thickness
-            )
+            if collides := (
+                colliding_shape.is_in_hitbox_area(self.center, self.radius)
+                and distance_from_line_to_point(colliding_shape.points, self.center).distance
+                < self.radius
+            ):
+                return collides
 
         # TODO: add the other shapes
 
