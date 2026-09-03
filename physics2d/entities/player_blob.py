@@ -5,7 +5,7 @@ from model.keyboard import MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
-from physics2d.model.shapes import Circunference
+from physics2d.shapes.circunference import Circunference
 from terminal import on_key_press
 
 if TYPE_CHECKING:

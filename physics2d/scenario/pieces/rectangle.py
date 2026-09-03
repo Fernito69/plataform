@@ -4,9 +4,9 @@ from factories.theme import RGB, White
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.model.shapes import Line
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
+from physics2d.shapes.line import Line
 from utils import mix_colors
 
 
@@ -49,7 +49,6 @@ class RectanglePiece(Line, ScenarioPiece):
         self.velocity = initial_velocity
         self.angular_velocity = initial_angular_velocity
         self._affected_by_gravity = affected_by_gravity
-
 
     def _apply_movement(self) -> None:
         self._float_around()

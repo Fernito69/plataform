@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.model.shapes import Shape
+from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario

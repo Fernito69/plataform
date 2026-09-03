@@ -1,7 +1,7 @@
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.model.shapes import Shape
+from physics2d.shapes.shape import Shape
 
 
 class ScenarioPiece(Shape):

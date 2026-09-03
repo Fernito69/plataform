@@ -4,8 +4,8 @@ from constants import PI
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.model.shapes import Line
 from physics2d.scenario.piece import ScenarioPiece
+from physics2d.shapes.line import Line
 
 
 class LinePiece(Line, ScenarioPiece):
@@ -59,14 +59,13 @@ class LinePiece(Line, ScenarioPiece):
         self.floating_multi = floating_multi
         self._affected_by_gravity = affected_by_gravity
         self.update_center_of_mass()
-        
+
     _counter: float = 0
 
     def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         self._apply_gravity(gravity_accel)
         self._apply_movement()
         self._pulsate()
-
 
     def _pulsate(self) -> None:
         if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
