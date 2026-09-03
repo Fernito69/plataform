@@ -143,7 +143,7 @@ class Entity3D:
         for i in range(len(vertexes)):
             new_y = (orig[i].y - y) * math.cos(a_z) + (orig[i].z - z) * math.sin(a_z) + y
             new_z = -(orig[i].y - y) * math.sin(a_z) + (orig[i].z - z) * math.cos(a_z) + z
-            vertexes[i] = PointF(vertexes[i].z, new_y, new_z)
+            vertexes[i] = PointF(vertexes[i].x, new_y, new_z)
 
         self.vertices = vertexes
 

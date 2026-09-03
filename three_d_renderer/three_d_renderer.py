@@ -70,15 +70,16 @@ class ThreeDeeRenderer(Engine):
                     self._screen_buffer[y].append(DEFAULT_CHAR)
 
     # This is where the 3D to 2D projection magic happens
-    def _get_screen_projection(self, point3: PointF, player: Entity3D | None = None) -> PointF:
+    def _get_screen_projection(
+        self, point3: PointF, player: Entity3D | None = None
+    ) -> PointF | None:
         x, y, z = self._normalize_vertex_to_entity(point3, player) if player else point3
+        if y <= 0:
+            return
 
-        x_pos = ((x * self.fov / y) + (self.display.curr_x_resolution / 2)) if y > 0 else 0
-        y_pos = (
-            (((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO)
-            if y > 0
-            else 0
-        )
+        x_pos = (x * self.fov / y) + (self.display.curr_x_resolution / 2)
+        y_pos = ((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO
+
         return PointF(x_pos, y_pos)
 
     def _normalize_vertex_to_entity(self, vertex1: PointF, entity: Entity3D) -> PointF:

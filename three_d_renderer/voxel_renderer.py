@@ -74,6 +74,9 @@ class VoxelRenderer(ThreeDeeRenderer):
                 vertex_seen_from_player: PointF = self._normalize_vertex_to_entity(vertex, player)
                 screen_pos = self._get_screen_projection(vertex_seen_from_player)
 
+                if not screen_pos:
+                    continue
+
                 if (
                     screen_pos.x < X_RES - border_thickness
                     and screen_pos.y < Y_RES - border_thickness
@@ -82,9 +85,7 @@ class VoxelRenderer(ThreeDeeRenderer):
                     and self._screen_buffer[round(screen_pos.y)][round(screen_pos.x)]
                     == DEFAULT_CHAR
                 ):
-                    vertices_to_render.append(
-                        (vertex_seen_from_player, PointF(screen_pos.x, screen_pos.y))
-                    )
+                    vertices_to_render.append((vertex_seen_from_player, screen_pos))
 
             color = self.colors[round(entity.size) % len(self.colors)]
 

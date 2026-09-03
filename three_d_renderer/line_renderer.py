@@ -130,12 +130,14 @@ class LineRenderer(ThreeDeeRenderer):
 
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_pixel_pos: PointF = self._get_screen_projection(
+                curr_pixel_pos: PointF | None = self._get_screen_projection(
                     data.vertex.point, self.game.player3d
                 )
-                connecting_pixel_pos: PointF = self._get_screen_projection(
+                connecting_pixel_pos: PointF | None = self._get_screen_projection(
                     data.entity.vertices[connecting_vertex_index], self.game.player3d
                 )
+                if not curr_pixel_pos or not connecting_pixel_pos:
+                    continue
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
                 if not self.display.is_in_screen(curr_pixel_pos) and not self.display.is_in_screen(
