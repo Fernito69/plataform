@@ -39,10 +39,12 @@ class Physics2D(Engine, KeyboardHandler):
         self.game = game
         self.screen_corner = initial_screen_corner
         self.display = self.game.display
-        self.player = PlayerBlob(self, position=PointF(20, 20))
-        self.scenario = default_scenario(self)
-        self.player.set_scenario(self.scenario)
         self.init_screen_buffer()
+
+    def init_player(self, scenario: Scenario | None = None) -> None:
+        self.player = self.game.player_blob
+        self.scenario = scenario or default_scenario(self)
+        self.player.set_scenario(self.scenario)
 
     def init_screen_buffer(self) -> None:
         self.screen_buffer_x_res = self.display.curr_x_resolution

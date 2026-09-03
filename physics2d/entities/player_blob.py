@@ -19,12 +19,14 @@ _MAX_MOVING_VELOCITY = 5
 _ACCEL_FACTOR = 1
 _DECEL_FACTOR = _ACCEL_FACTOR / 2
 
-_MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 10
+_MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 
 class PlayerBlob(Entity, Circunference, KeyboardHandler):
-    def __init__(self, engine: "Physics2D", position: PointF):
-        Entity().__init__(name="Player", position=position, velocity=VectorF(0, 0))
+    def __init__(
+        self, engine: "Physics2D", position: PointF = PointF(20, 20), velocity=VectorF(0, 0)
+    ):
+        Entity().__init__(name="Player", position=position, velocity=velocity)
         Circunference(center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME).__init__(
             center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME
         )
