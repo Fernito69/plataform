@@ -57,6 +57,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         pass
 
     def _apply_movement(self) -> None:
+        # only solid pieces can interact with the player
+        if any(self.would_collide(piece) for piece in self.engine.scenario.solid_pieces):
+            return
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:

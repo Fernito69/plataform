@@ -386,9 +386,11 @@ class Circunference(Shape):
         pass
 
     def would_collide(self, colliding_shape: Shape) -> bool:
+        new_pos = self.velocity + self.center
+        
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
-            return self.radius + colliding_shape.radius >= abs(self.center - colliding_shape.center)
+            return self.radius + colliding_shape.radius >= abs(new_pos - colliding_shape.center)
 
         if isinstance(colliding_shape, Line):
             # TODO: implement
