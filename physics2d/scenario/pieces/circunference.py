@@ -30,10 +30,10 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
     ):
-        Circunference.__init__(self, center, radius, theme)
-        ScenarioPiece.__init__(
+        Circunference.__init__(
             self,
-            name="Circle",
+            center=center,
+            radius=radius,
             theme=theme,
             angle=angle,
             initial_velocity=initial_velocity,
@@ -41,36 +41,24 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
-            center_of_mass=center,
             initial_angular_velocity=initial_angular_velocity,
         )
+        ScenarioPiece.__init__(
+            self,
+            name="Circle",
+        )
+        self.center = center
+        self.theme = theme
+        self.secondary_theme = secondary_theme
+        self.radius = radius
+        self.initial_angular_velocity = initial_angular_velocity
+        self._affected_by_gravity = affected_by_gravity
+        self._own_gravity_accel = own_gravity
+        self.floating_multi = floating_multi
+        self.velocity = initial_velocity
+        self.angular_velocity = initial_angular_velocity
 
     def _apply_movement(self) -> None:
         self._float_around()
-
-        if not any(a != 0 for a in self.velocity):
-            return
-        self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
-        self.center_of_mass = self.center
-
-    def get_circunference_equations(
-        self,
-    ) -> GetCircunferenceEquationResponse:
-        def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (x - self.center.x) ** 2
-            if root_arg < 0:
-                return (None, None)
-            root = root_arg**0.5
-            return (self.center.y - root, self.center.y + root)
-
-        def get_xs(y: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (y - self.center.y) ** 2
-            if root_arg < 0:
-                return (None, None)
-            root = root_arg**0.5
-            return (self.center.x - root, self.center.x + root)
-
-        return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
-
-    def rotate(self) -> None:
-        pass
+        self.center = self.center + self.velocity
+        self.center_of_mass = self.center_of_mass + self.velocity

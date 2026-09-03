@@ -1,23 +1,14 @@
 import math
 
-from constants import ALMOST_ZERO, HALF_PIXEL, PI
-from factories.theme import RGB, White
+from constants import PI
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.model.shared import RenderInfo
+from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
+from physics2d.model.shapes import Line
 from physics2d.scenario.piece import ScenarioPiece
-from utils import (
-    distance_between_points,
-    distance_from_line_to_point,
-    mix_colors,
-    rotate_point,
-)
 
 
-class Line(ScenarioPiece):
-    points: tuple[PointF, PointF]
-    thickness: float
-
+class LinePiece(Line, ScenarioPiece):
     _pulsate_freq: float
     _pulsate_amplitude: float
 
@@ -37,28 +28,45 @@ class Line(ScenarioPiece):
         initial_angular_velocity: float = 0,
         name: str = "Line",
     ):
-        self.points = points
-        self.thickness = thickness
-
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
 
-        self.update_center_of_mass()
-
-        super().__init__(
-            name=name,
-            center_of_mass=self.center_of_mass,
+        Line.__init__(
+            self,
+            points=points,
+            thickness=thickness,
             theme=theme,
+            secondary_theme=secondary_theme,
             angle=angle,
             affected_by_gravity=affected_by_gravity,
             initial_velocity=initial_velocity,
             own_gravity=own_gravity,
-            secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
         )
+        ScenarioPiece.__init__(
+            self,
+            name=name,
+        )
 
+        self.theme = theme
+        self.secondary_theme = secondary_theme
+        self.thickness = thickness
+        self.points = points
+        self.velocity = initial_velocity
+        self.angular_velocity = initial_angular_velocity
+        self._own_gravity_accel = own_gravity
+        self.floating_multi = floating_multi
+        self._affected_by_gravity = affected_by_gravity
+        self.update_center_of_mass()
+        
     _counter: float = 0
+
+    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
+        self._apply_gravity(gravity_accel)
+        self._apply_movement()
+        self._pulsate()
+
 
     def _pulsate(self) -> None:
         if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
@@ -67,110 +75,37 @@ class Line(ScenarioPiece):
         self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
 
-    def update_center_of_mass(self) -> None:
-        self.center_of_mass = PointF(
-            (self.points[0].x + self.points[1].x) / 2,
-            (self.points[0].y + self.points[1].y) / 2,
-        )
+    # def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
+    #     if not self.secondary_theme:
+    #         return self.theme.color or White()
 
-    def rotate(self) -> None:
-        new_angle = 0
-        if self.angular_velocity != 0:
-            distance_from_center_to_farthest_point = distance_between_points(
-                self.center_of_mass, self.points[0]
-            ).distance
-            new_angle = self.angular_velocity / (
-                distance_from_center_to_farthest_point or ALMOST_ZERO
-            )
+    #     # check which direction is the widest (literally the same as rectangle)
+    #     vertex_1, vertex_2 = self.points
+    #     width = abs(vertex_1.x - vertex_2.x)
+    #     height = abs(vertex_1.y - vertex_2.y)
 
-        if not new_angle:
-            return
+    #     apply_gradient_horizontally: bool = width >= height
+    #     if (
+    #         apply_gradient_horizontally
+    #         and x is None
+    #         or not apply_gradient_horizontally
+    #         and y is None
+    #     ):
+    #         raise IndexError("What's wrong with you?")
 
-        self.points = (
-            rotate_point(self.points[0], self.center_of_mass, new_angle),
-            rotate_point(self.points[1], self.center_of_mass, new_angle),
-        )
-        self.angle = new_angle
+    #     color_ratio: float = (
+    #         abs(vertex_1.x - x) / width
+    #         if apply_gradient_horizontally and x is not None
+    #         else abs(vertex_1.y - y) / height
+    #         if y is not None
+    #         else 0
+    #     )
 
-    def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
-        if not self.secondary_theme:
-            return self.theme.color or White()
+    #     color: RGB = mix_colors(
+    #         [
+    #             (self.theme.color or White()).with_intensity(color_ratio),
+    #             (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
+    #         ]
+    #     )
 
-        # check which direction is the widest (literally the same as rectangle)
-        vertex_1, vertex_2 = self.points
-        width = abs(vertex_1.x - vertex_2.x)
-        height = abs(vertex_1.y - vertex_2.y)
-
-        apply_gradient_horizontally: bool = width >= height
-        if (
-            apply_gradient_horizontally
-            and x is None
-            or not apply_gradient_horizontally
-            and y is None
-        ):
-            raise IndexError("What's wrong with you?")
-
-        color_ratio: float = (
-            abs(vertex_1.x - x) / width
-            if apply_gradient_horizontally and x is not None
-            else abs(vertex_1.y - y) / height
-            if y is not None
-            else 0
-        )
-
-        color: RGB = mix_colors(
-            [
-                (self.theme.color or White()).with_intensity(color_ratio),
-                (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
-            ]
-        )
-
-        return color
-
-    def _apply_movement(self) -> None:
-        self._float_around()
-        self._pulsate()
-        self.rotate()
-
-        if not any(a != 0 for a in self.velocity):
-            return
-
-        self.points = (
-            (self.points[0] + self.velocity),
-            (self.points[1] + self.velocity),
-        )
-        self.update_center_of_mass()
-
-    def return_render_info(self) -> list[RenderInfo]:
-        piece_info = []
-        min_x, max_x = sorted(
-            (
-                self.points[0].x,
-                self.points[1].x,
-            )
-        )
-        min_y, max_y = sorted(
-            (
-                self.points[0].y,
-                self.points[1].y,
-            )
-        )
-
-        for x in range(math.floor(min_x - self.thickness), math.ceil(max_x + self.thickness)):
-            for y in range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness)):
-                distance = distance_from_line_to_point(
-                    self.points, PointF(x + HALF_PIXEL, y + HALF_PIXEL)
-                ).distance
-
-                if distance > self.thickness:
-                    continue
-
-                piece_info.append(
-                    RenderInfo(
-                        distance_to_pixel_center=distance / (abs(self.thickness) or ALMOST_ZERO),
-                        color=self._get_color(x, y),
-                        point=PointF(x, y),
-                    )
-                )
-
-        return piece_info
+    #     return color

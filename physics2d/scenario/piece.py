@@ -1,108 +1,37 @@
-from abc import abstractmethod
-
-from factories.theme import RGB
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.model.shared import RenderInfo
-from utils import shuffle_list
+from physics2d.model.shapes import Shape
 
 
-class ScenarioPiece:
-    theme: Theme
-    secondary_theme: Theme | None
-
+class ScenarioPiece(Shape):
     name: str
-    # in radians
-    angle: float
-    center_of_mass: PointF
-
-    # if > 0, it floats around randomly, like brownian motion
-    floating_multi: float
-
-    _affected_by_gravity: bool
-    _own_gravity_accel: float | None
-    velocity: VectorF
-    angular_velocity: float
 
     def __init__(
         self,
         name: str,
-        center_of_mass: PointF,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
-        initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        initial_angular_velocity: float = 0,
     ):
-        self.theme = theme
-        self.name = name
-        self.angle = angle
-
-        self._affected_by_gravity = affected_by_gravity
-        self.velocity = initial_velocity
-        self._own_gravity_accel = own_gravity
-        self.secondary_theme = secondary_theme
-        self.floating_multi = floating_multi
-        self.angular_velocity = initial_angular_velocity
-        self.center_of_mass = center_of_mass
+        super().__init__(
+            name=name or self.name,
+            theme=theme,
+            angle=angle,
+            affected_by_gravity=affected_by_gravity,
+            initial_velocity=initial_velocity,
+            own_gravity=own_gravity,
+            secondary_theme=secondary_theme,
+            floating_multi=floating_multi,
+            center_of_mass=PointF(0, 0),  # TODO: fix this
+            initial_angular_velocity=initial_angular_velocity,
+        )
 
     def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         self._apply_gravity(gravity_accel)
         self._apply_movement()
-
-    def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
-        if not self._affected_by_gravity and not self._own_gravity_accel:
-            return
-        self.velocity = VectorF(
-            self.velocity.x,
-            self.velocity.y - (self._own_gravity_accel or gravity_accel),
-        )
-
-    @abstractmethod
-    def apply_angular_momentum(self, momentum: VectorF) -> None:
-        # TODO: implement
-        pass
-
-    @abstractmethod
-    def update_center_of_mass(cls) -> None:
-        # Each entity should do its thing
-        raise NotImplementedError(
-            f"{cls.name or 'UnknownPiece'} must have a calc_center_of_mass method"
-        )
-
-    @abstractmethod
-    def rotate(cls) -> None:
-        # Each entity should do its thing
-        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a rotate method")
-
-    @abstractmethod
-    def _get_color(cls, x: int | None = None, y: int | None = None) -> RGB:
-        # Each entity should do its thing
-        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a _get_color method")
-
-    def _float_around(self) -> None:
-        if self.floating_multi == 0:
-            return
-
-        self.velocity = (
-            self.velocity
-            + VectorF(self.floating_multi * shuffle_list(), self.floating_multi * shuffle_list())
-        ).as_vector()
-
-    @abstractmethod
-    def return_render_info(cls) -> list[RenderInfo]:
-        # Each entity should do its thing
-        raise NotImplementedError(
-            f"{cls.name or 'UnknownPiece'} must have a return_render_info method"
-        )
-
-    @abstractmethod
-    def _apply_movement(cls) -> None:
-        # Each entity should do its thing
-        raise NotImplementedError(
-            f"{cls.name or 'UnknownPiece'} must have an apply_movement method"
-        )

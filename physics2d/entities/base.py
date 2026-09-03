@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
 
 
-class Entity(Shape):
+class PhyEntity(Shape):
     position: PointF
     velocity: VectorF
 
@@ -24,8 +24,27 @@ class Entity(Shape):
         position: PointF = PointF(0, 0),
         velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
+        angle: float = 0,
+        affected_by_gravity: bool = False,
+        initial_velocity: VectorF = VectorF(0, 0),
+        initial_angular_velocity: float = 0,
+        own_gravity: float | None = None,
+        secondary_theme: Theme | None = None,
+        floating_multi: float = 0,
     ):
-        super().__init__(theme=theme)
+        Shape.__init__(
+            self,
+            theme=theme,
+            angle=angle,
+            secondary_theme=secondary_theme,
+            own_gravity=own_gravity,
+            initial_angular_velocity=initial_angular_velocity,
+            affected_by_gravity=affected_by_gravity,
+            floating_multi=floating_multi,
+            initial_velocity=initial_velocity,
+            center_of_mass=position,
+            name="Physics Entity",
+        )
         self._scenario = scenario
         self.position = position
         self.velocity = velocity
@@ -36,3 +55,7 @@ class Entity(Shape):
 
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
+
+    def is_same_position(self, shape: Shape) -> bool:
+        # TODO implement
+        return True

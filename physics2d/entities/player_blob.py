@@ -4,7 +4,7 @@ from model.base import PointF, VectorF
 from model.keyboard import MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
-from physics2d.entities.base import Entity
+from physics2d.entities.base import PhyEntity
 from physics2d.model.shapes import Circunference
 from terminal import on_key_press
 
@@ -22,11 +22,11 @@ _DECEL_FACTOR = _ACCEL_FACTOR / 2
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 
-class PlayerBlob(Entity, Circunference, KeyboardHandler):
+class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def __init__(
         self, engine: "Physics2D", position: PointF = PointF(20, 20), velocity=VectorF(0, 0)
     ):
-        Entity().__init__(name="Player", position=position, velocity=velocity)
+        PhyEntity().__init__(name="Player", position=position, velocity=velocity)
         Circunference(center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME).__init__(
             center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME
         )

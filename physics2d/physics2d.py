@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
 
-# Determines "how much" antialiasing we have
-INTENSITY_BLEND_THRESHOLD = 0.8
+# Determines at what level of RGB intensity the antialiasing effect starts to kick in
+INTENSITY_BLEND_THRESHOLD = 1
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -48,6 +48,8 @@ class Physics2D(Engine, KeyboardHandler):
 
     def init_screen_buffer(self) -> None:
         self.screen_buffer_x_res = self.display.curr_x_resolution
+        # Since we vertically stack 2 "sub-pixels" per terminal character ("▀" and "▄"),
+        # our screen buffer is actually twice the y-resolution
         self.screen_buffer_y_res = self.display.curr_y_resolution * 2
 
         self.screen_buffer: list[list[list[RenderInfo]]] = []
@@ -89,12 +91,6 @@ class Physics2D(Engine, KeyboardHandler):
 
         # Note the step is 2 here <─────────────────┐
         for y in range(0, self.screen_buffer_y_res, 2):
-            # TODO: this explanation is bad, improve
-            # each pixel represented in the buffer lands
-            # in the actual matrix as part the same character actually,
-            # with fg color occupying this part "▄" and bg color occupying this part "▀"
-            # (or the other way around, who knows)
-            # this trick allows us to have "pixels" with a conveniently more square ratio
             new_y = int(y / 2)
             # we use the backwards index because, in the buffer, `going up == y++`,
             # whereas in the screen grid it's actually the opposite
@@ -111,8 +107,8 @@ class Physics2D(Engine, KeyboardHandler):
                     new_screen_grid[new_y].append(DEFAULT_CHAR)
                     continue
 
-                upper_color = Physics2D._calculate_color_with_aa(upper_pixel_info)
-                lower_color = Physics2D._calculate_color_with_aa(lower_pixel_info)
+                upper_color = Physics2D._compute_subpixel_color(upper_pixel_info)
+                lower_color = Physics2D._compute_subpixel_color(lower_pixel_info)
 
                 new_screen_grid[new_y].append(
                     colored(
@@ -158,18 +154,16 @@ class Physics2D(Engine, KeyboardHandler):
         self.screen_corner = PointF(0, 0)
 
     @staticmethod
-    def _get_intensity(info: RenderInfo) -> float:
-        return max(
-            0,
-            1 - info.distance_to_pixel_center,
-        )
-
-    @staticmethod
-    def _calculate_color_with_aa(info_list: list[RenderInfo]) -> RGB:
+    def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
         curr_index = 0
 
         def _get_color(il: list[RenderInfo], idx: int):
-            return il[idx].color.with_intensity_v2(Physics2D._get_intensity(il[idx]))
+            return il[idx].color.with_intensity_v2(
+                max(
+                    0,
+                    1 - (il[idx]).distance_to_pixel_center,
+                )
+            )
 
         curr_color = (
             _get_color(info_list, curr_index) if len(info_list) > curr_index else RGB(0, 0, 0)
@@ -186,6 +180,7 @@ class Physics2D(Engine, KeyboardHandler):
                 RGB(
                     *(
                         min(255, round(c))
+                        # TODO: implement RGB sum and __iter__
                         for c in add_triplet(
                             (curr_color.r, curr_color.g, curr_color.b),
                             (next_object_color.r, next_object_color.g, next_object_color.b),

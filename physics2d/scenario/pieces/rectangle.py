@@ -3,12 +3,15 @@ import math
 from factories.theme import RGB, White
 from model.base import PointF, VectorF
 from model.theme import Theme
+from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
+from physics2d.model.shapes import Line
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 from utils import mix_colors
 
 
-class Rectangle(ScenarioPiece):
+# TODO: should have its own rectangle Shape
+class RectanglePiece(Line, ScenarioPiece):
     vertices: tuple[PointF, PointF]
 
     def __init__(
@@ -23,14 +26,8 @@ class Rectangle(ScenarioPiece):
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
     ):
-        self.vertices = vertices
-        # TODO: refactor into findle_middle_point
-        center_of_mass = PointF(
-            (self.vertices[0].x + self.vertices[1].x) / 2,
-            (self.vertices[0].y + self.vertices[1].y) / 2,
-        )
-        super().__init__(
-            name="Rectangle",
+        Line.__init__(
+            self,
             theme=theme,
             angle=angle,
             affected_by_gravity=affected_by_gravity,
@@ -38,9 +35,21 @@ class Rectangle(ScenarioPiece):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
-            center_of_mass=center_of_mass,
             initial_angular_velocity=initial_angular_velocity,
+            points=vertices,
+            thickness=1,
         )
+        ScenarioPiece.__init__(self, name="Rectangle")
+        self.theme = theme
+        self.secondary_theme = secondary_theme
+        self.vertices = vertices
+        self.initial_angular_velocity = initial_angular_velocity
+        self._own_gravity_accel = own_gravity
+        self.floating_multi = floating_multi
+        self.velocity = initial_velocity
+        self.angular_velocity = initial_angular_velocity
+        self._affected_by_gravity = affected_by_gravity
+
 
     def _apply_movement(self) -> None:
         self._float_around()
@@ -56,6 +65,10 @@ class Rectangle(ScenarioPiece):
 
     def rotate(self) -> None:
         pass
+
+    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
+        self._apply_gravity(gravity_accel)
+        self._apply_movement()
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:
@@ -93,7 +106,7 @@ class Rectangle(ScenarioPiece):
 
         return color
 
-    def return_render_info(self) -> list[RenderInfo]:
+    def get_render_info(self) -> list[RenderInfo]:
         piece_info = []
         min_x, max_x = sorted(
             (
