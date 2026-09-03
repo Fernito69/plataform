@@ -7,7 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
-from utils import distance_from_line_to_point
+from utils import distance_from_line_to_point, get_normal_unit_vector, get_slope
 
 
 @dataclass
@@ -141,25 +141,24 @@ class Circunference(Shape):
         pass
 
     # TODO: generalize this, every entity should know what to do!
-    # TODO: this should somehow return the normal of the collision point
-    def would_collide(self, colliding_shape: Shape) -> bool:
-        new_pos = self.velocity + self.center
+    # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
+    def would_collide_with(self, colliding_shape: Shape) -> VectorF | None:
+        # TODO: this doesn't work, if velocity is too high, we get fucked
+        new_pos = (.5*self.velocity) + self.center
 
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
-            if collides := (
-                abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius
-            ):
-                return collides
+            if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
+                return get_normal_unit_vector(new_pos, self.center, self.velocity)
 
         if isinstance(colliding_shape, Line):
-            if collides := (
+            if (
                 colliding_shape.is_in_hitbox_area(self.center, self.radius)
                 and distance_from_line_to_point(colliding_shape.points, self.center).distance
-                < self.radius
+                < self.radius + colliding_shape.thickness
             ):
-                return collides
+                return get_normal_unit_vector(*colliding_shape.points, self.velocity)
 
         # TODO: add the other shapes
 
-        return False
+        return None

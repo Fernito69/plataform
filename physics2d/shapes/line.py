@@ -50,7 +50,7 @@ class Line(Shape):
             (self.points[0].y + self.points[1].y) / 2,
         )
 
-    def would_collide(self, colliding_shape: Shape) -> bool:
+    def would_collide_with(self, colliding_shape: Shape) -> bool:
         # TODO: implement
         return False
 

@@ -59,12 +59,10 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def _apply_movement(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
-        if colliding_piece := next(
-            (piece for piece in self.engine.scenario.solid_pieces if self.would_collide(piece)),
-            None,
-        ):
-            # TODO: should be according to the normal of the colliding point
-            self.velocity = (-self.velocity).as_vector()
+        for piece in self.engine.scenario.solid_pieces:
+            counter_vector = self.would_collide_with(piece)
+            if counter_vector:
+                self.velocity = (abs(self.velocity) * counter_vector.as_point()).as_vector()
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:
@@ -115,6 +113,10 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             self.velocity = (self.velocity + VectorF(-_DECEL_FACTOR, 0)).as_vector()
         if self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT):
             self.velocity = (self.velocity + VectorF(_DECEL_FACTOR, 0)).as_vector()
+        if 0 <= self.velocity.x < _DECEL_FACTOR:
+            self.velocity.x = 0
+        if 0 <= self.velocity.y < _DECEL_FACTOR:
+            self.velocity.y = 0
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:

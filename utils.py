@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from random import random
 from typing import Any
 
-from model.base import DistVector3D, PointF
+from constants import PI
+from model.base import DistVector3D, PointF, VectorF
 from model.theme import RGB
 
 _RESET = "\033[0m"
@@ -219,6 +220,29 @@ def get_slope(point1: PointF, point2: PointF) -> float | None:
     if point2.x - point1.x == 0:
         return None
     return (point2.y - point1.y) / (point2.x - point1.x)
+
+
+def get_perpendicular_slope(point1: PointF, point2: PointF) -> float | None:
+    m = get_slope(point1, point2)
+    return 0 if m is None else None if m == 0 else -1 / m
+
+
+def get_normal_unit_vector(point1: PointF, point2: PointF, velocity: VectorF) -> VectorF:
+    perpendicular_m = get_perpendicular_slope(point1, point2)
+    angle = (
+        (
+            0
+            if perpendicular_m is None
+            else PI / 2
+            if perpendicular_m == 0
+            else math.atan(perpendicular_m)
+        )
+        % PI
+        / 2
+    )
+    x_factor = 1 if velocity.x < 0 else -1
+    y_factor = 1 if velocity.y < 0 else -1
+    return VectorF(x=x_factor * math.cos(angle), y=y_factor * math.sin(angle))
 
 
 @dataclass

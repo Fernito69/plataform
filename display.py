@@ -11,6 +11,7 @@ from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
 from model.theme import BR, EMPTY_SPACE, LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
+from physics2d.entities.player_blob import PlayerBlob
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
 from terminal import clear, on_key_press
@@ -127,7 +128,7 @@ class Display(KeyboardHandler):
 
         time.sleep(max(0, period - ellapsed))
 
-    def print_curr_screen(self, player: Player2D | Player3D | None = None):
+    def print_curr_screen(self, player: Player2D | Player3D | PlayerBlob | None = None):
         message_container_coords: tuple[PointI, PointI] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
@@ -310,7 +311,7 @@ class Display(KeyboardHandler):
         self.curr_x_resolution = resolution.x
         self.curr_y_resolution = resolution.y
 
-    def _get_hud_string(self, player: Player2D | Player3D) -> str:
+    def _get_hud_string(self, player: Player2D | Player3D | PlayerBlob) -> str:
         hud = ""
 
         # Horrible branching
@@ -339,6 +340,10 @@ class Display(KeyboardHandler):
             hud += f"Curr pos: {colored((f'({int(player.position.x)},{int(player.position.y)},{int(player.position.z or 0)})'))}{SEPARATOR}"
             hud += f"Angle: {colored((f'({int(player.angle.x)},{int(player.angle.y)},{int(player.angle.z or 0)})'))}{SEPARATOR}"
 
+            return hud
+
+        if isinstance(player, PlayerBlob):
+            hud += f"Velocity: {player.velocity}{SEPARATOR}"
             return hud
 
         health = player.get_health()

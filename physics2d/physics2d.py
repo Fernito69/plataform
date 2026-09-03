@@ -119,7 +119,7 @@ class Physics2D(Engine, KeyboardHandler):
                 )
 
         self.display.put_screen_content(new_screen_grid)
-        self.display.print_curr_screen()
+        self.display.print_curr_screen(self.player)
 
     def handle_keyboard_input(self) -> None:
         self._reset_scenario()
