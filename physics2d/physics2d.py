@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
-from model.base import Point2F
+from model.base import PointF
 from model.keyboard import MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
@@ -11,12 +11,12 @@ from physics2d.model.shared import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
 from terminal import on_key_press
-from utils import add_triplet, add_tuple, colored
+from utils import add_triplet, colored
 
 if TYPE_CHECKING:
     from game import Game
 
-INITIAL_CORNER = (0, 0)
+INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
 
 # Determines "how much" antialiasing we have
@@ -33,16 +33,18 @@ class Physics2D(Engine, KeyboardHandler):
     player: PlayerBlob
     scenario: Scenario
 
-    screen_corner: Point2F
+    screen_corner: PointF
 
-    def __init__(self, game: "Game", initial_screen_corner: Point2F = INITIAL_CORNER):
+    def __init__(self, game: "Game", initial_screen_corner: PointF = INITIAL_CORNER):
         self.game = game
         self.screen_corner = initial_screen_corner
         self.display = self.game.display
-        self.player = PlayerBlob(self, position=(20, 20))
-        self.scenario = default_scenario(self)
-        self.player.set_scenario(self.scenario)
         self.init_screen_buffer()
+
+    def init_player(self, scenario: Scenario | None = None) -> None:
+        self.player = self.game.player_blob
+        self.scenario = scenario or default_scenario(self)
+        self.player.set_scenario(self.scenario)
 
     def init_screen_buffer(self) -> None:
         self.screen_buffer_x_res = self.display.curr_x_resolution
@@ -56,24 +58,24 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
-        # self.handle_keyboard_input()
+        self.handle_keyboard_input()
         self.scenario.act()
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
 
-    def is_visible(self, point: Point2F) -> bool:
+    def is_visible(self, point: PointF) -> bool:
         return (
-            point[0] >= 0
-            and point[0] < self.screen_buffer_x_res
-            and point[1] >= 0
-            and point[1] < self.screen_buffer_y_res
+            point.x >= 0
+            and point.x < self.screen_buffer_x_res
+            and point.y >= 0
+            and point.y < self.screen_buffer_y_res
         )
 
     def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
-        new_x = round(render_info.point[0] - self.screen_corner[0])
-        new_y = round(render_info.point[1] - self.screen_corner[1])
+        new_x = round(render_info.point.x - self.screen_corner.x)
+        new_y = round(render_info.point.y - self.screen_corner.y)
 
-        if self.is_visible((new_x, new_y)):
+        if self.is_visible(PointF(new_x, new_y)):
             self.screen_buffer[new_y][new_x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
@@ -137,23 +139,23 @@ class Physics2D(Engine, KeyboardHandler):
 
     @on_key_press(MovementKeys.UP)
     def _move_screen_up(self):
-        self.screen_corner = add_tuple(self.screen_corner, (0, CAMERA_MOVEMENT_SPEED))
+        self.screen_corner = (self.screen_corner + PointF(0, CAMERA_MOVEMENT_SPEED)).as_point()
 
     @on_key_press(MovementKeys.DOWN)
     def _move_screen_down(self):
-        self.screen_corner = add_tuple(self.screen_corner, (0, -CAMERA_MOVEMENT_SPEED))
+        self.screen_corner = (self.screen_corner + PointF(0, -CAMERA_MOVEMENT_SPEED)).as_point()
 
     @on_key_press(MovementKeys.LEFT)
     def _move_screen_left(self):
-        self.screen_corner = add_tuple(self.screen_corner, (-CAMERA_MOVEMENT_SPEED, 0))
+        self.screen_corner = (self.screen_corner + PointF(-CAMERA_MOVEMENT_SPEED, 0)).as_point()
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_screen_right(self):
-        self.screen_corner = add_tuple(self.screen_corner, (CAMERA_MOVEMENT_SPEED, 0))
+        self.screen_corner = (self.screen_corner + PointF(CAMERA_MOVEMENT_SPEED, 0)).as_point()
 
     @on_key_press(PhysicsKey.RESET_CAMERA)
     def _reset_camera(self):
-        self.screen_corner = (0, 0)
+        self.screen_corner = PointF(0, 0)
 
     @staticmethod
     def _get_intensity(info: RenderInfo) -> float:

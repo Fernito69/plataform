@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import Cyan, Green, Red, White, Yellow
+from model.base import PointF, VectorF
 from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from model.shared import KeyboardHandler
@@ -108,20 +109,20 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         if self.y_distance().distance > 0:
             return
         self.falling_velocity = -1
-        self._move_by((0, -1))
+        self._move_by(VectorF(0, -1))
         self._calc_collision()
 
     @on_key_press(MovementKeys.LEFT)
     def _move_left(self) -> None:
-        old_position = (self.position[0], self.position[1])
-        self._move_by((-1, 0))
+        old_position = PointF(self.position.x, self.position.y)
+        self._move_by(VectorF(-1, 0))
         self._collision_landscape(old_position)
         self._calc_collision()
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_right(self) -> None:
-        old_position = (self.position[0], self.position[1])
-        self._move_by((1, 0))
+        old_position = PointF(self.position.x, self.position.y)
+        self._move_by(VectorF(1, 0))
         self._collision_landscape(old_position)
         self._calc_collision()
 

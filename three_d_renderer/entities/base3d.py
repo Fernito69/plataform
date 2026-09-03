@@ -3,9 +3,9 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Optional
 
 from factories.theme import White
-from model.base import Point3F, Vector3F
+from model.base import PointF, VectorF
 from model.theme import EMPTY_SPACE, RGB, Theme
-from utils import add_triplet, colored, subtract_triplet
+from utils import colored
 
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
@@ -14,13 +14,13 @@ if TYPE_CHECKING:
 
 
 class Entity3D:
-    position: Point3F = (0, 0, 0)
+    position: PointF = PointF(0, 0, 0)
     falling_velocity: float = 0
-    vertices: list[Point3F]
-    mov_vector: Vector3F
-    rot_vector: Vector3F
+    vertices: list[PointF]
+    mov_vector: VectorF
+    rot_vector: VectorF
     rotate: bool
-    _angle: Vector3F = (0, 0, 0)
+    angle: VectorF = VectorF(0, 0, 0)
 
     # How vertices in the entity interconnect between them
     # works by index, e.g.: (0, 1) <- vertex 0 connects with 1
@@ -32,14 +32,14 @@ class Entity3D:
 
     def __init__(
         self,
-        vertices: list[Point3F],
+        vertices: list[PointF],
         level: Optional["Level3D"] = None,
         theme: Theme | None = None,
-        position: Point3F = (0, 0, 0),
+        position: PointF = PointF(0, 0, 0),
         size: float = 1,
-        angle: Point3F = (0, 0, 0),
-        mov_vector: Vector3F = (0, 0, 0),
-        rot_vector: Vector3F = (0, 0, 0),
+        angle: VectorF = VectorF(0, 0, 0),
+        mov_vector: VectorF = VectorF(0, 0, 0),
+        rot_vector: VectorF = VectorF(0, 0, 0),
         color: RGB = White(),
         name: str | None = None,
     ):
@@ -51,7 +51,7 @@ class Entity3D:
         self._curr_char_frame_index = 0
         self.position = position
         self.size = size
-        self._angle = angle
+        self.angle = angle
         self.mov_vector = mov_vector
         self.rot_vector = rot_vector
         self.vertices = vertices
@@ -76,11 +76,11 @@ class Entity3D:
         pass
 
     @abstractmethod
-    def calc_main_vertices(self, apply: bool = False) -> list[Point3F]:
+    def calc_main_vertices(self, apply: bool = False) -> list[PointF]:
         pass
 
     @abstractmethod
-    def calc_legacy_voxels(self, apply: bool = False) -> list[Point3F]:
+    def calc_legacy_voxels(self, apply: bool = False) -> list[PointF]:
         pass
 
     def _apply_gravity(self) -> None:
@@ -94,20 +94,20 @@ class Entity3D:
         )
 
     # TODO: this should calculate player collision before moving ()
-    def move_by(self, vector: Vector3F) -> None:
-        self.position = add_triplet(self.position, vector)
+    def move_by(self, vector: VectorF) -> None:
+        self.position = self.position + vector
 
-    def move_to(self, new_position: Vector3F) -> None:
+    def move_to(self, new_position: VectorF) -> None:
         self.position = new_position
 
     def is_same_position(self, entity: "Entity3D") -> bool:
         return all(a == b for a, b in zip(self.position, entity.position))
 
     def movement(self):
-        self.position = add_triplet(self.position, self.mov_vector)
+        self.position = self.position + self.mov_vector
 
         if self.rotate:
-            self.set_angle(subtract_triplet(self._angle, self.rot_vector))
+            self.set_angle((self.angle - self.rot_vector).as_vector())
 
         self.apply_rotations()
 
@@ -116,48 +116,42 @@ class Entity3D:
 
         x, y, z = self.position
 
-        a_x = math.radians(self._angle[0])
-        a_y = math.radians(self._angle[1])
-        a_z = math.radians(self._angle[2])
+        a_x = math.radians(self.angle.x)
+        a_y = math.radians(self.angle.y)
+        a_z = math.radians(self.angle.z)
 
         # XY
         # TODO: find out, wtf is this step for?
-        orig = []
-        for i in range(len(vertexes)):
-            orig.append(vertexes[i][:])
+        orig = [v.as_point() for v in vertexes]
 
         for i in range(len(vertexes)):
-            new_x = (orig[i][0] - x) * math.cos(a_x) + (orig[i][1] - y) * math.sin(a_x) + x
-            new_y = -(orig[i][0] - x) * math.sin(a_x) + (orig[i][1] - y) * math.cos(a_x) + y
-            vertexes[i] = (new_x, new_y, vertexes[i][2])
+            new_x = (orig[i].x - x) * math.cos(a_x) + (orig[i].y - y) * math.sin(a_x) + x
+            new_y = -(orig[i].x - x) * math.sin(a_x) + (orig[i].y - y) * math.cos(a_x) + y
+            vertexes[i] = PointF(new_x, new_y, vertexes[i].z)
 
         # XZ
-        orig = []
-        for i in range(len(vertexes)):
-            orig.append(vertexes[i][:])
+        orig = [v.as_point() for v in vertexes]
 
         for i in range(len(vertexes)):
-            new_x = (orig[i][0] - x) * math.cos(a_y) + (orig[i][2] - z) * math.sin(a_y) + x
-            new_z = -(orig[i][0] - x) * math.sin(a_y) + (orig[i][2] - z) * math.cos(a_y) + z
-            vertexes[i] = (new_x, vertexes[i][1], new_z)
+            new_x = (orig[i].x - x) * math.cos(a_y) + (orig[i].z - z) * math.sin(a_y) + x
+            new_z = -(orig[i].x - x) * math.sin(a_y) + (orig[i].z - z) * math.cos(a_y) + z
+            vertexes[i] = PointF(new_x, vertexes[i].y, new_z)
 
         # YZ
-        orig = []
-        for i in range(len(vertexes)):
-            orig.append(vertexes[i][:])
+        orig = [v.as_point() for v in vertexes]
 
         for i in range(len(vertexes)):
-            new_y = (orig[i][1] - y) * math.cos(a_z) + (orig[i][2] - z) * math.sin(a_z) + y
-            new_z = -(orig[i][1] - y) * math.sin(a_z) + (orig[i][2] - z) * math.cos(a_z) + z
-            vertexes[i] = (vertexes[i][0], new_y, new_z)
+            new_y = (orig[i].y - y) * math.cos(a_z) + (orig[i].z - z) * math.sin(a_z) + y
+            new_z = -(orig[i].y - y) * math.sin(a_z) + (orig[i].z - z) * math.cos(a_z) + z
+            vertexes[i] = PointF(vertexes[i].x, new_y, new_z)
 
         self.vertices = vertexes
 
-    def set_angle(self, angle: Vector3F) -> None:
-        self._angle = (
-            angle[0] % 360,
-            angle[1] % 360,
-            angle[2] % 360,
+    def set_angle(self, angle: VectorF) -> None:
+        self.angle = VectorF(
+            angle.x % 360,
+            angle.y % 360,
+            angle.z % 360,
         )
 
 
@@ -167,14 +161,14 @@ class LivingEntity3D(Entity3D):
     def __init__(
         self,
         health: int,
-        vertices: list[Point3F],
+        vertices: list[PointF],
         level: Optional["Level3D"] = None,
         theme: Theme | None = None,
-        position=(0, 0, 0),
+        position=PointF(0, 0, 0),
         size=1,
-        angle=(0, 0, 0),
-        mov_vector=(0, 0, 0),
-        rot_vector=(0, 0, 0),
+        angle=VectorF(0, 0, 0),
+        mov_vector=VectorF(0, 0, 0),
+        rot_vector=VectorF(0, 0, 0),
         color: RGB = White(),
         name: str | None = None,
     ):

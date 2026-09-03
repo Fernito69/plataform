@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from random import random
 from typing import Any
 
-from model.base import DistVector3D, Point2F, Point3F, Vector2F, Vector3F
+from model.base import DistVector3D, PointF
 from model.theme import RGB
 
 _RESET = "\033[0m"
@@ -80,23 +80,23 @@ def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
     )
 
 
-def add_tuple(
-    orig: tuple[float | int, float | int], add: tuple[float | int, float | int]
-) -> tuple[float | int, float | int]:
-    return (orig[0] + add[0], orig[1] + add[1])
+# def add_tuple(
+#     orig: tuple[float | int, float | int], add: tuple[float | int, float | int]
+# ) -> tuple[float | int, float | int]:
+#     return (orig[0] + add[0], orig[1] + add[1])
 
 
-# TODO: these are dumb, there must be a way to generalize
-def scale_tuple(
-    orig: tuple[float | int, float | int], multi: float
-) -> tuple[float | int, float | int]:
-    return (orig[0] * multi, orig[1] * multi)
+# # TODO: these are dumb, there must be a way to generalize
+# def scale_tuple(
+#     orig: tuple[float | int, float | int], multi: float
+# ) -> tuple[float | int, float | int]:
+#     return (orig[0] * multi, orig[1] * multi)
 
 
-def scale_triplet(
-    orig: tuple[float | int, float | int, float | int], multi: float
-) -> tuple[float | int, float | int, float | int]:
-    return (orig[0] * multi, orig[1] * multi, orig[2] * multi)
+# def scale_triplet(
+#     orig: tuple[float | int, float | int, float | int], multi: float
+# ) -> tuple[float | int, float | int, float | int]:
+#     return (orig[0] * multi, orig[1] * multi, orig[2] * multi)
 
 
 def add_triplet(
@@ -106,80 +106,75 @@ def add_triplet(
     return (orig[0] + add[0], orig[1] + add[1], orig[2] + add[2])
 
 
-def subtract_triplet(
-    victim: tuple[float | int, float | int, float | int],
-    subtracter: tuple[float | int, float | int, float | int],
-) -> tuple[float | int, float | int, float | int]:
-    return (
-        victim[0] - subtracter[0],
-        victim[1] - subtracter[1],
-        victim[2] - subtracter[2],
-    )
+# def subtract_triplet(
+#     victim: tuple[float | int, float | int, float | int],
+#     subtracter: tuple[float | int, float | int, float | int],
+# ) -> tuple[float | int, float | int, float | int]:
+#     return (
+#         victim[0] - subtracter[0],
+#         victim[1] - subtracter[1],
+#         victim[2] - subtracter[2],
+#     )
 
 
 # Instead of diameter, pass an Entity3D and call an internal get diameter function
 # I think distance_to_border doesn't work because the size is not the diameter in the current way we are creating the entities
 def distance_between_points(
-    p1: Point2F | Point3F,
-    p2: Point2F | Point3F,
+    p1: PointF,
+    p2: PointF,
     diameter_p2: float | None = 0.0,
     entity: Any = None,
 ) -> DistVector3D:
-    if len(p1) != len(p2):
-        print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
-        raise IndexError("They should have the same length")
+    # if len(p1) != len(p2):
+    #     print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
+    #     raise IndexError("They should have the same length")
 
-    x = p1[0] - p2[0]
-    y = p1[1] - p2[1]
-
-    # TODO: this branching is dumb now. fix
-    if len(p1) == 2:
-        return DistVector3D(vector_length((x, y)), (x, y, p2[2] if len(p2) == 3 else 0))
-
-    z = p1[2] - p2[0]
-
-    if len(p1) == 3 and len(p2) == 3:
-        vector = (x, y, z)
-        distance = vector_length(vector)
-        # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex. this factor should become 1
-        distance_to_border: float | None = (
-            distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
-        )
-        # distance_to_border: float = distance + (diameter_p2 / 2) if diameter_p2 else distance
-        return DistVector3D(
-            distance=distance,
-            vector=vector,
-            distance_to_edge=distance_to_border,
-        )
+    vector = (p1 - p2).as_vector()
+    distance = abs(vector)
+    # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex. this factor should become 1
+    distance_to_border: float | None = (
+        distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
+    )
+    # distance_to_border: float = distance + (diameter_p2 / 2) if diameter_p2 else distance
+    return DistVector3D(
+        distance=distance,
+        vector=vector,
+        distance_to_edge=distance_to_border,
+    )
 
     return DistVector3D(0, (0, 0, 0))
 
 
-def vector_length(v: Vector3F | Vector2F) -> float:
-    return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
+# def vector_length(v: Vector3F | Vector2F) -> float:
+#     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
-def rotate_point(point: Point2F, rotation_axis: Point2F, angle: float) -> Point2F:
+def rotate_point(point: PointF, rotation_axis: PointF, angle: float) -> PointF:
     if angle == 0:
         return point
     a = math.radians(angle)
-    x1, y1 = point
-    x_axis, y_axis = rotation_axis
-    return (
-        (x1 - x_axis) * math.cos(a) - (y1 - y_axis) * math.sin(a) + x_axis,
-        (x1 - x_axis) * math.sin(a) + (y1 - y_axis) * math.cos(a) + y_axis,
+    new_x = (
+        (point.x - rotation_axis.x) * math.cos(a)
+        - (point.y - rotation_axis.y) * math.sin(a)
+        + rotation_axis.x
     )
+    new_y = (
+        (point.x - rotation_axis.x) * math.sin(a)
+        + (point.y - rotation_axis.y) * math.cos(a)
+        + rotation_axis.y
+    )
+    return PointF(new_x, new_y)
 
 
 @dataclass
 class DistanceFromLineToPointResponse:
     distance: float
-    intersection: Point2F
+    intersection: PointF
     slope: float | None
 
 
 def distance_from_line_to_point(
-    line: tuple[Point2F, Point2F], point: Point2F
+    line: tuple[PointF, PointF], point: PointF
 ) -> DistanceFromLineToPointResponse:
     line_point_1, line_point_2 = line
     original_m = get_slope(line_point_1, line_point_2)
@@ -187,16 +182,16 @@ def distance_from_line_to_point(
     # edge case 1: when slope is infinite! straight distance from point to line
     if original_m is None:
         return DistanceFromLineToPointResponse(
-            distance=abs(point[0] - line_point_1[0]),
-            intersection=((line_point_1[0], point[1])),
+            distance=abs(point.x - line_point_1.x),
+            intersection=PointF(line_point_1.x, point.y),
             slope=None,
         )
 
     # edge case 2: when slope is 0! same as above
     if original_m == 0:
         return DistanceFromLineToPointResponse(
-            distance=abs(point[1] - line_point_1[1]),
-            intersection=(point[0], line_point_1[1]),
+            distance=abs(point.y - line_point_1.y),
+            intersection=PointF(point.x, line_point_1.y),
             slope=0,
         )
 
@@ -204,25 +199,26 @@ def distance_from_line_to_point(
     perpendicular_m = -1 / original_m
 
     # with (y - y1) = m(x - x1) -> y-intercept = -mx1 + y1
-    y_intercept_perp_line = -perpendicular_m * point[0] + point[1]
-    y_intercept_orig_line = -original_m * line_point_1[0] + line_point_1[1]
+    y_intercept_perp_line = -perpendicular_m * point.x + point.y
+    y_intercept_orig_line = -original_m * line_point_1.x + line_point_1.y
 
     # we equate both to extract x, and then y
     new_x = (y_intercept_perp_line - y_intercept_orig_line) / (original_m - perpendicular_m)
     new_y = perpendicular_m * new_x + y_intercept_perp_line
+    intersection = PointF(new_x, new_y)
 
     # now get distance
     return DistanceFromLineToPointResponse(
-        distance=vector_length((point[0] - new_x, point[1] - new_y)),
-        intersection=(new_x, new_y),
+        distance=abs(point - intersection),
+        intersection=intersection,
         slope=original_m,
     )
 
 
-def get_slope(point1: Point2F, point2: Point2F) -> float | None:
-    if point2[0] - point1[0] == 0:
+def get_slope(point1: PointF, point2: PointF) -> float | None:
+    if point2.x - point1.x == 0:
         return None
-    return (point2[1] - point1[1]) / (point2[0] - point1[0])
+    return (point2.y - point1.y) / (point2.x - point1.x)
 
 
 @dataclass
@@ -232,17 +228,17 @@ class GetLineEquationResponse:
     m: float | None
 
 
-def get_line_equations(point1: Point2F, point2: Point2F) -> GetLineEquationResponse:
+def get_line_equations(point1: PointF, point2: PointF) -> GetLineEquationResponse:
     m = get_slope(point1, point2)
 
     def get_y(x: float) -> float:
         if not m:
-            return point1[1]
-        return m * (x - point1[0]) + point1[1]
+            return point1.y
+        return m * (x - point1.x) + point1.y
 
     def get_x(y: float):
         if not m:
-            return point1[0]
-        return ((y - point1[1]) / m) + point1[0]
+            return point1.x
+        return ((y - point1.y) / m) + point1.x
 
     return GetLineEquationResponse(get_y, get_x, m)

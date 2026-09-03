@@ -1,4 +1,3 @@
-import math
 from typing import TYPE_CHECKING
 
 from display import Display
@@ -49,11 +48,7 @@ class PlatformerV1(Engine):
 
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
-
-        y = math.floor(entity.position[1])
-        x = math.floor(entity.position[0])
-
-        self.display.put_char_in_pixel(entity.get_char(), (x, y))
+        self.display.put_char_in_pixel(entity.get_char(), entity.position)
 
     def _print_game(self) -> None:
         self.display.print_curr_screen(self.player2d)

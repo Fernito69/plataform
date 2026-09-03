@@ -22,7 +22,8 @@ class Line:
     CU: str
     CA: str
 
-
+# TODO: implement cool methods like in Vector and Point to be able to add two RGBs, etc 
+    
 @dataclass
 class RGB:
     r: int = 127

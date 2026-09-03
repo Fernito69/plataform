@@ -1,11 +1,11 @@
 import math
 from typing import TYPE_CHECKING, Optional
 
-from model.base import Orientation, Point2F, Vector2F
+from model.base import Orientation, PointF, VectorF
 from model.theme import EMPTY_SPACE, Theme
 from platformer_v1.constants import GRAVITY_ACCELERATION, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.model.entity import Collision2X, Collision2Y
-from utils import add_tuple, colored
+from utils import colored
 
 if TYPE_CHECKING:
     from platformer_v1.level_2d import Level2D
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 # TODO: reuse the Theme types as animation types for _char frames and reuse the method to make level architecture for the change of  indices
 class Entity2D:
     curr_level: Optional["Level2D"] = None
-    position: tuple[float, float] = (0, 0)
+    position: PointF
     falling_velocity: float = 0
 
     # 1 frame, static charater.
@@ -26,13 +26,16 @@ class Entity2D:
 
     theme: Theme
 
-    def __init__(self, level: Optional["Level2D"] = None, theme: Theme | None = None):
+    def __init__(
+        self, level: Optional["Level2D"] = None, theme: Theme | None = None, position=PointF(0, 0)
+    ):
         # x and y coordinates
         self.curr_level = level
         self._char_frames = [EMPTY_SPACE]
         self._default_char_frames = [EMPTY_SPACE]
         self._curr_char_frame_index = 0
         self.theme = theme or Theme()
+        self.position = position
 
     def _do_the_bare_minimum(self) -> None:
         self._advance_character_frame()
@@ -60,16 +63,16 @@ class Entity2D:
             return
 
         # moves entity down because of gravity
-        if self.position[1] < y_coor - 1 and y_dist > 0:
+        if self.position.y < y_coor - 1 and y_dist > 0:
             # TODO: check if we only need math.floor in the second part
             # TODO: I don't understand this code, wtf is the if condition?
             new_y = (
                 y_coor - 1
-                if self.position[1] + self.falling_velocity >= y_coor
-                else self.position[1] + math.floor(self.falling_velocity)
+                if self.position.y + self.falling_velocity >= y_coor
+                else self.position.y + math.floor(self.falling_velocity)
             )
 
-            self.position = (self.position[0], new_y)
+            self.position = PointF(self.position.x, new_y)
         else:
             self.falling_velocity = 0
 
@@ -88,29 +91,29 @@ class Entity2D:
         pass
 
     # TODO: this should calculate player collision before moving ()
-    def _move_by(self, vector: Vector2F) -> None:
-        self.position = add_tuple(self.position, vector)
+    def _move_by(self, vector: VectorF) -> None:
+        self.position = self.position + vector
 
     def is_same_position(self, entity: "Entity2D") -> bool:
         a = self.position
         b = entity.position
 
-        return round(a[0]) == round(b[0]) and round(a[1]) == round(b[1])
+        return round(a.x) == round(b.x) and round(a.y) == round(b.y)
 
     # checks collision with landscape elements
-    def _collision_landscape(self, old_pos: Point2F) -> None:
+    def _collision_landscape(self, old_pos: PointF) -> None:
         if (
             self.curr_level
-            and 0 <= int(self.position[1]) < len(self.curr_level.map)
-            and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
-            and self.curr_level.map[int(self.position[1])][int(self.position[0])] != EMPTY_SPACE
+            and 0 <= int(self.position.y) < len(self.curr_level.map)
+            and 0 <= int(self.position.x) < len(self.curr_level.map[0])
+            and self.curr_level.map[int(self.position.y)][int(self.position.x)] != EMPTY_SPACE
         ):
             self.position = old_pos
 
     # checks collision with landscape elements
     def _collision_jump(self) -> None:
         if self.y_distance_neg().distance == -1:
-            self.position = (self.position[0], self.y_distance_neg().y_at_target + 1)
+            self.position = PointF(self.position.x, self.y_distance_neg().y_at_target + 1)
             self.falling_velocity = 0
 
     # calculates Y-axis distance DOWN to landscape
@@ -126,12 +129,12 @@ class Entity2D:
 
         y_dist = -1
 
-        for i in range(math.floor(self.position[1]), Y_RESOLUTION_2D):
+        for i in range(math.floor(self.position.y), Y_RESOLUTION_2D):
             # checks all the way down in player's current X-position
             if (
-                0 <= int(self.position[1]) < len(self.curr_level.map)
-                and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
-                and self.curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+                0 <= int(self.position.y) < len(self.curr_level.map)
+                and 0 <= int(self.position.x) < len(self.curr_level.map[0])
+                and self.curr_level.map[i][math.floor(self.position.x)] == EMPTY_SPACE
             ):
                 y_dist += 1
             else:
@@ -150,12 +153,12 @@ class Entity2D:
             return Collision2Y()
 
         y_dist_neg = -1
-        for i in range(math.floor(self.position[1]), -1, -1):
+        for i in range(math.floor(self.position.y), -1, -1):
             # checks all the way up in player's current X-position
             if (
-                0 <= int(self.position[1]) < len(self.curr_level.map)
-                and 0 <= int(self.position[0]) < len(self.curr_level.map[0])
-                and self.curr_level.map[i][math.floor(self.position[0])] == EMPTY_SPACE
+                0 <= int(self.position.y) < len(self.curr_level.map)
+                and 0 <= int(self.position.x) < len(self.curr_level.map[0])
+                and self.curr_level.map[i][math.floor(self.position.x)] == EMPTY_SPACE
             ):
                 y_dist_neg += 1
             else:
@@ -175,11 +178,11 @@ class Entity2D:
 
         x_dist = -1
 
-        for i in range(math.floor(self.position[0]), X_RESOLUTION_2D):
+        for i in range(math.floor(self.position.x), X_RESOLUTION_2D):
             # checks all the way to the right in entity's current Y-position
             if (
-                0 <= math.floor(self.position[1]) < len(self.curr_level.map)
-                and self.curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE
+                0 <= math.floor(self.position.y) < len(self.curr_level.map)
+                and self.curr_level.map[math.floor(self.position.y)][i] == EMPTY_SPACE
             ):
                 x_dist += 1
             else:
@@ -198,9 +201,9 @@ class Entity2D:
             return Collision2X()
 
         x_dist_neg = -1
-        for i in range(math.floor(self.position[0]), -1, -1):
+        for i in range(math.floor(self.position.x), -1, -1):
             # checks all the way to the left in entity's current Y-position
-            if self.curr_level.map[math.floor(self.position[1])][i] == EMPTY_SPACE:
+            if self.curr_level.map[math.floor(self.position.y)][i] == EMPTY_SPACE:
                 x_dist_neg += 1
             else:
                 return Collision2X(

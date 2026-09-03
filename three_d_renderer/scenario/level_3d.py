@@ -1,4 +1,4 @@
-from model.base import Vector3F
+from model.base import VectorF
 from three_d_renderer.entities.base3d import Entity3D
 
 
@@ -10,7 +10,7 @@ class Level3D:
     def __init__(
         self,
         entities: list[Entity3D],
-        player_starting_position: Vector3F = (0, 0, 0),
+        player_starting_position: VectorF = VectorF(0, 0, 0),
     ):
         self.entities = entities
         self.player_starting_position = player_starting_position

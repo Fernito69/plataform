@@ -3,7 +3,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Callable
 
-from model.base import Point2F
+from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 
@@ -27,10 +27,10 @@ class Shape:
 
 
 class Circunference(Shape):
-    center: Point2F
+    center: PointF
     radius: float
 
-    def __init__(self, center: Point2F, radius: float, theme: Theme):
+    def __init__(self, center: PointF, radius: float, theme: Theme):
         super().__init__(theme=theme)
         self.center = center
         self.radius = radius
@@ -39,18 +39,18 @@ class Circunference(Shape):
         self,
     ) -> GetCircunferenceEquationResponse:
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (x - self.center[0]) ** 2
+            root_arg = self.radius**2 - (x - self.center.x) ** 2
             if root_arg < 0:
                 return (None, None)
             root = root_arg**0.5
-            return (self.center[1] - root, self.center[1] + root)
+            return (self.center.y - root, self.center.y + root)
 
         def get_xs(y: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (y - self.center[1]) ** 2
+            root_arg = self.radius**2 - (y - self.center.y) ** 2
             if root_arg < 0:
                 return (None, None)
             root = root_arg**0.5
-            return (self.center[0] - root, self.center[0] + root)
+            return (self.center.x - root, self.center.x + root)
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
@@ -58,14 +58,14 @@ class Circunference(Shape):
         piece_info = []
         min_x, max_x = sorted(
             (
-                self.center[0] + self.radius,
-                self.center[0] - self.radius,
+                self.center.x + self.radius,
+                self.center.x - self.radius,
             )
         )
         min_y, max_y = sorted(
             (
-                self.center[1] + self.radius,
-                self.center[1] - self.radius,
+                self.center.y + self.radius,
+                self.center.y - self.radius,
             )
         )
 
@@ -104,7 +104,7 @@ class Circunference(Shape):
                     RenderInfo(
                         distance_to_pixel_center=distance,
                         color=self.theme.color or RGB(255, 255, 255),
-                        point=(x, y),
+                        point=PointF(x, y),
                     )
                 )
 

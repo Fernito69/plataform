@@ -1,7 +1,7 @@
 import random
 
 from factories.theme import DefaultTheme, DoubleLines
-from model.base import Orientation, Point2F
+from model.base import Orientation, PointF
 from model.theme import EMPTY_SPACE, RGB, Theme
 from platformer_v1.constants import X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.enemy2d import Enemy2D
@@ -16,7 +16,7 @@ class Level2D:
     enemies: list[Enemy2D]
     exits: list[Exit2D]
     name: str
-    player_starting_position: Point2F
+    player_starting_position: PointF
     theme: Theme
 
     def __init__(
@@ -25,7 +25,7 @@ class Level2D:
         enemies: list[Enemy2D],
         exits: list[Exit2D],
         theme: Theme | None,
-        player_starting_position: Point2F = (1, 1),
+        player_starting_position: PointF = PointF(1, 1),
     ):
         self.enemies = enemies
         self.name = name
@@ -47,22 +47,22 @@ class Level2D:
 
     def init_map_border(self):
         line = self.theme.line_type or _DEFAULT_LINE_TYPE
-        self.add_char(line.UL, (0, 0))
-        self.add_char(line.LR, (X_RESOLUTION_2D - 1, Y_RESOLUTION_2D - 1))
-        self.add_char(line.UR, (X_RESOLUTION_2D - 1, 0))
-        self.add_char(line.LL, (0, Y_RESOLUTION_2D - 1))
+        self.add_char(line.UL, PointF(0, 0))
+        self.add_char(line.LR, PointF(X_RESOLUTION_2D - 1, Y_RESOLUTION_2D - 1))
+        self.add_char(line.UR, PointF(X_RESOLUTION_2D - 1, 0))
+        self.add_char(line.LL, PointF(0, Y_RESOLUTION_2D - 1))
 
         # repeat the loops to respect the _curr_custom_char_index order
         # TODO: do it better so it's really a loop, even considering corners
         for i in range(1, Y_RESOLUTION_2D - 1):
-            self.add_char(line.V, (0, i))
+            self.add_char(line.V, PointF(0, i))
         for i in range(1, Y_RESOLUTION_2D - 1):
-            self.add_char(line.V, (X_RESOLUTION_2D - 1, i))
+            self.add_char(line.V, PointF(X_RESOLUTION_2D - 1, i))
 
         for i in range(1, X_RESOLUTION_2D - 1):
-            self.add_char(line.H, (i, 0))
+            self.add_char(line.H, PointF(i, 0))
         for i in range(1, X_RESOLUTION_2D - 1):
-            self.add_char(line.H, (i, Y_RESOLUTION_2D - 1))
+            self.add_char(line.H, PointF(i, Y_RESOLUTION_2D - 1))
 
     def _color(self, char: str, color: RGB | None = None, bg_color: RGB | None = None):
         return colored(
@@ -71,11 +71,11 @@ class Level2D:
             bg_color or self.theme.bg_color,
         )
 
-    def add_char(self, char: str, position: Point2F, theme: Theme | None = None):
+    def add_char(self, char: str, position: PointF, theme: Theme | None = None):
         theme = theme or self.theme
         char = self._get_custom_theme_char(char[0], theme)
         # TODO: check whether round or math.floor works better here
-        self.map[round(position[1])][round(position[0])] = self._color(
+        self.map[round(position.y)][round(position.x)] = self._color(
             char, theme.color, theme.bg_color
         )
 
@@ -124,12 +124,12 @@ class Level2D:
     # TODO: implement animated map parts :O with a self.do_your_thing() method
     def add_line(
         self,
-        initial_position: Point2F,
+        initial_position: PointF,
         length: int = 3,
         orientation: Orientation = Orientation.HORIZONTAL,
         theme: Theme | None = None,
     ):
-        x1, y1 = initial_position
+        x1, y1,_ = initial_position
         theme = theme or self.theme
 
         for i in range(length):

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from constants import HALF_PIXEL, PI, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
-from model.base import Point2F
+from model.base import PointF
 from model.theme import RGB
 from three_d_renderer.model.base import PixelContribution, SubpixelContribution, Vertex3, WorldData
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
@@ -130,12 +130,14 @@ class LineRenderer(ThreeDeeRenderer):
 
             # Calc connecting lines
             for _, connecting_vertex_index in connections:
-                curr_pixel_pos: Point2F = self._get_screen_projection(
+                curr_pixel_pos: PointF | None = self._get_screen_projection(
                     data.vertex.point, self.game.player3d
                 )
-                connecting_pixel_pos: Point2F = self._get_screen_projection(
+                connecting_pixel_pos: PointF | None = self._get_screen_projection(
                     data.entity.vertices[connecting_vertex_index], self.game.player3d
                 )
+                if not curr_pixel_pos or not connecting_pixel_pos:
+                    continue
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
                 if not self.display.is_in_screen(curr_pixel_pos) and not self.display.is_in_screen(
@@ -187,11 +189,11 @@ class LineRenderer(ThreeDeeRenderer):
         self.display.put_screen_content(new_screen_buffer)
         self.display.print_curr_screen(self.game.player3d)
 
-    def _compute_pixel_contributions(self, data: WorldData, line: tuple[Point2F, Point2F]) -> None:
+    def _compute_pixel_contributions(self, data: WorldData, line: tuple[PointF, PointF]) -> None:
         # Check the affected pixels:
         curr_pixel_pos, connecting_pixel_pos = line
-        x1, y1 = curr_pixel_pos
-        x2, y2 = connecting_pixel_pos
+        x1, y1, _ = curr_pixel_pos
+        x2, y2, _ = connecting_pixel_pos
 
         # get the target area of the screen
         range_x_min = math.floor(max(min(x1, x2), 0))
@@ -203,7 +205,7 @@ class LineRenderer(ThreeDeeRenderer):
 
         for x in range(range_x_min, range_x_max):
             for y in range(range_y_min, range_y_max):
-                if not self.display.is_in_screen((x, y)):
+                if not self.display.is_in_screen(PointF(x, y)):
                     continue
 
                 calculated_y = eq.get_y(x)
@@ -225,21 +227,21 @@ class LineRenderer(ThreeDeeRenderer):
                     ]:
                         self._add_contribution_to_screen(
                             line=(curr_pixel_pos, connecting_pixel_pos),
-                            curr_screen_pos=(x + delta_x, y + delta_y),
+                            curr_screen_pos=PointF(x + delta_x, y + delta_y),
                             color=color,
                             data=data,
                         )
 
     def _add_contribution_to_screen(
-        self, line: tuple[Point2F, Point2F], curr_screen_pos: Point2F, color: RGB, data: WorldData
+        self, line: tuple[PointF, PointF], curr_screen_pos: PointF, color: RGB, data: WorldData
     ):
-        x, y = curr_screen_pos
-        int_x, int_y = (round(i) for i in curr_screen_pos)
+        x, y, _ = curr_screen_pos
+        int_x, int_y, _ = (round(i) for i in curr_screen_pos)
 
         # Upper pixel limits -> (x,y) (x+1, y + .5)
-        middle_upper_subpixel = (x + HALF_PIXEL, y + QUARTER_PIXEL)
+        middle_upper_subpixel = PointF(x + HALF_PIXEL, y + QUARTER_PIXEL)
         # Lower pixel limits -> (x,y+.5) (x+1, y + 1)
-        middle_lower_subpixel = (x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
+        middle_lower_subpixel = PointF(x + HALF_PIXEL, y + (HALF_PIXEL + QUARTER_PIXEL))
 
         upper_res = distance_from_line_to_point(
             line,

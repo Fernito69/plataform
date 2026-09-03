@@ -1,11 +1,12 @@
 import random
 
+from model.base import PointF, VectorF
 from model.enemy import EnemyType
 from model.theme import Theme
 from platformer_v1.constants import ENEMY_MOV_FACTOR
 from platformer_v1.entities.base import LivingEntity2D
 
-_BOUNCE_FRAMES = ["_", "‗", "_","o", "O", "|", "¯", "|", "O", "o"]
+_BOUNCE_FRAMES = ["_", "‗", "_", "o", "O", "|", "¯", "|", "O", "o"]
 _MIN_BOUNCING_RANDOMNESS = 8
 _MAX_BOUNCING_RANDOMNESS = 12
 
@@ -19,8 +20,8 @@ class Enemy2D(LivingEntity2D):
         self,
         enemy_type: EnemyType,
         speed: float,
-        movement_type: tuple[float, float],
-        position: tuple[float, float],
+        movement_type: VectorF,
+        position: PointF,
         health: int,
         character_frames: list[str] = _STANDARD_FRAMES,
         theme: Theme | None = None,
@@ -38,10 +39,10 @@ class Enemy2D(LivingEntity2D):
         if self.curr_level is None:
             return False
 
-        colliding_x = self.movement_type[0] > 0 and (
+        colliding_x = self.movement_type.x > 0 and (
             self.x_distance().distance <= 0 or self.x_distance_neg().distance <= 0
         )
-        colliding_y = self.movement_type[1] > 0 and (
+        colliding_y = self.movement_type.y > 0 and (
             self.y_distance().distance <= 0 or self.y_distance_neg().distance <= 0
         )
 
@@ -73,7 +74,7 @@ class Enemy2D(LivingEntity2D):
                 self._curr_char_frame_index = 0
 
             # Has gravity and jumps!
-            old_position = (self.position[0], self.position[1])
+            old_position = PointF(self.position.x, self.position.y)
             self._apply_gravity()
             self._collision_landscape(old_position)
             self._collision_jump()
@@ -86,15 +87,15 @@ class Enemy2D(LivingEntity2D):
                 )
                 self._char_frames = _BOUNCE_FRAMES
                 self._curr_char_frame_index = 0
-                self.falling_velocity = (-1) * self.movement_type[0] * random_factor
-                self._move_by((0, -0.5))
+                self.falling_velocity = (-1) * self.movement_type.x * random_factor
+                self._move_by(VectorF(0, -0.5))
                 self._collision_jump()
 
         # Standard movement for all enemies
         self._move_by(
-            (
-                self.movement_type[0] * ENEMY_MOV_FACTOR * self.speed,
-                self.movement_type[1] * ENEMY_MOV_FACTOR * self.speed,
+            VectorF(
+                self.movement_type.x * ENEMY_MOV_FACTOR * self.speed,
+                self.movement_type.y * ENEMY_MOV_FACTOR * self.speed,
             )
         )
 

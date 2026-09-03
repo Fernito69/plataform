@@ -1,9 +1,11 @@
 from display import Display
+from model.base import PointF
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.player import PlayerStatus
 from model.shared import Engine, KeyboardHandler
 from model.theme import BR
+from physics2d.entities.player_blob import PlayerBlob
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
@@ -35,18 +37,22 @@ class Game(Engine, KeyboardHandler):
 
     """Game modes"""
     # 3D modes
+    player3d: Player3D
     voxel_renderer: VoxelRenderer
     line_renderer: LineRenderer
 
     # 2D modes
+    player2d: Player2D
     platformer_v1: PlatformerV1
+
+    player_blob: PlayerBlob
     physics_engine: Physics2D
 
     _welcome_message_timer: int = _WELCOME_TIMER
 
     def __init__(
         self,
-        mode: GameMode = GameMode.PLATFORMER_V1,
+        mode: GameMode = GameMode.PHYSICS_2D,
     ):
         self.status = GameStatus.RUNNING
         self.mode = mode
@@ -55,14 +61,17 @@ class Game(Engine, KeyboardHandler):
 
         self.player2d = Player2D(1)
         self.platformer_v1 = PlatformerV1(self)
-        self.physics_engine = Physics2D(self)
 
         self.player3d = Player3D(1)
         self.voxel_renderer = VoxelRenderer(self)
         self.line_renderer = LineRenderer(self)
 
+        self.physics_engine = Physics2D(self)
+        self.player_blob = PlayerBlob(self.physics_engine)
+        self.physics_engine.init_player()
+
         # hardcoded cool initial place
-        self.player3d.position = (9, -44, -33)
+        self.player3d.position = PointF(9, -44, -33)
 
     def main_loop(self) -> None:
         def _main_loop():

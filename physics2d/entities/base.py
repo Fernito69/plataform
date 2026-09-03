@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from model.base import Point2F, Vector2F
+from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.model.shapes import Shape
 
@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class Entity(Shape):
-    position: Point2F
-    velocity: Vector2F
+    position: PointF
+    velocity: VectorF
 
     density: float
     volume: float
@@ -21,8 +21,8 @@ class Entity(Shape):
         scenario: Optional["Scenario"] = None,
         name: str | None = None,
         density: int = 1,
-        position: Point2F = (0, 0),
-        velocity: Vector2F = (0, 0),
+        position: PointF = PointF(0, 0),
+        velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
     ):
         super().__init__(theme=theme)
