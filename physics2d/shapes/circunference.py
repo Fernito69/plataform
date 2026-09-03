@@ -6,6 +6,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.shape import Shape
+from utils import distance_from_line_to_point
 
 if TYPE_CHECKING:
     from physics2d.shapes.line import Line
@@ -141,15 +142,20 @@ class Circunference(Shape):
     def rotate(self) -> None:
         pass
 
+    # TODO: unify
     def would_collide(self, colliding_shape: Shape) -> bool:
         new_pos = self.velocity + self.center
 
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
-            return self.radius + colliding_shape.radius >= abs(new_pos - colliding_shape.center)
+            return abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius
 
         if isinstance(colliding_shape, Line):
-            # TODO: implement
-            return False
+            return (
+                distance_from_line_to_point(colliding_shape.points, self.center).distance
+                <= self.radius + colliding_shape.thickness
+            )
+
+        # TODO: add the other shapes
 
         return False

@@ -105,7 +105,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
 
     fg_pieces: list[ScenarioPiece] = [
         line_1,
-        line_3,
+        # line_3,
         rectangle_3,
         # line_4,
         rectangle_2,
@@ -117,7 +117,8 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             theme=Theme(color=MakeColor(1, (255, 200, 255))),
             radius=15,
             initial_velocity=VectorF(0, 0),
-        )
+        ),
+        line_3,
     ]
 
     bg_pieces: list[ScenarioPiece] = [
