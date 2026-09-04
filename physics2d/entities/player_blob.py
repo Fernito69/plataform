@@ -60,9 +60,8 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
         for piece in self.engine.scenario.solid_pieces:
-            counter_vector = self.would_collide_with(piece)
-            if counter_vector:
-                self.velocity = (abs(self.velocity) * counter_vector.as_point()).as_vector()
+            self.would_collide_with(piece)
+
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:

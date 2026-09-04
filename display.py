@@ -343,7 +343,7 @@ class Display(KeyboardHandler):
             return hud
 
         if isinstance(player, PlayerBlob):
-            hud += f"Velocity: {player.velocity}{SEPARATOR}"
+            hud += f"Velocity: ({round(player.velocity.x, 1)},{round(player.velocity.y, 1)}){SEPARATOR}"
             return hud
 
         health = player.get_health()

@@ -2,12 +2,13 @@ import math
 from dataclasses import dataclass
 from typing import Callable
 
+from constants import PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
-from utils import distance_from_line_to_point, get_normal_unit_vector
+from utils import distance_from_line_to_point, get_line_angle
 
 
 @dataclass
@@ -142,15 +143,15 @@ class Circunference(Shape):
 
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
-    def would_collide_with(self, colliding_shape: Shape) -> VectorF | None:
+    def would_collide_with(self, colliding_shape: Shape) -> None:
         # TODO: this doesn't work, if velocity is too high, we get fucked
         new_pos = (0.5 * self.velocity) + self.center
 
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
             if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                vector = get_normal_unit_vector(new_pos, self.center, self.velocity)
-                return vector
+                # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
+                self.velocity = (-self.velocity).as_vector()
 
         if isinstance(colliding_shape, Line):
             if (
@@ -158,9 +159,11 @@ class Circunference(Shape):
                 and distance_from_line_to_point(colliding_shape.points, self.center).distance
                 < self.radius + colliding_shape.thickness
             ):
-                vector = get_normal_unit_vector(*colliding_shape.points, self.velocity)
-                return vector
+                angle_vel = get_line_angle(self.center, new_pos)
+                angle_line = get_line_angle(*colliding_shape.points)
+                res_angle = (angle_line + PI - angle_vel) % PI
+                self.velocity = (
+                    abs(self.velocity) * VectorF(x=math.cos(res_angle), y=math.sin(res_angle))
+                ).as_vector()
 
         # TODO: add the other shapes
-
-        return None
