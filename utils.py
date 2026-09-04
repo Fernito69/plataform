@@ -230,16 +230,12 @@ def get_perpendicular_slope(point1: PointF, point2: PointF) -> float | None:
 def get_normal_unit_vector(point1: PointF, point2: PointF, velocity: VectorF) -> VectorF:
     perpendicular_m = get_perpendicular_slope(point1, point2)
     angle = (
-        (
-            0
-            if perpendicular_m is None
-            else PI / 2
-            if perpendicular_m == 0
-            else math.atan(perpendicular_m)
-        )
-        % PI
-        / 2
-    )
+        0
+        if perpendicular_m is None
+        else PI / 2
+        if perpendicular_m == 0
+        else math.atan(perpendicular_m)
+    ) % PI
     x_factor = 1 if velocity.x < 0 else -1
     y_factor = 1 if velocity.y < 0 else -1
     return VectorF(x=x_factor * math.cos(angle), y=y_factor * math.sin(angle))

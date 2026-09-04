@@ -7,7 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
-from utils import distance_from_line_to_point, get_normal_unit_vector, get_slope
+from utils import distance_from_line_to_point, get_normal_unit_vector
 
 
 @dataclass
@@ -144,12 +144,13 @@ class Circunference(Shape):
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     def would_collide_with(self, colliding_shape: Shape) -> VectorF | None:
         # TODO: this doesn't work, if velocity is too high, we get fucked
-        new_pos = (.5*self.velocity) + self.center
+        new_pos = (0.5 * self.velocity) + self.center
 
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
             if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                return get_normal_unit_vector(new_pos, self.center, self.velocity)
+                vector = get_normal_unit_vector(new_pos, self.center, self.velocity)
+                return vector
 
         if isinstance(colliding_shape, Line):
             if (
@@ -157,7 +158,8 @@ class Circunference(Shape):
                 and distance_from_line_to_point(colliding_shape.points, self.center).distance
                 < self.radius + colliding_shape.thickness
             ):
-                return get_normal_unit_vector(*colliding_shape.points, self.velocity)
+                vector = get_normal_unit_vector(*colliding_shape.points, self.velocity)
+                return vector
 
         # TODO: add the other shapes
 
