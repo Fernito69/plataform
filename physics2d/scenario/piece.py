@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.shapes.shape import Shape
+
+if TYPE_CHECKING:
+    from physics2d.scenario.scenario import Scenario
 
 
 class ScenarioPiece(Shape):
@@ -10,6 +14,8 @@ class ScenarioPiece(Shape):
     def __init__(
         self,
         name: str,
+        density: float,
+        volume: float,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -30,8 +36,10 @@ class ScenarioPiece(Shape):
             floating_multi=floating_multi,
             center_of_mass=PointF(0, 0),  # TODO: fix this
             initial_angular_velocity=initial_angular_velocity,
+            density=density,
+            volume=volume,
         )
 
-    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
-        self._apply_gravity(gravity_accel)
-        self._apply_movement()
+    def do_your_thing(self, scenario: "Scenario") -> None:
+        self._apply_gravity(scenario.gravity_acceleration)
+        self._apply_movement(scenario)

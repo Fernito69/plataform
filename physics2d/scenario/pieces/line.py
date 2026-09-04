@@ -26,6 +26,7 @@ class LinePiece(Line, ScenarioPiece):
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
         initial_angular_velocity: float = 0,
+        density: float = 1,
         name: str = "Line",
     ):
         self._pulsate_freq = pulsate_freq
@@ -43,10 +44,13 @@ class LinePiece(Line, ScenarioPiece):
             own_gravity=own_gravity,
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
+            density=density,
         )
         ScenarioPiece.__init__(
             self,
             name=name,
+            density=density,
+            volume=self.volume,
         )
 
         self.theme = theme

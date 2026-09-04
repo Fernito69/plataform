@@ -4,6 +4,7 @@ from typing import Callable
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.scenario.piece import ScenarioPiece
+from physics2d.scenario.scenario import Scenario
 from physics2d.shapes.circunference import Circunference
 
 
@@ -21,6 +22,7 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         self,
         center: PointF,
         radius: float,
+        density: float = 1,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -42,11 +44,10 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
+            density=density,
         )
-        ScenarioPiece.__init__(
-            self,
-            name="Circle",
-        )
+        # TODO: fix this, shuld not require the same params to init
+        ScenarioPiece.__init__(self, name="Circle", density=density, volume=self.volume)
         self.center = center
         self.theme = theme
         self.secondary_theme = secondary_theme
@@ -57,8 +58,10 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         self.floating_multi = floating_multi
         self.velocity = initial_velocity
         self.angular_velocity = initial_angular_velocity
+        self.weight = self.volume * self.density
 
-    def _apply_movement(self) -> None:
+    def _apply_movement(self, scenario: "Scenario") -> None:
         self._float_around()
         self.center = self.center + self.velocity
         self.center_of_mass = self.center_of_mass + self.velocity
+        self.would_collide_with(scenario.player)

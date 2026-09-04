@@ -1,10 +1,14 @@
 from abc import abstractmethod
+from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.shared import RenderInfo
 from utils import shuffle_list
+
+if TYPE_CHECKING:
+    from physics2d.scenario.scenario import Scenario
 
 
 class Shape:
@@ -22,10 +26,16 @@ class Shape:
     # if > 0, it floats around randomly, like brownian motion
     floating_multi: float
 
+    density: float
+    volume: float
+    weight: float
+
     def __init__(
         self,
         center_of_mass: PointF,
         name: str,
+        density: float,
+        volume: float,
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -45,6 +55,9 @@ class Shape:
         self.floating_multi = floating_multi
         self.angular_velocity = initial_angular_velocity
         self.center_of_mass = center_of_mass
+        self.density = density
+        self.volume = volume
+        self.weight = density * volume
 
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:
@@ -98,7 +111,7 @@ class Shape:
         ).as_vector()
 
     @abstractmethod
-    def _apply_movement(cls) -> None:
+    def _apply_movement(cls, scenario: "Scenario") -> None:
         # Each entity should do its thing
         raise NotImplementedError(
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"

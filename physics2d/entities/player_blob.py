@@ -24,11 +24,20 @@ _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def __init__(
-        self, engine: "Physics2D", position: PointF = PointF(20, 10), velocity=VectorF(0, 0)
+        self,
+        engine: "Physics2D",
+        position: PointF = PointF(20, 10),
+        velocity=VectorF(0, 0),
+        density: float = 1,
     ):
-        PhyEntity().__init__(name="Player", position=position, velocity=velocity)
-        Circunference(center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME).__init__(
-            center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME
+        Circunference.__init__(self, center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME)
+        PhyEntity.__init__(
+            self,
+            name="Player",
+            position=position,
+            velocity=velocity,
+            density=density,
+            volume=self.volume,
         )
         self.engine = engine
         self.center = position
@@ -41,9 +50,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     """MOVEMENT"""
     ##############
 
-    def do_your_thing(self, gravity_accel: float = _PLAYER_GRAVITY) -> None:
+    def do_your_thing(self) -> None:
         self.handle_keyboard_input()
-        self._apply_gravity(gravity_accel)
+        self._apply_gravity(self.engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
 

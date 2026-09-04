@@ -47,10 +47,10 @@ class Scenario:
         self.player = player
 
     def act(self) -> None:
-        self.player.do_your_thing(self.gravity_acceleration)
+        self.player.do_your_thing()
 
         for piece in self.fg_pieces + self.bg_pieces + self.solid_pieces:
-            piece.do_your_thing(self.gravity_acceleration)
+            piece.do_your_thing(self)
 
     def render(self) -> None:
         # TODO: unify

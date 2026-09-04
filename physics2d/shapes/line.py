@@ -25,9 +25,13 @@ class Line(Shape):
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
         floating_multi: float = 0,
+        density: float = 1,
     ):
         self.points = points
         self.thickness = thickness
+        self.density = density
+        self.volume = abs(points[0] - points[1]) * thickness
+        self.weight = self.volume * density
 
         self.update_center_of_mass()
         Shape.__init__(
@@ -42,6 +46,8 @@ class Line(Shape):
             floating_multi=floating_multi,
             center_of_mass=self.center_of_mass,
             name="Line",
+            volume=self.volume,
+            density=density,
         )
 
     def update_center_of_mass(self) -> None:

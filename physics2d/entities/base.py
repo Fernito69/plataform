@@ -12,15 +12,14 @@ class PhyEntity(Shape):
     position: PointF
     velocity: VectorF
 
-    density: float
-    volume: float
     name: str | None
 
     def __init__(
         self,
+        density: float,
+        volume: float,
         scenario: Optional["Scenario"] = None,
         name: str | None = None,
-        density: int = 1,
         position: PointF = PointF(0, 0),
         velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
@@ -34,6 +33,8 @@ class PhyEntity(Shape):
     ):
         Shape.__init__(
             self,
+            density=density,
+            volume=volume,
             theme=theme,
             angle=angle,
             secondary_theme=secondary_theme,

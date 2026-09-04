@@ -25,6 +25,7 @@ class RectanglePiece(Line, ScenarioPiece):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
+        density: float = 1,
     ):
         Line.__init__(
             self,
@@ -38,8 +39,8 @@ class RectanglePiece(Line, ScenarioPiece):
             initial_angular_velocity=initial_angular_velocity,
             points=vertices,
             thickness=1,
+            density=1,
         )
-        ScenarioPiece.__init__(self, name="Rectangle")
         self.theme = theme
         self.secondary_theme = secondary_theme
         self.vertices = vertices
@@ -49,6 +50,26 @@ class RectanglePiece(Line, ScenarioPiece):
         self.velocity = initial_velocity
         self.angular_velocity = initial_angular_velocity
         self._affected_by_gravity = affected_by_gravity
+
+        min_x, max_x, min_y, max_y = self._get_sorted_vertices()
+        self.volume = (max_x - min_x) * (max_y - min_y)
+        self.density = density
+        ScenarioPiece.__init__(self, name="Rectangle", volume=self.volume, density=density)
+
+    def _get_sorted_vertices(self) -> tuple[float, float, float, float]:
+        min_x, max_x = sorted(
+            (
+                self.vertices[0].x,
+                self.vertices[1].x,
+            )
+        )
+        min_y, max_y = sorted(
+            (
+                self.vertices[0].y,
+                self.vertices[1].y,
+            )
+        )
+        return (min_x, max_x, min_y, max_y)
 
     def _apply_movement(self) -> None:
         self._float_around()

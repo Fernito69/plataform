@@ -33,10 +33,14 @@ class Circunference(Shape):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        density: float = 1,
     ):
         self.center = center
         self.radius = radius
         self.update_center_of_mass()
+        self.density = density
+        self.volume = PI * (self.radius**2)
+        self.weight = self.volume * self.density
         Shape.__init__(
             self,
             theme=theme,
@@ -49,6 +53,8 @@ class Circunference(Shape):
             initial_velocity=initial_velocity,
             center_of_mass=self.center_of_mass,
             name="Circunference",
+            volume=self.volume,
+            density=self.density,
         )
 
     def _apply_movement(self) -> None:
@@ -143,6 +149,7 @@ class Circunference(Shape):
 
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
+    # TODO: should should calculate ACTUAL kinetic energy transfer
     def would_collide_with(self, colliding_shape: Shape) -> None:
         # TODO: this doesn't work, if velocity is too high, we get fucked
         new_pos = (0.5 * self.velocity) + self.center
@@ -151,7 +158,11 @@ class Circunference(Shape):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
             if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
                 # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
-                self.velocity = (-self.velocity).as_vector()
+                # TODO: Fix the logic of this energy transfer
+                self.velocity = (
+                    (-self.velocity * (colliding_shape.weight / self.weight))
+                    + (colliding_shape.velocity * (self.weight / colliding_shape.weight))
+                ).as_vector()
 
         if isinstance(colliding_shape, Line):
             if (
