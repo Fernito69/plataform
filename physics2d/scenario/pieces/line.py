@@ -1,11 +1,14 @@
 import math
+from typing import TYPE_CHECKING
 
 from constants import PI
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.scenario.piece import ScenarioPiece
 from physics2d.shapes.line import Line
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class LinePiece(Line, ScenarioPiece):
@@ -66,9 +69,9 @@ class LinePiece(Line, ScenarioPiece):
 
     _counter: float = 0
 
-    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
-        self._apply_gravity(gravity_accel)
-        self._apply_movement()
+    def do_your_thing(self, engine: "Physics2D") -> None:
+        self._apply_gravity(engine.scenario.gravity_acceleration)
+        self._apply_movement(engine)
         self._pulsate()
 
     def _pulsate(self) -> None:
@@ -77,38 +80,3 @@ class LinePiece(Line, ScenarioPiece):
 
         self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
         self.thickness += math.sin(self._counter) * self._pulsate_amplitude
-
-    # def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
-    #     if not self.secondary_theme:
-    #         return self.theme.color or White()
-
-    #     # check which direction is the widest (literally the same as rectangle)
-    #     vertex_1, vertex_2 = self.points
-    #     width = abs(vertex_1.x - vertex_2.x)
-    #     height = abs(vertex_1.y - vertex_2.y)
-
-    #     apply_gradient_horizontally: bool = width >= height
-    #     if (
-    #         apply_gradient_horizontally
-    #         and x is None
-    #         or not apply_gradient_horizontally
-    #         and y is None
-    #     ):
-    #         raise IndexError("What's wrong with you?")
-
-    #     color_ratio: float = (
-    #         abs(vertex_1.x - x) / width
-    #         if apply_gradient_horizontally and x is not None
-    #         else abs(vertex_1.y - y) / height
-    #         if y is not None
-    #         else 0
-    #     )
-
-    #     color: RGB = mix_colors(
-    #         [
-    #             (self.theme.color or White()).with_intensity(color_ratio),
-    #             (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
-    #         ]
-    #     )
-
-    #     return color

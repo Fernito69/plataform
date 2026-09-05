@@ -1,13 +1,16 @@
 import math
+from typing import TYPE_CHECKING
 
 from factories.theme import RGB, White
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 from physics2d.shapes.line import Line
 from utils import mix_colors
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 # TODO: should have its own rectangle Shape
@@ -82,7 +85,7 @@ class RectanglePiece(Line, ScenarioPiece):
         )
         return (min_x, max_x, min_y, max_y)
 
-    def _apply_movement(self) -> None:
+    def _apply_movement(self, engine: "Physics2D") -> None:
         self._float_around()
 
         if not any(a != 0 for a in self.velocity):
@@ -97,9 +100,9 @@ class RectanglePiece(Line, ScenarioPiece):
     def rotate(self) -> None:
         pass
 
-    def do_your_thing(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
-        self._apply_gravity(gravity_accel)
-        self._apply_movement()
+    def do_your_thing(self, engine: "Physics2D") -> None:
+        self._apply_gravity(engine.scenario.gravity_acceleration)
+        self._apply_movement(engine)
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:

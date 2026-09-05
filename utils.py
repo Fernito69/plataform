@@ -238,7 +238,7 @@ def get_normal_unit_vector(point1: PointF, point2: PointF, velocity: VectorF) ->
 
 
 def get_angle_from_slope(slope: float | None) -> float:
-    return PI / 2 if slope is None else 0 if slope == 0 else math.atan(slope)
+    return PI / 2 if slope is None else 0 if slope == 0 else math.atan(slope) % PI
 
 
 def get_line_angle(point1: PointF, point2: PointF) -> float:

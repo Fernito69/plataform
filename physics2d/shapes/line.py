@@ -1,4 +1,5 @@
 import math
+from typing import TYPE_CHECKING
 
 from constants import ALMOST_ZERO, HALF_PIXEL
 from factories.theme import White
@@ -7,6 +8,9 @@ from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.shape import Shape
 from utils import distance_from_line_to_point, mix_colors, rotate_point
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class Line(Shape):
@@ -56,9 +60,10 @@ class Line(Shape):
             (self.points[0].y + self.points[1].y) / 2,
         )
 
-    def would_collide_with(self, colliding_shape: Shape) -> bool:
+    def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D"):
+        if not self.is_collideable or not colliding_shape.is_collideable:
+            return
         # TODO: implement
-        return False
 
     def get_render_info(self) -> list[RenderInfo]:
         piece_info = []
@@ -158,7 +163,7 @@ class Line(Shape):
 
         return color
 
-    def _apply_movement(self) -> None:
+    def _apply_movement(self, engine: "Physics2D") -> None:
         self._float_around()
         self.rotate()
 

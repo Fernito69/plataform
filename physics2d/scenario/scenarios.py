@@ -18,14 +18,28 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     entities = []
 
     line_1 = LinePiece(
-        points=(PointF(0, 0), PointF(120, 2)),
-        theme=Theme(color=White()),
+        points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2
+    )
+    line_1_1 = LinePiece(
+        points=(PointF(60, 2), PointF(120, 50)), theme=Theme(color=White()), thickness=2
+    )
+    line_1_2 = LinePiece(
+        points=(PointF(120, 50), PointF(60, 100)), theme=Theme(color=White()), thickness=2
+    )
+    line_1_3 = LinePiece(
+        points=(PointF(60, 100), PointF(0, 80)), theme=Theme(color=White()), thickness=2
+    )
+    line_1_4 = LinePiece(
+        points=(PointF(0, 80), PointF(-10, 30)), theme=Theme(color=White()), thickness=2
+    )
+    line_1_5 = LinePiece(
+        points=(PointF(-10, 30), PointF(0, 0)), theme=Theme(color=White()), thickness=2
     )
     line_2 = LinePiece(
         points=(PointF(2, 3), PointF(50, 22)),
         theme=Theme(color=Magenta()),
     )
-    line_3 = LinePiece(
+    red_rotating_line_3 = LinePiece(
         points=(PointF(4, 52), PointF(40, 1)),
         theme=Theme(color=Red()),
         thickness=2,
@@ -118,8 +132,14 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             radius=15,
             initial_velocity=VectorF(0, 0),
         ),
-        line_3,
+        # red_rotating_line_3,
         line_1,
+        line_1_1,
+        line_1_2,
+        line_1_3,
+        line_1_4,
+        line_1_5,
+        # fancy_rotating_line
     ]
 
     bg_pieces: list[ScenarioPiece] = [

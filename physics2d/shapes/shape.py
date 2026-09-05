@@ -8,7 +8,7 @@ from physics2d.model.shared import RenderInfo
 from utils import shuffle_list
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class Shape:
@@ -77,7 +77,7 @@ class Shape:
         raise NotImplementedError(f"Shape must have a get_render_info method")
 
     @abstractmethod
-    def would_collide_with(self, shape: "Shape") -> bool:
+    def would_collide_with(self, shape: "Shape", engine: "Physics2D") -> bool:
         """Determines wheter the current shape would collide with a particular shape, given their location"""
 
         # Each shape should do its thing
@@ -115,7 +115,7 @@ class Shape:
         ).as_vector()
 
     @abstractmethod
-    def _apply_movement(cls, scenario: "Scenario") -> None:
+    def _apply_movement(cls, scenario: "Physics2D") -> None:
         # Each entity should do its thing
         raise NotImplementedError(
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"

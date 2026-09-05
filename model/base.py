@@ -39,7 +39,8 @@ class PointF:
         return PointF(x=self.x, y=self.y, z=self.z)
 
     def __str__(self) -> str:
-        return f"({self.x},{self.y}{f',{self.z}' if self.z else ''})"
+        DECIMALS = 1
+        return f"({round(self.x, DECIMALS)},{round(self.y, DECIMALS)}{f',{round(self.z, DECIMALS)}' if self.z else ''})"
 
     def __neg__(self) -> "PointF":
         return PointF(x=-self.x, y=-self.y, z=-self.z)

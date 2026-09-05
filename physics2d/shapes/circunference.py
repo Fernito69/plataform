@@ -11,7 +11,7 @@ from physics2d.shapes.shape import Shape
 from utils import distance_from_line_to_point, get_line_angle
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 @dataclass
@@ -80,10 +80,10 @@ class Circunference(Shape):
             self.velocity.y = 0
 
     # TODO: this doesn't run, is overridden by CircunferencePiece
-    def _apply_movement(self, scenario: "Scenario") -> None:
+    def _apply_movement(self, engine: "Physics2D") -> None:
         self._float_around()
 
-        self.would_collide_with(scenario.player)
+        self.would_collide_with(engine.scenario.player, engine)
 
         # TOOD: why enabling this prevents the player collision from working
         # for p in scenario .solid_pieces:
@@ -181,7 +181,7 @@ class Circunference(Shape):
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
-    def would_collide_with(self, colliding_shape: Shape) -> None:
+    def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D") -> None:
         if not self.is_collideable or not colliding_shape.is_collideable:
             return
 
@@ -206,10 +206,16 @@ class Circunference(Shape):
                 # raise NotImplementedError(
                 #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
                 # )
-                self.velocity = (
+                new_velocity = (
                     (-self.velocity * self_transfer_factor)
                     + (colliding_shape.velocity * other_shape_transfer_factor)
                 ).as_vector()
+
+                engine.display.debug_log(
+                    f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
+                )
+
+                self.velocity = new_velocity
 
         if isinstance(colliding_shape, Line):
             if (
@@ -219,9 +225,19 @@ class Circunference(Shape):
             ):
                 angle_vel = get_line_angle(self.center, new_pos)
                 angle_line = get_line_angle(*colliding_shape.points)
-                res_angle = (angle_line + PI - angle_vel) % PI
-                self.velocity = (
-                    abs(self.velocity) * VectorF(x=math.cos(res_angle), y=math.sin(res_angle))
+                res_angle = angle_line + PI - angle_vel
+
+                factor_x = 1 if self.velocity.x < 0 else -1
+                factor_y = 1 if self.velocity.y < 0 else -1
+
+                new_velocity = (
+                    abs(self.velocity)
+                    * VectorF(x=factor_x * math.cos(res_angle), y=factor_y * math.sin(res_angle))
                 ).as_vector()
+                engine.display.debug_log(
+                    f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {angle_vel * 180 / PI}, line angle: {angle_line * 180 / PI}, res: {res_angle * 180 / PI}"
+                )
+
+                self.velocity = new_velocity
 
         # TODO: add the other shapes

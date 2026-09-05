@@ -5,7 +5,7 @@ from model.theme import Theme
 from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class ScenarioPiece(Shape):
@@ -40,6 +40,6 @@ class ScenarioPiece(Shape):
             volume=volume,
         )
 
-    def do_your_thing(self, scenario: "Scenario") -> None:
-        self._apply_gravity(scenario.gravity_acceleration)
-        self._apply_movement(scenario)
+    def do_your_thing(self, engine: "Physics2D") -> None:
+        self._apply_gravity(engine.scenario.gravity_acceleration)
+        self._apply_movement(engine)
