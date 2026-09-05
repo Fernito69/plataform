@@ -64,7 +64,7 @@ class Player2D(KeyboardHandler, LivingEntity2D):
 
         for exit in self.curr_level.exits:
             if self.is_same_position(exit):
-                self.status = PlayerStatus.END_LEVEL_2D
+                self.status = PlayerStatus.END_LEVEL
 
     def get_health(self) -> str:
         health = str(self.health)

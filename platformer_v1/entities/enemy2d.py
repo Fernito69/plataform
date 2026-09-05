@@ -1,10 +1,10 @@
 import random
 
 from model.base import PointF, VectorF
-from model.enemy import EnemyType
 from model.theme import Theme
 from platformer_v1.constants import ENEMY_MOV_FACTOR
 from platformer_v1.entities.base import LivingEntity2D
+from platformer_v1.model.enemy import EnemyType
 
 _BOUNCE_FRAMES = ["_", "‗", "_", "o", "O", "|", "¯", "|", "O", "o"]
 _MIN_BOUNCING_RANDOMNESS = 8

@@ -22,8 +22,10 @@ class Line:
     CU: str
     CA: str
 
-# TODO: implement cool methods like in Vector and Point to be able to add two RGBs, etc 
-    
+
+# TODO: implement cool methods like in Vector and Point to be able to add two RGBs, etc
+
+
 @dataclass
 class RGB:
     r: int = 127
@@ -57,6 +59,39 @@ class RGB:
             int(self.b * self.intensity),
             intensity=self.intensity,
         )
+
+    def mix_with(self, colors: "RGB" | list["RGB"]) -> "RGB":
+        colors = [self, *colors] if isinstance(colors, list) else [self, colors]
+        
+        weighted_intensity = sum([c.intensity for c in colors])
+        weighted_sum_r = sum([c.r * c.intensity for c in colors]) / weighted_intensity
+        weighted_sum_g = sum([c.g * c.intensity for c in colors]) / weighted_intensity
+        weighted_sum_b = sum([c.b * c.intensity for c in colors]) / weighted_intensity
+
+        return RGB(
+            r=round(weighted_sum_r),
+            g=round(weighted_sum_g),
+            b=round(weighted_sum_b),
+        )
+
+    def __add__(self, other: "RGB") -> "RGB":
+        return RGB(
+            r=self.r + other.r,
+            g=self.g + other.g,
+            b=self.b + other.b,
+        )
+
+    def __sub__(self, other: "RGB") -> "RGB":
+        return RGB(
+            r=self.r - other.r,
+            g=self.g - other.g,
+            b=self.b - other.b,
+        )
+
+    def __iter__(self):
+        yield self.r
+        yield self.g
+        yield self.b
 
 
 # TODO: make this an enum

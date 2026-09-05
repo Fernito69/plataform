@@ -110,7 +110,7 @@ class Game(Engine, KeyboardHandler):
                 case PlayerStatus.DEAD:
                     return self.quit_game(message="GAME OVER")
 
-        if self.player2d.status == PlayerStatus.END_LEVEL_2D:
+        if self.player2d.status == PlayerStatus.END_LEVEL:
             return self.quit_game(message="YOU WON!!! :D")
 
     def _handle_welcome_message(self) -> None:

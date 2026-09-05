@@ -1,8 +1,8 @@
 from factories.theme import Blue, Red, Yellow
 from model.base import PointF, VectorF
-from model.enemy import EnemyType
 from model.theme import RGB, Theme
 from platformer_v1.entities.enemy2d import Enemy2D
+from platformer_v1.model.enemy import EnemyType
 
 _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_FRAMES = ["@"]
 _DEFAULT_DUMB_BOUNCING_ENEMY_CHARACTER_COLOR = Blue()

@@ -35,6 +35,7 @@ def extract_color_from_string(text: str) -> RGB:
     return RGB(int(r), int(g), int(b))
 
 
+# TODO: get rid of this function in favor of RGB.mix_with
 def mix_colors(colores: list[RGB]) -> RGB:
     weighted_intensity = sum([c.intensity for c in colores])
     weighted_sum_r = sum([c.r * c.intensity for c in colores]) / weighted_intensity
