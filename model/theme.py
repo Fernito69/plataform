@@ -30,12 +30,24 @@ class Line:
 
 @dataclass
 class RGB:
-    r: int = 127
-    g: int = 127
-    b: int = 127
+    r: int
+    g: int
+    b: int
 
     # TODO: intensity is actually transparency, we should rename it
-    intensity: float = 1
+    intensity: float
+
+    def __init__(
+        self,
+        r: float = 127,
+        g: float = 127,
+        b: float = 127,
+        intensity: float = 1,
+    ):
+        self.r = min(255, max(0, round(r)))
+        self.g = min(255, max(0, round(g)))
+        self.b = min(255, max(0, round(b)))
+        self.intensity = min(1, max(0, intensity))
 
     def __str__(self):
         return f"rgb({self.r}, {self.g}, {self.b})"

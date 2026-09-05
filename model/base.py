@@ -103,6 +103,7 @@ class DistVector3D(DistCoordBase):
     distance_to_edge: float | None = None
 
 
+# TODO: refactor Physics2D angle with this
 @dataclass
 class Angle:
     # Always in radians

@@ -176,7 +176,7 @@ class Physics2D(Engine, KeyboardHandler):
                 (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
             )
             # TODO: check if this works as intended
-            curr_color = RGB(*(min(255, c) for c in curr_color + next_object_color))
+            curr_color += next_object_color
             curr_index += 1
 
         return curr_color
