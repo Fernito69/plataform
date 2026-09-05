@@ -21,7 +21,7 @@ class GetCircunferenceEquationResponse:
 
 
 # TODO: this shouldn't be hardcoded, should be associated to friction coef
-_DECEL_FACTOR = 0.5
+_DECEL_FACTOR = 0.2
 
 
 class Circunference(Shape):
@@ -84,7 +84,9 @@ class Circunference(Shape):
         self._float_around()
 
         self.would_collide_with(scenario.player)
-        # for p in scenario.solid_pieces:
+
+        # TOOD: why enabling this prevents the player collision from working
+        # for p in scenario .solid_pieces:
         #     self.would_collide_with(p)
 
         if not any(a != 0 for a in self.velocity):
@@ -180,7 +182,7 @@ class Circunference(Shape):
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
     def would_collide_with(self, colliding_shape: Shape) -> None:
-        if not self.is_collideable:
+        if not self.is_collideable or not colliding_shape.is_collideable:
             return
 
         # TODO: this doesn't work, if velocity is too high, we get fucked
@@ -198,12 +200,12 @@ class Circunference(Shape):
                 other_shape_transfer_factor = self.weight / denominator
                 # self_transfer_factor = 1
                 # other_shape_transfer_factor = 1
+                self_transfer_factor = colliding_shape.weight / denominator
+                other_shape_transfer_factor = self.weight / denominator
 
                 # raise NotImplementedError(
                 #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
                 # )
-                if self.name == "Circle":
-                    raise
                 self.velocity = (
                     (-self.velocity * self_transfer_factor)
                     + (colliding_shape.velocity * other_shape_transfer_factor)
