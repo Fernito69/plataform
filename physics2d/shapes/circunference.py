@@ -202,7 +202,8 @@ class Circunference(Shape):
                 # raise NotImplementedError(
                 #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
                 # )
-
+                if self.name == "Circle":
+                    raise
                 self.velocity = (
                     (-self.velocity * self_transfer_factor)
                     + (colliding_shape.velocity * other_shape_transfer_factor)
