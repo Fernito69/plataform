@@ -151,6 +151,9 @@ class Circunference(Shape):
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
     def would_collide_with(self, colliding_shape: Shape) -> None:
+        if not self.is_collideable:
+            return
+
         # TODO: this doesn't work, if velocity is too high, we get fucked
         new_pos = (0.5 * self.velocity) + self.center
 
@@ -159,9 +162,14 @@ class Circunference(Shape):
             if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
                 # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                 # TODO: Fix the logic of this energy transfer
+                denominator = self.weight + colliding_shape.weight
+
+                self_transfer_factor = colliding_shape.weight / denominator
+                other_shape_transfer_factor = self.weight / denominator
+
                 self.velocity = (
-                    (-self.velocity * (colliding_shape.weight / self.weight))
-                    + (colliding_shape.velocity * (self.weight / colliding_shape.weight))
+                    (-self.velocity * self_transfer_factor)
+                    + (colliding_shape.velocity * other_shape_transfer_factor)
                 ).as_vector()
 
         if isinstance(colliding_shape, Line):

@@ -30,6 +30,8 @@ class Shape:
     volume: float
     weight: float
 
+    is_collideable: bool
+
     def __init__(
         self,
         center_of_mass: PointF,
@@ -44,6 +46,7 @@ class Shape:
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        is_collideable: bool = False,
     ):
         self.theme = theme
         self.secondary_theme = secondary_theme
@@ -58,6 +61,7 @@ class Shape:
         self.density = density
         self.volume = volume
         self.weight = density * volume
+        self.is_collideable = is_collideable
 
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:

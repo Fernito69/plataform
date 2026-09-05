@@ -54,7 +54,18 @@ class RectanglePiece(Line, ScenarioPiece):
         min_x, max_x, min_y, max_y = self._get_sorted_vertices()
         self.volume = (max_x - min_x) * (max_y - min_y)
         self.density = density
-        ScenarioPiece.__init__(self, name="Rectangle", volume=self.volume, density=density)
+        ScenarioPiece.__init__(
+            self,
+            name="Rectangle",
+            volume=self.volume,
+            density=density,
+            theme=theme,
+            secondary_theme=secondary_theme,
+            initial_velocity=initial_velocity,
+            own_gravity=own_gravity,
+            initial_angular_velocity=initial_angular_velocity,
+            floating_multi=floating_multi,
+        )
 
     def _get_sorted_vertices(self) -> tuple[float, float, float, float]:
         min_x, max_x = sorted(

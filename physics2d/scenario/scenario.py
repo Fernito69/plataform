@@ -42,6 +42,8 @@ class Scenario:
         self.fg_pieces = fg_pieces
         self.bg_pieces = bg_pieces
         self.solid_pieces = solid_pieces
+        for p in self.solid_pieces:
+            p.is_collideable = True
         self.engine = engine
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
         self.player = player

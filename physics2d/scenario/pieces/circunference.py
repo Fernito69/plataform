@@ -47,7 +47,20 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             density=density,
         )
         # TODO: fix this, shuld not require the same params to init
-        ScenarioPiece.__init__(self, name="Circle", density=density, volume=self.volume)
+        ScenarioPiece.__init__(
+            self,
+            name="Circle",
+            density=density,
+            volume=self.volume,
+            theme=theme,
+            secondary_theme=secondary_theme,
+            angle=angle,
+            initial_velocity=initial_velocity,
+            affected_by_gravity=affected_by_gravity,
+            own_gravity=own_gravity,
+            floating_multi=floating_multi,
+            initial_angular_velocity=initial_angular_velocity,
+        )
         self.center = center
         self.theme = theme
         self.secondary_theme = secondary_theme

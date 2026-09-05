@@ -45,6 +45,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self.radius = _PLAYER_RADIUS
         self.theme = _PLAYER_THEME
         self.velocity = VectorF(0, 0)
+        self.is_collideable = True
 
     ##############
     """MOVEMENT"""
