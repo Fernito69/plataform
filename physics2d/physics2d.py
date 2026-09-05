@@ -11,7 +11,7 @@ from physics2d.model.shared import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
 from terminal import on_key_press
-from utils import add_triplet, colored
+from utils import colored
 
 if TYPE_CHECKING:
     from game import Game
@@ -158,6 +158,9 @@ class Physics2D(Engine, KeyboardHandler):
         curr_index = 0
 
         def _get_color(il: list[RenderInfo], idx: int):
+            if len(il) <= idx:
+                return RGB(0, 0, 0)
+
             return il[idx].color.with_intensity_v2(
                 max(
                     0,
@@ -165,31 +168,15 @@ class Physics2D(Engine, KeyboardHandler):
                 )
             )
 
-        curr_color = (
-            _get_color(info_list, curr_index) if len(info_list) > curr_index else RGB(0, 0, 0)
-        )
-
+        curr_color = _get_color(info_list, curr_index)
         curr_index += 1
 
         while curr_index < len(info_list) and curr_color.intensity < INTENSITY_BLEND_THRESHOLD:
             next_object_color = _get_color(info_list, curr_index).with_intensity(
                 (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
             )
-            # TODO: fix this shit
-            curr_color = (
-                RGB(
-                    *(
-                        min(255, round(c))
-                        # TODO: implement RGB sum and __iter__
-                        for c in add_triplet(
-                            (curr_color.r, curr_color.g, curr_color.b),
-                            (next_object_color.r, next_object_color.g, next_object_color.b),
-                        )
-                    )
-                )
-                if curr_index < 2
-                else RGB(0, 0, 0)
-            )
+            # TODO: check if this works as intended
+            curr_color = RGB(*(min(255, c) for c in curr_color + next_object_color))
             curr_index += 1
 
         return curr_color

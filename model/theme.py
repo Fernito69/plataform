@@ -102,9 +102,10 @@ type SequencingType = Literal["random", "sequential", "back&forth"]
 
 @dataclass
 class Theme:
-    line_type: Line | None = None
     color: RGB | None = None
     bg_color: RGB | None = None
+    # TODO: move this legacy platformer_v1 stuff somewhere else
+    line_type: Line | None = None
     custom_line_chars: list[str] | None = None
     # only relevant if custom_line_chars is not None
     custom_line_type: SequencingType = "random"
