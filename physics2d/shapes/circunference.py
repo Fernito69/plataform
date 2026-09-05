@@ -167,6 +167,10 @@ class Circunference(Shape):
                 self_transfer_factor = colliding_shape.weight / denominator
                 other_shape_transfer_factor = self.weight / denominator
 
+                raise NotImplementedError(
+                    f"self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
+                )
+
                 self.velocity = (
                     (-self.velocity * self_transfer_factor)
                     + (colliding_shape.velocity * other_shape_transfer_factor)

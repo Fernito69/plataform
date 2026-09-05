@@ -139,18 +139,7 @@ class RectanglePiece(Line, ScenarioPiece):
 
     def get_render_info(self) -> list[RenderInfo]:
         piece_info = []
-        min_x, max_x = sorted(
-            (
-                self.vertices[0].x,
-                self.vertices[1].x,
-            )
-        )
-        min_y, max_y = sorted(
-            (
-                self.vertices[0].y,
-                self.vertices[1].y,
-            )
-        )
+        min_x, max_x, min_y, max_y = self._get_sorted_vertices()
 
         _DELTA = 1
 
