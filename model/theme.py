@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Literal
 
@@ -60,9 +62,9 @@ class RGB:
             intensity=self.intensity,
         )
 
-    def mix_with(self, colors: "RGB" | list["RGB"]) -> "RGB":
+    def mix_with(self, colors: RGB | list[RGB]) -> RGB:
         colors = [self, *colors] if isinstance(colors, list) else [self, colors]
-        
+
         weighted_intensity = sum([c.intensity for c in colors])
         weighted_sum_r = sum([c.r * c.intensity for c in colors]) / weighted_intensity
         weighted_sum_g = sum([c.g * c.intensity for c in colors]) / weighted_intensity

@@ -7,7 +7,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.shape import Shape
-from utils import distance_from_line_to_point, mix_colors, rotate_point
+from utils import distance_from_line_to_point, rotate_point
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -154,11 +154,10 @@ class Line(Shape):
             else 0
         )
 
-        color: RGB = mix_colors(
-            [
-                (self.theme.color or White()).with_intensity(color_ratio),
-                (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
-            ]
+        color: RGB = (
+            (self.theme.color or White())
+            .with_intensity(color_ratio)
+            .mix_with((self.secondary_theme.color or White()).with_intensity(1 - color_ratio))
         )
 
         return color

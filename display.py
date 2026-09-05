@@ -27,7 +27,6 @@ from utils import (
     extract_bg_color_from_string,
     extract_color_from_string,
     has_bg_color,
-    mix_colors,
 )
 
 if TYPE_CHECKING:
@@ -212,12 +211,9 @@ class Display(KeyboardHandler):
                 def _border_col(ch: str) -> str:
                     return colored(
                         ch,
-                        color=mix_colors(
-                            [
-                                _MESSAGE_UPPER_BORDER_COLOR.with_intensity(_border_intensity),
-                                _MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity),
-                            ]
-                        ).with_intensity(self._message_intensity),
+                        color=_MESSAGE_UPPER_BORDER_COLOR.with_intensity(_border_intensity)
+                        .mix_with(_MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity))
+                        .with_intensity(self._message_intensity),
                         bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                             (1 - self._message_intensity)
                         ),

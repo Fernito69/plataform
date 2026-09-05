@@ -7,7 +7,6 @@ from model.theme import Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
 from physics2d.shapes.line import Line
-from utils import mix_colors
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -131,12 +130,18 @@ class RectanglePiece(Line, ScenarioPiece):
             else 0
         )
 
-        color: RGB = mix_colors(
-            [
-                (self.theme.color or White()).with_intensity(color_ratio),
-                (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
-            ]
+        color: RGB = (
+            (self.theme.color or White())
+            .with_intensity(color_ratio)
+            .mix_with((self.secondary_theme.color or White()).with_intensity(1 - color_ratio))
         )
+
+        # mix_colors(
+        #     [
+        #         (self.theme.color or White()).with_intensity(color_ratio),
+        #         (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
+        #     ]
+        # )
 
         return color
 
