@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from constants import PI
 from model.base import PointF, VectorF
@@ -10,11 +10,18 @@ from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
 from utils import distance_from_line_to_point, get_line_angle
 
+if TYPE_CHECKING:
+    from physics2d.scenario.scenario import Scenario
+
 
 @dataclass
 class GetCircunferenceEquationResponse:
     get_ys: Callable[[float], tuple[float, float] | tuple[None, None]]
     get_xs: Callable[[float], tuple[float, float] | tuple[None, None]]
+
+
+# TODO: this shouldn't be hardcoded, should be associated to friction coef
+_DECEL_FACTOR = 0.5
 
 
 class Circunference(Shape):
@@ -57,13 +64,35 @@ class Circunference(Shape):
             density=self.density,
         )
 
-    def _apply_movement(self) -> None:
+    # TODO: unify with PlayerBlob
+    def _apply_friction(self) -> None:
+        if self.velocity.y > 0:
+            self.velocity = (self.velocity + VectorF(0, -_DECEL_FACTOR)).as_vector()
+        if self.velocity.y < 0:
+            self.velocity = (self.velocity + VectorF(0, _DECEL_FACTOR)).as_vector()
+        if self.velocity.x > 0:
+            self.velocity = (self.velocity + VectorF(-_DECEL_FACTOR, 0)).as_vector()
+        if self.velocity.x < 0:
+            self.velocity = (self.velocity + VectorF(_DECEL_FACTOR, 0)).as_vector()
+        if 0 <= self.velocity.x < _DECEL_FACTOR:
+            self.velocity.x = 0
+        if 0 <= self.velocity.y < _DECEL_FACTOR:
+            self.velocity.y = 0
+
+    # TODO: this doesn't run, is overridden by CircunferencePiece
+    def _apply_movement(self, scenario: "Scenario") -> None:
         self._float_around()
+
+        self.would_collide_with(scenario.player)
+        # for p in scenario.solid_pieces:
+        #     self.would_collide_with(p)
 
         if not any(a != 0 for a in self.velocity):
             return
+
         self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
         self.update_center_of_mass()
+        self._apply_friction()
 
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
@@ -164,12 +193,15 @@ class Circunference(Shape):
                 # TODO: Fix the logic of this energy transfer
                 denominator = self.weight + colliding_shape.weight
 
+                # TODO: energy transfer should consider kinetic energy e = m*v^2
                 self_transfer_factor = colliding_shape.weight / denominator
                 other_shape_transfer_factor = self.weight / denominator
+                # self_transfer_factor = 1
+                # other_shape_transfer_factor = 1
 
-                raise NotImplementedError(
-                    f"self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
-                )
+                # raise NotImplementedError(
+                #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
+                # )
 
                 self.velocity = (
                     (-self.velocity * self_transfer_factor)

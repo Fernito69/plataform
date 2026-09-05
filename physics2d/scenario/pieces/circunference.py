@@ -4,7 +4,6 @@ from typing import Callable
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.scenario.piece import ScenarioPiece
-from physics2d.scenario.scenario import Scenario
 from physics2d.shapes.circunference import Circunference
 
 
@@ -72,9 +71,3 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         self.velocity = initial_velocity
         self.angular_velocity = initial_angular_velocity
         self.weight = self.volume * self.density
-
-    def _apply_movement(self, scenario: "Scenario") -> None:
-        self._float_around()
-        self.center = self.center + self.velocity
-        self.center_of_mass = self.center_of_mass + self.velocity
-        self.would_collide_with(scenario.player)
