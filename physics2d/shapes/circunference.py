@@ -234,8 +234,12 @@ class Circunference(Shape):
                     abs(self.velocity)
                     * VectorF(x=factor_x * math.cos(res_angle), y=factor_y * math.sin(res_angle))
                 ).as_vector()
+
+                def _get_angle(angle) -> int:
+                    return int(angle * 180 / PI)
+
                 engine.display.debug_log(
-                    f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {angle_vel * 180 / PI}, line angle: {angle_line * 180 / PI}, res: {res_angle * 180 / PI}"
+                    f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line angle: {_get_angle(angle_line)}, res: {_get_angle(res_angle)}"
                 )
 
                 self.velocity = new_velocity

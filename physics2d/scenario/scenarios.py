@@ -139,7 +139,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         line_1_3,
         line_1_4,
         line_1_5,
-        fancy_rotating_line
+        # fancy_rotating_line
     ]
 
     bg_pieces: list[ScenarioPiece] = [

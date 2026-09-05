@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Red, White, Yellow
+from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import PointF, PointI, VectorI
 from model.game import GameMode
@@ -22,12 +22,7 @@ from three_d_renderer.constants import (
     Y_RESOLUTION_3D,
 )
 from three_d_renderer.entities.player3d import Player3D
-from utils import (
-    colored,
-    extract_bg_color_from_string,
-    extract_color_from_string,
-    has_bg_color,
-)
+from utils import colored, extract_bg_color_from_string, extract_color_from_string, has_bg_color
 
 if TYPE_CHECKING:
     from game import Game
@@ -38,6 +33,8 @@ _MESSAGE_UPPER_BORDER_COLOR = RGB(0, 255, 100)
 _MESSAGE_LOWER_BORDER_COLOR = RGB(170, 80, 255)
 
 _MESSAGE_TEXT_COLOR = Yellow()
+
+_MAX_DEBUG_LOGS = 15
 
 
 class Display(KeyboardHandler):
@@ -76,8 +73,21 @@ class Display(KeyboardHandler):
             case GameMode.PHYSICS_2D:
                 self._set_physics_mode()
 
-    def debug_log(self, msg: str) -> None:
-        self._debug_str = msg
+    def debug_log(self, msg: str | None) -> None:
+        if msg is None:
+            self._debug_str = None
+            return
+
+        if not self._debug_str:
+            self._debug_str = msg
+            return
+
+        log_lines: list[str] = self._debug_str.split(BR)
+
+        if len(log_lines) >= _MAX_DEBUG_LOGS:
+            log_lines = log_lines[1:]
+
+        self._debug_str = str.join(BR, log_lines) + BR + msg
 
     def has_message(self) -> bool:
         return self._message is not None
@@ -162,15 +172,19 @@ class Display(KeyboardHandler):
             if y < self.curr_y_resolution - 1:
                 screen_content += BR
 
-        if self._debug_str:
-            screen_content += colored(BR + "DEBUG: ", Red()) + self._debug_str
-
         if player:
             screen_content += BR + self._get_hud_string(player)
 
         if self._print_fps:
             _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
-            screen_content += f"{_sep}{colored('FPS:', Cyan())} {str(round(self._measured_fps))}"
+            _fps_factor = (
+                self._measured_fps / 30
+            )  # <- TODO: this 30 shouldn't be hardcoded, we need a mapping between GameMode and max_fps
+            _fps_color = Green(min(1, _fps_factor)).mix_with(Red(max(0, 1 - _fps_factor)))
+            screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
+
+        if self._debug_str:
+            screen_content += colored(BR + "DEBUG: ", Red()) + BR + self._debug_str
 
         clear()
         print(screen_content)
