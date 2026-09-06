@@ -41,6 +41,7 @@ class Physics2D(Engine, KeyboardHandler):
         self.display = self.game.display
         self.init_screen_buffer()
 
+    # TODO: we need to do the same for entities/pieces
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
         self.scenario = scenario or default_scenario(self)

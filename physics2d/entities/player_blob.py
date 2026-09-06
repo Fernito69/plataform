@@ -85,9 +85,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                 ).with_intensity(1)
                 if is_odd
                 else RGB(
-                    (i - 1) * 90,
-                    (i - 1) * 50,
                     255,
+                    255 - (i - 1) * 30,
+                    (i - 1) * 1,
                 ).with_intensity(1)
             )
 
@@ -117,7 +117,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                 radius=i * _radius_factor,
                 # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
                 theme=Theme(color=_color),
-                life_time=20,
+                life_time=25,
             )
             pieces.append(thrust_fire)
 

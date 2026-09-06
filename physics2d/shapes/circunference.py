@@ -116,7 +116,7 @@ class Circunference(Shape):
         self.life_time -= 1
         self.radius -= self.radius / (self.life_time + 1)
         if self.theme.color:
-            self.theme.color = self.theme.color.mix_with(RGB(0, 255, 255, intensity=0.1))
+            self.theme.color = self.theme.color.mix_with(RGB(100, 100, 100, intensity=0.1))
 
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
