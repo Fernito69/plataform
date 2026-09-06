@@ -77,21 +77,39 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             is_odd = _i % 2 == 1
             _randomness_multi = random.random() * 3
             _radius_factor = random.random() * 1
+            # METEOR KINDA TRAIL
+            # _color = (
+            #     RGB(
+            #         255,
+            #         (i - 1) * 50,
+            #         (i - 1) * 50,
+            #     ).with_intensity(1)
+            #     if is_odd
+            #     else RGB(
+            #         255,
+            #         255 - (i - 1) * 30,
+            #         (i - 1) * 1,
+            #     ).with_intensity(1)
+            # )
+            # Liquid N2 trail
             _color = (
                 RGB(
-                    255,
-                    (i - 1) * 50,
-                    (i - 1) * 50,
+                    0,
+                    255 - (i - 1) * 50,
+                    255 - (i - 1) * 50,
                 ).with_intensity(1)
                 if is_odd
                 else RGB(
-                    255,
+                    0,
                     255 - (i - 1) * 30,
-                    (i - 1) * 1,
+                    255 - (i - 1) * 1,
                 ).with_intensity(1)
             )
+            _affected_by_gravity = True
+            _own_gravity = 0.05
 
             # TODO: maybe the initial_velocity should be based not ont the curr vel but rather what thrust buttons the player is hitting
+            # TODO: create particle factory, extend theme for all this shit
             thrust_fire = CircunferencePiece(
                 center=PointF(
                     x=eye_x
@@ -117,7 +135,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                 radius=i * _radius_factor,
                 # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
                 theme=Theme(color=_color),
-                life_time=25,
+                life_time=50,
+                affected_by_gravity=_affected_by_gravity,
+                own_gravity=_own_gravity,
             )
             pieces.append(thrust_fire)
 

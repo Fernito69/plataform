@@ -109,14 +109,19 @@ class Circunference(Shape):
         self.update_center_of_mass()
         self._apply_friction()
 
-    # TODO: implement at Shape level
+    # TODO: implement at Shape level, and the gray color shouldn't be a setting from here, but from the Theme
     def _handle_lifetime(self) -> None:
         if self.life_time is None or self._original_life_time is None:
             return
         self.life_time -= 1
         self.radius -= self.radius / (self.life_time + 1)
+
         if self.theme.color:
-            self.theme.color = self.theme.color.mix_with(RGB(100, 100, 100, intensity=0.1))
+            _smoke_like = RGB(100, 100, 100, intensity=0.1)
+            _ice_like = RGB(177, 255, 255).with_intensity(
+                self.life_time / (self._original_life_time or 1)
+            )
+            self.theme.color = self.theme.color.mix_with([self.theme.color, _ice_like])
 
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
