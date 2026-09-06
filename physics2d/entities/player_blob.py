@@ -11,7 +11,7 @@ from terminal import on_key_press
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
-_PLAYER_RADIUS = 4
+_PLAYER_RADIUS = 6
 _PLAYER_THEME = Theme(color=RGB(244, 255, 0))
 _PLAYER_GRAVITY = 0  # we float freely!
 

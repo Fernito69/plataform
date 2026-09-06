@@ -149,15 +149,17 @@ class Circunference(Shape):
         eye_x: float | None = None
         eye_y: float | None = None
         if is_player:
-            distance_factor = (self.radius - 1) / _MAX_MOVING_VELOCITY
-            eye_x = self.center.x + self.velocity.x * distance_factor
-            eye_y = self.center.y + self.velocity.y * distance_factor
-            eye = Circunference(
-                center=PointF(eye_x, eye_y),
-                radius=1,
-                theme=Theme(color=RGB(255, 0, 40).with_intensity(1)),
-            )
-            piece_info.extend(eye.get_render_info())
+            for i in range(1, int(self.radius)):
+                # distance_factor = (self.radius - i) / _MAX_MOVING_VELOCITY
+                distance_factor = (self.radius - i) / 2
+                eye_x = self.center.x - self.velocity.x * distance_factor
+                eye_y = self.center.y - self.velocity.y * distance_factor
+                eye = Circunference(
+                    center=PointF(eye_x, eye_y),
+                    radius=(self.radius - i) / 2,
+                    theme=Theme(color=RGB(255, i * 1, i * 80).with_intensity(1)),
+                )
+                piece_info.extend(eye.get_render_info())
 
         eq = self.get_circunference_equations()
 
