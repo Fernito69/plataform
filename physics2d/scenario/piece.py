@@ -24,6 +24,7 @@ class ScenarioPiece(Shape):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
+        life_time: int | None = None,
     ):
         super().__init__(
             name=name or self.name,
@@ -38,7 +39,10 @@ class ScenarioPiece(Shape):
             initial_angular_velocity=initial_angular_velocity,
             density=density,
             volume=volume,
+            life_time=life_time,
         )
+        self.life_time = life_time
+        self._original_life_time = life_time
 
     def do_your_thing(self, engine: "Physics2D") -> None:
         self._apply_gravity(engine.scenario.gravity_acceleration)

@@ -56,6 +56,19 @@ class Scenario:
         for piece in self.fg_pieces + self.bg_pieces + self.solid_pieces:
             piece.do_your_thing(self.engine)
 
+        self._lifetime_cleanup()
+
+    def _lifetime_cleanup(self) -> None:
+        filtered = [p for p in self.fg_pieces if p.life_time is None or p.life_time > 0]
+        if len(filtered) < len(self.fg_pieces):
+            self.fg_pieces = filtered
+        filtered = [p for p in self.bg_pieces if p.life_time is None or p.life_time > 0]
+        if len(filtered) < len(self.bg_pieces):
+            self.bg_pieces = filtered
+        filtered = [p for p in self.solid_pieces if p.life_time is None or p.life_time > 0]
+        if len(filtered) < len(self.solid_pieces):
+            self.solid_pieces = filtered
+
     def render(self) -> None:
         # TODO: unify
         def _handle_pieces(pieces: list[ScenarioPiece]):

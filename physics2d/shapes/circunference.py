@@ -28,7 +28,6 @@ class GetCircunferenceEquationResponse:
 # TODO: this shouldn't be hardcoded, should be associated to friction coef
 _DECEL_FACTOR = 0.2
 # TODO: move to common constants place
-_MAX_MOVING_VELOCITY = 5
 
 
 class Circunference(Shape):
@@ -48,6 +47,7 @@ class Circunference(Shape):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         density: float = 1,
+        life_time: int | None = None,
     ):
         self.center = center
         self.radius = radius
@@ -55,6 +55,8 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
+        self.life_time = life_time
+        self._original_life_time = life_time
         Shape.__init__(
             self,
             theme=theme,
@@ -69,6 +71,7 @@ class Circunference(Shape):
             name="Circunference",
             volume=self.volume,
             density=self.density,
+            life_time=life_time,
         )
 
     # TODO: unify with PlayerBlob
@@ -93,6 +96,7 @@ class Circunference(Shape):
         self._float_around()
 
         self.would_collide_with(engine.scenario.player, engine)
+        self._handle_lifetime()
 
         # TOOD: why enabling this prevents the player collision from working
         # for p in scenario .solid_pieces:
@@ -104,6 +108,15 @@ class Circunference(Shape):
         self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
         self.update_center_of_mass()
         self._apply_friction()
+
+    # TODO: implement at Shape level
+    def _handle_lifetime(self) -> None:
+        if self.life_time is None or self._original_life_time is None:
+            return
+        self.life_time -= 1
+        self.radius -= self.radius / (self.life_time + 1)
+        if self.theme.color:
+            self.theme.color = self.theme.color.mix_with(RGB(0, 255, 255, intensity=0.1))
 
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
@@ -129,8 +142,6 @@ class Circunference(Shape):
 
     def get_render_info(self) -> list[RenderInfo]:
         piece_info: list[RenderInfo] = []
-        # TODO: make a better test
-        is_player: bool = self.name == "PlayerBlob"
 
         min_x, max_x = sorted(
             (
@@ -145,21 +156,60 @@ class Circunference(Shape):
             )
         )
 
-        # Add "eye"
-        eye_x: float | None = None
-        eye_y: float | None = None
-        if is_player:
-            for i in range(1, int(self.radius)):
-                # distance_factor = (self.radius - i) / _MAX_MOVING_VELOCITY
-                distance_factor = (self.radius - i) / 2
-                eye_x = self.center.x - self.velocity.x * distance_factor
-                eye_y = self.center.y - self.velocity.y * distance_factor
-                eye = Circunference(
-                    center=PointF(eye_x, eye_y),
-                    radius=(self.radius - i) / 2,
-                    theme=Theme(color=RGB(255, i * 1, i * 80).with_intensity(1)),
-                )
-                piece_info.extend(eye.get_render_info())
+        # Add "trail"
+        # if is_player:
+        #     for _i in range(1, int(self.radius * 2)):
+        #         i = _i / 2
+        #         distance_factor = (self.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
+        #         eye_x = self.center.x - self.velocity.x * distance_factor
+        #         eye_y = self.center.y - self.velocity.y * distance_factor
+
+        #         is_odd = _i % 2 == 1
+        #         _randomness_multi = 3 if is_odd else 1
+        #         _radius_factor = 0.5 if is_odd else 1
+        #         _color = (
+        #             RGB(
+        #                 (i - 1) * 50,
+        #                 (i - 1) * 50,
+        #                 255,
+        #             ).with_intensity(1)
+        #             if is_odd
+        #             else RGB(
+        #                 (i - 1) * 90,
+        #                 255,
+        #                 (i - 1) * 50,
+        #             ).with_intensity(1)
+        #         )
+
+        #         thrust_fire = Circunference(
+        #             center=PointF(
+        #                 x=eye_x
+        #                 + (random.random() - 0.5)
+        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+        #                 * _randomness_multi,
+        #                 y=eye_y
+        #                 + (random.random() - 0.5)
+        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+        #                 * _randomness_multi,
+        #             ),
+        #             initial_velocity=VectorF(
+        #                 x=eye_x
+        #                 + (random.random() - 0.5)
+        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+        #                 * _randomness_multi,
+        #                 y=eye_y
+        #                 + (random.random() - 0.5)
+        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+        #                 * _randomness_multi,
+        #             ),
+        #             # radius=i * math.cos((self.radius - i) / self.radius),
+        #             radius=i * _radius_factor,
+        #             # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
+        #             theme=Theme(color=_color),
+        #             life_time=10,
+        #         )
+
+        #         piece_info.extend(thrust_fire.get_render_info())
 
         eq = self.get_circunference_equations()
 
@@ -174,12 +224,11 @@ class Circunference(Shape):
                 x1, x2 = eq.get_xs(y)
 
                 if (
-                    x1 is None
-                    or x2 is None
-                    or (
-                        (eye_x is not None and round(eye_x) == round(x))
-                        and (eye_y is not None and round(eye_y) == round(y))
-                    )
+                    x1 is None or x2 is None
+                    # or (
+                    #     (eye_x is not None and round(eye_x) == round(x))
+                    #     and (eye_y is not None and round(eye_y) == round(y))
+                    # )
                 ):
                     continue
 

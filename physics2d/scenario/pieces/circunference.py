@@ -30,6 +30,7 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
+        life_time: int | None = None,
     ):
         Circunference.__init__(
             self,
@@ -44,6 +45,7 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
             density=density,
+            life_time=life_time,
         )
         # TODO: fix this, shuld not require the same params to init
         ScenarioPiece.__init__(
@@ -59,6 +61,7 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             own_gravity=own_gravity,
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
+            life_time=life_time,
         )
         self.center = center
         self.theme = theme
@@ -71,3 +74,5 @@ class CircunferencePiece(Circunference, ScenarioPiece):
         self.velocity = initial_velocity
         self.angular_velocity = initial_angular_velocity
         self.weight = self.volume * self.density
+        self.life_time = life_time
+        self._original_life_time = life_time

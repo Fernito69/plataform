@@ -1,3 +1,4 @@
+import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -5,8 +6,10 @@ from model.keyboard import MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
+from physics2d.scenario.pieces.circunference import CircunferencePiece
 from physics2d.shapes.circunference import Circunference
 from terminal import on_key_press
+from utils import shuffle_list
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -20,6 +23,9 @@ _ACCEL_FACTOR = 1
 _DECEL_FACTOR = _ACCEL_FACTOR / 2
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
+
+_THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
+_THRUST_FIRE_DISTANCE_FACTOR = 1
 
 
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
@@ -57,6 +63,64 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
+        self._handle_thrust_motor_animation()
+
+    def _handle_thrust_motor_animation(self) -> None:
+        pieces: list[CircunferencePiece] = []
+        for _i in range(1, int(self.radius * 2)):
+            i = _i / 2
+            distance_factor = (self.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
+            eye_x = self.center.x - self.velocity.x * distance_factor
+            eye_y = self.center.y - self.velocity.y * distance_factor
+
+            is_odd = _i % 2 == 1
+            _randomness_multi = random.random() * 3
+            _radius_factor = random.random() * 1
+            _color = (
+                RGB(
+                    255,
+                    (i - 1) * 50,
+                    (i - 1) * 50,
+                ).with_intensity(1)
+                if is_odd
+                else RGB(
+                    (i - 1) * 90,
+                    (i - 1) * 50,
+                    255,
+                ).with_intensity(1)
+            )
+
+            # TODO: maybe the initial_velocity should be based not ont the curr vel but rather what thrust buttons the player is hitting
+            thrust_fire = CircunferencePiece(
+                center=PointF(
+                    x=eye_x
+                    + (random.random() - 0.5)
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi,
+                    y=eye_y
+                    + (random.random() - 0.5)
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi,
+                ),
+                initial_velocity=VectorF(
+                    x=-self.velocity.x
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi
+                    * 0.2,
+                    y=-self.velocity.y
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi
+                    * 0.2,
+                ),
+                # radius=i * math.cos((self.radius - i) / self.radius),
+                radius=i * _radius_factor,
+                # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
+                theme=Theme(color=_color),
+                life_time=15,
+            )
+            pieces.append(thrust_fire)
+
+        self.engine.scenario.fg_pieces.extend(sorted(pieces, key=shuffle_list))
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=
