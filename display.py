@@ -1,3 +1,4 @@
+import datetime
 import math
 import time
 from typing import TYPE_CHECKING, Callable
@@ -78,6 +79,10 @@ class Display(KeyboardHandler):
             self._debug_str = None
             return
 
+        msg = colored(
+            f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}] ", Yellow(0.5)
+        ) + msg.replace(BR, " ")
+
         if not self._debug_str:
             self._debug_str = msg
             return
@@ -85,9 +90,9 @@ class Display(KeyboardHandler):
         log_lines: list[str] = self._debug_str.split(BR)
 
         if len(log_lines) >= _MAX_DEBUG_LOGS:
-            log_lines = log_lines[1:]
+            log_lines = log_lines[:-1]
 
-        self._debug_str = str.join(BR, log_lines) + BR + msg
+        self._debug_str = BR.join([msg, *log_lines])
 
     def has_message(self) -> bool:
         return self._message is not None

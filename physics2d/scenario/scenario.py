@@ -25,6 +25,8 @@ class Scenario:
     bg_pieces: list[ScenarioPiece]
     solid_pieces: list[ScenarioPiece]
 
+    # TODO: add _debug_pieces, for angle lines, etc
+
     entities: list[PhyEntity]
     gravity_acceleration: float
     player: PlayerBlob
