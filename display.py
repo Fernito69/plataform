@@ -4,7 +4,16 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
+from factories.theme import (
+    RGB,
+    SEPARATOR,
+    Cyan,
+    DoubleLines,
+    Green,
+    Red,
+    White,
+    Yellow,
+)
 from mappings.keyboard import default_keyboard_mapping
 from model.base import PointF, PointI, VectorI
 from model.game import GameMode
@@ -80,9 +89,11 @@ class Display(KeyboardHandler):
             return
 
         # Add timestamp and clean the line breaks from it, otherwise it will break other stuff
-        msg = colored(
-            f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}] ", Yellow(0.6)
-        ) + msg.replace(BR, " ")
+        msg = (
+            colored(f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}]", Yellow(0.7))
+            + " "
+            + msg.replace(BR, " ")
+        )
 
         if not self._debug_str:
             self._debug_str = msg
@@ -198,7 +209,12 @@ class Display(KeyboardHandler):
             #     + BR.join(as_list[1:])
             # ) + BR * (_MAX_DEBUG_LOGS - len(as_list))
             to_print = self._debug_str + BR * (_MAX_DEBUG_LOGS - len(as_list))
-            screen_content += colored(BR + "DEBUG: ", Red()) + BR + to_print
+            screen_content += (
+                colored(BR + "DEBUG ", Red())
+                + colored(DoubleLines.H * (self.curr_x_resolution - 6), Red(0.5))
+                + BR
+                + to_print
+            )
 
         clear()
         print(screen_content)
