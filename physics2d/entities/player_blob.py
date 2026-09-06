@@ -140,6 +140,22 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                 own_gravity=_own_gravity,
             )
             pieces.append(thrust_fire)
+            if i % 3 == 0:
+                sparks = CircunferencePiece(
+                    center=PointF(
+                        x=eye_x + shuffle_list() * 0.2 + self.velocity.x * 3,
+                        y=eye_y + shuffle_list() * 0.2 + self.velocity.y * 3,
+                    ),
+                    initial_velocity=VectorF(x=shuffle_list() * 7, y=random.random() * 4),
+                    # radius=i * math.cos((self.radius - i) / self.radius),
+                    radius=0.8,
+                    # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
+                    theme=Theme(color=RGB(255, 255, 255, 1)),
+                    life_time=50,
+                    affected_by_gravity=True,
+                    own_gravity=_own_gravity * 5,
+                )
+                pieces.append(sparks)
 
         pieces = sorted(pieces, key=shuffle_list)
 
