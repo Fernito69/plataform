@@ -67,6 +67,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
     def _handle_thrust_motor_animation(self) -> None:
         pieces: list[CircunferencePiece] = []
+
         for _i in range(1, int(self.radius * 2)):
             i = _i / 2
             distance_factor = (self.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
@@ -120,7 +121,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             )
             pieces.append(thrust_fire)
 
-        self.engine.scenario.fg_pieces.extend(sorted(pieces, key=shuffle_list))
+        self.engine.scenario.bg_pieces.extend(sorted(pieces, key=shuffle_list))
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=
