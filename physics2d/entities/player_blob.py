@@ -114,18 +114,18 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                 center=PointF(
                     x=eye_x
                     + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                    + shuffle_list() * 0.2,
+                    + shuffle_list() * 0.5,
                     y=eye_y
                     + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                    + shuffle_list() * 0.2,
+                    + shuffle_list() * 0.5,
                 ),
                 initial_velocity=VectorF(
-                    x=-self.velocity.x
+                    x=self.velocity.x
                     * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
                     * _randomness_multi
                     * 0.1
                     + shuffle_list() * 0.5,
-                    y=-self.velocity.y
+                    y=self.velocity.y
                     * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
                     * _randomness_multi
                     * 0.1
@@ -146,7 +146,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                         x=eye_x + shuffle_list() * 0.2 + self.velocity.x * 3,
                         y=eye_y + shuffle_list() * 0.2 + self.velocity.y * 3,
                     ),
-                    initial_velocity=VectorF(x=shuffle_list() * 7, y=random.random() * 4),
+                    initial_velocity=(
+                        VectorF(x=shuffle_list() * 7, y=random.random() * 4) + 0.5 * self.velocity
+                    ).as_vector(),
                     # radius=i * math.cos((self.radius - i) / self.radius),
                     radius=0.8,
                     # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
@@ -159,14 +161,14 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
         pieces = sorted(pieces, key=shuffle_list)
 
-        self.engine.scenario.bg_pieces[0:0] = pieces
+        # self.engine.scenario.bg_pieces[0:0] = pieces
 
         # This is if we wanted it random
-        # for index in range(len(pieces)):
-        #     if shuffle_list() > 0:
-        #         self.engine.scenario.bg_pieces.append(pieces[index])
-        #     else:
-        #         self.engine.scenario.fg_pieces.append(pieces[index])
+        for index in range(len(pieces)):
+            if shuffle_list() > 0:
+                self.engine.scenario.bg_pieces.append(pieces[index])
+            else:
+                self.engine.scenario.fg_pieces.append(pieces[index])
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=
