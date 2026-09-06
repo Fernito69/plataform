@@ -189,7 +189,15 @@ class Display(KeyboardHandler):
             screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
 
         if self._debug_str:
-            screen_content += colored(BR + "DEBUG: ", Red()) + BR + self._debug_str
+            # add a little arrow to signal the chronological order of the logs??
+            as_list = self._debug_str.split(BR)
+            # to_print = (
+            #     as_list[0]
+            #     + (BR + " " * 15 + colored("↓   ", Cyan(0.7)) * 5 + BR if len(as_list) > 1 else "")
+            #     + BR.join(as_list[1:])
+            # ) + BR * (_MAX_DEBUG_LOGS - len(as_list))
+            to_print = self._debug_str + BR * (_MAX_DEBUG_LOGS - len(as_list))
+            screen_content += colored(BR + "DEBUG: ", Red()) + BR + to_print
 
         clear()
         print(screen_content)

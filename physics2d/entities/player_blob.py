@@ -33,7 +33,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         Circunference.__init__(self, center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME)
         PhyEntity.__init__(
             self,
-            name="Player",
+            name="PlayerBlob",
             position=position,
             velocity=velocity,
             density=density,
@@ -46,6 +46,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self.theme = _PLAYER_THEME
         self.velocity = VectorF(0, 0)
         self.is_collideable = True
+        self.name = "PlayerBlob"
 
     ##############
     """MOVEMENT"""

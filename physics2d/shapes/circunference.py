@@ -8,7 +8,12 @@ from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.line import Line
 from physics2d.shapes.shape import Shape
-from utils import distance_from_line_to_point, get_line_angle
+from utils import (
+    distance_from_line_to_point,
+    get_angle_from_slope,
+    get_line_angle,
+    get_perpendicular_slope,
+)
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -22,6 +27,8 @@ class GetCircunferenceEquationResponse:
 
 # TODO: this shouldn't be hardcoded, should be associated to friction coef
 _DECEL_FACTOR = 0.2
+# TODO: move to common constants place
+_MAX_MOVING_VELOCITY = 5
 
 
 class Circunference(Shape):
@@ -66,6 +73,8 @@ class Circunference(Shape):
 
     # TODO: unify with PlayerBlob
     def _apply_friction(self) -> None:
+        if not self.affected_by_friction:
+            return
         if self.velocity.y > 0:
             self.velocity = (self.velocity + VectorF(0, -_DECEL_FACTOR)).as_vector()
         if self.velocity.y < 0:
@@ -119,7 +128,10 @@ class Circunference(Shape):
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
     def get_render_info(self) -> list[RenderInfo]:
-        piece_info = []
+        piece_info: list[RenderInfo] = []
+        # TODO: make a better test
+        is_player: bool = self.name == "PlayerBlob"
+
         min_x, max_x = sorted(
             (
                 self.center.x + self.radius,
@@ -133,6 +145,20 @@ class Circunference(Shape):
             )
         )
 
+        # Add "eye"
+        eye_x: float | None = None
+        eye_y: float | None = None
+        if is_player:
+            distance_factor = (self.radius - 1) / _MAX_MOVING_VELOCITY
+            eye_x = self.center.x + self.velocity.x * distance_factor
+            eye_y = self.center.y + self.velocity.y * distance_factor
+            eye = Circunference(
+                center=PointF(eye_x, eye_y),
+                radius=1,
+                theme=Theme(color=RGB(255, 0, 40).with_intensity(1)),
+            )
+            piece_info.extend(eye.get_render_info())
+
         eq = self.get_circunference_equations()
 
         for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
@@ -145,7 +171,14 @@ class Circunference(Shape):
             for y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
                 x1, x2 = eq.get_xs(y)
 
-                if x1 is None or x2 is None:
+                if (
+                    x1 is None
+                    or x2 is None
+                    or (
+                        (eye_x is not None and round(eye_x) == round(x))
+                        and (eye_y is not None and round(eye_y) == round(y))
+                    )
+                ):
                     continue
 
                 # TODO: good proxy with good performance, but maybe can be done better
@@ -186,29 +219,40 @@ class Circunference(Shape):
             return
 
         # TODO: this doesn't work, if velocity is too high, we get fucked
-        new_pos = (0.5 * self.velocity) + self.center
+        new_pos = (0.6 * self.velocity) + self.center
 
+        # CASE: Ball x Ball
         if isinstance(colliding_shape, Circunference):
             # if the distance between their centers is less than the sum of both radii, it means they would collide
             if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
                 # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                 # TODO: Fix the logic of this energy transfer
                 denominator = self.weight + colliding_shape.weight
+                normal_at_collision = (self.center, colliding_shape.center)
+                # only the vel. component parallel to the normal of the collision point
 
                 # TODO: energy transfer should consider kinetic energy e = m*v^2
                 self_transfer_factor = colliding_shape.weight / denominator
                 other_shape_transfer_factor = self.weight / denominator
                 # self_transfer_factor = 1
                 # other_shape_transfer_factor = 1
-                self_transfer_factor = colliding_shape.weight / denominator
-                other_shape_transfer_factor = self.weight / denominator
+
+                # TODO: make this a Shape property, and also affected by friction
+                elastic_transfer_factor = 0.2 * abs(self.velocity)
+                self_transfer_factor = (colliding_shape.weight / denominator) * (
+                    1 - elastic_transfer_factor
+                )
 
                 # raise NotImplementedError(
                 #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
                 # )
+                # new_velocity = (
+                #     (-self.velocity * other_shape_transfer_factor)
+                #     + (colliding_shape.velocity * other_shape_transfer_factor)
+                # ).as_vector()
                 new_velocity = (
-                    (-self.velocity * self_transfer_factor)
-                    + (colliding_shape.velocity * other_shape_transfer_factor)
+                    (colliding_shape.velocity * self_transfer_factor)
+                    - (self.velocity * elastic_transfer_factor)
                 ).as_vector()
 
                 engine.display.debug_log(
@@ -217,29 +261,39 @@ class Circunference(Shape):
 
                 self.velocity = new_velocity
 
+        # CASE: Line x Ball
         if isinstance(colliding_shape, Line):
             if (
                 colliding_shape.is_in_hitbox_area(self.center, self.radius)
                 and distance_from_line_to_point(colliding_shape.points, self.center).distance
                 < self.radius + colliding_shape.thickness
             ):
+                # TODO!!!!! Should be minus/plus double the difference between the normal and itself
                 angle_vel = get_line_angle(self.center, new_pos)
-                angle_line = get_line_angle(*colliding_shape.points)
-                res_angle = angle_line + PI - angle_vel
+                # angle_line = get_line_angle(*colliding_shape.points)
+                line_normal_angle = get_angle_from_slope(
+                    get_perpendicular_slope(*colliding_shape.points)
+                )
+                bounce_angle = 2 * line_normal_angle - angle_vel
+                # res_angle = angle_line + PI - angle_vel
 
-                factor_x = 1 if self.velocity.x < 0 else -1
-                factor_y = 1 if self.velocity.y < 0 else -1
+                # factor_x = -1 if self.velocity.x < 0 else 1
+                # factor_y = 1 if self.velocity.y < 0 else -1
+                factor_x = 1
+                factor_y = 1
 
                 new_velocity = (
                     abs(self.velocity)
-                    * VectorF(x=factor_x * math.cos(res_angle), y=factor_y * math.sin(res_angle))
+                    * VectorF(
+                        x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
+                    )
                 ).as_vector()
 
                 def _get_angle(angle) -> int:
                     return int(angle * 180 / PI)
 
                 engine.display.debug_log(
-                    f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line angle: {_get_angle(angle_line)}, res: {_get_angle(res_angle)}"
+                    f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
                 )
 
                 self.velocity = new_velocity
