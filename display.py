@@ -79,8 +79,9 @@ class Display(KeyboardHandler):
             self._debug_str = None
             return
 
+        # Add timestamp and clean the line breaks from it, otherwise it will break other stuff
         msg = colored(
-            f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}] ", Yellow(0.5)
+            f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}] ", Yellow(0.6)
         ) + msg.replace(BR, " ")
 
         if not self._debug_str:
