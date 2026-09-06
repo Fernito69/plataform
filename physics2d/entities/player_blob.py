@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _PLAYER_RADIUS = 6
-_PLAYER_THEME = Theme(color=RGB(244, 255, 0))
+_PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 _PLAYER_GRAVITY = 0  # we float freely!
 
 _MAX_MOVING_VELOCITY = 5
@@ -95,33 +95,42 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             thrust_fire = CircunferencePiece(
                 center=PointF(
                     x=eye_x
-                    + (random.random() - 0.5)
-                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-                    * _randomness_multi,
+                    + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                    + shuffle_list() * 0.2,
                     y=eye_y
-                    + (random.random() - 0.5)
-                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-                    * _randomness_multi,
+                    + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                    + shuffle_list() * 0.2,
                 ),
                 initial_velocity=VectorF(
                     x=-self.velocity.x
                     * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
                     * _randomness_multi
-                    * 0.2,
+                    * 0.1
+                    + shuffle_list() * 0.5,
                     y=-self.velocity.y
                     * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
                     * _randomness_multi
-                    * 0.2,
+                    * 0.1
+                    + shuffle_list() * 0.5,
                 ),
                 # radius=i * math.cos((self.radius - i) / self.radius),
                 radius=i * _radius_factor,
                 # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
                 theme=Theme(color=_color),
-                life_time=15,
+                life_time=20,
             )
             pieces.append(thrust_fire)
 
-        self.engine.scenario.bg_pieces.extend(sorted(pieces, key=shuffle_list))
+        pieces = sorted(pieces, key=shuffle_list)
+
+        self.engine.scenario.bg_pieces[0:0] = pieces
+
+        # This is if we wanted it random
+        # for index in range(len(pieces)):
+        #     if shuffle_list() > 0:
+        #         self.engine.scenario.bg_pieces.append(pieces[index])
+        #     else:
+        #         self.engine.scenario.fg_pieces.append(pieces[index])
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=
