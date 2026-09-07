@@ -137,39 +137,31 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
     def _decelerate_if_not_pressing(self) -> None:
         _decel_amount = self._get_decel()
-        if self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP):
+        _max_speed = self._get_max_speed()
+        if (
+            self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP)
+        ) or self.velocity.y > _max_speed:
             self.velocity = (
                 self.velocity + VectorF(0, -min(_decel_amount, self.velocity.y))
             ).as_vector()
-        if self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN):
+        if (
+            self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN)
+        ) or self.velocity.y < -_max_speed:
             self.velocity = (
                 self.velocity + VectorF(0, max(_decel_amount, self.velocity.y))
             ).as_vector()
-        if self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT):
+        if (
+            self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT)
+        ) or self.velocity.x > _max_speed:
             self.velocity = (
                 self.velocity + VectorF(-min(_decel_amount, self.velocity.x), 0)
             ).as_vector()
-        if self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT):
+        if (
+            self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT)
+        ) or self.velocity.x < -_max_speed:
             self.velocity = (
                 self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
             ).as_vector()
-        # if self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP):
-        #     self.velocity = (
-        #         self.velocity + VectorF(0, -min(_decel_amount, self.velocity.y))
-        #     ).as_vector()
-        # if self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN):
-        #     self.velocity = (
-        #         self.velocity + VectorF(0, max(_decel_amount, self.velocity.y))
-        #     ).as_vector()
-        # if self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT):
-        #     self.velocity = (
-        #         self.velocity + VectorF(-min(_decel_amount, self.velocity.x), 0)
-        #     ).as_vector()
-        # if self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT):
-        #     self.velocity = (
-        #         self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
-        #     ).as_vector()
-
 
     @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
     def _switch_thruster(self) -> None:
