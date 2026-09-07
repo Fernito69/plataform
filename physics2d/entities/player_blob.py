@@ -6,8 +6,8 @@ from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
 from physics2d.entities.equipment.thruster import (
-    IcyThruster,
     MeteorThruster,
+    SoapyThruster,
     SonicThruster,
     Thruster,
 )
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
 
 _PLAYER_RADIUS = 6
+
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 _PLAYER_GRAVITY = 0  # we float freely!
 
@@ -40,7 +41,12 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         velocity=VectorF(0, 0),
         density: float = 1,
     ):
-        Circunference.__init__(self, center=position, radius=_PLAYER_RADIUS, theme=_PLAYER_THEME)
+        Circunference.__init__(
+            self,
+            center=position,
+            radius=_PLAYER_RADIUS,
+            theme=_PLAYER_THEME,
+        )
         PhyEntity.__init__(
             self,
             name="PlayerBlob",
@@ -152,6 +158,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             if len(self._thrusters) > self._curr_thruster_index + 1
             else 0
         )
+        self.theme = self._thrusters[self._curr_thruster_index].player_theme
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
@@ -185,7 +192,8 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self._scenario = scenario
         self._thrusters = [
             MeteorThruster(self.engine.scenario),
-            IcyThruster(self.engine.scenario),
+            SoapyThruster(self.engine.scenario),
             SonicThruster(self.engine.scenario),
         ]
         self._curr_thruster_index = 0
+        self.theme = self._thrusters[self._curr_thruster_index].player_theme

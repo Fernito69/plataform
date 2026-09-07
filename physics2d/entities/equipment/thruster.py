@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Callable
 
+from model.theme import RGB, Theme
 from physics2d.shapes.factories.particle import ln2_vapor, meteor_trail, sonic_wave
 
 if TYPE_CHECKING:
@@ -11,29 +12,35 @@ class Thruster:
     name: str
     scenario: "Scenario"
     particle_generator: Callable[["Scenario", "Circunference"], None]
+    player_theme: Theme
 
     def __init__(
         self,
         scenario: "Scenario",
         name: str,
         particle_generator: Callable[["Scenario", "Circunference"], None],
+        player_theme: Theme,
     ):
         self.scenario = scenario
         self.name = name
         self.particle_generator = particle_generator
+        self.player_theme = player_theme
 
     def handle_particles(self) -> None:
         self.particle_generator(self.scenario, self.scenario.player)
 
 
-class IcyThruster(Thruster):
-    """Looks like LN2 vapor!"""
+class SoapyThruster(Thruster):
+    """Looks like SOAP bubbles!"""
 
     def __init__(self, scenario: "Scenario"):
         super().__init__(
             scenario=scenario,
             particle_generator=ln2_vapor,
-            name="IcyThruster",
+            name="SoapyThruster",
+            player_theme=Theme(
+                color=RGB(0, 0, 255),
+            ),
         )
 
 
@@ -45,6 +52,9 @@ class MeteorThruster(Thruster):
             scenario=scenario,
             particle_generator=meteor_trail,
             name="MeteorThruster",
+            player_theme=Theme(
+                color=RGB(255, 50, 50),
+            ),
         )
 
 
@@ -56,7 +66,10 @@ class SonicThruster(Thruster):
             scenario=scenario,
             particle_generator=sonic_wave,
             name="SonicThruster",
+            player_theme=Theme(
+                color=RGB(122, 23, 255),
+            ),
         )
 
 
-Thrusters = MeteorThruster | IcyThruster
+Thrusters = MeteorThruster | SoapyThruster

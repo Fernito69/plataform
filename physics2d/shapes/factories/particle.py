@@ -97,6 +97,7 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
 
 def ln2_vapor(scenario: "Scenario", source: "Circunference") -> None:
     pieces: list[Particle] = []
+    velocity_magnitude = abs(source.velocity)
 
     for _i in range(1, int(source.radius * 2)):
         i = _i / 2
@@ -111,15 +112,15 @@ def ln2_vapor(scenario: "Scenario", source: "Circunference") -> None:
         # Liquid N2 trail
         _ln2_color = (
             RGB(
-                0,
-                255 - (i - 1) * 50,
-                255 - (i - 1) * 50,
+                127,
+                223 - (i - 1) * 14,
+                255 - (i - 1) * 5,
             ).with_intensity(1)
             if is_odd
             else RGB(
-                0,
-                255 - (i - 1) * 30,
-                255 - (i - 1) * 1,
+                127,
+                220 - (i - 1) * 10,
+                255 - (i - 1) * 14,
             ).with_intensity(1)
         )
 
@@ -146,29 +147,32 @@ def ln2_vapor(scenario: "Scenario", source: "Circunference") -> None:
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=50,
             gravity=0.02,
+            floating_multi=0.1 * velocity_magnitude,
         )
         pieces.append(vapor)
 
-        if i % 3 == 0:
+        if i % 10 == 0:
             icy_sparks = Particle(
                 origin=PointF(
-                    x=eye_x + random_offset() * 0.2 + source.velocity.x * 3,
-                    y=eye_y + random_offset() * 0.2 + source.velocity.y * 3,
+                    x=eye_x + random_offset() * 0.1 + source.velocity.x * 3,
+                    y=eye_y + source.velocity.y * 3,
                 ),
                 initial_velocity=(
-                    -VectorF(x=random_offset() * 7, y=random() * 4) + 0.5 * source.velocity
+                    -VectorF(x=random_offset() * 1, y=random_offset() * velocity_magnitude)
+                    + 0.5 * source.velocity
                 ).as_vector(),
                 size=0.8,
                 initial_color=RGB(255, 255, 255, 1),
                 life_time=50,
                 gravity=0.1,
             )
-            pieces.append(icy_sparks)
+            # pieces.append(icy_sparks)
+            scenario.bg_pieces.append(icy_sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
     for index in range(len(pieces)):
-        if index % 3 == 0:
+        if index % 8 == 0:
             scenario.fg_pieces.append(pieces[index])
         else:
             scenario.bg_pieces.append(pieces[index])
