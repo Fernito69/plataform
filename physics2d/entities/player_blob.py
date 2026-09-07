@@ -23,9 +23,7 @@ _PLAYER_RADIUS = 6
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 _PLAYER_GRAVITY = 0  # we float freely!
 
-_MAX_MOVING_VELOCITY = 7
-_ACCEL_FACTOR = 1
-_DECEL_FACTOR = _ACCEL_FACTOR / 2
+# _MAX_MOVING_VELOCITY = 7
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
@@ -69,7 +67,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     ##############
 
     def do_your_thing(self) -> None:
-        self._thrusters[self._curr_thruster_index].handle_particles()
+        self._get_curr_thruster().handle_particles()
 
         self.handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
@@ -138,18 +136,40 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         #     return
 
     def _decelerate_if_not_pressing(self) -> None:
+        _decel_amount = self._get_decel()
         if self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP):
-            self.velocity = (self.velocity + VectorF(0, -_DECEL_FACTOR)).as_vector()
+            self.velocity = (
+                self.velocity + VectorF(0, -min(_decel_amount, self.velocity.y))
+            ).as_vector()
         if self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN):
-            self.velocity = (self.velocity + VectorF(0, _DECEL_FACTOR)).as_vector()
+            self.velocity = (
+                self.velocity + VectorF(0, max(_decel_amount, self.velocity.y))
+            ).as_vector()
         if self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT):
-            self.velocity = (self.velocity + VectorF(-_DECEL_FACTOR, 0)).as_vector()
+            self.velocity = (
+                self.velocity + VectorF(-min(_decel_amount, self.velocity.x), 0)
+            ).as_vector()
         if self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT):
-            self.velocity = (self.velocity + VectorF(_DECEL_FACTOR, 0)).as_vector()
-        if 0 <= self.velocity.x < _DECEL_FACTOR:
-            self.velocity.x = 0
-        if 0 <= self.velocity.y < _DECEL_FACTOR:
-            self.velocity.y = 0
+            self.velocity = (
+                self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
+            ).as_vector()
+        # if self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP):
+        #     self.velocity = (
+        #         self.velocity + VectorF(0, -min(_decel_amount, self.velocity.y))
+        #     ).as_vector()
+        # if self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN):
+        #     self.velocity = (
+        #         self.velocity + VectorF(0, max(_decel_amount, self.velocity.y))
+        #     ).as_vector()
+        # if self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT):
+        #     self.velocity = (
+        #         self.velocity + VectorF(-min(_decel_amount, self.velocity.x), 0)
+        #     ).as_vector()
+        # if self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT):
+        #     self.velocity = (
+        #         self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
+        #     ).as_vector()
+
 
     @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
     def _switch_thruster(self) -> None:
@@ -158,35 +178,47 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             if len(self._thrusters) > self._curr_thruster_index + 1
             else 0
         )
-        self.theme = self._thrusters[self._curr_thruster_index].player_theme
+        self.theme = self._get_curr_thruster().player_theme
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
-        if self.velocity.y >= _MAX_MOVING_VELOCITY:
+        if self.velocity.y >= self._get_max_speed():
             return
 
-        self.velocity = (self.velocity + VectorF(0, _ACCEL_FACTOR)).as_vector()
+        self.velocity = (self.velocity + VectorF(0, self._get_accel())).as_vector()
 
     @on_key_press(MovementKeys.DOWN)
     def _move_down(self) -> None:
-        if self.velocity.y <= -_MAX_MOVING_VELOCITY:
+        if self.velocity.y <= -self._get_max_speed():
             return
 
-        self.velocity = (self.velocity + VectorF(0, -_ACCEL_FACTOR)).as_vector()
+        self.velocity = (self.velocity + VectorF(0, -self._get_accel())).as_vector()
 
     @on_key_press(MovementKeys.LEFT)
     def _move_left(self) -> None:
-        if self.velocity.x <= -_MAX_MOVING_VELOCITY:
+        if self.velocity.x <= -self._get_max_speed():
             return
 
-        self.velocity = (self.velocity + VectorF(-_ACCEL_FACTOR, 0)).as_vector()
+        self.velocity = (self.velocity + VectorF(-self._get_accel(), 0)).as_vector()
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_right(self) -> None:
-        if self.velocity.x >= _MAX_MOVING_VELOCITY:
+        if self.velocity.x >= self._get_max_speed():
             return
 
-        self.velocity = (self.velocity + VectorF(_ACCEL_FACTOR, 0)).as_vector()
+        self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
+
+    def _get_curr_thruster(self) -> Thruster:
+        return self._thrusters[self._curr_thruster_index]
+
+    def _get_max_speed(self) -> float:
+        return self._get_curr_thruster().max_speed
+
+    def _get_accel(self) -> float:
+        return self._get_curr_thruster().accel
+
+    def _get_decel(self) -> float:
+        return self._get_curr_thruster().decel
 
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
@@ -196,4 +228,4 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             SonicThruster(self.engine.scenario),
         ]
         self._curr_thruster_index = 0
-        self.theme = self._thrusters[self._curr_thruster_index].player_theme
+        self.theme = self._get_curr_thruster().player_theme

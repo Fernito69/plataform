@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 from model.keyboard import KeyboardKeys
+from terminal import is_pressed
 
 
 class KeyboardHandler:
@@ -12,7 +13,8 @@ class KeyboardHandler:
         self._pressed_key_map[key] = val
 
     def _is_pressed(self, key: KeyboardKeys) -> bool:
-        return self._pressed_key_map.get(key) or False
+        return is_pressed(key)
+        # return self._pressed_key_map.get(key) or False
 
     @abstractmethod
     def handle_keyboard_input(cls) -> None:

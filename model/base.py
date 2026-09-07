@@ -40,7 +40,7 @@ class PointF:
     def __neg__(self) -> "PointF":
         return PointF(x=-self.x, y=-self.y, z=-self.z)
 
-    def __add__(self, other: "PointF") -> "PointF":
+    def __add__(self, other: "PointF | VectorF") -> "PointF":
         return PointF(
             x=self.x + other.x,
             y=self.y + other.y,
