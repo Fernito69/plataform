@@ -6,8 +6,9 @@ from model.keyboard import MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
-from physics2d.scenario.pieces.circunference import CircunferencePiece
 from physics2d.shapes.circunference import Circunference
+from physics2d.shapes.model.shared import TransitionType
+from physics2d.shapes.particle import Particle
 from terminal import on_key_press
 from utils import shuffle_list
 
@@ -66,7 +67,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self._handle_thrust_motor_animation()
 
     def _handle_thrust_motor_animation(self) -> None:
-        pieces: list[CircunferencePiece] = []
+        pieces: list[Particle] = []
 
         for _i in range(1, int(self.radius * 2)):
             i = _i / 2
@@ -78,21 +79,21 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             _randomness_multi = random.random() * 3
             _radius_factor = random.random() * 1
             # METEOR KINDA TRAIL
-            # _color = (
-            #     RGB(
-            #         255,
-            #         (i - 1) * 50,
-            #         (i - 1) * 50,
-            #     ).with_intensity(1)
-            #     if is_odd
-            #     else RGB(
-            #         255,
-            #         255 - (i - 1) * 30,
-            #         (i - 1) * 1,
-            #     ).with_intensity(1)
-            # )
+            _meteor_color = (
+                RGB(
+                    255,
+                    (i - 1) * 50,
+                    (i - 1) * 50,
+                ).with_intensity(1)
+                if is_odd
+                else RGB(
+                    255,
+                    255 - (i - 1) * 30,
+                    (i - 1) * 1,
+                ).with_intensity(1)
+            )
             # Liquid N2 trail
-            _color = (
+            _ln2_color = (
                 RGB(
                     0,
                     255 - (i - 1) * 50,
@@ -105,13 +106,11 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                     255 - (i - 1) * 1,
                 ).with_intensity(1)
             )
-            _affected_by_gravity = True
-            _own_gravity = 0.05
 
             # TODO: maybe the initial_velocity should be based not ont the curr vel but rather what thrust buttons the player is hitting
             # TODO: create particle factory, extend theme for all this shit
-            thrust_fire = CircunferencePiece(
-                center=PointF(
+            thrust_fire = Particle(
+                origin=PointF(
                     x=eye_x
                     + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
                     + shuffle_list() * 0.5,
@@ -132,32 +131,35 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
                     + shuffle_list() * 0.5,
                 ),
                 # radius=i * math.cos((self.radius - i) / self.radius),
-                radius=i * _radius_factor,
+                size=i * _radius_factor,
                 # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
-                theme=Theme(color=_color),
+                size_decrease_type=TransitionType.LINEAR,
+                initial_color=_ln2_color,
+                # initial_color=_meteor_color,
+                # ending_color=RGB(100, 100, 100, intensity=0.1),  # smokelike
+                ending_color=RGB(177, 255, 255),  # N2 like
+                ending_color_fade_type=TransitionType.LINEAR,
                 life_time=50,
-                affected_by_gravity=_affected_by_gravity,
-                own_gravity=_own_gravity,
+                gravity=0.02,
             )
             pieces.append(thrust_fire)
-            if i % 3 == 0:
-                sparks = CircunferencePiece(
-                    center=PointF(
-                        x=eye_x + shuffle_list() * 0.2 + self.velocity.x * 3,
-                        y=eye_y + shuffle_list() * 0.2 + self.velocity.y * 3,
-                    ),
-                    initial_velocity=(
-                        VectorF(x=shuffle_list() * 7, y=random.random() * 4) + 0.5 * self.velocity
-                    ).as_vector(),
-                    # radius=i * math.cos((self.radius - i) / self.radius),
-                    radius=0.8,
-                    # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
-                    theme=Theme(color=RGB(255, 255, 255, 1)),
-                    life_time=50,
-                    affected_by_gravity=True,
-                    own_gravity=_own_gravity * 5,
-                )
-                pieces.append(sparks)
+            # if i % 3 == 0:
+            #     sparks = Particle(
+            #         origin=PointF(
+            #             x=eye_x + shuffle_list() * 0.2 + self.velocity.x * 3,
+            #             y=eye_y + shuffle_list() * 0.2 + self.velocity.y * 3,
+            #         ),
+            #         initial_velocity=(
+            #             VectorF(x=shuffle_list() * 7, y=random.random() * 4) + 0.5 * self.velocity
+            #         ).as_vector(),
+            #         # radius=i * math.cos((self.radius - i) / self.radius),
+            #         size=0.8,
+            #         # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
+            #         initial_color=RGB(255, 255, 255, 1),
+            #         life_time=50,
+            #         gravity=_own_gravity,
+            #     )
+            #     pieces.append(sparks)
 
         pieces = sorted(pieces, key=shuffle_list)
 
@@ -165,10 +167,10 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
         # This is if we wanted it random
         for index in range(len(pieces)):
-            if shuffle_list() > 0:
-                self.engine.scenario.bg_pieces.append(pieces[index])
-            else:
+            if index % 3 == 0:
                 self.engine.scenario.fg_pieces.append(pieces[index])
+            else:
+                self.engine.scenario.bg_pieces.append(pieces[index])
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=

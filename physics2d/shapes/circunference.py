@@ -47,7 +47,6 @@ class Circunference(Shape):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         density: float = 1,
-        life_time: int | None = None,
     ):
         self.center = center
         self.radius = radius
@@ -55,8 +54,6 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
-        self.life_time = life_time
-        self._original_life_time = life_time
         Shape.__init__(
             self,
             theme=theme,
@@ -71,7 +68,6 @@ class Circunference(Shape):
             name="Circunference",
             volume=self.volume,
             density=self.density,
-            life_time=life_time,
         )
 
     # TODO: unify with PlayerBlob
@@ -94,9 +90,9 @@ class Circunference(Shape):
     # TODO: this doesn't run, is overridden by CircunferencePiece
     def _apply_movement(self, engine: "Physics2D") -> None:
         self._float_around()
+        self._apply_gravity()
 
         self.would_collide_with(engine.scenario.player, engine)
-        self._handle_lifetime()
 
         # TOOD: why enabling this prevents the player collision from working
         # for p in scenario .solid_pieces:
@@ -108,20 +104,6 @@ class Circunference(Shape):
         self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
         self.update_center_of_mass()
         self._apply_friction()
-
-    # TODO: implement at Shape level, and the gray color shouldn't be a setting from here, but from the Theme
-    def _handle_lifetime(self) -> None:
-        if self.life_time is None or self._original_life_time is None:
-            return
-        self.life_time -= 1
-        self.radius -= self.radius / (self.life_time + 1)
-
-        if self.theme.color:
-            _smoke_like = RGB(100, 100, 100, intensity=0.1)
-            _ice_like = RGB(177, 255, 255).with_intensity(
-                self.life_time / (self._original_life_time or 1)
-            )
-            self.theme.color = self.theme.color.mix_with([self.theme.color, _ice_like])
 
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center

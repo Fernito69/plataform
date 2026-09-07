@@ -16,10 +16,6 @@ class Shape:
     theme: Theme
     secondary_theme: Theme | None
 
-    # numbers of "game ticks" that they will survive (None means they don't die out)
-    life_time: int | None
-    _original_life_time: int | None
-
     # in radians
     angle: float
     center_of_mass: PointF
@@ -54,7 +50,6 @@ class Shape:
         floating_multi: float = 0,
         is_collideable: bool = False,
         affected_by_friction: bool = False,
-        life_time: int | None = None,
     ):
         self.theme = theme
         self.secondary_theme = secondary_theme
@@ -71,8 +66,6 @@ class Shape:
         self.weight = density * volume
         self.is_collideable = is_collideable
         self.affected_by_friction = affected_by_friction
-        self.life_time = life_time
-        self._original_life_time = life_time
 
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:
@@ -131,3 +124,7 @@ class Shape:
         raise NotImplementedError(
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"
         )
+
+    def do_your_thing(self, engine: "Physics2D") -> None:
+        self._apply_gravity(engine.scenario.gravity_acceleration)
+        self._apply_movement(engine)
