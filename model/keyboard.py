@@ -46,4 +46,8 @@ class PhysicsKey(StrEnum):
     RESET_CAMERA = auto()
 
 
-KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey
+class ActionKeys(StrEnum):
+    SWITCH_THRUSTER = auto()
+
+
+KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey | ActionKeys

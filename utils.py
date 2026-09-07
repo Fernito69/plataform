@@ -15,7 +15,7 @@ _BG_CODE = "\033[48;2;"
 # TODO: separate functions here
 
 
-def shuffle_list(_: Any | None = None) -> float:
+def random_offset(_: Any | None = None) -> float:
     """
     returns a random number between -.5 and .5, good for shuffling lists
     """

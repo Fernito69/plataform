@@ -3,8 +3,6 @@ from model.theme import RGB, Theme
 from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.model.shared import TransitionType
 
-# TODO: move to model
-
 
 class Particle(Circunference):
     origin: PointF
@@ -17,7 +15,7 @@ class Particle(Circunference):
     life_time: int | None
     _original_life_time: int | None
 
-    size_decrease_type: TransitionType
+    size_change_type: TransitionType
 
     def __init__(
         self,
@@ -28,15 +26,16 @@ class Particle(Circunference):
         gravity: float | None = None,
         ending_color: RGB | None = None,
         life_time: int | None = None,
-        size_decrease_type: TransitionType = TransitionType.NONE,
-        ending_color_fade_type: TransitionType = TransitionType.NONE,
+        size_change_type: TransitionType = TransitionType.NONE,
+        ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
+        floating_multi: float = 0,
     ):
         self.life_time = life_time
         self._original_life_time = life_time
         self.initial_color = initial_color
         self.ending_color = ending_color
         self.ending_color_fade_type = ending_color_fade_type
-        self.size_decrease_type = size_decrease_type
+        self.size_change_type = size_change_type
 
         super().__init__(
             theme=Theme(color=initial_color),
@@ -46,6 +45,7 @@ class Particle(Circunference):
             initial_velocity=initial_velocity,
             own_gravity=gravity,
             affected_by_gravity=gravity is not None,
+            floating_multi=floating_multi,
         )
 
     def do_your_thing(self, engine) -> None:
@@ -57,27 +57,28 @@ class Particle(Circunference):
             return
         self.life_time -= 1
 
-        match self.size_decrease_type:
-            case TransitionType.LINEAR:
+        match self.size_change_type:
+            case TransitionType.LINEAR_DECREASE:
                 self.radius -= self.radius / (self.life_time + 1)
+            case TransitionType.EXPONENTIAL_DECREASE:
+                self.radius *= self.life_time / self._original_life_time
+            case TransitionType.LINEAR_INCREASE:
+                self.radius += 1
             case TransitionType.NONE:
                 ...
 
-        if self.ending_color and self.theme.color:
-            # TODO: these are ending_colors for the factories
-            # _smoke_like = RGB(100, 100, 100, intensity=0.1)
-            # _ice_like = RGB(177, 255, 255).with_intensity(
-            #     self.life_time / (self._original_life_time or 1)
-            # )
-
-            color_to_mix = self.ending_color
-
-            match self.ending_color_fade_type:
-                case TransitionType.LINEAR:
-                    color_to_mix = self.ending_color.with_intensity(
-                        self.life_time / (self._original_life_time or 1)
-                    )
-                case TransitionType.NONE:
-                    ...
-
-            self.theme.color = self.theme.color.mix_with([self.theme.color, color_to_mix])
+        if (
+            self.ending_color
+            and self.theme.color
+            and self.ending_color_fade_type != TransitionType.NONE
+        ):
+            factor = (
+                self.life_time / self._original_life_time
+                if self.ending_color_fade_type == TransitionType.LINEAR_DECREASE
+                else 1 - self.life_time / self._original_life_time
+            )
+            self.theme.color = RGB(
+                r=self.initial_color.r * factor + self.ending_color.r * (1 - factor),
+                g=self.initial_color.g * factor + self.ending_color.g * (1 - factor),
+                b=self.initial_color.b * factor + self.ending_color.b * (1 - factor),
+            )

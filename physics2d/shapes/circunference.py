@@ -143,61 +143,6 @@ class Circunference(Shape):
             )
         )
 
-        # Add "trail"
-        # if is_player:
-        #     for _i in range(1, int(self.radius * 2)):
-        #         i = _i / 2
-        #         distance_factor = (self.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
-        #         eye_x = self.center.x - self.velocity.x * distance_factor
-        #         eye_y = self.center.y - self.velocity.y * distance_factor
-
-        #         is_odd = _i % 2 == 1
-        #         _randomness_multi = 3 if is_odd else 1
-        #         _radius_factor = 0.5 if is_odd else 1
-        #         _color = (
-        #             RGB(
-        #                 (i - 1) * 50,
-        #                 (i - 1) * 50,
-        #                 255,
-        #             ).with_intensity(1)
-        #             if is_odd
-        #             else RGB(
-        #                 (i - 1) * 90,
-        #                 255,
-        #                 (i - 1) * 50,
-        #             ).with_intensity(1)
-        #         )
-
-        #         thrust_fire = Circunference(
-        #             center=PointF(
-        #                 x=eye_x
-        #                 + (random.random() - 0.5)
-        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-        #                 * _randomness_multi,
-        #                 y=eye_y
-        #                 + (random.random() - 0.5)
-        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-        #                 * _randomness_multi,
-        #             ),
-        #             initial_velocity=VectorF(
-        #                 x=eye_x
-        #                 + (random.random() - 0.5)
-        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-        #                 * _randomness_multi,
-        #                 y=eye_y
-        #                 + (random.random() - 0.5)
-        #                 * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-        #                 * _randomness_multi,
-        #             ),
-        #             # radius=i * math.cos((self.radius - i) / self.radius),
-        #             radius=i * _radius_factor,
-        #             # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
-        #             theme=Theme(color=_color),
-        #             life_time=10,
-        #         )
-
-        #         piece_info.extend(thrust_fire.get_render_info())
-
         eq = self.get_circunference_equations()
 
         for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):

@@ -2,5 +2,7 @@ from enum import StrEnum, auto
 
 
 class TransitionType(StrEnum):
-    LINEAR = auto()
+    LINEAR_DECREASE = auto()
+    EXPONENTIAL_DECREASE = auto()
     NONE = auto()
+    LINEAR_INCREASE = auto()

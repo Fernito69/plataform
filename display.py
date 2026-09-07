@@ -385,6 +385,7 @@ class Display(KeyboardHandler):
         if isinstance(player, PlayerBlob):
             hud += f"Velocity: ({round(player.velocity.x, 1)},{round(player.velocity.y, 1)}){SEPARATOR}"
             hud += f"Position: ({round(player.position.x, 1)},{round(player.position.y, 1)}){SEPARATOR}"
+            hud += f"Thruster: {player._thrusters[player._curr_thruster_index].name}{SEPARATOR}"
 
             return hud
 

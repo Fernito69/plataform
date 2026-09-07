@@ -1,35 +1,38 @@
-import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.keyboard import MovementKeys
+from model.keyboard import ActionKeys, MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
+from physics2d.entities.equipment.thruster import (
+    IcyThruster,
+    MeteorThruster,
+    SonicThruster,
+    Thruster,
+)
 from physics2d.shapes.circunference import Circunference
-from physics2d.shapes.model.shared import TransitionType
-from physics2d.shapes.particle import Particle
 from terminal import on_key_press
-from utils import shuffle_list
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.scenario.scenario import Scenario
 
 _PLAYER_RADIUS = 6
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 _PLAYER_GRAVITY = 0  # we float freely!
 
-_MAX_MOVING_VELOCITY = 5
+_MAX_MOVING_VELOCITY = 7
 _ACCEL_FACTOR = 1
 _DECEL_FACTOR = _ACCEL_FACTOR / 2
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
-_THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
-_THRUST_FIRE_DISTANCE_FACTOR = 1
-
 
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
+    _thrusters: list[Thruster]
+    _curr_thruster_index: int
+
     def __init__(
         self,
         engine: "Physics2D",
@@ -60,117 +63,12 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     ##############
 
     def do_your_thing(self) -> None:
+        self._thrusters[self._curr_thruster_index].handle_particles()
+
         self.handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
-        self._handle_thrust_motor_animation()
-
-    def _handle_thrust_motor_animation(self) -> None:
-        pieces: list[Particle] = []
-
-        for _i in range(1, int(self.radius * 2)):
-            i = _i / 2
-            distance_factor = (self.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
-            eye_x = self.center.x - self.velocity.x * distance_factor
-            eye_y = self.center.y - self.velocity.y * distance_factor
-
-            is_odd = _i % 2 == 1
-            _randomness_multi = random.random() * 3
-            _radius_factor = random.random() * 1
-            # METEOR KINDA TRAIL
-            _meteor_color = (
-                RGB(
-                    255,
-                    (i - 1) * 50,
-                    (i - 1) * 50,
-                ).with_intensity(1)
-                if is_odd
-                else RGB(
-                    255,
-                    255 - (i - 1) * 30,
-                    (i - 1) * 1,
-                ).with_intensity(1)
-            )
-            # Liquid N2 trail
-            _ln2_color = (
-                RGB(
-                    0,
-                    255 - (i - 1) * 50,
-                    255 - (i - 1) * 50,
-                ).with_intensity(1)
-                if is_odd
-                else RGB(
-                    0,
-                    255 - (i - 1) * 30,
-                    255 - (i - 1) * 1,
-                ).with_intensity(1)
-            )
-
-            # TODO: maybe the initial_velocity should be based not ont the curr vel but rather what thrust buttons the player is hitting
-            # TODO: create particle factory, extend theme for all this shit
-            thrust_fire = Particle(
-                origin=PointF(
-                    x=eye_x
-                    + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                    + shuffle_list() * 0.5,
-                    y=eye_y
-                    + shuffle_list() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                    + shuffle_list() * 0.5,
-                ),
-                initial_velocity=VectorF(
-                    x=self.velocity.x
-                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-                    * _randomness_multi
-                    * 0.1
-                    + shuffle_list() * 0.5,
-                    y=self.velocity.y
-                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
-                    * _randomness_multi
-                    * 0.1
-                    + shuffle_list() * 0.5,
-                ),
-                # radius=i * math.cos((self.radius - i) / self.radius),
-                size=i * _radius_factor,
-                # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
-                size_decrease_type=TransitionType.LINEAR,
-                initial_color=_ln2_color,
-                # initial_color=_meteor_color,
-                # ending_color=RGB(100, 100, 100, intensity=0.1),  # smokelike
-                ending_color=RGB(177, 255, 255),  # N2 like
-                ending_color_fade_type=TransitionType.LINEAR,
-                life_time=50,
-                gravity=0.02,
-            )
-            pieces.append(thrust_fire)
-            # if i % 3 == 0:
-            #     sparks = Particle(
-            #         origin=PointF(
-            #             x=eye_x + shuffle_list() * 0.2 + self.velocity.x * 3,
-            #             y=eye_y + shuffle_list() * 0.2 + self.velocity.y * 3,
-            #         ),
-            #         initial_velocity=(
-            #             VectorF(x=shuffle_list() * 7, y=random.random() * 4) + 0.5 * self.velocity
-            #         ).as_vector(),
-            #         # radius=i * math.cos((self.radius - i) / self.radius),
-            #         size=0.8,
-            #         # theme=Theme(color=RGB(140, (i - 1) * 50, (i - 1) * 100).with_intensity(1)),
-            #         initial_color=RGB(255, 255, 255, 1),
-            #         life_time=50,
-            #         gravity=_own_gravity,
-            #     )
-            #     pieces.append(sparks)
-
-        pieces = sorted(pieces, key=shuffle_list)
-
-        # self.engine.scenario.bg_pieces[0:0] = pieces
-
-        # This is if we wanted it random
-        for index in range(len(pieces)):
-            if index % 3 == 0:
-                self.engine.scenario.fg_pieces.append(pieces[index])
-            else:
-                self.engine.scenario.bg_pieces.append(pieces[index])
 
     def _move_by(self, vector: VectorF) -> None:
         # TODO: test with +=
@@ -221,12 +119,17 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     ##############
 
     def handle_keyboard_input(self):
+        self._switch_thruster()
         self._move_up()
         self._move_left()
         self._move_right()
         self._move_down()
 
         self._decelerate_if_not_pressing()
+
+        # TODO: fix this
+        # if abs(self.velocity) >= _MAX_MOVING_VELOCITY:
+        #     return
 
     def _decelerate_if_not_pressing(self) -> None:
         if self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP):
@@ -241,6 +144,14 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             self.velocity.x = 0
         if 0 <= self.velocity.y < _DECEL_FACTOR:
             self.velocity.y = 0
+
+    @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
+    def _switch_thruster(self) -> None:
+        self._curr_thruster_index = (
+            self._curr_thruster_index + 1
+            if len(self._thrusters) > self._curr_thruster_index + 1
+            else 0
+        )
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
@@ -269,3 +180,12 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             return
 
         self.velocity = (self.velocity + VectorF(_ACCEL_FACTOR, 0)).as_vector()
+
+    def set_scenario(self, scenario: "Scenario") -> None:
+        self._scenario = scenario
+        self._thrusters = [
+            MeteorThruster(self.engine.scenario),
+            IcyThruster(self.engine.scenario),
+            SonicThruster(self.engine.scenario),
+        ]
+        self._curr_thruster_index = 0

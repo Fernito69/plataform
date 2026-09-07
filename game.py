@@ -13,7 +13,7 @@ from terminal import on_key_press
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
-from utils import shuffle_list
+from utils import random_offset
 
 _WELCOME_TIMER = 150
 _WELCOME_TEXT: str = str.join(
@@ -220,7 +220,7 @@ class Game(Engine, KeyboardHandler):
 
         new_colors = sorted(
             renderers[0].colors,
-            key=shuffle_list,
+            key=random_offset,
         )
 
         for r in renderers:

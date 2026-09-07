@@ -5,7 +5,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.model.shared import RenderInfo
-from utils import shuffle_list
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -115,7 +115,7 @@ class Shape:
 
         self.velocity = (
             self.velocity
-            + VectorF(self.floating_multi * shuffle_list(), self.floating_multi * shuffle_list())
+            + VectorF(self.floating_multi * random_offset(), self.floating_multi * random_offset())
         ).as_vector()
 
     @abstractmethod
