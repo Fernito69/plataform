@@ -19,6 +19,8 @@ _THRUST_FIRE_DISTANCE_FACTOR = 1
 def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
     pieces: list[CircularParticle] = []
 
+    vel_magnitude = abs(source.velocity)
+
     for _i in range(1, int(source.radius * 2)):
         i = _i / 2
         distance_factor = (source.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
@@ -59,28 +61,32 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
                 y=source.velocity.y * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
             ),
-            size=i * _radius_factor,
+            size=i * _radius_factor * (1 + vel_magnitude / 5),
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_meteor_color,
-            ending_color=RGB(100, 100, 100, intensity=0.1),  # smokelike
+            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
             life_time=50,
             gravity=-0.02,
         )
         pieces.append(thrust_fire)
 
-    vel_magnitude = abs(source.velocity)
-    for _ in range(round(vel_magnitude)):
+    for _ in range(round(vel_magnitude + 1)):
+        if vel_magnitude == 0 and scenario.now() % 8 != 0:
+            continue
         sparks = CircularParticle(
+            # TODO: ORIGIN NO FUNCIONA WTF?
             origin=PointF(
-                x=eye_x + random_offset() * 0.2,
-                y=eye_y + random_offset() * 0.2,
+                x=eye_x + random_offset() * source.radius * 2,
+                y=eye_y + random_offset() * source.radius * 2,
             ),
-            initial_velocity=(
+            initial_velocity=VectorF(0, 0)
+            if vel_magnitude == 0
+            else (
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
             ).as_vector(),
-            size=0.8,
-            initial_color=RGB(255, 255, 255, 1),  # white hot
-            ending_color=RGB(200, 127, 0, 1),  # Yellow
+            size=0.7,
+            initial_color=RGB(255, 255, 200, 1),  # almost white hot
+            ending_color=RGB(40, 5, 0, 1),  # dark orange
             life_time=50,
             gravity=0.1,
         )
@@ -189,62 +195,60 @@ def sonic_wave(scenario: "Scenario", source: "Circunference") -> None:
     # )
 
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
-    for i in range(2):
-        sonic_boom_vacuum = CircularParticle(
-            origin=(source.center + 0.8 * source.velocity)
-            - VectorF(x=random_offset(), y=random_offset()),
-            initial_velocity=(
-                -0.5
-                * VectorF(
-                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
-                )
-            ).as_vector(),
-            size=source.radius * (1 + vel_magnitude / 13),
-            size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-            initial_color=RGB(0, 0, 0, 0),
-            ending_color=RGB(0, 0, 0, 0),
-            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=2,
-            floating_multi=1,
-        )
-        pieces.append(sonic_boom_vacuum)
-        sonic_boom_2 = CircularParticle(
-            origin=(source.center - 0.2 * source.velocity)
-            - VectorF(x=random_offset(), y=random_offset()),
-            initial_velocity=(
-                -0.4
-                * VectorF(
-                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
-                )
-            ).as_vector(),
-            size=source.radius * (1 + vel_magnitude / 10),
-            size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-            initial_color=_initial_color,
-            ending_color=RGB(200, 200, 255, 1),
-            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=5,
-            floating_multi=1,
-        )
-        pieces.append(sonic_boom_2)
-        sonic_boom = CircularParticle(
-            origin=(source.center - source.velocity)
-            - VectorF(x=random_offset(), y=random_offset()),
-            initial_velocity=(
-                -0.4
-                * VectorF(
-                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
-                )
-            ).as_vector(),
-            size=source.radius * (1 + (vel_magnitude + random()) / 7),
-            size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-            initial_color=_initial_color,
-            ending_color=RGB(127, 0, 255, 1),
-            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=15,
-            floating_multi=1,
-        )
-        pieces.append(sonic_boom)
 
+    sonic_boom_vacuum = CircularParticle(
+        origin=(source.center + 0.8 * source.velocity)
+        - VectorF(x=random_offset(), y=random_offset()),
+        initial_velocity=(
+            -0.5
+            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
+        ).as_vector(),
+        size=source.radius * (1 + vel_magnitude / 13),
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(0, 0, 0, 0),
+        ending_color=RGB(0, 0, 0, 0),
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+        life_time=2,
+        floating_multi=1,
+    )
+    pieces.append(sonic_boom_vacuum)
+
+    sonic_boom_2 = CircularParticle(
+        origin=(source.center - 0.2 * source.velocity)
+        - VectorF(x=random_offset(), y=random_offset()),
+        initial_velocity=(
+            -0.4
+            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
+        ).as_vector(),
+        size=source.radius * (1 + vel_magnitude / 10),
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=_initial_color,
+        ending_color=RGB(200, 200, 255, 1),
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+        life_time=5,
+        floating_multi=1,
+    )
+    pieces.append(sonic_boom_2)
+
+    # MAIN BOOM
+    sonic_boom = CircularParticle(
+        origin=(source.center - source.velocity) - VectorF(x=random_offset(), y=random_offset()),
+        initial_velocity=(
+            -0.4
+            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
+        ).as_vector(),
+        size=source.radius * (1 + (vel_magnitude + random()) / 7),
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=_initial_color,
+        ending_color=RGB(127, 0, 255, 1),
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+        life_time=25,
+        floating_multi=1,
+    )
+    pieces.append(sonic_boom)
+
+    for _ in range(3):
+        # little particles doing particle stuff
         sonic_challa = CircularParticle(
             origin=(source.center - source.velocity)
             - VectorF(x=random_offset(), y=random_offset()),
@@ -254,37 +258,38 @@ def sonic_wave(scenario: "Scenario", source: "Circunference") -> None:
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )
             ).as_vector(),
-            size=(0.8 + random_offset()) * vel_magnitude / 2,
+            size=(0.8 + random_offset()) * vel_magnitude / 3,
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
             initial_color=_initial_color,
             ending_color=RGB(127, 0, 255, 1),
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=10,
-            floating_multi=5,
+            life_time=15,
+            floating_multi=6,
         )
         pieces.append(sonic_challa)
 
-        # if scenario.now() % 4 == 0:
-        #     normal_1, normal_2 = get_normal_vectors(source.velocity)
+    # if scenario.now() % 4 == 0:
+    #     normal_1, normal_2 = get_normal_vectors(source.velocity)
 
-        #     def _get_parallel_boom(normal: VectorF) -> Particle:
-        #         return Particle(
-        #             origin=(source.center - source.velocity),
-        #             initial_velocity=(normal + source.velocity).as_vector(),
-        #             size=vel_magnitude / 1.5,
-        #             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-        #             initial_color=RGB(255, 255, 255, 1),
-        #             ending_color=RGB(255, 255, 255),
-        #             ending_color_fade_type=TransitionType.NONE,
-        #             life_time=15,
-        #             floating_multi=0,
-        #         )
+    #     def _get_parallel_boom(normal: VectorF) -> Particle:
+    #         return Particle(
+    #             origin=(source.center - source.velocity),
+    #             initial_velocity=(normal + source.velocity).as_vector(),
+    #             size=vel_magnitude / 1.5,
+    #             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+    #             initial_color=RGB(255, 255, 255, 1),
+    #             ending_color=RGB(255, 255, 255),
+    #             ending_color_fade_type=TransitionType.NONE,
+    #             life_time=15,
+    #             floating_multi=0,
+    #         )
 
-        #     paralel_boom_1 = _get_parallel_boom(normal_1)
-        #     paralel_boom_2 = _get_parallel_boom(normal_2)
-        #     pieces.extend([paralel_boom_1, paralel_boom_2])
+    #     paralel_boom_1 = _get_parallel_boom(normal_1)
+    #     paralel_boom_2 = _get_parallel_boom(normal_2)
+    #     pieces.extend([paralel_boom_1, paralel_boom_2])
 
-        _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
+    # TOOD: y esto?
+    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     scenario.bg_pieces[0:0] = pieces
 
@@ -304,11 +309,16 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
         point1=source.center - source.velocity * 5,
         point2=source.center,
         initial_color=_initial_color,
-        point_randomness=9,
-        segment_randomness=9,
+        # point_randomness=9,
+        # segment_randomness=9,
+        point_randomness=3,
+        segment_randomness=2,
         life_time=2,
         num_segments=8,
     )
     pieces.append(l1)
+
+    # if vel_magnitude > 7:
+    #     raise NotImplementedError([f"{a.points[0]} - {a.points[1]}" for a in l1.segments])
 
     scenario.bg_pieces[0:0] = pieces

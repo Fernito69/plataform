@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.scenario.scenario import Scenario
 
-_PLAYER_RADIUS = 5
+_PLAYER_RADIUS = 4
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 _PLAYER_GRAVITY = 0  # we float freely!

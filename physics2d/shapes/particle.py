@@ -108,10 +108,12 @@ class CircularParticle(Particle, Circunference):
         )
 
     def _handle_lifetime(self) -> None:
+        # basic stuff
         if self.life_time is None or self._original_life_time is None:
             return
         self.life_time -= 1
 
+        # size changes
         match self.size_change_type:
             case TransitionType.LINEAR_DECREASE:
                 self.radius -= self.radius / (self.life_time + 1)
@@ -122,6 +124,7 @@ class CircularParticle(Particle, Circunference):
             case TransitionType.NONE:
                 ...
 
+        # color changes
         if (
             self.ending_color
             and self.theme.color
@@ -132,10 +135,12 @@ class CircularParticle(Particle, Circunference):
                 if self.ending_color_fade_type == TransitionType.LINEAR_DECREASE
                 else 1 - self.life_time / self._original_life_time
             )
+            # ending_factor = 1 - factor
+            ending_factor = 1
             self.theme.color = RGB(
-                r=self.initial_color.r * factor + self.ending_color.r * (1 - factor),
-                g=self.initial_color.g * factor + self.ending_color.g * (1 - factor),
-                b=self.initial_color.b * factor + self.ending_color.b * (1 - factor),
+                r=self.initial_color.r * factor + self.ending_color.r * ending_factor,
+                g=self.initial_color.g * factor + self.ending_color.g * ending_factor,
+                b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
             )
 
     def _act(self, engine) -> None:
@@ -214,18 +219,16 @@ class Lightning(Particle, Line):
         num_segments = min(self.num_segments, line_length / _MIN_SEGMENT_LENGTH)
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
-        division_lenghts = sorted(
-            [
-                max(
-                    0,
-                    min(
-                        line_length,
-                        num_seg * avg_segment_length + random_offset() * self.segment_randomness,
-                    ),
-                )
-                for num_seg in range(self.num_segments)
-            ]
-        )
+        division_lenghts = [
+            max(
+                0,
+                min(
+                    line_length,
+                    num_seg * avg_segment_length + random_offset() * self.segment_randomness,
+                ),
+            )
+            for num_seg in range(self.num_segments)
+        ]
 
         def _rand_vector() -> VectorF:
             return VectorF(
@@ -240,7 +243,7 @@ class Lightning(Particle, Line):
         lines: list[Line] = (
             [
                 Line(
-                    points=(self.points[0], segment_points[0]),
+                    points=(segment_points[0], self.points[0]),
                     thickness=self.thickness,
                     theme=theme,
                 )
