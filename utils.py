@@ -223,19 +223,35 @@ def get_slope(point1: PointF, point2: PointF) -> float | None:
     return (point2.y - point1.y) / (point2.x - point1.x)
 
 
+def get_slope_from_vector(vector: VectorF) -> float | None:
+    if vector.x == 0:
+        return None
+    return vector.y / vector.x
+
+
 def get_perpendicular_slope(point1: PointF, point2: PointF) -> float | None:
     m = get_slope(point1, point2)
     return 0 if m is None else None if m == 0 else -1 / m
 
 
-def get_normal_unit_vector(point1: PointF, point2: PointF, velocity: VectorF) -> VectorF:
+def get_normal_unit_vector_from_line(point1: PointF, point2: PointF) -> VectorF:
     perpendicular_m = get_perpendicular_slope(point1, point2)
     angle = get_angle_from_slope(perpendicular_m) % PI
-    # x_factor = 1 if velocity.x < 0 else -1
-    # y_factor = 1 if velocity.y < 0 else -1
-    x_factor = 1
-    y_factor = 1
-    return VectorF(x=x_factor * math.cos(angle), y=y_factor * math.sin(angle))
+    return get_vector_from_angle(angle)
+
+
+def get_normal_vectors(vector: VectorF, unit_vector: bool = False) -> tuple[VectorF, VectorF]:
+    m = get_slope_from_vector(vector)
+    angle = get_angle_from_slope(m) % PI
+    magnitude = 1 if unit_vector else abs(vector)
+    return (
+        get_vector_from_angle(angle + PI / 2, magnitude),
+        get_vector_from_angle(angle - PI / 2, magnitude),
+    )
+
+
+def get_vector_from_angle(angle: float, magnitude: float = 1) -> VectorF:
+    return (magnitude * VectorF(x=math.cos(angle), y=math.sin(angle))).as_vector()
 
 
 def get_angle_from_slope(slope: float | None) -> float:

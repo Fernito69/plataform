@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Callable
 
 from model.theme import RGB, Theme
-from physics2d.shapes.factories.particle import ln2_vapor, meteor_trail, sonic_wave
+from physics2d.shapes.factories.particle import lightning_bolts, ln2_vapor, meteor_trail, sonic_wave
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -90,4 +90,21 @@ class SonicThruster(Thruster):
         )
 
 
-Thrusters = MeteorThruster | SoapyThruster
+class LightningThruster(Thruster):
+    """I dunno!"""
+
+    def __init__(self, scenario: "Scenario"):
+        super().__init__(
+            scenario=scenario,
+            particle_generator=lightning_bolts,
+            name="LightningThruster",
+            player_theme=Theme(
+                color=RGB(255, 255, 190),
+            ),
+            max_speed=8,
+            accel=3,
+            decel=1.5,
+        )
+
+
+Thrusters = MeteorThruster | SoapyThruster | SonicThruster | LightningThruster

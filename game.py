@@ -15,7 +15,7 @@ from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import random_offset
 
-_WELCOME_TIMER = 150
+_WELCOME_TIMER = 50
 _WELCOME_TEXT: str = str.join(
     BR,
     [

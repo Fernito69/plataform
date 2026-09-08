@@ -32,6 +32,9 @@ class Scenario:
     gravity_acceleration: float
     player: PlayerBlob
 
+    # Global scenario counter
+    _game_tick: int
+
     def __init__(
         self,
         entities: list[PhyEntity],
@@ -50,6 +53,7 @@ class Scenario:
         self.engine = engine
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
         self.player = player
+        self._game_tick = 0
 
     def act(self) -> None:
         self.player.do_your_thing()
@@ -58,6 +62,7 @@ class Scenario:
             piece.do_your_thing(self.engine)
 
         self._lifetime_cleanup()
+        self._game_tick += 1
 
     def _lifetime_cleanup(self) -> None:
         filtered = [
@@ -83,6 +88,10 @@ class Scenario:
         ]
         if len(filtered) < len(self.solid_pieces):
             self.solid_pieces = filtered
+
+    def now(self) -> int:
+        """Get the current game tick"""
+        return self._game_tick
 
     def render(self) -> None:
         # TODO: unify
