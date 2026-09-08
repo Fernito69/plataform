@@ -65,16 +65,16 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_meteor_color,
             ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
-            life_time=50,
-            gravity=-0.02,
+            life_time=15,
+            gravity=-0.07,
         )
         pieces.append(thrust_fire)
 
-    for _ in range(round(vel_magnitude + 1)):
+    for _ in range(round((vel_magnitude/3) + 1)):
         if vel_magnitude == 0 and scenario.now() % 8 != 0:
             continue
+
         sparks = CircularParticle(
-            # TODO: ORIGIN NO FUNCIONA WTF?
             origin=PointF(
                 x=eye_x + random_offset() * source.radius * 2,
                 y=eye_y + random_offset() * source.radius * 2,
@@ -87,7 +87,7 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
             size=0.7,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
             ending_color=RGB(40, 5, 0, 1),  # dark orange
-            life_time=50,
+            life_time=70,
             gravity=0.1,
         )
         pieces.append(sparks)
