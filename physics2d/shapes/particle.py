@@ -220,13 +220,7 @@ class Lightning(Particle, Line):
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
         division_lenghts = [
-            max(
-                0,
-                min(
-                    line_length,
-                    num_seg * avg_segment_length + random_offset() * self.segment_randomness,
-                ),
-            )
+            num_seg * avg_segment_length * self.segment_randomness
             for num_seg in range(self.num_segments)
         ]
 

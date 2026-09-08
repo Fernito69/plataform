@@ -70,7 +70,7 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
         )
         pieces.append(thrust_fire)
 
-    for _ in range(round((vel_magnitude/3) + 1)):
+    for _ in range(round((vel_magnitude / 3) + 1)):
         if vel_magnitude == 0 and scenario.now() % 8 != 0:
             continue
 
@@ -306,13 +306,13 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     l1 = Lightning(
-        point1=source.center - source.velocity * 5,
-        point2=source.center,
+        point1=source.center - source.velocity*random() + VectorF(random_offset() * 2, random_offset() * 2),
+        point2=source.center + VectorF(random_offset() * 7, random_offset() *7),
         initial_color=_initial_color,
-        # point_randomness=9,
-        # segment_randomness=9,
-        point_randomness=3,
-        segment_randomness=2,
+        point_randomness=2,
+        segment_randomness=1,
+        # point_randomness=3,
+        # segment_randomness=2,
         life_time=2,
         num_segments=8,
     )
