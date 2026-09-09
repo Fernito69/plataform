@@ -196,6 +196,7 @@ class Lightning(Particle, Line):
             life_time=life_time,
             size_change_type=size_change_type,
             floating_multi=floating_multi,
+            initial_velocity=initial_velocity,
         )
         Line.__init__(
             self,
@@ -212,17 +213,41 @@ class Lightning(Particle, Line):
     def get_render_info(self) -> list[RenderInfo]:
         return [info for line in self.segments for info in line.get_render_info()]
 
+    def _apply_movement(self, engine) -> None:
+        self._float_around()
+        self.rotate()
+
+        if not any(a != 0 for a in self.velocity):
+            return
+
+        def _get_new_points(p: tuple[PointF, PointF]) -> tuple[PointF, PointF]:
+            return (
+                (p[0] + self.velocity),
+                (p[1] + self.velocity),
+            )
+
+        self.points = _get_new_points(self.points)
+
+        for idx, seg in enumerate(self.segments):
+            self.segments[idx].points = _get_new_points(seg.points)
+
+        self.update_center_of_mass()
+
     def gen_lightning(self) -> None:
-        theme = Theme(color=self.initial_color)
         line_vector: VectorF = (self.points[0] - self.points[1]).as_vector()
         line_length = abs(line_vector)
-        num_segments = min(self.num_segments, line_length / _MIN_SEGMENT_LENGTH)
+        num_segments = self.num_segments
+
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
         division_lenghts = [
             num_seg * avg_segment_length * self.segment_randomness
             for num_seg in range(self.num_segments)
         ]
+        # if line_length > 8:
+        #     raise NotImplementedError(
+        #         f"line: {line_vector}\nline_length:{line_length}\nnum_segments:{num_segments}\navg_seg_len: {avg_segment_length}\n"
+        #     )
 
         def _rand_vector() -> VectorF:
             return VectorF(
@@ -239,7 +264,8 @@ class Lightning(Particle, Line):
                 Line(
                     points=(segment_points[0], self.points[0]),
                     thickness=self.thickness,
-                    theme=theme,
+                    theme=self.theme,
+                    initial_velocity=self.velocity,
                 )
             ]
             + [
@@ -249,7 +275,8 @@ class Lightning(Particle, Line):
                         segment_points[idx + 1],
                     ),
                     thickness=self.thickness,
-                    theme=theme,
+                    theme=self.theme,
+                    initial_velocity=self.velocity,
                 )
                 for idx, p in enumerate(segment_points[:-1])
             ]
@@ -257,7 +284,8 @@ class Lightning(Particle, Line):
                 Line(
                     points=(segment_points[-1], self.points[1]),
                     thickness=self.thickness,
-                    theme=theme,
+                    theme=self.theme,
+                    initial_velocity=self.velocity,
                 )
             ]
         )
@@ -268,6 +296,25 @@ class Lightning(Particle, Line):
         if self.life_time is None or self._original_life_time is None:
             return
         self.life_time -= 1
+
+        # TODO: unify in a method
+        if (
+            self.ending_color
+            and self.theme.color
+            and self.ending_color_fade_type != TransitionType.NONE
+        ):
+            factor = (
+                self.life_time / self._original_life_time
+                if self.ending_color_fade_type == TransitionType.LINEAR_DECREASE
+                else 1 - self.life_time / self._original_life_time
+            )
+            # ending_factor = 1 - factor
+            ending_factor = 1
+            self.theme.color = RGB(
+                r=self.initial_color.r * factor + self.ending_color.r * ending_factor,
+                g=self.initial_color.g * factor + self.ending_color.g * ending_factor,
+                b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
+            )
 
     def _act(self, _) -> None:
         self.gen_lightning()

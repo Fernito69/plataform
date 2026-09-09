@@ -6,7 +6,7 @@ from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle, Lightning
 from physics2d.shapes.shape import Shape
-from utils import random_offset
+from utils import random_offset, random_vector
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -84,7 +84,7 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
             else (
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
             ).as_vector(),
-            size=0.7,
+            size=0.5,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
             ending_color=RGB(40, 5, 0, 1),  # dark orange
             life_time=70,
@@ -306,15 +306,16 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     l1 = Lightning(
-        point1=source.center - source.velocity*random() + VectorF(random_offset() * 2, random_offset() * 2),
-        point2=source.center + VectorF(random_offset() * 7, random_offset() *7),
+        point1=source.center,
+        point2=source.center + random_vector(7, 7),
         initial_color=_initial_color,
-        point_randomness=2,
+        point_randomness=1,
         segment_randomness=1,
         # point_randomness=3,
         # segment_randomness=2,
-        life_time=2,
-        num_segments=8,
+        life_time=10,
+        initial_velocity=source.velocity,
+        num_segments=4,
     )
     pieces.append(l1)
 
