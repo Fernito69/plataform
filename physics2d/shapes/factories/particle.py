@@ -6,7 +6,7 @@ from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle, Lightning
 from physics2d.shapes.shape import Shape
-from utils import random_offset, random_vector
+from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -303,19 +303,22 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
     # )
 
-    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
+    _initial_color = RGB(255, 220, 200, 1)
 
     l1 = Lightning(
-        point1=source.center,
-        point2=source.center + random_vector(7, 7),
+        source=source,
+        # end_point=source.center + source.velocity * 2
+        end_point=random_offset_vector(50, 50) + source.center
+        if vel_magnitude > 0
+        else random_offset_vector(50, 50) + source.center,
         initial_color=_initial_color,
+        ending_color=RGB(50, 0, 50, 1),
         point_randomness=1,
         segment_randomness=1,
         # point_randomness=3,
         # segment_randomness=2,
-        life_time=10,
-        initial_velocity=source.velocity,
-        num_segments=4,
+        life_time=5,
+        num_segments=5,
     )
     pieces.append(l1)
 

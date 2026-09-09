@@ -1,4 +1,5 @@
 import math
+import random
 from collections.abc import Callable
 from dataclasses import dataclass
 from random import random
@@ -15,8 +16,12 @@ _BG_CODE = "\033[48;2;"
 # TODO: separate functions here
 
 
-def random_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
+def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
     return VectorF(scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset())
+
+
+def random_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
+    return VectorF(scale_x * random(), scale_y * random(), scale_z * random())
 
 
 def random_offset(_: Any | None = None) -> float:

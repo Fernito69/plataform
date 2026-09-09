@@ -158,13 +158,14 @@ class Lightning(Particle, Line):
     segment_randomness: float
     point_randomness: float
     num_segments: int
+    source: Circunference
 
     segments: list[Line]
 
     def __init__(
         self,
-        point1: PointF,
-        point2: PointF,
+        source: Circunference,
+        end_point: PointF,
         life_time: int | None = 5,
         thickness: float = 1,
         segment_randomness: float = 2,
@@ -172,13 +173,11 @@ class Lightning(Particle, Line):
         num_segments: int = 8,
         initial_color: RGB = RGB(255, 255, 255, 1),
         ending_color: RGB = RGB(0, 0, 0, 0),
-        initial_velocity: VectorF = VectorF(0, 0),
-        gravity: float | None = None,
         size_change_type: TransitionType = TransitionType.NONE,
         ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
-        floating_multi: float = 0,
     ):
-        self.points = (point1, point2)
+        self.source = source
+        self.points = (source.center, end_point)
         self.segment_randomness = segment_randomness
         self.point_randomness = point_randomness
         self.num_segments = num_segments
@@ -186,8 +185,10 @@ class Lightning(Particle, Line):
         self.ending_color = ending_color
         self.life_time = life_time
         self._original_life_time = life_time
-        self.initial_velocity = initial_velocity
+        self.initial_velocity = source.velocity
         self.thickness = thickness
+        # point1=source.center,
+        # point2=source.center + random_vector(vel_magnitude, vel_magnitude),
 
         super().__init__(
             initial_color=initial_color,
@@ -195,14 +196,14 @@ class Lightning(Particle, Line):
             ending_color_fade_type=ending_color_fade_type,
             life_time=life_time,
             size_change_type=size_change_type,
-            floating_multi=floating_multi,
-            initial_velocity=initial_velocity,
+            floating_multi=source.floating_multi,
+            initial_velocity=source.velocity,
         )
         Line.__init__(
             self,
             points=self.points,
-            own_gravity=gravity,
-            initial_velocity=initial_velocity,
+            own_gravity=source._own_gravity_accel,
+            initial_velocity=source.velocity,
             theme=Theme(color=initial_color),
             secondary_theme=Theme(color=ending_color),
             thickness=thickness,
@@ -222,14 +223,14 @@ class Lightning(Particle, Line):
 
         def _get_new_points(p: tuple[PointF, PointF]) -> tuple[PointF, PointF]:
             return (
-                (p[0] + self.velocity),
-                (p[1] + self.velocity),
+                (p[0] + self.source.velocity),
+                (p[1] + self.source.velocity),
             )
 
         self.points = _get_new_points(self.points)
 
         for idx, seg in enumerate(self.segments):
-            self.segments[idx].points = _get_new_points(seg.points)
+            self.segments[idx]._apply_movement(engine)
 
         self.update_center_of_mass()
 
@@ -315,6 +316,9 @@ class Lightning(Particle, Line):
                 g=self.initial_color.g * factor + self.ending_color.g * ending_factor,
                 b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
             )
+            for idx in range(len(self.segments)):
+                self.segments[idx].theme = self.theme
 
-    def _act(self, _) -> None:
+    def _act(self, engine) -> None:
         self.gen_lightning()
+        self._apply_movement(engine)
