@@ -304,24 +304,43 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     # )
 
     _initial_color = RGB(255, 220, 200, 1)
+    _random_magnitude = (vel_magnitude) + source.radius + (5 if vel_magnitude == 0 else 0)
+    _end_point = (
+        random_offset_vector(_random_magnitude, _random_magnitude) + source.center + source.velocity
+        if vel_magnitude > 0
+        else random_offset_vector(_random_magnitude, _random_magnitude) + source.center
+    )
 
     l1 = Lightning(
         source=source,
-        # end_point=source.center + source.velocity * 2
-        end_point=random_offset_vector(50, 50) + source.center
-        if vel_magnitude > 0
-        else random_offset_vector(50, 50) + source.center,
+        end_point=_end_point,
         initial_color=_initial_color,
         ending_color=RGB(50, 0, 50, 1),
-        point_randomness=1,
-        segment_randomness=1,
-        # point_randomness=3,
-        # segment_randomness=2,
+        normal_noise=3,
+        parallel_noise=3,
         life_time=5,
-        num_segments=5,
+        num_segments=6,
+        thickness=2,
+        final_thickness=0.1,
     )
     pieces.append(l1)
+    
 
+    # if vel_magnitude > 0:
+    #     l2 = Lightning(
+    #         source=source,
+    #         start_point=source.center + random_offset_vector(),
+    #         end_point=source.center + 2 * source.velocity,
+    #         initial_color=RGB(255, 30, 60),
+    #         ending_color=RGB(50, 0, 20, 1),
+    #         normal_noise=3,
+    #         parallel_noise=3,
+    #         life_time=5,
+    #         num_segments=6,
+    #         thickness=1,
+    #         final_thickness=0.1,
+    #     )
+    #     pieces.append(l2)
     # if vel_magnitude > 7:
     #     raise NotImplementedError([f"{a.points[0]} - {a.points[1]}" for a in l1.segments])
 

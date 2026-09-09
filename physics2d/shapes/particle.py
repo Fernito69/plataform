@@ -7,7 +7,7 @@ from physics2d.model.shared import RenderInfo
 from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.line import Line
 from physics2d.shapes.model.shared import TransitionType
-from utils import random_offset
+from utils import get_normal_unit_vector_from_line, random_offset, random_offset_vector
 
 
 class Particle:
@@ -155,9 +155,11 @@ _MIN_SEGMENT_LENGTH = 4
 
 class Lightning(Particle, Line):
     points: tuple[PointF, PointF]
-    segment_randomness: float
-    point_randomness: float
+    parallel_noise: float
+    normal_noise: float
     num_segments: int
+    final_thickness: float | None
+
     source: Circunference
 
     segments: list[Line]
@@ -166,20 +168,22 @@ class Lightning(Particle, Line):
         self,
         source: Circunference,
         end_point: PointF,
+        start_point: PointF | None = None,
         life_time: int | None = 5,
         thickness: float = 1,
-        segment_randomness: float = 2,
-        point_randomness: float = 2,
+        parallel_noise: float = 2,
+        normal_noise: float = 2,
         num_segments: int = 8,
         initial_color: RGB = RGB(255, 255, 255, 1),
         ending_color: RGB = RGB(0, 0, 0, 0),
         size_change_type: TransitionType = TransitionType.NONE,
         ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
+        final_thickness: float | None = None,
     ):
         self.source = source
-        self.points = (source.center, end_point)
-        self.segment_randomness = segment_randomness
-        self.point_randomness = point_randomness
+        self.points = (start_point or source.center, end_point)
+        self.parallel_noise = parallel_noise
+        self.normal_noise = normal_noise
         self.num_segments = num_segments
         self.initial_color = initial_color
         self.ending_color = ending_color
@@ -187,8 +191,7 @@ class Lightning(Particle, Line):
         self._original_life_time = life_time
         self.initial_velocity = source.velocity
         self.thickness = thickness
-        # point1=source.center,
-        # point2=source.center + random_vector(vel_magnitude, vel_magnitude),
+        self.final_thickness = final_thickness
 
         super().__init__(
             initial_color=initial_color,
@@ -208,8 +211,8 @@ class Lightning(Particle, Line):
             secondary_theme=Theme(color=ending_color),
             thickness=thickness,
         )
-
-        self.gen_lightning()
+        self.segments = []
+        self._gen_lightning()
 
     def get_render_info(self) -> list[RenderInfo]:
         return [info for line in self.segments for info in line.get_render_info()]
@@ -229,12 +232,13 @@ class Lightning(Particle, Line):
 
         self.points = _get_new_points(self.points)
 
-        for idx, seg in enumerate(self.segments):
+        for idx, _ in enumerate(self.segments):
             self.segments[idx]._apply_movement(engine)
 
         self.update_center_of_mass()
 
-    def gen_lightning(self) -> None:
+    # TODO: create recursive random branching
+    def _gen_lightning(self) -> None:
         line_vector: VectorF = (self.points[0] - self.points[1]).as_vector()
         line_length = abs(line_vector)
         num_segments = self.num_segments
@@ -242,23 +246,33 @@ class Lightning(Particle, Line):
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
         division_lenghts = [
-            num_seg * avg_segment_length * self.segment_randomness
+            num_seg * avg_segment_length * self.parallel_noise
             for num_seg in range(self.num_segments)
         ]
         # if line_length > 8:
         #     raise NotImplementedError(
-        #         f"line: {line_vector}\nline_length:{line_length}\nnum_segments:{num_segments}\navg_seg_len: {avg_segment_length}\n"
+        #         # f"line: {line_vector}\nline_length:{line_length}\nnum_segments:{num_segments}\navg_seg_len: {avg_segment_length}\n"
+        #         f"division_lengths {division_lenghts}"
         #     )
 
         def _rand_vector() -> VectorF:
-            return VectorF(
-                random_offset() * self.point_randomness, random_offset() * self.point_randomness
-            )
+            parallel_unit_vector = (1 / line_length) * line_vector
+            normal_unit_vector = get_normal_unit_vector_from_line(*self.points)
+            return (
+                self.normal_noise * random_offset() * parallel_unit_vector
+                + self.parallel_noise * random_offset() * normal_unit_vector
+            ).as_vector()
 
         segment_points: list[PointF] = [
             self.points[0] + (x / (line_length or ALMOST_ZERO)) * line_vector + _rand_vector()
             for x in division_lenghts
         ]
+
+        def _get_thickness(idx: int) -> float:
+            if not self.final_thickness or self.final_thickness > self.thickness:
+                return self.thickness
+            _factor = idx / (len(self.segments) or 1)
+            return (1 - _factor) * self.thickness + _factor * self.final_thickness
 
         lines: list[Line] = (
             [
@@ -275,16 +289,24 @@ class Lightning(Particle, Line):
                         p,
                         segment_points[idx + 1],
                     ),
-                    thickness=self.thickness,
+                    thickness=_get_thickness(idx),
                     theme=self.theme,
                     initial_velocity=self.velocity,
                 )
+                # if random_offset() < 0.4
+                # else Lightning(
+                #     source=Circunference(center=p, radius=1, theme=self.theme),
+                #     end_point=p + random_offset_vector(5,5),
+                #     initial_color=self.initial_color,
+                #     ending_color=self.ending_color or self.initial_color,
+                #     life_time=10,
+                # )
                 for idx, p in enumerate(segment_points[:-1])
             ]
             + [
                 Line(
                     points=(segment_points[-1], self.points[1]),
-                    thickness=self.thickness,
+                    thickness=self.final_thickness or self.thickness,
                     theme=self.theme,
                     initial_velocity=self.velocity,
                 )
@@ -320,5 +342,5 @@ class Lightning(Particle, Line):
                 self.segments[idx].theme = self.theme
 
     def _act(self, engine) -> None:
-        self.gen_lightning()
+        self._gen_lightning()
         self._apply_movement(engine)

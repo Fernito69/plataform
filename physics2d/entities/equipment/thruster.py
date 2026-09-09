@@ -90,14 +90,14 @@ class SonicThruster(Thruster):
         )
 
 
-class LightningThruster(Thruster):
-    """I dunno!"""
+class PlasmaBallThruster(Thruster):
+    """Looks kewwwl"""
 
     def __init__(self, scenario: "Scenario"):
         super().__init__(
             scenario=scenario,
             particle_generator=lightning_bolts,
-            name="LightningThruster",
+            name="PlasmaBallThruster",
             player_theme=Theme(
                 color=RGB(255, 255, 190),
             ),
@@ -107,4 +107,4 @@ class LightningThruster(Thruster):
         )
 
 
-Thrusters = MeteorThruster | SoapyThruster | SonicThruster | LightningThruster
+Thrusters = MeteorThruster | SoapyThruster | SonicThruster | PlasmaBallThruster

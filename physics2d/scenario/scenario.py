@@ -65,6 +65,7 @@ class Scenario:
         self._game_tick += 1
 
     def _lifetime_cleanup(self) -> None:
+        # TODO: unify this
         filtered = [
             p
             for p in self.fg_pieces

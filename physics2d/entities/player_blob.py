@@ -6,7 +6,7 @@ from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
 from physics2d.entities.equipment.thruster import (
-    LightningThruster,
+    PlasmaBallThruster,
     MeteorThruster,
     SoapyThruster,
     SonicThruster,
@@ -219,7 +219,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             MeteorThruster(self.engine.scenario),
             SoapyThruster(self.engine.scenario),
             SonicThruster(self.engine.scenario),
-            LightningThruster(self.engine.scenario),
+            PlasmaBallThruster(self.engine.scenario),
         ]
         self._curr_thruster_index = 0
         self.theme = self._get_curr_thruster().player_theme
