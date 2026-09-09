@@ -105,6 +105,3 @@ class PlasmaBallThruster(Thruster):
             accel=3,
             decel=1.5,
         )
-
-
-Thrusters = MeteorThruster | SoapyThruster | SonicThruster | PlasmaBallThruster

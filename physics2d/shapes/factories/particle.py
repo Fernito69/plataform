@@ -304,6 +304,8 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     # )
 
     _initial_color = RGB(255, 220, 200, 1)
+    _ending_color = RGB(50, 0, 50, 1)
+
     _random_magnitude = (vel_magnitude) + source.radius + (5 if vel_magnitude == 0 else 0)
     _end_point = (
         random_offset_vector(_random_magnitude, _random_magnitude) + source.center + source.velocity
@@ -315,16 +317,31 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
         source=source,
         end_point=_end_point,
         initial_color=_initial_color,
-        ending_color=RGB(50, 0, 50, 1),
+        ending_color=_ending_color,
         normal_noise=3,
         parallel_noise=3,
-        life_time=5,
+        life_time=15,
         num_segments=6,
-        thickness=2,
+        thickness=1.5,
         final_thickness=0.1,
     )
     pieces.append(l1)
-    
+
+    # for _ in range(3):
+    #     # little particles doing particle stuff
+    #     sonic_challa = CircularParticle(
+    #         origin=(source.center - source.velocity)
+    #         - random_offset_vector(source.radius, source.radius),
+    #         initial_velocity=(source.velocity * 0.1).as_vector(),
+    #         size=(0.2 * vel_magnitude),
+    #         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+    #         initial_color=_initial_color,
+    #         ending_color=_ending_color,
+    #         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+    #         life_time=15,
+    #         floating_multi=5,
+    #     )
+    #     pieces.append(sonic_challa)
 
     # if vel_magnitude > 0:
     #     l2 = Lightning(
