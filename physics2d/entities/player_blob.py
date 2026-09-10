@@ -133,6 +133,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self._move_left()
         self._move_right()
         self._move_down()
+        self._next_weapon()
+        self._previous_weapon()
+        self._shoot()
 
         self._decelerate_if_not_pressing()
 
@@ -179,12 +182,19 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
 
     @on_key_press(ActionKeys.SHOOT)
     def _shoot(self) -> None:
-        self._curr_thruster_index = (
-            self._curr_thruster_index + 1
-            if len(self._thrusters) > self._curr_thruster_index + 1
-            else 0
+        self._get_curr_weapon().fire()
+
+    @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
+    def _next_weapon(self) -> None:
+        self._curr_weapon_index = (
+            self._curr_weapon_index + 1 if len(self._weapons) > self._curr_weapon_index + 1 else 0
         )
-        self.theme = self._get_curr_thruster().player_theme
+
+    @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
+    def _previous_weapon(self) -> None:
+        self._curr_weapon_index = (
+            self._curr_weapon_index - 1 if self._curr_weapon_index > 0 else len(self._weapons) - 1
+        )
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
@@ -217,6 +227,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def _get_curr_thruster(self) -> Thruster:
         return self._thrusters[self._curr_thruster_index]
 
+    def _get_curr_weapon(self) -> Weapon:
+        return self._weapons[self._curr_weapon_index]
+
     def _get_max_speed(self) -> float:
         return self._get_curr_thruster().max_speed
 
@@ -234,6 +247,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             SonicThruster(self.engine.scenario),
             PlasmaBallThruster(self.engine.scenario),
         ]
-        self._weapons = [MachineGun(self.engine.scenario)]
         self._curr_thruster_index = 0
+        self._weapons = [MachineGun(self.engine.scenario)]
+        self._curr_weapon_index = 0
         self.theme = self._get_curr_thruster().player_theme

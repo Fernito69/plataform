@@ -299,14 +299,10 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
 
     vel_magnitude = abs(source.velocity)
 
-    # _initial_color = RGB(
-    #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
-    # )
-
     _initial_color = RGB(255, 220, 200, 1)
-    _ending_color = RGB(50, 0, 50, 1)
+    _ending_color = RGB(0, 0, 100, 1)
 
-    _random_magnitude = (vel_magnitude) + source.radius + (5 if vel_magnitude == 0 else 0)
+    _random_magnitude = (vel_magnitude) + source.radius + (20 if vel_magnitude == 0 else 0)
     _end_point = (
         random_offset_vector(_random_magnitude, _random_magnitude) + source.center + source.velocity
         if vel_magnitude > 0
@@ -318,14 +314,23 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
         end_point=_end_point,
         initial_color=_initial_color,
         ending_color=_ending_color,
-        normal_noise=3,
+        normal_noise=2,
         parallel_noise=3,
-        life_time=15,
-        num_segments=6,
+        life_time=6,
+        num_segments=15,
         thickness=1.5,
-        final_thickness=0.1,
+        final_thickness=0.001,
     )
     pieces.append(l1)
+
+    eye = CircularParticle(
+        size=0.75,
+        initial_velocity=source.velocity,
+        origin=source.center + 0.15 * source.velocity,
+        initial_color=RGB(255, 0, 0, 1),
+        life_time=2,
+    )
+    scenario.fg_pieces.append(eye)
 
     # for _ in range(3):
     #     # little particles doing particle stuff

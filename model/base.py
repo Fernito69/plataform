@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
@@ -32,6 +33,22 @@ class PointF:
 
     def as_point(self) -> "PointF":
         return PointF(x=self.x, y=self.y, z=self.z)
+
+    def rotate(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
+        rotation_axis = rotation_axis or self
+        if angle_in_radians == 0:
+            return self.as_vector()
+        new_x = (
+            (self.x - rotation_axis.x) * math.cos(angle_in_radians)
+            - (self.y - rotation_axis.y) * math.sin(angle_in_radians)
+            + rotation_axis.x
+        )
+        new_y = (
+            (self.x - rotation_axis.x) * math.sin(angle_in_radians)
+            + (self.y - rotation_axis.y) * math.cos(angle_in_radians)
+            + rotation_axis.y
+        )
+        return PointF(new_x, new_y)
 
     def __str__(self) -> str:
         DECIMALS = 1
