@@ -30,4 +30,7 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     PhysicsKey.RESET_SCENARIO: "r",
     PhysicsKey.RESET_CAMERA: "o",
     ActionKeys.SWITCH_THRUSTER: "f",
+    ActionKeys.SHOOT: "j",
+    ActionKeys.PREVIOUS_WEAPON: "k",
+    ActionKeys.NEXT_WEAPON: "l",
 }

@@ -6,12 +6,13 @@ from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhyEntity
 from physics2d.entities.equipment.thruster import (
-    PlasmaBallThruster,
     MeteorThruster,
+    PlasmaBallThruster,
     SoapyThruster,
     SonicThruster,
     Thruster,
 )
+from physics2d.entities.equipment.weapon import MachineGun, Weapon
 from physics2d.shapes.circunference import Circunference
 from terminal import on_key_press
 
@@ -32,6 +33,9 @@ _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     _thrusters: list[Thruster]
     _curr_thruster_index: int
+
+    _weapons: list[Weapon]
+    _curr_weapon_index: int
 
     def __init__(
         self,
@@ -173,6 +177,15 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         )
         self.theme = self._get_curr_thruster().player_theme
 
+    @on_key_press(ActionKeys.SHOOT)
+    def _shoot(self) -> None:
+        self._curr_thruster_index = (
+            self._curr_thruster_index + 1
+            if len(self._thrusters) > self._curr_thruster_index + 1
+            else 0
+        )
+        self.theme = self._get_curr_thruster().player_theme
+
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
         if self.velocity.y >= self._get_max_speed():
@@ -221,5 +234,6 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             SonicThruster(self.engine.scenario),
             PlasmaBallThruster(self.engine.scenario),
         ]
+        self._weapons = [MachineGun(self.engine.scenario)]
         self._curr_thruster_index = 0
         self.theme = self._get_curr_thruster().player_theme

@@ -48,6 +48,9 @@ class PhysicsKey(StrEnum):
 
 class ActionKeys(StrEnum):
     SWITCH_THRUSTER = auto()
+    SHOOT = auto()
+    NEXT_WEAPON = auto()
+    PREVIOUS_WEAPON = auto()
 
 
 KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey | ActionKeys
