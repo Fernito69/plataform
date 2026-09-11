@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.particle import lightning_bolts, ln2_vapor, meteor_trail, sonic_wave
+from physics2d.shapes.factories.thruster import lightning_bolts, ln2_vapor, meteor_trail, sonic_wave
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario

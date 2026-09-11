@@ -1,0 +1,152 @@
+from random import random
+from typing import TYPE_CHECKING
+
+from model.base import PointF, VectorF
+from model.theme import RGB
+from physics2d.shapes.model.shared import TransitionType
+from physics2d.shapes.particle import CircularParticle, Lightning
+from physics2d.shapes.shape import Shape
+from utils import random_offset, random_offset_vector
+
+if TYPE_CHECKING:
+    from physics2d.scenario.scenario import Scenario
+    from physics2d.shapes.circunference import Circunference
+
+
+def explosion(scenario: "Scenario", source: "Circunference", size: float) -> None:
+    particles: list[CircularParticle] = []
+
+    vel_magnitude = abs(source.velocity)
+
+    eye_x = source.center.x - source.velocity.x
+    eye_y = source.center.y - source.velocity.y
+
+    # METEOR KINDA TRAIL
+    _main_explosion_color = (
+        RGB(
+            255,
+            90 * random(),
+            50 * random(),
+        ).with_intensity(1)
+        if random_offset() > 0
+        else RGB(
+            255,
+            255 - 30 * random(),
+            1 * random(),
+        ).with_intensity(1)
+    )
+
+    main_explosion = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=source.velocity,
+        size=size,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=_main_explosion_color,
+        ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+        life_time=30,
+        gravity=-0.07,
+    )
+    particles.append(main_explosion)
+
+    secondary_explosions: list[CircularParticle] = []
+    _sec_size = size**0.5
+
+    for _ in range(round(size)):
+        _sec_explosion_color = (
+            RGB(
+                255,
+                90 * random(),
+                50 * random(),
+            ).with_intensity(1)
+            if random_offset() > 0
+            else RGB(
+                255,
+                255 - 30 * random(),
+                1 * random(),
+            ).with_intensity(1)
+        )
+
+        _factor = size * 1.5
+        sec_explosion = CircularParticle(
+            origin=PointF(x=eye_x + _factor * random_offset(), y=eye_y + _factor * random_offset()),
+            initial_velocity=source.velocity,
+            size=_sec_size,
+            size_change_type=TransitionType.LINEAR_DECREASE,
+            initial_color=_sec_explosion_color,
+            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+            life_time=20,
+            gravity=-0.12,
+            floating_multi=0.1,
+            particle_generator=smoke_generator,
+        )
+        secondary_explosions.append(sec_explosion)
+
+    scenario.fg_pieces[0:0] = secondary_explosions
+
+    smoke_trails: list[CircularParticle] = []
+
+    for i in range(round(size)):
+        smoke_trail = CircularParticle(
+            origin=PointF(x=eye_x + (size / 2) * random_offset(), y=eye_y + (size / 2) * random()),
+            initial_velocity=(source.velocity + random_offset_vector() * size).as_vector(),
+            size=_sec_size,
+            size_change_type=TransitionType.LINEAR_DECREASE,
+            initial_color=RGB(110, 60, 10, 1),
+            ending_color=RGB(10, 10, 10, 1),  # smokelike
+            life_time=50,
+            # floating_multi=0.2,
+            gravity=0.07,
+        )
+
+        smoke_trails.append(smoke_trail)
+
+    if i % 3 == 0:
+        scenario.bg_pieces[0:0] = smoke_trails
+    else:
+        scenario.fg_pieces[0:0] = smoke_trails
+
+    for _ in range(round(size * 3)):
+        # TODO: make these sparks and other useful things into their own class
+        sparks = CircularParticle(
+            origin=PointF(
+                x=eye_x + random_offset() * source.radius * 2,
+                y=eye_y + random_offset() * source.radius * 2,
+            ),
+            initial_velocity=VectorF(0, 0)
+            if vel_magnitude == 0
+            else (
+                VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
+            ).as_vector(),
+            size=0.5,
+            initial_color=RGB(255, 255, 200, 1),  # almost white hot
+            ending_color=RGB(40, 5, 0, 1),  # dark orange
+            life_time=70,
+            gravity=0.1,
+        )
+        particles.append(sparks)
+
+    scenario.bg_pieces[0:0] = particles
+
+
+def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
+    if random_offset() < 0.25:
+        return
+
+    smokes: list[CircularParticle] = []
+    main_smoke = CircularParticle(
+        origin=source.center,
+        initial_velocity=(3 * source.velocity).as_vector(),
+        size=source.radius / 2,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=RGB(110, 90, 90, 1),
+        ending_color=RGB(30, 30, 30, 1),  # smokelike
+        life_time=30,
+        gravity=-0.07,
+        # floating_multi=0.1,
+    )
+    smokes.append(main_smoke)
+
+    if random_offset() > 0:
+        scenario.fg_pieces[0:0] = smokes
+    else:
+        scenario.bg_pieces[0:0] = smokes

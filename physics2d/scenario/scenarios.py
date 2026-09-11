@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from constants import ALMOST_ZERO
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from model.base import PointF, VectorF
+from model.theme import RGB
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
 from physics2d.scenario.pieces.circunference import CircunferencePiece
@@ -20,10 +21,24 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         Enemy(
             size=10,
             health=100,
-            name="BadEnemy",
+            name="SmollEnemy",
             position=PointF(150, 200),
-            theme=Theme(color=Red(1)),
-        )
+            theme=Theme(color=RGB(255, 150, 150, 1)),
+        ),
+        Enemy(
+            size=20,
+            health=400,
+            name="MidEnemy",
+            position=PointF(150, 150),
+            theme=Theme(color=RGB(255, 100, 100, 1)),
+        ),
+        Enemy(
+            size=30,
+            health=600,
+            name="BigEnemy",
+            position=PointF(150, 100),
+            theme=Theme(color=RGB(170, 0, 0, 1)),
+        ),
     ]
 
     line_1 = LinePiece(

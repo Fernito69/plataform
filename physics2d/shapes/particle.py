@@ -3,11 +3,12 @@ from abc import abstractmethod
 from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
+from physics2d.entities.equipment.model.shared import ParticleGenerator
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.line import Line
 from physics2d.shapes.model.shared import TransitionType
-from utils import get_normal_unit_vector_from_line, random_offset, random_offset_vector
+from utils import get_normal_unit_vector_from_line, random_offset
 
 
 class Particle:
@@ -21,6 +22,8 @@ class Particle:
 
     size_change_type: TransitionType
 
+    _particle_generator: ParticleGenerator | None
+
     def __init__(
         self,
         initial_color: RGB,
@@ -30,6 +33,7 @@ class Particle:
         size_change_type: TransitionType = TransitionType.NONE,
         ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
         floating_multi: float = 0,
+        particle_generator: ParticleGenerator | None = None,
     ):
         self.life_time = life_time
         self._original_life_time = life_time
@@ -39,11 +43,16 @@ class Particle:
         self.size_change_type = size_change_type
         self.initial_velocity = initial_velocity
         self.floating_multi = floating_multi
+        self._particle_generator = particle_generator
 
     # TODO: type this
     def do_your_thing(self, engine) -> None:
         self._act(engine)
         self._handle_lifetime()
+
+        # TODO: fix this, should apply for any shape/entity
+        if self._particle_generator and isinstance(self, Circunference):
+            self._particle_generator(engine.scenario, self)
 
     @abstractmethod
     def _act(cls, engine) -> None: ...
@@ -71,6 +80,8 @@ class CircularParticle(Particle, Circunference):
         size_change_type: TransitionType = TransitionType.NONE,
         ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
         floating_multi: float = 0,
+        is_collideable: bool = False,
+        particle_generator: ParticleGenerator | None = None,
     ):
         self.life_time = life_time
         self._original_life_time = life_time
@@ -86,6 +97,8 @@ class CircularParticle(Particle, Circunference):
         self.velocity = initial_velocity
         self.radius = size
         self.center = origin
+        self.is_collideable = is_collideable
+        self._particle_generator = particle_generator
 
         super().__init__(
             initial_color=initial_color,
@@ -94,6 +107,7 @@ class CircularParticle(Particle, Circunference):
             life_time=life_time,
             size_change_type=size_change_type,
             floating_multi=floating_multi,
+            particle_generator=particle_generator,
         )
         Circunference.__init__(
             self,
@@ -105,6 +119,7 @@ class CircularParticle(Particle, Circunference):
             initial_velocity=initial_velocity,
             radius=size,
             center=origin,
+            is_collideable=is_collideable,
         )
 
     def _handle_lifetime(self) -> None:

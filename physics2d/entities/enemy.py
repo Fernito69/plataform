@@ -1,19 +1,21 @@
 from model.base import PointF, VectorF
-from model.theme import Theme
+from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
+from physics2d.shapes.factories.explosion import explosion
 from physics2d.shapes.shape import Shape
 
 
 class Enemy(PhysicsEntity):
     extra_shapes: list[Shape]
-    health: int
+    health: float
+    _initial_health: float
 
     def __init__(
         self,
         size: float,
-        health: int,
+        health: float,
         density: float = 1,
-        name: str = "PhysicsEntity",
+        name: str = "Enemy",
         position: PointF = PointF(0, 0),
         velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
@@ -43,3 +45,38 @@ class Enemy(PhysicsEntity):
         )
         self.extra_shapes = []
         self.health = health
+        self._initial_health = health
+        self.name = name
+
+    def _receive_damage(self, amount: float) -> None:
+        self.health -= amount
+
+        if not self.theme.color:
+            return
+
+        _factor = self.health / self._initial_health
+        _new_color = self.theme.color.with_intensity(_factor) + (
+            self.secondary_theme.color
+            if self.secondary_theme and self.secondary_theme.color
+            else RGB(112, 77, 16, 1)  # horrible brown
+        )
+        self.theme.color = _new_color
+
+    def _die(self, engine, _death_explosion_size: int | None = None) -> None:
+        explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
+
+    # TODO: type this shit
+    def do_your_thing(self, engine) -> None:
+        super().do_your_thing(engine)
+
+        for projectile in engine.scenario.projectiles:
+            # we don't differentiate between friend or
+            if self.would_collide_with(projectile, engine):
+                self._receive_damage(projectile.damage)
+                # projectile gets remove from scenario
+                engine.scenario.projectiles.remove(projectile)
+
+        if self.health <= 0:
+            # die :(
+            self._die(engine)
+            engine.scenario.enemies = [e for e in engine.scenario.enemies if e is not self]

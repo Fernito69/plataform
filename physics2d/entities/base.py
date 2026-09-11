@@ -60,4 +60,4 @@ class PhysicsEntity(Circunference):
 
     def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement
-        return True
+        raise

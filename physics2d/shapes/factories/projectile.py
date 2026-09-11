@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 def bullet(scenario: "Scenario", source: "Circunference") -> None:
     bullet = Projectile(
+        # TODO: fix this typing in the ParticleGenerator
+        owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
             ((10 + random_offset()) * source.get_last_known_direction()) + source.velocity

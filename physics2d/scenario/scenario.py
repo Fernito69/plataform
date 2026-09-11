@@ -62,8 +62,10 @@ class Scenario:
     def act(self) -> None:
         self.player.do_your_thing()
 
-        for piece in self.fg_pieces + self.bg_pieces + self.solid_pieces + self.projectiles:
-            piece.do_your_thing(self.engine)
+        for entity in (
+            self.fg_pieces + self.bg_pieces + self.solid_pieces + self.projectiles + self.enemies
+        ):
+            entity.do_your_thing(self.engine)
 
         self._lifetime_cleanup()
         self._game_tick += 1
@@ -100,22 +102,22 @@ class Scenario:
 
     def render(self) -> None:
         # TODO: unify, we need a common class
-        def _handle_pieces(pieces: list[Shape] | list[Projectile] | list[Enemy]):
+        def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy]):
             for p in pieces:
                 self.handle_render_info(p.get_render_info())
 
-        _handle_pieces(self.fg_pieces)
+        _handle(self.fg_pieces)
 
         self.handle_render_info(self.player.get_render_info())
-        _handle_pieces(self.solid_pieces)
-        _handle_pieces(self.projectiles)
-        _handle_pieces(self.enemies)
+        _handle(self.solid_pieces)
+        _handle(self.projectiles)
+        _handle(self.enemies)
 
         # TODO: do something
         for e in self.enemies:
             _ = e.get_render_info()
 
-        _handle_pieces(self.bg_pieces)
+        _handle(self.bg_pieces)
 
     def handle_render_info(self, render_info: list[RenderInfo]) -> None:
         for info in render_info:

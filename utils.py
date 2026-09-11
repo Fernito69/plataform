@@ -13,9 +13,9 @@ _RESET = "\033[0m"
 _FG_CODE = "\033[38;2;"
 _BG_CODE = "\033[48;2;"
 
-# TODO: separate functions here
+# TODO: separate functions here by domain
 
-
+# TODO: make these built-in into vector
 def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
     return VectorF(scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset())
 
