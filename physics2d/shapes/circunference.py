@@ -47,6 +47,7 @@ class Circunference(Shape):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         density: float = 1,
+        is_collideable: bool = False,
     ):
         self.center = center
         self.radius = radius
@@ -54,8 +55,7 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
-        Shape.__init__(
-            self,
+        super().__init__(
             theme=theme,
             angle=angle,
             secondary_theme=secondary_theme,
@@ -68,6 +68,7 @@ class Circunference(Shape):
             name="Circunference",
             volume=self.volume,
             density=self.density,
+            is_collideable=is_collideable,
         )
 
     # TODO: unify with PlayerBlob

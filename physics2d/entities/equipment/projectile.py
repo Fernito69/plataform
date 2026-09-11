@@ -5,10 +5,13 @@ from physics2d.shapes.particle import CircularParticle
 
 
 class Projectile(CircularParticle):
+    damage: float
+
     def __init__(
         self,
         origin: PointF,
         size: float,
+        damage: float,
         initial_color: RGB,
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
@@ -30,3 +33,4 @@ class Projectile(CircularParticle):
             ending_color_fade_type,
             floating_multi,
         )
+        self.damage = damage

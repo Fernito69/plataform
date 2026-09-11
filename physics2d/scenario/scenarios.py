@@ -4,18 +4,27 @@ from constants import ALMOST_ZERO
 from factories.theme import Blue, Cyan, Green, Magenta, MakeColor, Red, Theme, White, Yellow
 from model.base import PointF, VectorF
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
-from physics2d.scenario.piece import ScenarioPiece
+from physics2d.entities.enemy import Enemy
 from physics2d.scenario.pieces.circunference import CircunferencePiece
 from physics2d.scenario.pieces.line import LinePiece
 from physics2d.scenario.pieces.rectangle import RectanglePiece
 from physics2d.scenario.scenario import Scenario
+from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
 def default_scenario(engine: "Physics2D") -> Scenario:
-    entities = []
+    enemies: list[Enemy] = [
+        Enemy(
+            size=10,
+            health=100,
+            name="BadEnemy",
+            position=PointF(150, 200),
+            theme=Theme(color=Red(1)),
+        )
+    ]
 
     line_1 = LinePiece(
         points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2
@@ -117,7 +126,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         floating_multi=0.005,
     )
 
-    fg_pieces: list[ScenarioPiece] = [
+    fg_pieces: list[Shape] = [
         line_1,
         # line_3,
         rectangle_3,
@@ -125,7 +134,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         rectangle_2,
     ]
 
-    solid_pieces: list[ScenarioPiece] = [
+    solid_pieces: list[Shape] = [
         CircunferencePiece(
             center=PointF(50, 50),
             theme=Theme(color=MakeColor(1, (255, 200, 255))),
@@ -142,7 +151,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         # fancy_rotating_line
     ]
 
-    bg_pieces: list[ScenarioPiece] = [
+    bg_pieces: list[Shape] = [
         bg_circle_5,
         bg_rectangle_1,
         # line_2,
@@ -153,7 +162,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     ]
 
     return Scenario(
-        entities=entities,
+        enemies=enemies,
         fg_pieces=fg_pieces,
         bg_pieces=bg_pieces,
         solid_pieces=solid_pieces,

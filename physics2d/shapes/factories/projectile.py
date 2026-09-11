@@ -1,3 +1,4 @@
+from random import random
 from typing import TYPE_CHECKING
 
 from model.theme import RGB
@@ -16,10 +17,11 @@ def bullet(scenario: "Scenario", source: "Circunference") -> None:
         initial_velocity=(
             ((10 + random_offset()) * source.get_last_known_direction()) + source.velocity
         ).as_vector(),
-        size=1,
+        size=0.7,
         size_change_type=TransitionType.NONE,
-        initial_color=RGB(255, 255, 255, 1),
+        initial_color=RGB(127 + random_offset() * 80, 255 - random() * 60, 255, 1),
         ending_color=RGB(30, 30, 30, intensity=1),
         life_time=50,
+        damage=10,
     )
     scenario.projectiles.append(bullet)

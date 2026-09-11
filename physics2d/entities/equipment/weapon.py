@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from model.theme import RGB, Theme
 from physics2d.entities.equipment.model.shared import ParticleGenerator
 from physics2d.shapes.factories.nozzle import machine_gun
 from physics2d.shapes.factories.projectile import bullet
@@ -12,16 +11,16 @@ if TYPE_CHECKING:
 
 class Weapon:
     name: str
-    scenario: "Scenario"
-    fire_particle_generator: ParticleGenerator
-    projectile_generator: ParticleGenerator
+    _scenario: "Scenario"
+    _fire_particle_generator: ParticleGenerator
+    _projectile_generator: ParticleGenerator
 
     # How long it has to wait until next shot
-    refractory_period: int
+    _refractory_period: int
     _refractory_limit: int
 
-    ammo: int
-    max_ammo: int
+    _ammo: int
+    _max_ammo: int
 
     def __init__(
         self,
@@ -33,23 +32,41 @@ class Weapon:
         refractory_period: int,
         ammo: int = 0,
     ):
-        self.scenario = scenario
+        self._scenario = scenario
         self.name = name
-        self.fire_particle_generator = fire_particle_generator
-        self.projectile_generator = projectile_generator
-        self.max_ammo = max_ammo
-        self.refractory_period = refractory_period
-        self.ammo = min(ammo, max_ammo)
+        self._fire_particle_generator = fire_particle_generator
+        self._projectile_generator = projectile_generator
+        self._max_ammo = max_ammo
+        self._refractory_period = refractory_period
+        self._ammo = min(ammo, max_ammo)
         self._refractory_limit = scenario.now()
 
     def fire(self) -> None:
-        if self.ammo <= 0 or self.scenario.now() < self._refractory_limit:
+        if self._ammo <= 0 or self._refractory_limit > self._scenario.now():
             return
-        self.fire_particle_generator(self.scenario, self.scenario.player)
-        self.projectile_generator(self.scenario, self.scenario.player)
-        self.ammo -= 1
 
-        self._refractory_limit = self.scenario.now() + self.refractory_period
+        self._fire_particle_generator(self._scenario, self._scenario.player)
+        self._projectile_generator(self._scenario, self._scenario.player)
+
+        self._spend_ammo()
+        self._effect_on_player()
+
+        self._refractory_limit = self._scenario.now() + self._refractory_period
+
+    @abstractmethod
+    def secondary_fire(self) -> None:
+        ...
+        # TODO: implement _secondary_projectile_generator, etc
+
+    @abstractmethod
+    def _spend_ammo(self) -> None:
+        ...
+        """Spend an amount of ammo per shot"""
+
+    @abstractmethod
+    def _effect_on_player(self) -> None:
+        ...
+        """e.g. recoil, etc."""
 
 
 class MachineGun(Weapon):
@@ -66,3 +83,10 @@ class MachineGun(Weapon):
             projectile_generator=bullet,
             ammo=1000,
         )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def secondary_fire(self) -> None:
+        ...
+        # TODO: todo stuff and bind the key

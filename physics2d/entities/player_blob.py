@@ -4,7 +4,7 @@ from model.base import PointF, VectorF
 from model.keyboard import ActionKeys, MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
-from physics2d.entities.base import PhyEntity
+from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.thruster import (
     MeteorThruster,
     PlasmaBallThruster,
@@ -13,7 +13,6 @@ from physics2d.entities.equipment.thruster import (
     Thruster,
 )
 from physics2d.entities.equipment.weapon import MachineGun, Weapon
-from physics2d.shapes.circunference import Circunference
 from terminal import on_key_press
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ _PLAYER_GRAVITY = 0  # we float freely!
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 
-class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
+class PlayerBlob(PhysicsEntity, KeyboardHandler):
     _thrusters: list[Thruster]
     _curr_thruster_index: int
     _last_known_direction: VectorF
@@ -45,19 +44,13 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         velocity=VectorF(0, 0),
         density: float = 1,
     ):
-        Circunference.__init__(
-            self,
-            center=position,
-            radius=_PLAYER_RADIUS,
-            theme=_PLAYER_THEME,
-        )
-        PhyEntity.__init__(
-            self,
+        super().__init__(
             name="PlayerBlob",
             position=position,
             velocity=velocity,
             density=density,
-            volume=self.volume,
+            size=_PLAYER_RADIUS,
+            theme=_PLAYER_THEME,
         )
         self.engine = engine
         self.center = position
@@ -93,7 +86,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     def _apply_movement(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
-        for piece in self.engine.scenario.solid_pieces:
+        for piece in self.engine.scenario.solid_pieces + self.engine.scenario.enemies:
             self.would_collide_with(piece, self.engine)
 
         self._move_by(self.velocity)

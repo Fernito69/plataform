@@ -3,7 +3,6 @@ from typing import Callable
 
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.scenario.piece import ScenarioPiece
 from physics2d.shapes.circunference import Circunference
 
 
@@ -12,8 +11,8 @@ class GetCircunferenceEquationResponse:
     get_ys: Callable[[float], tuple[float, float] | tuple[None, None]]
     get_xs: Callable[[float], tuple[float, float] | tuple[None, None]]
 
-
-class CircunferencePiece(Circunference, ScenarioPiece):
+# TODO: get rid of this shit
+class CircunferencePiece(Circunference):
     center: PointF
     radius: float
 
@@ -44,21 +43,6 @@ class CircunferencePiece(Circunference, ScenarioPiece):
             floating_multi=floating_multi,
             initial_angular_velocity=initial_angular_velocity,
             density=density,
-        )
-        # TODO: fix this, shuld not require the same params to init
-        ScenarioPiece.__init__(
-            self,
-            name="Circle",
-            density=density,
-            volume=self.volume,
-            theme=theme,
-            secondary_theme=secondary_theme,
-            angle=angle,
-            initial_velocity=initial_velocity,
-            affected_by_gravity=affected_by_gravity,
-            own_gravity=own_gravity,
-            floating_multi=floating_multi,
-            initial_angular_velocity=initial_angular_velocity,
         )
         self.center = center
         self.theme = theme

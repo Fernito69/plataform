@@ -95,7 +95,7 @@ def machine_gun(scenario: "Scenario", source: "Circunference") -> None:
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
             ending_color=RGB(80, 10, 0, 1),  # dark orange
             life_time=5,
-            gravity=0.2,
+            gravity=0.1,
         )
         sparks.append(spark)
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
-from physics2d.entities.base import PhyEntity
+from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
@@ -30,7 +30,7 @@ class Scenario:
 
     # TODO: add _debug_pieces, for angle lines, etc
 
-    entities: list[PhyEntity]
+    enemies: list[Enemy]
     gravity_acceleration: float
     player: PlayerBlob
 
@@ -39,14 +39,14 @@ class Scenario:
 
     def __init__(
         self,
-        entities: list[PhyEntity],
+        enemies: list[Enemy],
         engine: "Physics2D",
         player: PlayerBlob,
         fg_pieces: list[Shape] = [],
         bg_pieces: list[Shape] = [],
         solid_pieces: list[Shape] = [],
     ):
-        self.entities = entities
+        self.enemies = enemies
         self.fg_pieces = fg_pieces
         self.bg_pieces = bg_pieces
         self.solid_pieces = solid_pieces
@@ -100,7 +100,7 @@ class Scenario:
 
     def render(self) -> None:
         # TODO: unify, we need a common class
-        def _handle_pieces(pieces: list[Shape] | list[Projectile]):
+        def _handle_pieces(pieces: list[Shape] | list[Projectile] | list[Enemy]):
             for p in pieces:
                 self.handle_render_info(p.get_render_info())
 
@@ -109,9 +109,10 @@ class Scenario:
         self.handle_render_info(self.player.get_render_info())
         _handle_pieces(self.solid_pieces)
         _handle_pieces(self.projectiles)
+        _handle_pieces(self.enemies)
 
         # TODO: do something
-        for e in self.entities:
+        for e in self.enemies:
             _ = e.get_render_info()
 
         _handle_pieces(self.bg_pieces)

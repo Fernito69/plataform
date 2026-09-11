@@ -2,13 +2,14 @@ from typing import TYPE_CHECKING, Optional
 
 from model.base import PointF, VectorF
 from model.theme import Theme
+from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
 
 
-class PhyEntity(Shape):
+class PhysicsEntity(Circunference):
     position: PointF
     velocity: VectorF
 
@@ -17,9 +18,9 @@ class PhyEntity(Shape):
     def __init__(
         self,
         density: float,
-        volume: float,
+        size: float,
         scenario: Optional["Scenario"] = None,
-        name: str | None = None,
+        name: str = "PhysicsEntity",
         position: PointF = PointF(0, 0),
         velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
@@ -30,11 +31,12 @@ class PhyEntity(Shape):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        is_collideable: bool = True,
     ):
-        Shape.__init__(
-            self,
+        super().__init__(
+            center=position,
+            radius=size / 2,
             density=density,
-            volume=volume,
             theme=theme,
             angle=angle,
             secondary_theme=secondary_theme,
@@ -43,8 +45,7 @@ class PhyEntity(Shape):
             affected_by_gravity=affected_by_gravity,
             floating_multi=floating_multi,
             initial_velocity=initial_velocity,
-            center_of_mass=position,
-            name="Physics Entity",
+            is_collideable=is_collideable,
         )
         self._scenario = scenario
         self.position = position
@@ -57,6 +58,6 @@ class PhyEntity(Shape):
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
 
-    def is_same_position(self, shape: Shape) -> bool:
+    def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement
         return True
