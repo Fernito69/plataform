@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.particle import lightning_bolts, ln2_vapor, meteor_trail, sonic_wave
+from physics2d.shapes.factories.nozzle import machine_gun
 from physics2d.shapes.factories.projectile import bullet
 
 if TYPE_CHECKING:
@@ -62,7 +62,7 @@ class MachineGun(Weapon):
             scenario=scenario,
             max_ammo=1000,
             refractory_period=2,
-            fire_particle_generator=meteor_trail,
+            fire_particle_generator=machine_gun,
             projectile_generator=bullet,
             ammo=1000,
         )

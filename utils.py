@@ -160,6 +160,7 @@ def distance_between_points(
 #     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
+# TODO: deprecate in favor of PointF.rotate()
 def rotate_point(point: PointF, rotation_axis: PointF, angle: float) -> PointF:
     if angle == 0:
         return point
@@ -269,6 +270,11 @@ def get_angle_from_slope(slope: float | None) -> float:
 
 def get_line_angle(point1: PointF, point2: PointF) -> float:
     return get_angle_from_slope(get_slope(point1, point2))
+
+
+# TODO: make it built in into VectorF
+def get_vector_angle(vector: VectorF) -> float:
+    return get_angle_from_slope(get_slope(vector, 2 * vector))
 
 
 @dataclass
