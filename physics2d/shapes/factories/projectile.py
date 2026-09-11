@@ -1,11 +1,8 @@
-from random import random
 from typing import TYPE_CHECKING
 
-from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.shapes.model.shared import TransitionType
-from physics2d.shapes.shape import Shape
 from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from constants import PI, ALMOST_ZERO
+from constants import ALMOST_ZERO, PI
 
 # TODO: remove if unused
 type Tuple2[T: int | float] = tuple[T, T]
