@@ -388,8 +388,12 @@ class Display(KeyboardHandler):
             thruster = player.get_curr_thruster()
             hud += f"Thruster: {colored(thruster.name, thruster.player_theme.color)}{SEPARATOR}"
             weapon = player.get_curr_weapon()
+            ammo_ratio = (weapon.ammo / weapon.max_ammo) * 200
+            ammo_color = RGB(255 - ammo_ratio, 55 + ammo_ratio, 55, 1)
             hud += f"Weapon: {colored(weapon.name, White(1))}{SEPARATOR}"
-            hud += f"Ammo: {colored(str(weapon.ammo), White(1))}/{str(weapon.max_ammo)}{SEPARATOR}"
+            hud += (
+                f"Ammo: {colored(str(weapon.ammo), ammo_color)}/{str(weapon.max_ammo)}{SEPARATOR}"
+            )
 
             return hud
 

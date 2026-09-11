@@ -323,14 +323,15 @@ def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
     )
     pieces.append(l1)
 
-    eye = CircularParticle(
-        size=0.75,
-        initial_velocity=source.velocity,
-        origin=source.center + 0.15 * source.velocity,
-        initial_color=RGB(255, 0, 0, 1),
-        life_time=2,
-    )
-    scenario.fg_pieces.append(eye)
+    # TODO: why eye doesn't look well??
+    # eye = CircularParticle(
+    #     size=0.75,
+    #     initial_velocity=source.velocity,
+    #     origin=source.center + 0.15 * source.velocity,
+    #     initial_color=RGB(255, 0, 0, 1),
+    #     life_time=2,
+    # )
+    # scenario.fg_pieces.append(eye)
 
     # for _ in range(3):
     #     # little particles doing particle stuff

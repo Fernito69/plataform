@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from constants import PI
+from constants import PI, ALMOST_ZERO
 
 # TODO: remove if unused
 type Tuple2[T: int | float] = tuple[T, T]
@@ -97,7 +97,8 @@ class PointF:
 @dataclass
 class VectorF(PointF):
     def unit_vector(self) -> VectorF:
-        return ((1 / abs(self)) * self).as_vector()
+        magnitude = 1 / (abs(self) or ALMOST_ZERO)
+        return (magnitude * self).as_vector()
 
 
 @dataclass

@@ -15,7 +15,7 @@ class Weapon:
     scenario: "Scenario"
     fire_particle_generator: ParticleGenerator
     projectile_generator: ParticleGenerator
-    
+
     # How long it has to wait until next shot
     refractory_period: int
     _refractory_limit: int
@@ -39,7 +39,7 @@ class Weapon:
         self.projectile_generator = projectile_generator
         self.max_ammo = max_ammo
         self.refractory_period = refractory_period
-        self.ammo = ammo
+        self.ammo = min(ammo, max_ammo)
         self._refractory_limit = scenario.now()
 
     def fire(self) -> None:
@@ -64,5 +64,5 @@ class MachineGun(Weapon):
             refractory_period=2,
             fire_particle_generator=meteor_trail,
             projectile_generator=bullet,
-            ammo=500,
+            ammo=1000,
         )
