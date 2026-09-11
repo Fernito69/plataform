@@ -22,6 +22,7 @@ class Shape:
     _affected_by_gravity: bool
     _own_gravity_accel: float | None
     velocity: VectorF
+    _last_known_direction: VectorF
     angular_velocity: float
     # if > 0, it floats around randomly, like brownian motion
     floating_multi: float
@@ -74,6 +75,12 @@ class Shape:
             self.velocity.x,
             self.velocity.y - (self._own_gravity_accel or gravity_accel),
         )
+
+    def set_last_known_direction(self) -> None:
+        self._last_known_direction = self.velocity.unit_vector()
+
+    def get_last_known_direction(self) -> VectorF:
+        return self._last_known_direction or self.velocity.unit_vector()
 
     @abstractmethod
     def get_render_info(cls) -> list[RenderInfo]:

@@ -33,6 +33,7 @@ _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     _thrusters: list[Thruster]
     _curr_thruster_index: int
+    _last_known_direction: VectorF
 
     _weapons: list[Weapon]
     _curr_weapon_index: int
@@ -63,8 +64,9 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self.position = position
         self.radius = _PLAYER_RADIUS
         self.theme = _PLAYER_THEME
-        self.velocity = VectorF(0, 0)
+        self.velocity = velocity
         self.is_collideable = True
+        self._last_known_direction = velocity
         self.name = "PlayerBlob"
 
     ##############
@@ -72,7 +74,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
     ##############
 
     def do_your_thing(self) -> None:
-        self._get_curr_thruster().handle_particles()
+        self.get_curr_thruster().handle_particles()
 
         self.handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
@@ -178,11 +180,11 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             if len(self._thrusters) > self._curr_thruster_index + 1
             else 0
         )
-        self.theme = self._get_curr_thruster().player_theme
+        self.theme = self.get_curr_thruster().player_theme
 
     @on_key_press(ActionKeys.SHOOT)
     def _shoot(self) -> None:
-        self._get_curr_weapon().fire()
+        self.get_curr_weapon().fire()
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:
@@ -202,6 +204,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             return
 
         self.velocity = (self.velocity + VectorF(0, self._get_accel())).as_vector()
+        self.set_last_known_direction()
 
     @on_key_press(MovementKeys.DOWN)
     def _move_down(self) -> None:
@@ -209,6 +212,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             return
 
         self.velocity = (self.velocity + VectorF(0, -self._get_accel())).as_vector()
+        self.set_last_known_direction()
 
     @on_key_press(MovementKeys.LEFT)
     def _move_left(self) -> None:
@@ -216,6 +220,7 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             return
 
         self.velocity = (self.velocity + VectorF(-self._get_accel(), 0)).as_vector()
+        self.set_last_known_direction()
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_right(self) -> None:
@@ -223,21 +228,22 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
             return
 
         self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
+        self.set_last_known_direction()
 
-    def _get_curr_thruster(self) -> Thruster:
+    def get_curr_thruster(self) -> Thruster:
         return self._thrusters[self._curr_thruster_index]
 
-    def _get_curr_weapon(self) -> Weapon:
+    def get_curr_weapon(self) -> Weapon:
         return self._weapons[self._curr_weapon_index]
 
     def _get_max_speed(self) -> float:
-        return self._get_curr_thruster().max_speed
+        return self.get_curr_thruster().max_speed
 
     def _get_accel(self) -> float:
-        return self._get_curr_thruster().accel
+        return self.get_curr_thruster().accel
 
     def _get_decel(self) -> float:
-        return self._get_curr_thruster().decel
+        return self.get_curr_thruster().decel
 
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
@@ -250,4 +256,4 @@ class PlayerBlob(PhyEntity, Circunference, KeyboardHandler):
         self._curr_thruster_index = 0
         self._weapons = [MachineGun(self.engine.scenario)]
         self._curr_weapon_index = 0
-        self.theme = self._get_curr_thruster().player_theme
+        self.theme = self.get_curr_thruster().player_theme

@@ -385,8 +385,11 @@ class Display(KeyboardHandler):
         if isinstance(player, PlayerBlob):
             hud += f"Velocity: ({round(player.velocity.x, 1)},{round(player.velocity.y, 1)}){SEPARATOR}"
             hud += f"Position: ({round(player.position.x, 1)},{round(player.position.y, 1)}){SEPARATOR}"
-            thruster = player._thrusters[player._curr_thruster_index]
+            thruster = player.get_curr_thruster()
             hud += f"Thruster: {colored(thruster.name, thruster.player_theme.color)}{SEPARATOR}"
+            weapon = player.get_curr_weapon()
+            hud += f"Weapon: {colored(weapon.name, White(1))}{SEPARATOR}"
+            hud += f"Ammo: {colored(str(weapon.ammo), White(1))}{SEPARATOR}"
 
             return hud
 

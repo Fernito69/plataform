@@ -95,7 +95,9 @@ class PointF:
 
 
 @dataclass
-class VectorF(PointF): ...
+class VectorF(PointF):
+    def unit_vector(self) -> VectorF:
+        return ((1 / abs(self)) * self).as_vector()
 
 
 @dataclass
