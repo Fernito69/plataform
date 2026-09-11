@@ -17,12 +17,12 @@ def bullet(scenario: "Scenario", source: "Circunference") -> None:
     bullet = Projectile(
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            ((5 + random_offset()) * source.get_last_known_direction()) + source.velocity
+            ((10 + random_offset()) * source.get_last_known_direction()) + source.velocity
         ).as_vector(),
         size=1,
         size_change_type=TransitionType.NONE,
         initial_color=RGB(255, 255, 255, 1),
-        ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+        ending_color=RGB(30, 30, 30, intensity=1),
         life_time=50,
     )
     scenario.projectiles.append(bullet)
