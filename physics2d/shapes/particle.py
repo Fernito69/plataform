@@ -99,7 +99,6 @@ class CircularParticle(Particle, PhysicsEntity):
         self.center = origin
         self.is_collideable = is_collideable
         self._particle_generator = particle_generator
-
         self.position = origin
 
         super().__init__(
@@ -123,7 +122,6 @@ class CircularParticle(Particle, PhysicsEntity):
             is_collideable=is_collideable,
             density=1,
             size=size * 2,
-            velocity=initial_velocity,
         )
 
     def _handle_lifetime(self) -> None:

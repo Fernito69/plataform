@@ -9,14 +9,14 @@ from physics2d.shapes.shape import Shape
 from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.scenario.scenario import Scenario
-    from physics2d.shapes.circunference import Circunference
 
 _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 _THRUST_FIRE_DISTANCE_FACTOR = 1
 
 
-def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
+def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -102,7 +102,7 @@ def meteor_trail(scenario: "Scenario", source: "Circunference") -> None:
     #         scenario.bg_pieces.append(pieces[index])
 
 
-def ln2_vapor(scenario: "Scenario", source: "Circunference") -> None:
+def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[CircularParticle] = []
     velocity_magnitude = abs(source.velocity)
 
@@ -185,7 +185,7 @@ def ln2_vapor(scenario: "Scenario", source: "Circunference") -> None:
             scenario.bg_pieces.append(pieces[index])
 
 
-def sonic_wave(scenario: "Scenario", source: "Circunference") -> None:
+def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
     vel_magnitude = abs(source.velocity)
@@ -294,7 +294,7 @@ def sonic_wave(scenario: "Scenario", source: "Circunference") -> None:
     scenario.bg_pieces[0:0] = pieces
 
 
-def lightning_bolts(scenario: "Scenario", source: "Circunference") -> None:
+def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
     vel_magnitude = abs(source.velocity)

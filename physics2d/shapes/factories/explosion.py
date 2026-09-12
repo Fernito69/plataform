@@ -8,11 +8,11 @@ from physics2d.shapes.particle import CircularParticle
 from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.scenario.scenario import Scenario
-    from physics2d.shapes.circunference import Circunference
 
 
-def explosion(scenario: "Scenario", source: "Circunference", size: float) -> None:
+def explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) -> None:
     particles: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -153,7 +153,7 @@ def explosion(scenario: "Scenario", source: "Circunference", size: float) -> Non
 #################################################################
 
 
-def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
+def smoke_generator(scenario: "Scenario", source: "PhysicsEntity") -> None:
     if random_offset() < 0.25:
         return
 
@@ -180,18 +180,18 @@ def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
 #################################################################
 
 
-def bullet_ricochet(scenario: "Scenario", source: "Circunference") -> None:
+def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _main_explosion_color = (
         RGB(
             255,
-            180 * random(),
-            50 * random(),
+            150 + 100 * random(),
+            150 * random(),
         ).with_intensity(1)
         if random_offset() > 0
         else RGB(
             255,
             255 - 30 * random(),
-            1 * random(),
+            100 * random(),
         ).with_intensity(1)
     )
 
@@ -213,7 +213,7 @@ def bullet_ricochet(scenario: "Scenario", source: "Circunference") -> None:
     ricochet = CircularParticle(
         origin=source.center,
         initial_velocity=(
-            (-1 / 4) * source.velocity
+            (-0.25) * source.velocity
             + VectorF(0, 2 * random_offset()).rotate(
                 get_vector_angle((-source.velocity).as_vector())
             )

@@ -200,14 +200,22 @@ class Circunference(Shape):
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
     def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D") -> bool:
-        if not self.is_collideable or not colliding_shape.is_collideable:
+        from physics2d.entities.equipment.projectile import Projectile
+
+        if (
+            not self.is_collideable
+            or not colliding_shape.is_collideable
+            or self is colliding_shape
+            # TODO: do we want this? maybe we want to get hit by our own stuff
+            or (isinstance(self, Projectile) and self.owner is colliding_shape)
+        ):
             return False
 
         # TODO: this doesn't work, if velocity is too high, we get fucked
         # new_pos = (0.6 * self.velocity) + self.center
 
         # TODO: I know this is expensive and dumb, but let's see if it improves it
-        ranges = [0.1, 0.3, 0.4, 0.6, 0.9]
+        ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
 
         for value in ranges:
             new_pos = (value * self.velocity) + self.center

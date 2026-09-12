@@ -22,7 +22,7 @@ class PhysicsEntity(Circunference):
         scenario: Optional["Scenario"] = None,
         name: str = "PhysicsEntity",
         position: PointF = PointF(0, 0),
-        velocity: VectorF = VectorF(0, 0),
+        # velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -49,7 +49,7 @@ class PhysicsEntity(Circunference):
         )
         self._scenario = scenario
         self.position = position
-        self.velocity = velocity
+
         self.density = density
         self.name = name
         self.size = size

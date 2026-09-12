@@ -14,19 +14,22 @@ if TYPE_CHECKING:
 
 
 def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    _DAMAGE = 10
+    _BULLET_SPEED = 10
+
     bullet = Projectile(
         # TODO: fix this typing in the ParticleGeneratorm should be PhysicsEntity?
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            -((10 + random_offset()) * source.get_last_known_direction()) + source.velocity
+            (_BULLET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
         ).as_vector(),
         size=0.7,
         size_change_type=TransitionType.NONE,
         initial_color=RGB(127 + random_offset() * 80, 255 - random() * 60, 255, 1),
-        ending_color=RGB(30, 30, 30, intensity=1),
+        ending_color=RGB(30, 30, 30, 1),
         life_time=50,
-        damage=10,
+        damage=_DAMAGE,
         explosion_generator=bullet_ricochet,
     )
     scenario.projectiles.append(bullet)
@@ -34,6 +37,10 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _NUM_PELLETS = 10
+    _SPREAD = 3
+    _DAMAGE = 8
+    _BULLET_SPEED = 8
+
     pellets: list[Projectile] = []
 
     for _ in range(_NUM_PELLETS):
@@ -41,20 +48,18 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
             owner=source,
             origin=source.center + random_offset_vector(),
             initial_velocity=(
-                -(
-                    ((10 + random_offset()) * source.get_last_known_direction())
-                    + source.velocity
-                    + VectorF(0, 2 * random_offset()).rotate(
-                        get_vector_angle((-source.velocity).as_vector())
-                    )
+                ((_BULLET_SPEED + random_offset()) * source.get_last_known_direction())
+                + source.velocity
+                + VectorF(0, _SPREAD * random_offset()).rotate(
+                    get_vector_angle((-source.velocity).as_vector())
                 )
             ).as_vector(),
             size=0.6,
             size_change_type=TransitionType.NONE,
-            initial_color=RGB(127 + random_offset() * 80, 255 - random() * 60, 255, 1),
+            initial_color=RGB(255, 0, 127),
             ending_color=RGB(30, 30, 30, intensity=1),
             life_time=50,
-            damage=8,
+            damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
         )
         pellets.append(pellet)

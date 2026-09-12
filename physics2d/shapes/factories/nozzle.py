@@ -4,18 +4,14 @@ from model.base import VectorF
 from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
-from utils import (
-    get_vector_angle,
-    random_offset,
-    random_offset_vector,
-)
+from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.scenario.scenario import Scenario
-    from physics2d.shapes.circunference import Circunference
 
 
-def machine_gun(scenario: "Scenario", source: "Circunference") -> None:
+def machine_gun(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _fire_1_color = (
         RGB(
             255,
@@ -105,7 +101,7 @@ def machine_gun(scenario: "Scenario", source: "Circunference") -> None:
 ################
 
 
-def shotgun(scenario: "Scenario", source: "Circunference") -> None:
+def shotgun(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TODO: this is copy/paste, generalize
     _fire_1_color = (
         RGB(
