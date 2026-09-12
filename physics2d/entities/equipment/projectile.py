@@ -4,16 +4,18 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
-from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.entities.enemy import Enemy
+    from physics2d.entities.equipment.model.shared import ParticleGenerator
     from physics2d.entities.player_blob import PlayerBlob
+    from physics2d.physics2d import Physics2D
 
 
 class Projectile(CircularParticle):
     damage: float
     owner: "PlayerBlob | Enemy"
+    _explosion_generator: "ParticleGenerator"
 
     def __init__(
         self,
@@ -22,6 +24,7 @@ class Projectile(CircularParticle):
         size: float,
         damage: float,
         initial_color: RGB,
+        explosion_generator: "ParticleGenerator",
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
         ending_color: RGB | None = None,
@@ -46,12 +49,8 @@ class Projectile(CircularParticle):
         self.owner = owner
         self.name = "Projectile"
         self.is_collideable = True
+        self._explosion_generator = explosion_generator
 
-    # def would_collide_with(self, colliding_shape: Shape, engine) -> None:
-    #     if super().would_collide_with(colliding_shape, engine):
-    #         from physics2d.entities.enemy import Enemy
-    #         if isinstance(colliding_shape, Enemy):
-    #             colliding_shape._receive_damage(self.damage)
-    #             engine.scenario.projectiles = [
-    #                 p for p in engine.scenario.projectiles if p is not self
-    #             ]
+    def hit(self, engine: "Physics2D") -> None:
+        self._explosion_generator(engine.scenario, self)
+        engine.scenario.projectiles.remove(self)

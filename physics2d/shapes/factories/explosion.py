@@ -6,7 +6,7 @@ from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle, Lightning
 from physics2d.shapes.shape import Shape
-from utils import random_offset, random_offset_vector
+from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -150,3 +150,47 @@ def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
         scenario.fg_pieces[0:0] = smokes
     else:
         scenario.bg_pieces[0:0] = smokes
+
+
+def bullet_ricochet(scenario: "Scenario", source: "Circunference") -> None:
+    _main_explosion_color = (
+        RGB(
+            255,
+            180 * random(),
+            50 * random(),
+        ).with_intensity(1)
+        if random_offset() > 0
+        else RGB(
+            255,
+            255 - 30 * random(),
+            1 * random(),
+        ).with_intensity(1)
+    )
+
+    explosion = CircularParticle(
+        origin=source.center + random_offset_vector(),
+        initial_velocity=VectorF(0, 0),
+        size=2,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=_main_explosion_color,
+        ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+        life_time=15,
+        gravity=-0.02,
+    )
+    scenario.fg_pieces.append(explosion)
+
+    if scenario.now() % 5 < 1:
+        return
+
+    ricochet = CircularParticle(
+        origin=source.center,
+        initial_velocity=VectorF(source.velocity.x, random_offset() * 8)
+        .rotate(get_vector_angle(source.velocity))
+        .as_vector(),
+        size=0.5,
+        initial_color=RGB(255, 255, 240, 1),  # almost white hot
+        ending_color=RGB(100, 60, 0, 1),  # dark orange
+        life_time=30,
+        gravity=0.1,
+    )
+    scenario.bg_pieces.append(ricochet)

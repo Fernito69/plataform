@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
+from physics2d.shapes.factories.explosion import bullet_ricochet
 from physics2d.shapes.model.shared import TransitionType
 from utils import random_offset, random_offset_vector
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 def bullet(scenario: "Scenario", source: "Circunference") -> None:
     bullet = Projectile(
-        # TODO: fix this typing in the ParticleGenerator
+        # TODO: fix this typing in the ParticleGeneratorm should be PhysicsEntity?
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
@@ -25,5 +26,6 @@ def bullet(scenario: "Scenario", source: "Circunference") -> None:
         ending_color=RGB(30, 30, 30, intensity=1),
         life_time=50,
         damage=10,
+        explosion_generator=bullet_ricochet,
     )
     scenario.projectiles.append(bullet)

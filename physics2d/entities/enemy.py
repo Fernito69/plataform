@@ -73,8 +73,7 @@ class Enemy(PhysicsEntity):
             # we don't differentiate between friend or
             if self.would_collide_with(projectile, engine):
                 self._receive_damage(projectile.damage)
-                # projectile gets remove from scenario
-                engine.scenario.projectiles.remove(projectile)
+                projectile.hit(engine)
 
         if self.health <= 0:
             # die :(
