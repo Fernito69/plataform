@@ -6,20 +6,19 @@ from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
 
 if TYPE_CHECKING:
-    from physics2d.entities.enemy import Enemy
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.equipment.model.shared import ParticleGenerator
-    from physics2d.entities.player_blob import PlayerBlob
     from physics2d.physics2d import Physics2D
 
 
 class Projectile(CircularParticle):
     damage: float
-    owner: "PlayerBlob | Enemy"
+    owner: "PhysicsEntity"
     _explosion_generator: "ParticleGenerator"
 
     def __init__(
         self,
-        owner: "PlayerBlob | Enemy",
+        owner: "PhysicsEntity",
         origin: PointF,
         size: float,
         damage: float,

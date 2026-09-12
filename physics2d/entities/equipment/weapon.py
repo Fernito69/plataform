@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from physics2d.entities.equipment.model.shared import ParticleGenerator
 from physics2d.shapes.factories.nozzle import machine_gun
-from physics2d.shapes.factories.projectile import bullet
+from physics2d.shapes.factories.projectile import buckshot, bullet
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -69,6 +69,9 @@ class Weapon:
         """e.g. recoil, etc."""
 
 
+#################################################################
+
+
 class MachineGun(Weapon):
     def __init__(
         self,
@@ -90,3 +93,27 @@ class MachineGun(Weapon):
     def secondary_fire(self) -> None:
         ...
         # TODO: todo stuff and bind the key
+
+
+#################################################################
+
+
+class Shotgun(Weapon):
+    def __init__(
+        self,
+        scenario: "Scenario",
+    ):
+        super().__init__(
+            name="Shotgun",
+            scenario=scenario,
+            max_ammo=100,
+            refractory_period=10,
+            fire_particle_generator=machine_gun,
+            projectile_generator=buckshot,
+            ammo=100,
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def secondary_fire(self) -> None: ...

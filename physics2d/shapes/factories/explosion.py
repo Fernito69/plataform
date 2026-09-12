@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
-from physics2d.shapes.particle import CircularParticle, Lightning
-from physics2d.shapes.shape import Shape
+from physics2d.shapes.particle import CircularParticle
 from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
@@ -21,11 +20,34 @@ def explosion(scenario: "Scenario", source: "Circunference", size: float) -> Non
     eye_x = source.center.x - source.velocity.x
     eye_y = source.center.y - source.velocity.y
 
+    core_explosion_1 = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=source.velocity,
+        size=size * 0.5,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=RGB(255, 255, 255, 1),
+        ending_color=RGB(180, 180, 120, intensity=1),  # smokelike
+        life_time=20,
+        gravity=-0.08,
+    )
+    core_explosion_2 = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=source.velocity,
+        size=size * 0.75,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=RGB(255, 255, 80, 1),
+        ending_color=RGB(140, 140, 30, intensity=1),  # smokelike
+        life_time=25,
+        gravity=-0.075,
+    )
+    particles.append(core_explosion_1)
+    particles.append(core_explosion_2)
+
     # METEOR KINDA TRAIL
     _main_explosion_color = (
         RGB(
             255,
-            90 * random(),
+            160 * random(),
             50 * random(),
         ).with_intensity(1)
         if random_offset() > 0
@@ -128,6 +150,9 @@ def explosion(scenario: "Scenario", source: "Circunference", size: float) -> Non
     scenario.bg_pieces[0:0] = particles
 
 
+#################################################################
+
+
 def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
     if random_offset() < 0.25:
         return
@@ -150,6 +175,9 @@ def smoke_generator(scenario: "Scenario", source: "Circunference") -> None:
         scenario.fg_pieces[0:0] = smokes
     else:
         scenario.bg_pieces[0:0] = smokes
+
+
+#################################################################
 
 
 def bullet_ricochet(scenario: "Scenario", source: "Circunference") -> None:
@@ -184,13 +212,16 @@ def bullet_ricochet(scenario: "Scenario", source: "Circunference") -> None:
 
     ricochet = CircularParticle(
         origin=source.center,
-        initial_velocity=VectorF(source.velocity.x, random_offset() * 8)
-        .rotate(get_vector_angle(source.velocity))
-        .as_vector(),
+        initial_velocity=(
+            (-1 / 4) * source.velocity
+            + VectorF(0, 2 * random_offset()).rotate(
+                get_vector_angle((-source.velocity).as_vector())
+            )
+        ).as_vector(),
         size=0.5,
         initial_color=RGB(255, 255, 240, 1),  # almost white hot
         ending_color=RGB(100, 60, 0, 1),  # dark orange
-        life_time=30,
+        life_time=10,
         gravity=0.1,
     )
     scenario.bg_pieces.append(ricochet)

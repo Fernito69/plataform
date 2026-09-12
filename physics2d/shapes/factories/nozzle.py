@@ -76,7 +76,7 @@ def machine_gun(scenario: "Scenario", source: "Circunference") -> None:
         life_time=4,
     )
     sparks: list[CircularParticle] = []
-    if scenario.now() % 2 == 0:
+    if scenario.now() % 3 == 0:
         spark = CircularParticle(
             origin=source.center
             + 4.5 * (source.get_last_known_direction() + random_offset_vector()),

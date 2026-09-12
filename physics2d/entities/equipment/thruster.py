@@ -39,6 +39,9 @@ class Thruster:
         self.particle_generator(self.scenario, self.scenario.player)
 
 
+#################################################################
+
+
 class SoapyThruster(Thruster):
     """Looks like SOAP bubbles!"""
 
@@ -54,6 +57,9 @@ class SoapyThruster(Thruster):
             accel=0.4,
             decel=0.2,
         )
+
+
+#################################################################
 
 
 class MeteorThruster(Thruster):
@@ -73,6 +79,9 @@ class MeteorThruster(Thruster):
         )
 
 
+#################################################################
+
+
 class SonicThruster(Thruster):
     """I dunno!"""
 
@@ -88,6 +97,9 @@ class SonicThruster(Thruster):
             accel=2,
             decel=1.5,
         )
+
+
+#################################################################
 
 
 class PlasmaBallThruster(Thruster):

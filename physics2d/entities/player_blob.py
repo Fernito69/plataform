@@ -12,7 +12,7 @@ from physics2d.entities.equipment.thruster import (
     SonicThruster,
     Thruster,
 )
-from physics2d.entities.equipment.weapon import MachineGun, Weapon
+from physics2d.entities.equipment.weapon import MachineGun, Shotgun, Weapon
 from terminal import on_key_press
 
 if TYPE_CHECKING:
@@ -185,7 +185,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             self._curr_weapon_index + 1 if len(self._weapons) > self._curr_weapon_index + 1 else 0
         )
 
-    @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
+    @on_key_press(ActionKeys.PREVIOUS_WEAPON, act_once_per_press=True)
     def _previous_weapon(self) -> None:
         self._curr_weapon_index = (
             self._curr_weapon_index - 1 if self._curr_weapon_index > 0 else len(self._weapons) - 1
@@ -247,6 +247,6 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             PlasmaBallThruster(self.engine.scenario),
         ]
         self._curr_thruster_index = 0
-        self._weapons = [MachineGun(self.engine.scenario)]
+        self._weapons = [MachineGun(self.engine.scenario), Shotgun(self.engine.scenario)]
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme
