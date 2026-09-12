@@ -12,7 +12,7 @@ from physics2d.entities.equipment.thruster import (
     SonicThruster,
     Thruster,
 )
-from physics2d.entities.equipment.weapon import MachineGun, Shotgun, Weapon
+from physics2d.entities.equipment.weapon import LightningGun, MachineGun, Shotgun, Weapon
 from terminal import on_key_press
 
 if TYPE_CHECKING:
@@ -247,6 +247,10 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             PlasmaBallThruster(self.engine.scenario),
         ]
         self._curr_thruster_index = 0
-        self._weapons = [MachineGun(self.engine.scenario), Shotgun(self.engine.scenario)]
+        self._weapons = [
+            MachineGun(self.engine.scenario),
+            Shotgun(self.engine.scenario),
+            LightningGun(self.engine.scenario),
+        ]
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme

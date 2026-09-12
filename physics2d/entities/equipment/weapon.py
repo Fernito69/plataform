@@ -1,9 +1,10 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+from model.theme import RGB
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.nozzle import machine_gun, shotgun
-from physics2d.shapes.factories.projectile import buckshot, bullet
+from physics2d.shapes.factories.nozzle import machine_gun, shotgun, lightning
+from physics2d.shapes.factories.projectile import buckshot, bullet, lightning_bolts
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -11,6 +12,8 @@ if TYPE_CHECKING:
 
 class Weapon:
     name: str
+    color: RGB
+
     _scenario: "Scenario"
     _fire_particle_generator: ParticleGenerator
     _projectile_generator: ParticleGenerator
@@ -26,6 +29,7 @@ class Weapon:
         self,
         scenario: "Scenario",
         name: str,
+        color: RGB,
         max_ammo: int,
         fire_particle_generator: ParticleGenerator,
         projectile_generator: ParticleGenerator,
@@ -34,6 +38,7 @@ class Weapon:
     ):
         self._scenario = scenario
         self.name = name
+        self.color = color
         self._fire_particle_generator = fire_particle_generator
         self._projectile_generator = projectile_generator
         self._max_ammo = max_ammo
@@ -85,6 +90,7 @@ class MachineGun(Weapon):
             fire_particle_generator=machine_gun,
             projectile_generator=bullet,
             ammo=1000,
+            color=RGB(255, 200, 255, 1),
         )
 
     def _spend_ammo(self) -> None:
@@ -111,6 +117,7 @@ class Shotgun(Weapon):
             fire_particle_generator=shotgun,
             projectile_generator=buckshot,
             ammo=100,
+            color=RGB(255, 0, 127, 1),
         )
 
     def _spend_ammo(self) -> None:
@@ -121,5 +128,32 @@ class Shotgun(Weapon):
         self._scenario.player.velocity = (
             self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
         ).as_vector()
+
+    def secondary_fire(self) -> None: ...
+
+
+#################################################################
+
+
+class LightningGun(Weapon):
+    def __init__(
+        self,
+        scenario: "Scenario",
+    ):
+        super().__init__(
+            name="LightningGun",
+            scenario=scenario,
+            max_ammo=1000,
+            refractory_period=0,
+            fire_particle_generator=lightning,
+            projectile_generator=lightning_bolts,
+            ammo=1000,
+            color=RGB(220, 220, 255, 1),
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def _effect_on_player(self) -> None: ...
 
     def secondary_fire(self) -> None: ...

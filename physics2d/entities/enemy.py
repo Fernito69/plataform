@@ -47,7 +47,7 @@ class Enemy(PhysicsEntity):
         self._initial_health = health
         self.name = name
 
-    def _receive_damage(self, amount: float) -> None:
+    def receive_damage(self, amount: float) -> None:
         self.health -= amount
 
         if not self.theme.color:
@@ -71,7 +71,7 @@ class Enemy(PhysicsEntity):
         for projectile in engine.scenario.projectiles:
             # we don't differentiate between friend or
             if self.would_collide_with(projectile, engine):
-                self._receive_damage(projectile.damage)
+                self.receive_damage(projectile.damage)
                 projectile.hit(engine)
 
         if self.health <= 0:

@@ -254,9 +254,9 @@ class Circunference(Shape):
                         - (self.velocity * elastic_transfer_factor)
                     ).as_vector()
 
-                    engine.display.debug_log(
-                        f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
-                    )
+                    # engine.display.debug_log(
+                    #     f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
+                    # )
 
                     self.velocity = new_velocity
                     return True

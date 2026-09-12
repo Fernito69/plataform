@@ -390,7 +390,7 @@ class Display(KeyboardHandler):
             weapon = player.get_curr_weapon()
             ammo_ratio = (weapon._ammo / weapon._max_ammo) * 200
             ammo_color = RGB(255 - ammo_ratio, 55 + ammo_ratio, 55, 1)
-            hud += f"Weapon: {colored(weapon.name, White(1))}{SEPARATOR}"
+            hud += f"Weapon: {colored(weapon.name, weapon.color)}{SEPARATOR}"
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
