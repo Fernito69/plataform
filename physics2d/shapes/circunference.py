@@ -205,12 +205,14 @@ class Circunference(Shape):
 
         # TODO: this doesn't work, if velocity is too high, we get fucked
         # new_pos = (0.6 * self.velocity) + self.center
-        ranges = [0.1, 0.3, 0.6, 0.9]
 
-        # CASE: Ball x Ball
         # TODO: I know this is expensive and dumb, but let's see if it improves it
+        ranges = [0.1, 0.3, 0.4, 0.6, 0.9]
+
         for value in ranges:
             new_pos = (value * self.velocity) + self.center
+
+            # CASE: Ball x Ball
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:

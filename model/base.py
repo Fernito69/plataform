@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import Literal
 
 from constants import ALMOST_ZERO, PI
 
@@ -164,3 +165,6 @@ class Angle:
     def __iter__(self):
         yield self.value
         yield self.value_in_degrees
+
+
+type Slope = float | Literal["-Inf", "+Inf"]

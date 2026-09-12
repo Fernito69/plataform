@@ -105,27 +105,27 @@ def explosion(scenario: "Scenario", source: "Circunference", size: float) -> Non
 
     scenario.fg_pieces[0:0] = secondary_explosions
 
-    smoke_trails: list[CircularParticle] = []
+    # smoke_trails: list[CircularParticle] = []
 
-    for i in range(round(size)):
-        smoke_trail = CircularParticle(
-            origin=PointF(x=eye_x + (size / 2) * random_offset(), y=eye_y + (size / 2) * random()),
-            initial_velocity=(source.velocity + random_offset_vector() * size).as_vector(),
-            size=_sec_size,
-            size_change_type=TransitionType.LINEAR_DECREASE,
-            initial_color=RGB(110, 60, 10, 1),
-            ending_color=RGB(10, 10, 10, 1),  # smokelike
-            life_time=50,
-            # floating_multi=0.2,
-            gravity=0.07,
-        )
+    # for i in range(round(size)):
+    #     smoke_trail = CircularParticle(
+    #         origin=PointF(x=eye_x + (size / 2) * random_offset(), y=eye_y + (size / 2) * random()),
+    #         initial_velocity=(source.velocity + random_offset_vector() * size).as_vector(),
+    #         size=_sec_size,
+    #         size_change_type=TransitionType.LINEAR_DECREASE,
+    #         initial_color=RGB(110, 60, 10, 1),
+    #         ending_color=RGB(10, 10, 10, 1),  # smokelike
+    #         life_time=50,
+    #         # floating_multi=0.2,
+    #         gravity=0.07,
+    #     )
 
-        smoke_trails.append(smoke_trail)
+    #     smoke_trails.append(smoke_trail)
 
-    if i % 3 == 0:
-        scenario.bg_pieces[0:0] = smoke_trails
-    else:
-        scenario.fg_pieces[0:0] = smoke_trails
+    # if i % 3 == 0:
+    #     scenario.bg_pieces[0:0] = smoke_trails
+    # else:
+    #     scenario.fg_pieces[0:0] = smoke_trails
 
     for _ in range(round(size * 3)):
         # TODO: make these sparks and other useful things into their own class

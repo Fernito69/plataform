@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.nozzle import machine_gun
+from physics2d.shapes.factories.nozzle import machine_gun, shotgun
 from physics2d.shapes.factories.projectile import buckshot, bullet
 
 if TYPE_CHECKING:
@@ -107,13 +107,19 @@ class Shotgun(Weapon):
             name="Shotgun",
             scenario=scenario,
             max_ammo=100,
-            refractory_period=10,
-            fire_particle_generator=machine_gun,
+            refractory_period=18,
+            fire_particle_generator=shotgun,
             projectile_generator=buckshot,
             ammo=100,
         )
 
     def _spend_ammo(self) -> None:
         self._ammo -= 1
+
+    def _effect_on_player(self) -> None:
+        # recoil!
+        self._scenario.player.velocity = (
+            self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
+        ).as_vector()
 
     def secondary_fire(self) -> None: ...

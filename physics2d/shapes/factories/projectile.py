@@ -19,7 +19,7 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            ((10 + random_offset()) * source.get_last_known_direction()) + source.velocity
+            -((10 + random_offset()) * source.get_last_known_direction()) + source.velocity
         ).as_vector(),
         size=0.7,
         size_change_type=TransitionType.NONE,
@@ -41,10 +41,12 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
             owner=source,
             origin=source.center + random_offset_vector(),
             initial_velocity=(
-                ((10 + random_offset()) * source.get_last_known_direction())
-                + source.velocity
-                + VectorF(0, 2 * random_offset()).rotate(
-                    get_vector_angle((-source.velocity).as_vector())
+                -(
+                    ((10 + random_offset()) * source.get_last_known_direction())
+                    + source.velocity
+                    + VectorF(0, 2 * random_offset()).rotate(
+                        get_vector_angle((-source.velocity).as_vector())
+                    )
                 )
             ).as_vector(),
             size=0.6,

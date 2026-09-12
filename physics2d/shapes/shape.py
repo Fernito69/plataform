@@ -76,8 +76,8 @@ class Shape:
             self.velocity.y - (self._own_gravity_accel or gravity_accel),
         )
 
-    def set_last_known_direction(self) -> None:
-        self._last_known_direction = self.velocity.unit_vector()
+    def set_last_known_direction(self, vector: VectorF | None = None) -> None:
+        self._last_known_direction = (vector or self.velocity).unit_vector()
 
     def get_last_known_direction(self) -> VectorF:
         return self._last_known_direction or self.velocity.unit_vector()

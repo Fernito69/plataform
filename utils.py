@@ -6,7 +6,7 @@ from random import random
 from typing import Any
 
 from constants import PI
-from model.base import DistVector3D, PointF, VectorF
+from model.base import DistVector3D, PointF, Slope, VectorF
 from model.theme import RGB
 
 _RESET = "\033[0m"
@@ -14,6 +14,7 @@ _FG_CODE = "\033[38;2;"
 _BG_CODE = "\033[48;2;"
 
 # TODO: separate functions here by domain
+
 
 # TODO: make these built-in into vector
 def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
@@ -182,7 +183,7 @@ def rotate_point(point: PointF, rotation_axis: PointF, angle: float) -> PointF:
 class DistanceFromLineToPointResponse:
     distance: float
     intersection: PointF
-    slope: float | None
+    slope: Slope
 
 
 def distance_from_line_to_point(
@@ -192,11 +193,11 @@ def distance_from_line_to_point(
     original_m = get_slope(line_point_1, line_point_2)
 
     # edge case 1: when slope is infinite! straight distance from point to line
-    if original_m is None:
+    if original_m == "+Inf" or original_m == "-Inf":
         return DistanceFromLineToPointResponse(
             distance=abs(point.x - line_point_1.x),
             intersection=PointF(line_point_1.x, point.y),
-            slope=None,
+            slope=original_m,
         )
 
     # edge case 2: when slope is 0! same as above
@@ -227,26 +228,36 @@ def distance_from_line_to_point(
     )
 
 
-def get_slope(point1: PointF, point2: PointF) -> float | None:
+def get_slope(point1: PointF, point2: PointF) -> Slope:
     if point2.x - point1.x == 0:
-        return None
+        return "+Inf" if point1.y >= point2.y else "-Inf"
     return (point2.y - point1.y) / (point2.x - point1.x)
 
 
-def get_slope_from_vector(vector: VectorF) -> float | None:
+def get_slope_from_vector(vector: VectorF) -> Slope:
     if vector.x == 0:
-        return None
+        return "+Inf" if vector.y >= 0 else "-Inf"
     return vector.y / vector.x
 
 
-def get_perpendicular_slope(point1: PointF, point2: PointF) -> float | None:
+def get_perpendicular_slope(point1: PointF, point2: PointF) -> Slope:
     m = get_slope(point1, point2)
-    return 0 if m is None else None if m == 0 else -1 / m
+    return (
+        0
+        if m == "+Inf"
+        else -0
+        if m == "-Inf"
+        else "+Inf"
+        if m == 0
+        else "-Inf"
+        if m == -0
+        else -1 / m
+    )
 
 
 def get_normal_unit_vector_from_line(point1: PointF, point2: PointF) -> VectorF:
     perpendicular_m = get_perpendicular_slope(point1, point2)
-    angle = get_angle_from_slope(perpendicular_m) % PI
+    angle = get_angle_from_slope(perpendicular_m)
     return get_vector_from_angle(angle)
 
 
@@ -264,8 +275,16 @@ def get_vector_from_angle(angle: float, magnitude: float = 1) -> VectorF:
     return (magnitude * VectorF(x=math.cos(angle), y=math.sin(angle))).as_vector()
 
 
-def get_angle_from_slope(slope: float | None) -> float:
-    return PI / 2 if slope is None else 0 if slope == 0 else math.atan(slope) % PI
+def get_angle_from_slope(slope: Slope) -> float:
+    return (
+        PI / 2
+        if slope == "+Inf"
+        else -PI / 2
+        if slope == "-Inf"
+        else 0
+        if slope == 0
+        else math.atan(slope)
+    )
 
 
 def get_line_angle(point1: PointF, point2: PointF) -> float:
@@ -281,19 +300,19 @@ def get_vector_angle(vector: VectorF) -> float:
 class GetLineEquationResponse:
     get_y: Callable[[float], float]
     get_x: Callable[[float], float]
-    m: float | None
+    m: Slope
 
 
 def get_line_equations(point1: PointF, point2: PointF) -> GetLineEquationResponse:
     m = get_slope(point1, point2)
 
     def get_y(x: float) -> float:
-        if not m:
+        if m == "+Inf" or m == "-Inf":
             return point1.y
         return m * (x - point1.x) + point1.y
 
     def get_x(y: float):
-        if not m:
+        if m == "+Inf" or m == "-Inf" or m == 0:
             return point1.x
         return ((y - point1.y) / m) + point1.x
 
