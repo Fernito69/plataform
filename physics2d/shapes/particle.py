@@ -256,7 +256,7 @@ class Lightning(Particle, Line):
 
     # TODO: create recursive random branching
     def _gen_lightning(self) -> None:
-        line_vector: VectorF = (self.points[0] - self.points[1]).as_vector()
+        line_vector: VectorF = (self.points[1] - self.points[0]).as_vector()
         line_length = abs(line_vector)
         num_segments = self.num_segments
 

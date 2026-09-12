@@ -115,9 +115,9 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=_initial_color,
         ending_color=_ending_color,
         normal_noise=2,
-        parallel_noise=3,
+        parallel_noise=2,
         life_time=3,
-        num_segments=7,
+        num_segments=12,
         thickness=1,
         final_thickness=0.001,
     )

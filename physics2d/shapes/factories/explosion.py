@@ -242,8 +242,7 @@ def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     sonic_boom_2 = CircularParticle(
-        origin=(source.center - 0.2 * source.velocity)
-        - VectorF(x=random_offset(), y=random_offset()),
+        origin=source.center - VectorF(x=3 * random_offset(), y=3 * random_offset()),
         initial_velocity=VectorF(0, 0),
         size=2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -257,7 +256,7 @@ def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     # MAIN BOOM
     sonic_boom = CircularParticle(
-        origin=(source.center) - VectorF(x=random_offset(), y=random_offset()),
+        origin=(source.center) - VectorF(x=3 * random_offset(), y=3 * random_offset()),
         initial_velocity=VectorF(0, 0),
         size=3,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
