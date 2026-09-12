@@ -9,11 +9,11 @@ from physics2d.shapes.model.shared import TransitionType
 from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.scenario.scenario import Scenario
-    from physics2d.shapes.circunference import Circunference
 
 
-def bullet(scenario: "Scenario", source: "Circunference") -> None:
+def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     bullet = Projectile(
         # TODO: fix this typing in the ParticleGeneratorm should be PhysicsEntity?
         owner=source,
@@ -32,7 +32,7 @@ def bullet(scenario: "Scenario", source: "Circunference") -> None:
     scenario.projectiles.append(bullet)
 
 
-def buckshot(scenario: "Scenario", source: "Circunference") -> None:
+def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _NUM_PELLETS = 10
     pellets: list[Projectile] = []
 

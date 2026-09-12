@@ -52,6 +52,7 @@ class PhysicsEntity(Circunference):
         self.velocity = velocity
         self.density = density
         self.name = name
+        self.size = size
 
         # volume depends on the type of entity
 

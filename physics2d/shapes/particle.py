@@ -3,9 +3,9 @@ from abc import abstractmethod
 from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
+from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.model.shared import ParticleGenerator
 from physics2d.model.shared import RenderInfo
-from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.line import Line
 from physics2d.shapes.model.shared import TransitionType
 from utils import get_normal_unit_vector_from_line, random_offset
@@ -51,7 +51,7 @@ class Particle:
         self._handle_lifetime()
 
         # TODO: fix this, should apply for any shape/entity
-        if self._particle_generator and isinstance(self, Circunference):
+        if self._particle_generator and isinstance(self, PhysicsEntity):
             self._particle_generator(engine.scenario, self)
 
     @abstractmethod
@@ -64,7 +64,7 @@ class Particle:
 ############################################################################################
 
 
-class CircularParticle(Particle, Circunference):
+class CircularParticle(Particle, PhysicsEntity):
     origin: PointF
     size: float
 
@@ -95,10 +95,12 @@ class CircularParticle(Particle, Circunference):
         self._affected_by_gravity = gravity is not None
         self.floating_multi = floating_multi
         self.velocity = initial_velocity
-        self.radius = size
+        self.radius = size * 2
         self.center = origin
         self.is_collideable = is_collideable
         self._particle_generator = particle_generator
+
+        self.position = origin
 
         super().__init__(
             initial_color=initial_color,
@@ -109,7 +111,7 @@ class CircularParticle(Particle, Circunference):
             floating_multi=floating_multi,
             particle_generator=particle_generator,
         )
-        Circunference.__init__(
+        PhysicsEntity.__init__(
             self,
             theme=self.theme,
             secondary_theme=self.secondary_theme,
@@ -117,9 +119,11 @@ class CircularParticle(Particle, Circunference):
             own_gravity=gravity,
             floating_multi=floating_multi,
             initial_velocity=initial_velocity,
-            radius=size,
-            center=origin,
+            position=origin,
             is_collideable=is_collideable,
+            density=1,
+            size=size * 2,
+            velocity=initial_velocity,
         )
 
     def _handle_lifetime(self) -> None:
@@ -159,7 +163,7 @@ class CircularParticle(Particle, Circunference):
             )
 
     def _act(self, engine) -> None:
-        Circunference._apply_movement(self, engine)
+        PhysicsEntity._apply_movement(self, engine)
 
 
 #################################################################################################
@@ -175,13 +179,13 @@ class Lightning(Particle, Line):
     num_segments: int
     final_thickness: float | None
 
-    source: Circunference
+    source: PhysicsEntity
 
     segments: list[Line]
 
     def __init__(
         self,
-        source: Circunference,
+        source: PhysicsEntity,
         end_point: PointF,
         start_point: PointF | None = None,
         life_time: int | None = 5,

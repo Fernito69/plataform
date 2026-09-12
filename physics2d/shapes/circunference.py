@@ -147,6 +147,7 @@ class Circunference(Shape):
         eq = self.get_circunference_equations()
 
         for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
+            # TODO: these calculations seem to be the ones slowing down big balls' rendering
             y1, y2 = eq.get_ys(x)
 
             # TODO: here we need to do something to make the upper border render
