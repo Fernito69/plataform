@@ -12,9 +12,6 @@ if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.scenario.scenario import Scenario
 
-_THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
-_THRUST_FIRE_DISTANCE_FACTOR = 1
-
 
 def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[CircularParticle] = []
@@ -23,7 +20,7 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     for _i in range(1, int(source.radius * 2)):
         i = _i / 2
-        distance_factor = (source.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
+        distance_factor = (source.radius - i) * 1
         eye_x = source.center.x - source.velocity.x * distance_factor
         eye_y = source.center.y - source.velocity.y * distance_factor
 
@@ -45,6 +42,8 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
                 (i - 1) * 1,
             ).with_intensity(1)
         )
+
+        _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -70,7 +69,7 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
         )
         pieces.append(thrust_fire)
 
-    for _ in range(round((vel_magnitude / 3) + 1)):
+    for _ in range(round((vel_magnitude / 6) + 1)):
         if vel_magnitude == 0 and scenario.now() % 8 != 0:
             continue
 
@@ -108,7 +107,7 @@ def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     for _i in range(1, int(source.radius * 2)):
         i = _i / 2
-        distance_factor = (source.radius - i) * _THRUST_FIRE_DISTANCE_FACTOR
+        distance_factor = (source.radius - i) * 1
         eye_x = source.center.x - source.velocity.x * distance_factor
         eye_y = source.center.y - source.velocity.y * distance_factor
 
@@ -131,19 +130,21 @@ def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ).with_intensity(1)
         )
 
+        _VAPOR_SPAWN_RANDOMNESS_FACTOR = 2
+
         vapor = CircularParticle(
             origin=PointF(
                 x=eye_x
-                + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                + random_offset() * _VAPOR_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
                 + random_offset() * 0.5,
                 y=eye_y
-                + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                + random_offset() * _VAPOR_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
                 + random_offset() * 0.5,
             ),
             initial_velocity=VectorF(
-                x=source.velocity.x * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
+                x=source.velocity.x * _VAPOR_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
-                y=source.velocity.y * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
+                y=source.velocity.y * _VAPOR_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
             ),
             # radius=i * math.cos((size - i) / size),
@@ -318,55 +319,11 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color=_ending_color,
         normal_noise=2,
         parallel_noise=3,
-        life_time=6,
+        life_time=5,
         num_segments=15,
         thickness=1.5,
         final_thickness=0.001,
     )
     pieces.append(l1)
-
-    # TODO: why eye doesn't look well??
-    # eye = CircularParticle(
-    #     size=0.75,
-    #     initial_velocity=source.velocity,
-    #     origin=source.center + 0.15 * source.velocity,
-    #     initial_color=RGB(255, 0, 0, 1),
-    #     life_time=2,
-    # )
-    # scenario.fg_pieces.append(eye)
-
-    # for _ in range(3):
-    #     # little particles doing particle stuff
-    #     sonic_challa = CircularParticle(
-    #         origin=(source.center - source.velocity)
-    #         - random_offset_vector(source.radius, source.radius),
-    #         initial_velocity=(source.velocity * 0.1).as_vector(),
-    #         size=(0.2 * vel_magnitude),
-    #         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-    #         initial_color=_initial_color,
-    #         ending_color=_ending_color,
-    #         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-    #         life_time=15,
-    #         floating_multi=5,
-    #     )
-    #     pieces.append(sonic_challa)
-
-    # if vel_magnitude > 0:
-    #     l2 = Lightning(
-    #         source=source,
-    #         start_point=source.center + random_offset_vector(),
-    #         end_point=source.center + 2 * source.velocity,
-    #         initial_color=RGB(255, 30, 60),
-    #         ending_color=RGB(50, 0, 20, 1),
-    #         normal_noise=3,
-    #         parallel_noise=3,
-    #         life_time=5,
-    #         num_segments=6,
-    #         thickness=1,
-    #         final_thickness=0.1,
-    #     )
-    #     pieces.append(l2)
-    # if vel_magnitude > 7:
-    #     raise NotImplementedError([f"{a.points[0]} - {a.points[1]}" for a in l1.segments])
 
     scenario.bg_pieces[0:0] = pieces

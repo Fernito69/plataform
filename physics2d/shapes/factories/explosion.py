@@ -15,8 +15,6 @@ if TYPE_CHECKING:
 def explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) -> None:
     particles: list[CircularParticle] = []
 
-    vel_magnitude = abs(source.velocity)
-
     eye_x = source.center.x - source.velocity.x
     eye_y = source.center.y - source.velocity.y
 
@@ -134,9 +132,7 @@ def explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) -> Non
                 x=eye_x + random_offset() * source.radius * 2,
                 y=eye_y + random_offset() * source.radius * 2,
             ),
-            initial_velocity=VectorF(0, 0)
-            if vel_magnitude == 0
-            else (
+            initial_velocity=(
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
             ).as_vector(),
             size=0.5,

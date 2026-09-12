@@ -192,16 +192,15 @@ def shotgun(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ########
 
 
+# TODO: ideally should be aware of what we are shooting at
 def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list["PhysicsEntity"] = []
-
-    vel_magnitude = 0
 
     # _initial_color = RGB(
     #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
     # )
 
-    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
+    _initial_color = RGB(255 - ((8) * random()), 255, 255, 1)
 
     sonic_boom_2 = CircularParticle(
         origin=(source.center - 0.2 * source.velocity)
@@ -210,7 +209,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
             -0.4
             * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
         ).as_vector(),
-        size=source.radius * (1 + vel_magnitude / 10),
+        size=source.radius * 0.8,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
         ending_color=RGB(200, 200, 255, 1),
@@ -224,7 +223,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
     sonic_boom = CircularParticle(
         origin=(source.center) - VectorF(x=random_offset(), y=random_offset()),
         initial_velocity=(-0.4 * VectorF(x=random_offset(), y=random_offset())).as_vector(),
-        size=source.radius * (1 + (vel_magnitude + random()) / 7),
+        size=source.radius * 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
         ending_color=RGB(127, 0, 255, 1),
@@ -245,7 +244,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )
             ).as_vector(),
-            size=(0.8 + random_offset()) * vel_magnitude / 3,
+            size=(0.8 + random_offset()),
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
             initial_color=_initial_color,
             ending_color=RGB(127, 0, 255, 1),
@@ -254,28 +253,5 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
             floating_multi=6,
         )
         pieces.append(sonic_challa)
-
-    # if scenario.now() % 4 == 0:
-    #     normal_1, normal_2 = get_normal_vectors(source.velocity)
-
-    #     def _get_parallel_boom(normal: VectorF) -> Particle:
-    #         return Particle(
-    #             origin=(source.center - source.velocity),
-    #             initial_velocity=(normal + source.velocity).as_vector(),
-    #             size=vel_magnitude / 1.5,
-    #             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-    #             initial_color=RGB(255, 255, 255, 1),
-    #             ending_color=RGB(255, 255, 255),
-    #             ending_color_fade_type=TransitionType.NONE,
-    #             life_time=15,
-    #             floating_multi=0,
-    #         )
-
-    #     paralel_boom_1 = _get_parallel_boom(normal_1)
-    #     paralel_boom_2 = _get_parallel_boom(normal_2)
-    #     pieces.extend([paralel_boom_1, paralel_boom_2])
-
-    # TOOD: y esto?
-    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     scenario.bg_pieces[0:0] = pieces
