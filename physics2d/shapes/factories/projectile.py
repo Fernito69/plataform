@@ -18,7 +18,6 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _BULLET_SPEED = 10
 
     bullet = Projectile(
-        # TODO: fix this typing in the ParticleGeneratorm should be PhysicsEntity?
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(

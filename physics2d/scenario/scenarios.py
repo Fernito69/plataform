@@ -1,3 +1,4 @@
+from random import random
 from typing import TYPE_CHECKING
 
 from constants import ALMOST_ZERO
@@ -17,21 +18,43 @@ if TYPE_CHECKING:
 
 
 def default_scenario(engine: "Physics2D") -> Scenario:
-    enemies: list[Enemy] = [
-        Enemy(
+    # TODO: make factories
+    def _random_color():
+        return RGB(127 + 127 * random(), 127 + 127 * random(), 127 + 127 * random(), 1)
+
+    def _smoll_enemy(position):
+        return Enemy(
             size=10,
             health=100,
             name="SmollEnemy",
-            position=PointF(150, 200),
-            theme=Theme(color=RGB(255, 150, 150, 1)),
-        ),
-        Enemy(
+            position=position,
+            theme=Theme(color=_random_color(), bg_color=_random_color()),
+        )
+
+    def _mid_enemy(position):
+        return Enemy(
             size=20,
             health=400,
             name="MidEnemy",
-            position=PointF(150, 150),
-            theme=Theme(color=RGB(255, 100, 100, 1)),
-        ),
+            position=position,
+            theme=Theme(color=_random_color(), bg_color=_random_color()),
+        )
+
+    enemies: list[Enemy] = [
+        _smoll_enemy(PointF(150, 200)),
+        _smoll_enemy(PointF(170, 210)),
+        _smoll_enemy(PointF(160, 190)),
+        _smoll_enemy(PointF(120, 200)),
+        _smoll_enemy(PointF(199, 256)),
+        _smoll_enemy(PointF(152, 180)),
+        _smoll_enemy(PointF(250, 300)),
+        _smoll_enemy(PointF(256, 312)),
+        _smoll_enemy(PointF(312, 256)),
+        _smoll_enemy(PointF(384, 322)),
+        _smoll_enemy(PointF(350, 290)),
+        _mid_enemy(PointF(150, 150)),
+        _mid_enemy(PointF(250, 150)),
+        _mid_enemy(PointF(230, 180)),
         Enemy(
             size=30,
             health=600,
