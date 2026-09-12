@@ -35,6 +35,9 @@ class Shape:
 
     affected_by_friction: bool
 
+    """renders behind the player even if in the foreground layer"""
+    render_behind_player: bool
+
     def __init__(
         self,
         center_of_mass: PointF,
@@ -51,6 +54,7 @@ class Shape:
         floating_multi: float = 0,
         is_collideable: bool = False,
         affected_by_friction: bool = False,
+        render_behind_player: bool = False,
     ):
         self.theme = theme
         self.secondary_theme = secondary_theme
@@ -67,6 +71,7 @@ class Shape:
         self.weight = density * volume
         self.is_collideable = is_collideable
         self.affected_by_friction = affected_by_friction
+        self.render_behind_player = render_behind_player
 
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:

@@ -30,16 +30,17 @@ class Line(Shape):
         own_gravity: float | None = None,
         floating_multi: float = 0,
         density: float = 1,
+        render_behind_player: bool = False,
     ):
         self.points = points
         self.thickness = thickness
         self.density = density
         self.volume = abs(points[0] - points[1]) * thickness
         self.weight = self.volume * density
+        self.render_behind_player = render_behind_player
 
         self.update_center_of_mass()
-        Shape.__init__(
-            self,
+        super().__init__(
             theme=theme,
             angle=angle,
             affected_by_gravity=affected_by_gravity,

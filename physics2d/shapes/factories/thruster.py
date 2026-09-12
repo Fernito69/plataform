@@ -297,16 +297,18 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
 def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
-    vel_magnitude = abs(source.velocity)
+    vel_magnitude = abs(source.velocity) * 4
 
     _initial_color = RGB(255, 220, 200, 1)
     _ending_color = RGB(0, 0, 100, 1)
 
-    _random_magnitude = (vel_magnitude) + source.radius + (20 if vel_magnitude == 0 else 0)
+    _random_magnitude = (vel_magnitude) + source.radius + (40 if vel_magnitude == 0 else 0)
     _end_point = (
-        random_offset_vector(_random_magnitude, _random_magnitude) + source.center + source.velocity
+        source.center + source.velocity + random_offset_vector(_random_magnitude, _random_magnitude)
         if vel_magnitude > 0
-        else random_offset_vector(_random_magnitude, _random_magnitude) + source.center
+        else source.center
+        + source.velocity
+        + random_offset_vector(_random_magnitude, _random_magnitude)
     )
 
     l1 = Lightning(

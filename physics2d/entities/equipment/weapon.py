@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.nozzle import machine_gun, shotgun, lightning
+from physics2d.shapes.factories.nozzle import lightning, machine_gun, shotgun
 from physics2d.shapes.factories.projectile import buckshot, bullet, lightning_bolts
 
 if TYPE_CHECKING:
@@ -47,7 +47,14 @@ class Weapon:
         self._refractory_limit = scenario.now()
 
     def fire(self) -> None:
-        if self._ammo <= 0 or self._refractory_limit > self._scenario.now():
+        if (
+            self._ammo <= 0
+            or self._refractory_limit > self._scenario.now()
+            or (
+                self._scenario.player.get_last_known_direction().x == 0
+                and self._scenario.player.get_last_known_direction().y == 0
+            )
+        ):
             return
 
         self._fire_particle_generator(self._scenario, self._scenario.player)
@@ -143,11 +150,11 @@ class LightningGun(Weapon):
         super().__init__(
             name="LightningGun",
             scenario=scenario,
-            max_ammo=1000,
+            max_ammo=2000,
             refractory_period=0,
             fire_particle_generator=lightning,
             projectile_generator=lightning_bolts,
-            ammo=1000,
+            ammo=2000,
             color=RGB(220, 220, 255, 1),
         )
 

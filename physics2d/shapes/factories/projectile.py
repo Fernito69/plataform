@@ -84,30 +84,27 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
     possible_victims: list["Enemy"] = [
         enemy
         for enemy, distance in sorted(
-            [(e, abs(source.position - e.position)) for e in scenario.enemies], key=lambda v: v[1]
+            [(e, abs(source.center - e.center)) for e in scenario.enemies], key=lambda v: v[1]
         )
         if distance < _MAX_RANGE
     ]
 
-    vel_magnitude = abs(source.velocity)
     _initial_color = RGB(255, 220, 200, 1)
     _ending_color = RGB(0, 0, 100, 1)
     _end_point: PointF
 
     if len(possible_victims) > 0:
-        _end_point = possible_victims[0].position
+        _size = possible_victims[0].size / 2
+        _end_point = possible_victims[0].center + random_offset_vector(_size, _size)
         # TODO: is it right that the particle gen takes care of this?
         possible_victims[0].receive_damage(_DAMAGE)
-        lightning_impact(scenario, possible_victims[0])
-    else:
-        _random_magnitude = (vel_magnitude) + source.radius + (20 if vel_magnitude == 0 else 0)
-        _end_point = (
-            random_offset_vector(_random_magnitude, _random_magnitude)
-            + source.center
-            + source.velocity
-            if vel_magnitude > 0
-            else random_offset_vector(_random_magnitude, _random_magnitude) + source.center
+        lightning_impact(
+            scenario,
+            possible_victims[0],
+            possible_victims[0].center + random_offset_vector(_size, _size),
         )
+    else:
+        _end_point = source.center + random_offset_vector(40, 40)
 
     l1 = Lightning(
         source=source,
@@ -115,12 +112,14 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=_initial_color,
         ending_color=_ending_color,
         normal_noise=2,
-        parallel_noise=2,
-        life_time=3,
+        parallel_noise=3,
+        life_time=4,
         num_segments=12,
         thickness=1,
         final_thickness=0.001,
+        render_behind_player=True,
+        target=possible_victims[0] if len(possible_victims) > 0 else None,
     )
     pieces.append(l1)
 
-    scenario.bg_pieces[0:0] = pieces
+    scenario.fg_pieces.extend(pieces)

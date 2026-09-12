@@ -26,6 +26,7 @@ class Scenario:
     fg_pieces: list[Shape]
     bg_pieces: list[Shape]
     solid_pieces: list[Shape]
+
     projectiles: list[Projectile]
 
     # TODO: add _debug_pieces, for angle lines, etc
@@ -57,6 +58,7 @@ class Scenario:
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
         self.player = player
         self._game_tick = 0
+
         self.projectiles = []
 
     def act(self) -> None:
@@ -67,10 +69,10 @@ class Scenario:
         ):
             entity.do_your_thing(self.engine)
 
-        self._lifetime_cleanup()
+        self._particle_lifetime_cleanup()
         self._game_tick += 1
 
-    def _lifetime_cleanup(self) -> None:
+    def _particle_lifetime_cleanup(self) -> None:
         # TODO: unify this
         filtered = [
             p
@@ -106,9 +108,19 @@ class Scenario:
             for p in pieces:
                 self.handle_render_info(p.get_render_info())
 
-        _handle(self.fg_pieces)
+        # Foreground gets differentiated treatment
+        _handle_in_front_of_player: list[Shape] = []
+        _render_behind_player: list[Shape] = []
+        for shape in self.fg_pieces:
+            if shape.render_behind_player:
+                _render_behind_player.append(shape)
+            else:
+                _handle_in_front_of_player.append(shape)
 
+        _handle(_render_behind_player)
         self.handle_render_info(self.player.get_render_info())
+        _handle(_handle_in_front_of_player)
+
         _handle(self.solid_pieces)
         _handle(self.projectiles)
         _handle(self.enemies)

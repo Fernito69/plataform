@@ -181,6 +181,9 @@ class Lightning(Particle, Line):
 
     segments: list[Line]
 
+    _target: PhysicsEntity | None
+    _initial_target_position: PointF | None
+
     def __init__(
         self,
         source: PhysicsEntity,
@@ -196,6 +199,8 @@ class Lightning(Particle, Line):
         size_change_type: TransitionType = TransitionType.NONE,
         ending_color_fade_type: TransitionType = TransitionType.LINEAR_DECREASE,
         final_thickness: float | None = None,
+        render_behind_player: bool = False,
+        target: PhysicsEntity | None = None,
     ):
         self.source = source
         self.points = (start_point or source.center, end_point)
@@ -209,6 +214,11 @@ class Lightning(Particle, Line):
         self.initial_velocity = source.velocity
         self.thickness = thickness
         self.final_thickness = final_thickness
+        self.render_behind_player = render_behind_player
+        self._target = target
+        self._initial_target_position = (
+            PointF(x=self._target.position.x, y=self._target.position.y) if self._target else None
+        )
 
         super().__init__(
             initial_color=initial_color,
@@ -227,6 +237,7 @@ class Lightning(Particle, Line):
             theme=Theme(color=initial_color),
             secondary_theme=Theme(color=ending_color),
             thickness=thickness,
+            render_behind_player=render_behind_player,
         )
         self.segments = []
         self._gen_lightning()
@@ -244,7 +255,17 @@ class Lightning(Particle, Line):
         def _get_new_points(p: tuple[PointF, PointF]) -> tuple[PointF, PointF]:
             return (
                 (p[0] + self.source.velocity),
-                (p[1] + self.source.velocity),
+                (
+                    p[1]
+                    + (
+                        self.source.velocity
+                        if not self._target or not self._initial_target_position
+                        else (
+                            -self._target.velocity
+                            + (self._initial_target_position - self._target.position)
+                        )
+                    )
+                ),
             )
 
         self.points = _get_new_points(self.points)
@@ -262,10 +283,7 @@ class Lightning(Particle, Line):
 
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
-        division_lenghts = [
-            num_seg * avg_segment_length * self.parallel_noise
-            for num_seg in range(self.num_segments)
-        ]
+        division_lenghts = [num_seg * avg_segment_length for num_seg in range(self.num_segments)]
         # if line_length > 8:
         #     raise NotImplementedError(
         #         # f"line: {line_vector}\nline_length:{line_length}\nnum_segments:{num_segments}\navg_seg_len: {avg_segment_length}\n"

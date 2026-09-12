@@ -97,7 +97,7 @@ def explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) -> Non
             initial_color=_sec_explosion_color,
             ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
             life_time=20,
-            gravity=-0.12,
+            gravity=-0.08,
             floating_multi=0.1,
             particle_generator=smoke_generator,
         )
@@ -166,7 +166,7 @@ def smoke_generator(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=RGB(110, 90, 90, 1),
         ending_color=RGB(30, 30, 30, 1),  # smokelike
         life_time=30,
-        gravity=-0.07,
+        gravity=-0.05,
         # floating_multi=0.1,
     )
     smokes.append(main_smoke)
@@ -230,7 +230,9 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ################################################################
 
 
-def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def lightning_impact(
+    scenario: "Scenario", source: "PhysicsEntity", origin: PointF | None = None
+) -> None:
     pieces: list["PhysicsEntity"] = []
 
     vel_magnitude = 0
@@ -240,9 +242,10 @@ def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # )
 
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
+    _origin = origin or source.position
 
     sonic_boom_2 = CircularParticle(
-        origin=source.center - VectorF(x=3 * random_offset(), y=3 * random_offset()),
+        origin=_origin + VectorF(x=3 * random_offset(), y=3 * random_offset()),
         initial_velocity=VectorF(0, 0),
         size=2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -256,7 +259,7 @@ def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     # MAIN BOOM
     sonic_boom = CircularParticle(
-        origin=(source.center) - VectorF(x=3 * random_offset(), y=3 * random_offset()),
+        origin=_origin + VectorF(x=3 * random_offset(), y=3 * random_offset()),
         initial_velocity=VectorF(0, 0),
         size=3,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -271,44 +274,34 @@ def lightning_impact(scenario: "Scenario", source: "PhysicsEntity") -> None:
     for _ in range(3):
         # little particles doing particle stuff
         sonic_challa = CircularParticle(
-            origin=(source.center) - VectorF(x=random_offset(), y=random_offset()),
+            origin=_origin + VectorF(x=random_offset(), y=random_offset()),
             initial_velocity=(
                 -0.4
                 * VectorF(
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )
             ).as_vector(),
-            size=(0.8 + random_offset()) * vel_magnitude / 3,
+            size=(0.6),
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-            initial_color=_initial_color,
+            initial_color=RGB(255, 255, 255, 1),
             ending_color=RGB(127, 0, 255, 1),
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=15,
+            life_time=8,
             floating_multi=6,
         )
         pieces.append(sonic_challa)
 
-    # if scenario.now() % 4 == 0:
-    #     normal_1, normal_2 = get_normal_vectors(source.velocity)
-
-    #     def _get_parallel_boom(normal: VectorF) -> Particle:
-    #         return Particle(
-    #             origin=(source.center - source.velocity),
-    #             initial_velocity=(normal + source.velocity).as_vector(),
-    #             size=vel_magnitude / 1.5,
-    #             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-    #             initial_color=RGB(255, 255, 255, 1),
-    #             ending_color=RGB(255, 255, 255),
-    #             ending_color_fade_type=TransitionType.NONE,
-    #             life_time=15,
-    #             floating_multi=0,
-    #         )
-
-    #     paralel_boom_1 = _get_parallel_boom(normal_1)
-    #     paralel_boom_2 = _get_parallel_boom(normal_2)
-    #     pieces.extend([paralel_boom_1, paralel_boom_2])
-
-    # TOOD: y esto?
-    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
+    if scenario.now() % 2 == 0:
+        # TODO: make Spark factory
+        blue_spark = CircularParticle(
+            origin=_origin,
+            initial_velocity=random_offset_vector(7, 7),
+            size=0.5,
+            initial_color=RGB(230, 230, 255, 1),
+            ending_color=RGB(0, 0, 200, 1),
+            life_time=8,
+            gravity=0.05,
+        )
+        scenario.fg_pieces.append(blue_spark)
 
     scenario.fg_pieces[0:0] = pieces

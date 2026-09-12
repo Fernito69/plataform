@@ -20,6 +20,7 @@ class ScenarioPiece(Shape):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         initial_angular_velocity: float = 0,
+        center_of_mass: PointF = VectorF(0, 0),
     ):
         super().__init__(
             name=name or self.name,
@@ -30,7 +31,7 @@ class ScenarioPiece(Shape):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
-            center_of_mass=PointF(0, 0),  # TODO: fix this
+            center_of_mass=center_of_mass,
             initial_angular_velocity=initial_angular_velocity,
             density=density,
             volume=volume,

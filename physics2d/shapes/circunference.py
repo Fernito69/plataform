@@ -55,6 +55,7 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
+
         super().__init__(
             theme=theme,
             angle=angle,
@@ -88,8 +89,9 @@ class Circunference(Shape):
         if 0 <= self.velocity.y < _DECEL_FACTOR:
             self.velocity.y = 0
 
-    # TODO: this doesn't run, is overridden by CircunferencePiece
     def _apply_movement(self, engine: "Physics2D") -> None:
+        from physics2d.entities.base import PhysicsEntity
+
         self._float_around()
         self._apply_gravity()
 
@@ -103,6 +105,9 @@ class Circunference(Shape):
             return
 
         self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
+        if isinstance(self, PhysicsEntity):
+            self.position = self.center
+
         self.update_center_of_mass()
         self._apply_friction()
 
