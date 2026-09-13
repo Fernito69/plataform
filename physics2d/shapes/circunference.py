@@ -125,7 +125,12 @@ class Circunference(Shape):
                     )
                     vel_contrib = (1 / self.homing_factor) * self.velocity
                     self.velocity = (vel_contrib + to_target).as_vector()
-                elif self.target_acquire_threshold is not None:
+                elif (
+                    self.target_acquire_threshold is not None
+                    and self._original_life_time is not None
+                    and self.life_time is not None
+                    and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
+                ):
                     # TODO: abstract this logic
                     possible_victims: list["Enemy"] = [
                         enemy

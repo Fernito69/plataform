@@ -21,6 +21,7 @@ class Projectile(CircularParticle):
     target: "PhysicsEntity | None"
     target_acquire_threshold: float | None
     homing_factor: float
+    homing_kick_in_time: float
     initial_velocity: VectorF
 
     _explosion_generator: "ParticleGenerator"
@@ -49,6 +50,7 @@ class Projectile(CircularParticle):
         target: "PhysicsEntity | None" = None,
         target_acquire_threshold: float | None = None,
         homing_factor: float = 1,
+        homing_kick_in_time: float = 0,
     ):
         super().__init__(
             # origin=origin,
@@ -74,6 +76,7 @@ class Projectile(CircularParticle):
         self.target = target
         self.target_acquire_threshold = target_acquire_threshold
         self.homing_factor = homing_factor
+        self.homing_kick_in_time = homing_kick_in_time
         self.initial_velocity = initial_velocity
 
     def hit(self, engine: "Physics2D") -> None:

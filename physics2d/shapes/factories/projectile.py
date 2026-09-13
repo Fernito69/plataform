@@ -169,6 +169,7 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _ROCKET_SPEED = 3.5
     _TRIGGER_DISTANCE = 50
     _HOMING_FACTOR = 1.2
+    _HOMING_KICK_IN_TIME = 10
     _LIFE_TIME = 200
 
     rocket = Projectile(
@@ -190,5 +191,6 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         explode_on_life_time_over=True,
         target_acquire_threshold=_TRIGGER_DISTANCE,
         homing_factor=_HOMING_FACTOR,
+        homing_kick_in_time=_HOMING_KICK_IN_TIME,
     )
     scenario.projectiles.append(rocket)
