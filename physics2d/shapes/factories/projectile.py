@@ -4,7 +4,12 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
-from physics2d.shapes.factories.explosion import bullet_ricochet, lightning_impact
+from physics2d.shapes.factories.explosion import (
+    bullet_ricochet,
+    lightning_impact,
+    rocket_explosion,
+    rocket_trail,
+)
 from physics2d.shapes.line import Line
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import Lightning
@@ -123,3 +128,31 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces.append(l1)
 
     scenario.fg_pieces.extend(pieces)
+
+
+############################################################
+
+
+def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    _DAMAGE = 80
+    _ROCKET_SPEED = 6
+
+    rocket = Projectile(
+        owner=source,
+        origin=source.center + random_offset_vector(),
+        initial_velocity=(
+            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+        ).as_vector(),
+        size=1.2,
+        size_change_type=TransitionType.NONE,
+        ending_color_fade_type=TransitionType.NONE,
+        initial_color=RGB(127, 127, 127, 1),
+        # ending_color=RGB(30, 30, 30, 1),
+        life_time=20,
+        damage=_DAMAGE,
+        explosion_generator=rocket_explosion,
+        trail_generator=rocket_trail,
+        density=3,
+        explode_on_life_time_over=True,
+    )
+    scenario.projectiles.append(rocket)

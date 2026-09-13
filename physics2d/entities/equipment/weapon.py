@@ -3,8 +3,13 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.nozzle import lightning, machine_gun, shotgun
-from physics2d.shapes.factories.projectile import buckshot, bullet, lightning_bolts
+from physics2d.shapes.factories.nozzle import (
+    lightning,
+    machine_gun_nozzle,
+    rocket_launcher_nozzle,
+    shotgun_nozzle,
+)
+from physics2d.shapes.factories.projectile import buckshot, bullet, lightning_bolts, rocket
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -94,7 +99,7 @@ class MachineGun(Weapon):
             scenario=scenario,
             max_ammo=1000,
             refractory_period=2,
-            fire_particle_generator=machine_gun,
+            fire_particle_generator=machine_gun_nozzle,
             projectile_generator=bullet,
             ammo=1000,
             color=RGB(255, 200, 255, 1),
@@ -121,7 +126,7 @@ class Shotgun(Weapon):
             scenario=scenario,
             max_ammo=100,
             refractory_period=18,
-            fire_particle_generator=shotgun,
+            fire_particle_generator=shotgun_nozzle,
             projectile_generator=buckshot,
             ammo=100,
             color=RGB(255, 0, 127, 1),
@@ -156,6 +161,34 @@ class LightningGun(Weapon):
             projectile_generator=lightning_bolts,
             ammo=2000,
             color=RGB(220, 220, 255, 1),
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def _effect_on_player(self) -> None: ...
+
+    def secondary_fire(self) -> None: ...
+
+
+#################################################################
+
+
+# TODO: handle blast damage
+class RocketLauncher(Weapon):
+    def __init__(
+        self,
+        scenario: "Scenario",
+    ):
+        super().__init__(
+            name="RocketLauncher",
+            scenario=scenario,
+            max_ammo=50,
+            refractory_period=15,
+            fire_particle_generator=rocket_launcher_nozzle,  # TODO: this one need its own nozzle
+            projectile_generator=rocket,
+            ammo=50,
+            color=RGB(220, 32, 12, 1),
         )
 
     def _spend_ammo(self) -> None:

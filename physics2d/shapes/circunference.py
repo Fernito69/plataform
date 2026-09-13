@@ -91,6 +91,7 @@ class Circunference(Shape):
 
     def _apply_movement(self, engine: "Physics2D") -> None:
         from physics2d.entities.base import PhysicsEntity
+        from physics2d.shapes.particle import Particle
 
         self._float_around()
         self._apply_gravity()
@@ -107,6 +108,9 @@ class Circunference(Shape):
         self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
         if isinstance(self, PhysicsEntity):
             self.position = self.center
+
+            if isinstance(self, Particle) and self._particle_generator:
+                self._particle_generator(engine.scenario, self)
 
         self.update_center_of_mass()
         self._apply_friction()

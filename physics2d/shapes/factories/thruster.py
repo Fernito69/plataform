@@ -94,11 +94,7 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces = sorted(pieces, key=random_offset)
 
     scenario.bg_pieces[0:0] = pieces
-    # for index in range(len(pieces)):
-    #     if index % 3 == 0:
-    #         scenario.fg_pieces.append(pieces[index])
-    #     else:
-    #         scenario.bg_pieces.append(pieces[index])
+
 
 
 def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:

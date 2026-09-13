@@ -79,7 +79,9 @@ class Scenario:
             for p in self.fg_pieces
             if not isinstance(p, Particle) or p.life_time is None or p.life_time > 0
         ]
+
         if len(filtered) < len(self.fg_pieces):
+            # TODO: filter them
             self.fg_pieces = filtered
 
         filtered = [
@@ -97,6 +99,12 @@ class Scenario:
         ]
         if len(filtered) < len(self.solid_pieces):
             self.solid_pieces = filtered
+
+        for p in self.projectiles:
+            if p.life_time is not None and p.life_time <= 0:
+                p.hit(self.engine)
+                if p in self.projectiles:
+                    self.projectiles.remove(p)
 
     def now(self) -> int:
         """Get the current game tick"""

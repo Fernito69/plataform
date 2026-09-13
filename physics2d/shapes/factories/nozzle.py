@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
 
 
-def machine_gun(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _fire_1_color = (
         RGB(
             255,
@@ -102,7 +102,7 @@ def machine_gun(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ################
 
 
-def shotgun(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TODO: this is copy/paste, generalize
     _fire_1_color = (
         RGB(
@@ -255,3 +255,96 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
         pieces.append(sonic_challa)
 
     scenario.bg_pieces[0:0] = pieces
+
+
+################
+
+
+def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    # TODO: this is copy/paste, generalize
+    _fire_1_color = (
+        RGB(
+            255,
+            200,
+            50,
+        ).with_intensity(1)
+        if random_offset() > 0
+        else RGB(
+            255,
+            150,
+            0,
+        ).with_intensity(1)
+    )
+    fire_1 = CircularParticle(
+        origin=source.center + 7 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=6,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=_fire_1_color,
+        ending_color=RGB(150, 120, 30, intensity=1),
+        life_time=7,
+    )
+    fire_2 = CircularParticle(
+        origin=source.center + 9 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=5,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(
+            255,
+            120,
+            20,
+        ).with_intensity(1),
+        ending_color=RGB(150, 90, 30, intensity=1),
+        life_time=6,
+    )
+    fire_3 = CircularParticle(
+        origin=source.center
+        + 13 * (source.get_last_known_direction())
+        + 2 * random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=4,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(
+            255,
+            80,
+            20,
+        ).with_intensity(1),
+        ending_color=RGB(120, 60, 20, intensity=1),
+        life_time=5,
+    )
+    fire_white = CircularParticle(
+        origin=source.center + 6 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=6,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(255, 200, 255, 1),
+        ending_color=RGB(200, 150, 200, 1),
+        life_time=5,
+    )
+    sparks: list[CircularParticle] = []
+
+    spark = CircularParticle(
+        origin=source.center + 6 * (source.get_last_known_direction() + random_offset_vector()),
+        initial_velocity=(
+            source.velocity
+            + 5
+            * (
+                source.get_last_known_direction()
+                + VectorF(0, random_offset() * 2).rotate(
+                    get_vector_angle(source.get_last_known_direction())
+                )
+            )
+        ).as_vector(),
+        size=0.5,
+        size_change_type=TransitionType.NONE,
+        initial_color=RGB(255, 255, 200, 1),  # almost white hot
+        ending_color=RGB(80, 10, 0, 1),  # dark orange
+        life_time=5,
+        gravity=0.1,
+    )
+    sparks.append(spark)
+
+    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+
+
+########

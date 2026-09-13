@@ -1,7 +1,7 @@
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.shapes.factories.explosion import explosion
+from physics2d.shapes.factories.explosion import enemy_explosion
 from physics2d.shapes.shape import Shape
 
 
@@ -62,7 +62,7 @@ class Enemy(PhysicsEntity):
         self.theme.color = _new_color
 
     def _die(self, engine, _death_explosion_size: int | None = None) -> None:
-        explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
+        enemy_explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
 
     # TODO: type this shit
     def do_your_thing(self, engine) -> None:

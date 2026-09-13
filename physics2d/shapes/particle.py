@@ -48,7 +48,7 @@ class Particle:
     # TODO: type this
     def do_your_thing(self, engine) -> None:
         self._act(engine)
-        self._handle_lifetime()
+        self._handle_life_time()
 
         # TODO: fix this, should apply for any shape/entity
         if self._particle_generator and isinstance(self, PhysicsEntity):
@@ -58,7 +58,7 @@ class Particle:
     def _act(cls, engine) -> None: ...
 
     @abstractmethod
-    def _handle_lifetime(cls) -> None: ...
+    def _handle_life_time(cls) -> None: ...
 
 
 ############################################################################################
@@ -82,6 +82,7 @@ class CircularParticle(Particle, PhysicsEntity):
         floating_multi: float = 0,
         is_collideable: bool = False,
         particle_generator: ParticleGenerator | None = None,
+        density: float = 1,
     ):
         self.life_time = life_time
         self._original_life_time = life_time
@@ -100,6 +101,7 @@ class CircularParticle(Particle, PhysicsEntity):
         self.is_collideable = is_collideable
         self._particle_generator = particle_generator
         self.position = origin
+        self.density = density
 
         super().__init__(
             initial_color=initial_color,
@@ -120,11 +122,11 @@ class CircularParticle(Particle, PhysicsEntity):
             initial_velocity=initial_velocity,
             position=origin,
             is_collideable=is_collideable,
-            density=1,
+            density=density,
             size=size * 2,
         )
 
-    def _handle_lifetime(self) -> None:
+    def _handle_life_time(self) -> None:
         # basic stuff
         if self.life_time is None or self._original_life_time is None:
             return
@@ -350,7 +352,7 @@ class Lightning(Particle, Line):
 
         self.segments = lines
 
-    def _handle_lifetime(self) -> None:
+    def _handle_life_time(self) -> None:
         if self.life_time is None or self._original_life_time is None:
             return
         self.life_time -= 1
