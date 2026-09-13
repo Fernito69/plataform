@@ -9,6 +9,7 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
+    from physics2d.entities.equipment.model.shared import ParticleGenerator
     from physics2d.scenario.scenario import Scenario
 
 
@@ -150,15 +151,19 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
 
 
 def smoke_generator(
-    scenario: "Scenario", source: "PhysicsEntity", life_time: int | None = None
+    scenario: "Scenario",
+    source: "PhysicsEntity",
+    life_time: int | None = None,
+    random_offset_threshold: float = 0.25,
+    initial_velocity: VectorF | None = None,
 ) -> None:
-    if random_offset() < 0.25:
+    if random_offset() < random_offset_threshold:
         return
 
     smokes: list[CircularParticle] = []
     main_smoke = CircularParticle(
         origin=source.center,
-        initial_velocity=(3 * source.velocity).as_vector(),
+        initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
         size=source.radius / 2,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(110, 90, 90, 1),
@@ -308,14 +313,32 @@ def lightning_impact(
 #####################################################
 
 
-def rocket_explosion(scenario: "Scenario", source: "PhysicsEntity") -> None:
-    _SIZE = 8
+def get_rocket_explosion(damage: float) -> "ParticleGenerator":
+    def _explosion(scenario: "Scenario", source: "PhysicsEntity") -> None:
+        return rocket_explosion(scenario, source, damage=damage)
+
+    return _explosion
+
+
+def rocket_explosion(scenario: "Scenario", source: "PhysicsEntity", damage: float) -> None:
+    _SIZE = damage / 10
     _VELOCITY = (-0.1 * source.velocity).as_vector()
 
     particles: list[CircularParticle] = []
 
     eye_x = source.center.x - source.velocity.x
     eye_y = source.center.y - source.velocity.y
+
+    blast_radius = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        size=_SIZE * 0.5,
+        size_change_type=TransitionType.LINEAR_INCREASE,
+        final_radius=15,
+        initial_color=RGB(255, 255, 255, 1),
+        ending_color=RGB(0, 0, 0, intensity=1),
+        life_time=15,
+    )
+    scenario.bg_pieces.append(blast_radius)
 
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -628,7 +651,8 @@ def homing_missile_trail(
     if scenario.now() % frequency == 0:
         _initial_color = RGB(255, 120, 120, 1) if target else RGB(255, 255, 255, 1)
         _ending_color = RGB(255, 0, 0, 1) if target else RGB(80, 80, 80, 1)
-        _lift_time = 4 if target else 6
+        _lift_time = 3 if target else 6
+        _final_radius = 10 if target else 8
 
         light = CircularParticle(
             origin=source,
@@ -638,7 +662,7 @@ def homing_missile_trail(
             initial_color=_initial_color,
             ending_color=_ending_color,
             life_time=_lift_time,
-            final_radius=6.5,
+            final_radius=_final_radius,
         )
         scenario.bg_pieces.append(light)
 

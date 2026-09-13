@@ -156,7 +156,7 @@ class CircularParticle(Particle, PhysicsEntity):
                 self.radius *= self.life_time / self._original_life_time
             case TransitionType.LINEAR_INCREASE:
                 _factor = self.life_time / self._original_life_time
-                self.radius = self.radius * (1 - _factor) + self._final_radius * _factor
+                self.radius = (_factor * self.radius) + ((1 - _factor) * self._final_radius)
             case TransitionType.NONE:
                 ...
 

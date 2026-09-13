@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
+from physics2d.shapes.factories.explosion import smoke_generator
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
 from utils import get_vector_angle, random_offset, random_offset_vector
@@ -284,6 +285,16 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ending_color=RGB(150, 120, 30, intensity=1),
         life_time=7,
     )
+
+    def _smoke(engine, source: "PhysicsEntity") -> None:
+        return smoke_generator(
+            engine,
+            source,
+            life_time=15,
+            random_offset_threshold=-0.25,
+            initial_velocity=scenario.player.get_last_known_direction(0.2),
+        )
+
     fire_2 = CircularParticle(
         origin=source.center + 9 * (source.get_last_known_direction()) + random_offset_vector(),
         initial_velocity=source.velocity,
@@ -296,6 +307,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=6,
+        particle_generator=_smoke,
     )
     fire_3 = CircularParticle(
         origin=source.center

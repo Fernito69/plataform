@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from random import random
 from typing import Literal
 
 from constants import ALMOST_ZERO, PI
@@ -103,14 +104,15 @@ class VectorF(PointF):
 
     @staticmethod
     def random_offset_vector(
-        scale_x: int = 1,
-        scale_y: int = 1,
-        scale_z: int = 1,
+        scale_x: float = 1,
+        scale_y: float = 1,
+        scale_z: float = 1,
     ) -> VectorF:
-        from utils import random_offset
+        def _random_offset():
+            return 0.5 - random()
 
         return VectorF(
-            scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset()
+            scale_x * _random_offset(), scale_y * _random_offset(), scale_z * _random_offset()
         )
 
 

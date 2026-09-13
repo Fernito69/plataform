@@ -6,9 +6,9 @@ from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.shapes.factories.explosion import (
     bullet_ricochet,
+    get_rocket_explosion,
     homing_missile_trail,
     lightning_impact,
-    rocket_explosion,
     rocket_trail,
 )
 from physics2d.shapes.line import Line
@@ -136,8 +136,9 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 
 def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
-    _DAMAGE = 80
-    _ROCKET_SPEED = 6
+    _DAMAGE = 100
+    _ROCKET_SPEED = 8
+    _LIFE_TIME = 100
 
     rocket = Projectile(
         owner=source,
@@ -150,9 +151,9 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color_fade_type=TransitionType.NONE,
         initial_color=RGB(127, 127, 127, 1),
         # ending_color=RGB(30, 30, 30, 1),
-        life_time=20,
+        life_time=_LIFE_TIME,
         damage=_DAMAGE,
-        explosion_generator=rocket_explosion,
+        explosion_generator=get_rocket_explosion(_DAMAGE),
         trail_generator=rocket_trail,
         density=3,
         explode_on_life_time_over=True,
@@ -165,7 +166,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _DAMAGE = 70
-    _ROCKET_SPEED = 4
+    _ROCKET_SPEED = 3.5
     _TRIGGER_DISTANCE = 50
     _HOMING_FACTOR = 1.2
     _LIFE_TIME = 200
@@ -183,7 +184,7 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         # ending_color=RGB(30, 30, 30, 1),
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
-        explosion_generator=rocket_explosion,
+        explosion_generator=get_rocket_explosion(_DAMAGE),
         trail_generator=homing_missile_trail,
         density=3,
         explode_on_life_time_over=True,

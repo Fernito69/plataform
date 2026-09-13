@@ -87,8 +87,9 @@ class Shape:
             return
         self._last_known_direction = self.velocity.unit_vector()
 
-    def get_last_known_direction(self) -> VectorF:
-        return self._last_known_direction or self.velocity.unit_vector()
+    def get_last_known_direction(self, scale: float = 1) -> VectorF:
+        raw = self._last_known_direction or self.velocity.unit_vector()
+        return (scale * raw).as_vector() if scale != 1 else raw
 
     @abstractmethod
     def get_render_info(cls) -> list[RenderInfo]:

@@ -201,7 +201,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
         if self.velocity.y >= self._get_max_speed():
-            return
+            return self.set_last_known_direction()
 
         self.velocity = (self.velocity + VectorF(0, self._get_accel())).as_vector()
         self.set_last_known_direction()
@@ -209,7 +209,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     @on_key_press(MovementKeys.DOWN)
     def _move_down(self) -> None:
         if self.velocity.y <= -self._get_max_speed():
-            return
+            return self.set_last_known_direction()
 
         self.velocity = (self.velocity + VectorF(0, -self._get_accel())).as_vector()
         self.set_last_known_direction()
@@ -217,7 +217,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     @on_key_press(MovementKeys.LEFT)
     def _move_left(self) -> None:
         if self.velocity.x <= -self._get_max_speed():
-            return
+            return self.set_last_known_direction()
 
         self.velocity = (self.velocity + VectorF(-self._get_accel(), 0)).as_vector()
         self.set_last_known_direction()
@@ -225,7 +225,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     @on_key_press(MovementKeys.RIGHT)
     def _move_right(self) -> None:
         if self.velocity.x >= self._get_max_speed():
-            return
+            return self.set_last_known_direction()
 
         self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
         self.set_last_known_direction()
