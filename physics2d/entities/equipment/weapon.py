@@ -108,7 +108,7 @@ class MachineGun(Weapon):
             fire_particle_generator=machine_gun_nozzle,
             projectile_generator=bullet,
             ammo=1000,
-            color=RGB(255, 200, 255, 1),
+            color=RGB(127, 127, 127, 1),
         )
 
     def _spend_ammo(self) -> None:
@@ -166,7 +166,7 @@ class LightningGun(Weapon):
             fire_particle_generator=lightning,
             projectile_generator=lightning_bolts,
             ammo=2000,
-            color=RGB(220, 220, 255, 1),
+            color=RGB(255, 190, 255, 1),
         )
 
     def _spend_ammo(self) -> None:
@@ -227,7 +227,7 @@ class HomingMissileLauncher(Weapon):
             fire_particle_generator=rocket_launcher_nozzle,
             projectile_generator=homing_missile,
             ammo=30,
-            color=RGB(110, 40, 220, 1),
+            color=RGB(180, 90, 255, 1),
         )
 
     def _spend_ammo(self) -> None:

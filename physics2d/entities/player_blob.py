@@ -250,9 +250,9 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             return
 
         self._thrusters = [
+            SonicThruster(self._scenario),
             MeteorThruster(self._scenario),
             SoapyThruster(self._scenario),
-            SonicThruster(self._scenario),
             PlasmaBallThruster(self._scenario),
         ]
         self._curr_thruster_index = 0

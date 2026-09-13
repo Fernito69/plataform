@@ -101,6 +101,18 @@ class VectorF(PointF):
         magnitude = 1 / (abs(self) or ALMOST_ZERO)
         return (magnitude * self).as_vector()
 
+    @staticmethod
+    def random_offset_vector(
+        scale_x: int = 1,
+        scale_y: int = 1,
+        scale_z: int = 1,
+    ) -> VectorF:
+        from utils import random_offset
+
+        return VectorF(
+            scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset()
+        )
+
 
 @dataclass
 class PointI(PointF):

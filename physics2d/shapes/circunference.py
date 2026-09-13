@@ -164,6 +164,8 @@ class Circunference(Shape):
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
     def get_render_info(self) -> list[RenderInfo]:
+        from physics2d.entities.player_blob import PlayerBlob
+
         piece_info: list[RenderInfo] = []
 
         min_x, max_x = sorted(
@@ -224,6 +226,14 @@ class Circunference(Shape):
                         point=PointF(x, y),
                     )
                 )
+
+        if isinstance(self, PlayerBlob):
+            weapon_badge = Circunference(
+                center=self.center + 0.5 * self.velocity,
+                radius=1.2,
+                theme=Theme(color=self.get_curr_weapon().color),
+            )
+            piece_info[0:0] = weapon_badge.get_render_info()
 
         return piece_info
 

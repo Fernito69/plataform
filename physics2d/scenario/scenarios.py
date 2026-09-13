@@ -22,22 +22,24 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     def _random_color():
         return RGB(127 + 127 * random(), 127 + 127 * random(), 127 + 127 * random(), 1)
 
-    def _smoll_enemy(position):
+    def _smoll_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(
             size=10,
             health=100,
             name="SmollEnemy",
             position=position,
             theme=Theme(color=_random_color(), bg_color=_random_color()),
+            initial_velocity=velocity,
         )
 
-    def _mid_enemy(position):
+    def _mid_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(
             size=20,
             health=400,
             name="MidEnemy",
             position=position,
             theme=Theme(color=_random_color(), bg_color=_random_color()),
+            initial_velocity=velocity,
         )
 
     enemies: list[Enemy] = [
@@ -52,9 +54,18 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         _smoll_enemy(PointF(312, 256)),
         _smoll_enemy(PointF(384, 322)),
         _smoll_enemy(PointF(350, 290)),
+        _smoll_enemy(PointF(384, 322)),
+        _smoll_enemy(PointF(484, 322), VectorF.random_offset_vector(23, 2)),
+        _smoll_enemy(PointF(494, 322), VectorF.random_offset_vector(2, 12)),
+        _smoll_enemy(PointF(474, 322), VectorF.random_offset_vector(3, 4)),
+        _smoll_enemy(PointF(464, 322), VectorF.random_offset_vector(3, 8)),
+        _smoll_enemy(PointF(454, 322), VectorF.random_offset_vector(2, 4)),
+        _smoll_enemy(PointF(444, 322), VectorF.random_offset_vector(2, 8)),
         _mid_enemy(PointF(150, 150)),
         _mid_enemy(PointF(250, 150)),
         _mid_enemy(PointF(230, 180)),
+        _mid_enemy(PointF(230, 290), VectorF.random_offset_vector(2, 8)),
+        _mid_enemy(PointF(230, 290), VectorF.random_offset_vector(7, 7)),
         Enemy(
             size=30,
             health=600,
