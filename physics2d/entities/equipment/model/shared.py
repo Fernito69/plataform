@@ -6,3 +6,4 @@ if TYPE_CHECKING:
 
 # TODO: this doesn't belong here
 type ParticleGenerator = Callable[[Scenario, PhysicsEntity], None]
+type ParticleGeneratorWithTarget = Callable[[Scenario, PhysicsEntity, PhysicsEntity | None], None]

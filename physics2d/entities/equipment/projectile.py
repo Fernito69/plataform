@@ -7,7 +7,10 @@ from physics2d.shapes.particle import CircularParticle
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.entities.equipment.model.shared import ParticleGenerator
+    from physics2d.entities.equipment.model.shared import (
+        ParticleGenerator,
+        ParticleGeneratorWithTarget,
+    )
     from physics2d.physics2d import Physics2D
 
 
@@ -15,18 +18,25 @@ class Projectile(CircularParticle):
     damage: float
     owner: "PhysicsEntity"
 
+    target: "PhysicsEntity | None"
+    target_acquire_threshold: float | None
+    homing_factor: float
+    initial_velocity: VectorF
+
     _explosion_generator: "ParticleGenerator"
+    _trail_generator: "ParticleGeneratorWithTarget | None"
+
     explode_on_life_time_over: bool
 
     def __init__(
         self,
         owner: "PhysicsEntity",
-        origin: PointF,
+        origin: PointF,  # TODO: DEPRECATE
         size: float,
         damage: float,
         initial_color: RGB,
         explosion_generator: "ParticleGenerator",
-        trail_generator: "ParticleGenerator | None" = None,
+        trail_generator: "ParticleGeneratorWithTarget | None" = None,
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
         ending_color: RGB | None = None,
@@ -36,9 +46,13 @@ class Projectile(CircularParticle):
         floating_multi: float = 0,
         density: float = 1,
         explode_on_life_time_over: bool = False,
+        target: "PhysicsEntity | None" = None,
+        target_acquire_threshold: float | None = None,
+        homing_factor: float = 1,
     ):
         super().__init__(
-            origin=origin,
+            # origin=origin,
+            origin=owner,
             size=size,
             initial_color=initial_color,
             initial_velocity=initial_velocity,
@@ -55,8 +69,12 @@ class Projectile(CircularParticle):
         self.name = "Projectile"
         self.is_collideable = True
         self._explosion_generator = explosion_generator
-        self._particle_generator = trail_generator
+        self._trail_generator = trail_generator
         self.explode_on_life_time_over = explode_on_life_time_over
+        self.target = target
+        self.target_acquire_threshold = target_acquire_threshold
+        self.homing_factor = homing_factor
+        self.initial_velocity = initial_velocity
 
     def hit(self, engine: "Physics2D") -> None:
         self._explosion_generator(engine.scenario, self)

@@ -16,6 +16,7 @@ from utils import (
 )
 
 if TYPE_CHECKING:
+    from physics2d.entities.enemy import Enemy
     from physics2d.physics2d import Physics2D
 
 
@@ -90,7 +91,9 @@ class Circunference(Shape):
             self.velocity.y = 0
 
     def _apply_movement(self, engine: "Physics2D") -> None:
+        # TODO: I don't like this lazy import
         from physics2d.entities.base import PhysicsEntity
+        from physics2d.entities.equipment.projectile import Projectile
         from physics2d.shapes.particle import Particle
 
         self._float_around()
@@ -105,12 +108,35 @@ class Circunference(Shape):
         if not any(a != 0 for a in self.velocity):
             return
 
-        self.center = PointF(self.center.x + self.velocity.x, self.center.y + self.velocity.y)
+        self.center += self.velocity
+
+        # TODO: this
         if isinstance(self, PhysicsEntity):
             self.position = self.center
 
             if isinstance(self, Particle) and self._particle_generator:
                 self._particle_generator(engine.scenario, self)
+
+            if isinstance(self, Projectile):
+                if self.target:
+                    to_target = (
+                        self.homing_factor
+                        * (self.target.position - self.position).as_vector().unit_vector()
+                    )
+                    vel_contrib = (1 / self.homing_factor) * self.velocity
+                    self.velocity = (vel_contrib + to_target).as_vector()
+                elif self.target_acquire_threshold is not None:
+                    # TODO: abstract this logic
+                    possible_victims: list["Enemy"] = [
+                        enemy
+                        for enemy, distance in sorted(
+                            [(e, abs(self.center - e.center)) for e in engine.scenario.enemies],
+                            key=lambda v: v[1],
+                        )
+                        if distance < self.target_acquire_threshold
+                    ]
+                    if len(possible_victims) > 0:
+                        self.target = possible_victims[0]
 
         self.update_center_of_mass()
         self._apply_friction()

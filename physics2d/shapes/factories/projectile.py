@@ -6,6 +6,7 @@ from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.shapes.factories.explosion import (
     bullet_ricochet,
+    homing_missile_trail,
     lightning_impact,
     rocket_explosion,
     rocket_trail,
@@ -86,6 +87,7 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     pieces: list[Line] = []
 
+    # TODO: abstract this logic
     possible_victims: list["Enemy"] = [
         enemy
         for enemy, distance in sorted(
@@ -154,5 +156,38 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         trail_generator=rocket_trail,
         density=3,
         explode_on_life_time_over=True,
+    )
+    scenario.projectiles.append(rocket)
+
+
+############################################################
+
+
+def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    _DAMAGE = 70
+    _ROCKET_SPEED = 4
+    _TRIGGER_DISTANCE = 50
+    _HOMING_FACTOR = 1.2
+    _LIFE_TIME = 200
+
+    rocket = Projectile(
+        owner=source,
+        origin=source.center + random_offset_vector(),
+        initial_velocity=(
+            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+        ).as_vector(),
+        size=1.2,
+        size_change_type=TransitionType.NONE,
+        ending_color_fade_type=TransitionType.NONE,
+        initial_color=RGB(127, 127, 255, 1),
+        # ending_color=RGB(30, 30, 30, 1),
+        life_time=_LIFE_TIME,
+        damage=_DAMAGE,
+        explosion_generator=rocket_explosion,
+        trail_generator=homing_missile_trail,
+        density=3,
+        explode_on_life_time_over=True,
+        target_acquire_threshold=_TRIGGER_DISTANCE,
+        homing_factor=_HOMING_FACTOR,
     )
     scenario.projectiles.append(rocket)

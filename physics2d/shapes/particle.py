@@ -47,12 +47,16 @@ class Particle:
 
     # TODO: type this
     def do_your_thing(self, engine) -> None:
+        from physics2d.entities.equipment.projectile import Projectile
+
         self._act(engine)
         self._handle_life_time()
 
         # TODO: fix this, should apply for any shape/entity
         if self._particle_generator and isinstance(self, PhysicsEntity):
             self._particle_generator(engine.scenario, self)
+        if isinstance(self, Projectile) and self._trail_generator:
+            self._trail_generator(engine.scenario, self, self.target)
 
     @abstractmethod
     def _act(cls, engine) -> None: ...
@@ -65,12 +69,16 @@ class Particle:
 
 
 class CircularParticle(Particle, PhysicsEntity):
-    origin: PointF
+    origin: PointF | PhysicsEntity
     size: float
+
+    source: PhysicsEntity | None
+
+    _final_radius: float
 
     def __init__(
         self,
-        origin: PointF,
+        origin: PointF | PhysicsEntity,
         size: float,
         initial_color: RGB,
         initial_velocity: VectorF = VectorF(0, 0),
@@ -83,6 +91,7 @@ class CircularParticle(Particle, PhysicsEntity):
         is_collideable: bool = False,
         particle_generator: ParticleGenerator | None = None,
         density: float = 1,
+        final_radius: float | None = None,
     ):
         self.life_time = life_time
         self._original_life_time = life_time
@@ -96,11 +105,18 @@ class CircularParticle(Particle, PhysicsEntity):
         self._affected_by_gravity = gravity is not None
         self.floating_multi = floating_multi
         self.velocity = initial_velocity
+        # TODO: why's this x2?
         self.radius = size * 2
+        self._final_radius = final_radius or (self.radius * 2)
+
+        origin = origin if isinstance(origin, PointF) else origin.position
+        # TODO: why does this not seem to work?
+        self.source = None if isinstance(origin, PointF) else origin
+
         self.center = origin
+        self.position = origin
         self.is_collideable = is_collideable
         self._particle_generator = particle_generator
-        self.position = origin
         self.density = density
 
         super().__init__(
@@ -139,7 +155,8 @@ class CircularParticle(Particle, PhysicsEntity):
             case TransitionType.EXPONENTIAL_DECREASE:
                 self.radius *= self.life_time / self._original_life_time
             case TransitionType.LINEAR_INCREASE:
-                self.radius += 1
+                _factor = self.life_time / self._original_life_time
+                self.radius = self.radius * (1 - _factor) + self._final_radius * _factor
             case TransitionType.NONE:
                 ...
 
@@ -163,6 +180,11 @@ class CircularParticle(Particle, PhysicsEntity):
             )
 
     def _act(self, engine) -> None:
+        if self.source:
+            self.position = self.source.position
+            self.center = self.position
+            self.update_center_of_mass()
+            return
         PhysicsEntity._apply_movement(self, engine)
 
 
@@ -330,14 +352,6 @@ class Lightning(Particle, Line):
                     theme=self.theme,
                     initial_velocity=self.velocity,
                 )
-                # if random_offset() < 0.4
-                # else Lightning(
-                #     source=Circunference(center=p, radius=1, theme=self.theme),
-                #     end_point=p + random_offset_vector(5,5),
-                #     initial_color=self.initial_color,
-                #     ending_color=self.ending_color or self.initial_color,
-                #     life_time=10,
-                # )
                 for idx, p in enumerate(segment_points[:-1])
             ]
             + [

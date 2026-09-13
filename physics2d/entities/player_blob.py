@@ -13,6 +13,7 @@ from physics2d.entities.equipment.thruster import (
     Thruster,
 )
 from physics2d.entities.equipment.weapon import (
+    HomingMissileLauncher,
     LightningGun,
     MachineGun,
     RocketLauncher,
@@ -244,20 +245,27 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     def _get_decel(self) -> float:
         return self.get_curr_thruster().decel
 
-    def set_scenario(self, scenario: "Scenario") -> None:
-        self._scenario = scenario
+    def init_player(self) -> None:
+        if not self._scenario:
+            return
+
         self._thrusters = [
-            MeteorThruster(self.engine.scenario),
-            SoapyThruster(self.engine.scenario),
-            SonicThruster(self.engine.scenario),
-            PlasmaBallThruster(self.engine.scenario),
+            MeteorThruster(self._scenario),
+            SoapyThruster(self._scenario),
+            SonicThruster(self._scenario),
+            PlasmaBallThruster(self._scenario),
         ]
         self._curr_thruster_index = 0
         self._weapons = [
-            MachineGun(self.engine.scenario),
-            Shotgun(self.engine.scenario),
-            LightningGun(self.engine.scenario),
-            RocketLauncher(self.engine.scenario),
+            MachineGun(self._scenario),
+            Shotgun(self._scenario),
+            LightningGun(self._scenario),
+            RocketLauncher(self._scenario),
+            HomingMissileLauncher(self._scenario),
         ]
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme
+
+    def set_scenario(self, scenario: "Scenario") -> None:
+        self._scenario = scenario
+        self.init_player()

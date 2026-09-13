@@ -9,7 +9,13 @@ from physics2d.shapes.factories.nozzle import (
     rocket_launcher_nozzle,
     shotgun_nozzle,
 )
-from physics2d.shapes.factories.projectile import buckshot, bullet, lightning_bolts, rocket
+from physics2d.shapes.factories.projectile import (
+    buckshot,
+    bullet,
+    homing_missile,
+    lightning_bolts,
+    rocket,
+)
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -185,7 +191,7 @@ class RocketLauncher(Weapon):
             scenario=scenario,
             max_ammo=50,
             refractory_period=15,
-            fire_particle_generator=rocket_launcher_nozzle,  # TODO: this one need its own nozzle
+            fire_particle_generator=rocket_launcher_nozzle,
             projectile_generator=rocket,
             ammo=50,
             color=RGB(220, 32, 12, 1),
@@ -194,6 +200,43 @@ class RocketLauncher(Weapon):
     def _spend_ammo(self) -> None:
         self._ammo -= 1
 
-    def _effect_on_player(self) -> None: ...
+    def _effect_on_player(self) -> None:
+        # recoil!
+        self._scenario.player.velocity = (
+            self._scenario.player.velocity
+            - 1.5 * (self._scenario.player.get_last_known_direction())
+        ).as_vector()
+
+    def secondary_fire(self) -> None: ...
+
+
+#################################################################
+
+
+# TODO: handle blast damage
+class HomingMissileLauncher(Weapon):
+    def __init__(
+        self,
+        scenario: "Scenario",
+    ):
+        super().__init__(
+            name="HomingMissileLauncher",
+            scenario=scenario,
+            max_ammo=30,
+            refractory_period=20,
+            fire_particle_generator=rocket_launcher_nozzle,
+            projectile_generator=homing_missile,
+            ammo=30,
+            color=RGB(110, 40, 220, 1),
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def _effect_on_player(self) -> None:
+        # recoil!
+        self._scenario.player.velocity = (
+            self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
+        ).as_vector()
 
     def secondary_fire(self) -> None: ...
