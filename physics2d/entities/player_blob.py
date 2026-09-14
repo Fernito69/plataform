@@ -166,6 +166,21 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
         self._scenario = scenario
         self.init_player()
 
+    def get_fire_direction(self) -> VectorF:
+        _screen_pos = self.engine.screen_corner
+
+        return (
+            (
+                self.engine.scenario.crosshair.position
+                - VectorF(
+                    self.position.x - _screen_pos.x,
+                    self.position.y - _screen_pos.y,
+                )
+            )
+            .as_vector()
+            .unit_vector()
+        )
+
     ##############
     """KEYBOARD"""
     ##############

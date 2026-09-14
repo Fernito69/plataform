@@ -36,8 +36,7 @@ class RocketLauncher(Weapon):
     def _effect_on_player(self) -> None:
         # recoil!
         self._scenario.player.velocity = (
-            self._scenario.player.velocity
-            - 1.5 * (self._scenario.player.get_last_known_direction())
+            self._scenario.player.velocity - 1.5 * (self._scenario.player.get_aiming_direction())
         ).as_vector()
 
     def secondary_fire(self) -> None: ...
@@ -59,7 +58,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+            (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
         size=1.2,
         size_change_type=TransitionType.NONE,
@@ -82,6 +81,8 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 
 def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    direction = source.get_aiming_direction()
+
     # TODO: this is copy/paste, generalize
     _fire_1_color = (
         RGB(
@@ -97,7 +98,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ).with_intensity(1)
     )
     fire_1 = CircularParticle(
-        origin=source.center + 7 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 7 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -112,11 +113,11 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
             source,
             life_time=15,
             random_offset_threshold=-0.25,
-            initial_velocity=scenario.player.get_last_known_direction(0.2),
+            initial_velocity=(0.2 * scenario.player.get_aiming_direction()).as_vector(),
         )
 
     fire_2 = CircularParticle(
-        origin=source.center + 9 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 9 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -130,9 +131,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         particle_generator=_smoke,
     )
     fire_3 = CircularParticle(
-        origin=source.center
-        + 13 * (source.get_last_known_direction())
-        + 2 * random_offset_vector(),
+        origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
         initial_velocity=source.velocity,
         size=4,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -145,7 +144,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         life_time=5,
     )
     fire_white = CircularParticle(
-        origin=source.center + 6 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 6 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -156,16 +155,10 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
     sparks: list[CircularParticle] = []
 
     spark = CircularParticle(
-        origin=source.center + 6 * (source.get_last_known_direction() + random_offset_vector()),
+        origin=source.center + 6 * (direction + random_offset_vector()),
         initial_velocity=(
             source.velocity
-            + 5
-            * (
-                source.get_last_known_direction()
-                + VectorF(0, random_offset() * 2).rotate(
-                    get_vector_angle(source.get_last_known_direction())
-                )
-            )
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,

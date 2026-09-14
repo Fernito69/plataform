@@ -227,7 +227,7 @@ class Circunference(Shape):
 
         if isinstance(self, PlayerBlob):
             weapon_badge = Circunference(
-                center=self.center + self.radius * self.get_last_known_direction(),
+                center=self.center + self.radius * self.get_fire_direction(),
                 radius=1.2,
                 theme=Theme(color=self.get_curr_weapon().color),
             )

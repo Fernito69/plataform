@@ -72,3 +72,13 @@ class PhysicsEntity(Circunference):
     def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement
         raise
+
+    # TODO: unify this with get_last_known_direction()
+    def get_aiming_direction(self) -> VectorF:
+        from physics2d.entities.player_blob import PlayerBlob
+
+        return (
+            self.get_fire_direction()
+            if isinstance(self, PlayerBlob)
+            else self.get_last_known_direction()
+        )

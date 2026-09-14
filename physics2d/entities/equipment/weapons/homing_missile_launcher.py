@@ -35,7 +35,7 @@ class HomingMissileLauncher(Weapon):
     def _effect_on_player(self) -> None:
         # recoil!
         self._scenario.player.velocity = (
-            self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
+            self._scenario.player.velocity - (self._scenario.player.get_aiming_direction())
         ).as_vector()
 
     def secondary_fire(self) -> None: ...
@@ -60,7 +60,7 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+            (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
         size=1.2,
         size_change_type=TransitionType.NONE,

@@ -44,7 +44,7 @@ class BFG(Weapon):
     def _effect_on_player(self) -> None:
         # recoil!
         self._scenario.player.velocity = (
-            self._scenario.player.velocity - 3 * (self._scenario.player.get_last_known_direction())
+            self._scenario.player.velocity - 3 * (self._scenario.player.get_aiming_direction())
         ).as_vector()
 
     _firing_countdown: int = _BFG_BASE_COUNTDOWN
@@ -148,7 +148,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         owner=source,
         origin=source.center + random_offset_vector(),
         initial_velocity=(
-            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+            (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
         size=3.5,
         size_change_type=TransitionType.NONE,
@@ -176,11 +176,12 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 
 def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    direction = source.get_aiming_direction()
     # TODO: this is copy/paste, generalize
     _bfg_color = RGB(100, 255, 100)
 
     bfg_1 = CircularParticle(
-        origin=source.center + 7 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 7 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=9,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -190,7 +191,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
 
     bfg_2 = CircularParticle(
-        origin=source.center + 9 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 9 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=7,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -199,9 +200,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=10,
     )
     bfg_3 = CircularParticle(
-        origin=source.center
-        + 13 * (source.get_last_known_direction())
-        + 2 * random_offset_vector(),
+        origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -210,7 +209,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=9,
     )
     fire_white = CircularParticle(
-        origin=source.center + 6 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center + 6 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -221,14 +220,14 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # sparks: list[CircularParticle] = []
 
     # spark = CircularParticle(
-    #     origin=source.center + 6 * (source.get_last_known_direction() + random_offset_vector()),
+    #     origin=source.center + 6 * (direction + random_offset_vector()),
     #     initial_velocity=(
     #         source.velocity
     #         + 5
     #         * (
-    #             source.get_last_known_direction()
+    #             direction
     #             + VectorF(0, random_offset() * 2).rotate(
-    #                 get_vector_angle(source.get_last_known_direction())
+    #                 get_vector_angle(direction)
     #             )
     #         )
     #     ).as_vector(),
