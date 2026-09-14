@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from model.base import PointF, VectorF
 from model.theme import Theme
+from physics2d.model.shared import RenderInfo
 from physics2d.shapes.circunference import Circunference
 from physics2d.shapes.shape import Shape
 
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
 class PhysicsEntity(Circunference):
     position: PointF
     velocity: VectorF
+    extra_shapes: list[Shape]
 
     name: str | None
 
@@ -32,6 +34,7 @@ class PhysicsEntity(Circunference):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         is_collideable: bool = True,
+        extra_shapes: list[Shape] = [],
     ):
         super().__init__(
             center=position,
@@ -49,6 +52,7 @@ class PhysicsEntity(Circunference):
         )
         self._scenario = scenario
         self.position = position
+        self.extra_shapes = extra_shapes
 
         self.density = density
         self.name = name
@@ -58,6 +62,12 @@ class PhysicsEntity(Circunference):
 
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
+
+    def get_render_info(self) -> list[RenderInfo]:
+        info = super().get_render_info()
+        for shape in self.extra_shapes:
+            info.extend(shape.get_render_info())
+        return info
 
     def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
+from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
@@ -41,6 +42,7 @@ class Scenario:
     enemies: list[Enemy]
     gravity_acceleration: float
     player: PlayerBlob
+    crosshair: Crosshair
 
     # Global scenario counter
     _game_tick: int
@@ -54,22 +56,26 @@ class Scenario:
         bg_pieces: list[Shape] = [],
         solid_pieces: list[Shape] = [],
     ):
+        self.engine = engine
         self.enemies = enemies
         self.fg_pieces = fg_pieces
         self.bg_pieces = bg_pieces
         self.solid_pieces = solid_pieces
+
         for p in self.solid_pieces:
             p.is_collideable = True
-        self.engine = engine
 
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
         self.player = player
         self._game_tick = 0
 
+        self.crosshair = Crosshair(engine)
+
         self.projectiles = []
 
     def act(self) -> None:
         self.player.do_your_thing()
+        self.crosshair.do_your_thing()
 
         for entity in (
             self.fg_pieces + self.bg_pieces + self.solid_pieces + self.projectiles + self.enemies
@@ -118,6 +124,8 @@ class Scenario:
         return self._game_tick
 
     def render(self) -> None:
+        self._render_crosshair()
+
         # TODO: unify, we need a common class
         def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy]):
             for p in pieces:
@@ -149,6 +157,10 @@ class Scenario:
     def handle_render_info(self, render_info: list[RenderInfo]) -> None:
         for info in render_info:
             self.engine.add_pixel_info_to_buffer(info)
+
+    def _render_crosshair(self) -> None:
+        for info in self.crosshair.get_render_info():
+            self.engine.add_pixel_info_to_buffer(info, absolute_positioning=True)
 
     def get_enemies_in_range(
         self,

@@ -74,9 +74,21 @@ class Physics2D(Engine, KeyboardHandler):
             and point.y < self.screen_buffer_y_res
         )
 
-    def add_pixel_info_to_buffer(self, render_info: RenderInfo) -> None:
-        new_x = round(render_info.point.x - self.screen_corner.x)
-        new_y = round(render_info.point.y - self.screen_corner.y)
+    def add_pixel_info_to_buffer(
+        self,
+        render_info: RenderInfo,
+        absolute_positioning: bool = False,
+    ) -> None:
+        new_x = (
+            round(render_info.point.x)
+            if absolute_positioning
+            else round(render_info.point.x - self.screen_corner.x)
+        )
+        new_y = (
+            round(render_info.point.y)
+            if absolute_positioning
+            else round(render_info.point.y - self.screen_corner.y)
+        )
 
         if self.is_visible(PointF(new_x, new_y)):
             self.screen_buffer[new_y][new_x].append(render_info)

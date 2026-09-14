@@ -61,6 +61,10 @@ class Line(Shape):
             (self.points[0].y + self.points[1].y) / 2,
         )
 
+    # TODO: make abstract in Shape and not private
+    def _move_by(self, vector: VectorF) -> None:
+        self.points = (self.points[0] + vector, self.points[1] + vector)
+
     def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D"):
         if not self.is_collideable or not colliding_shape.is_collideable:
             return

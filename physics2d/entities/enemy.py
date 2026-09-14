@@ -6,7 +6,6 @@ from physics2d.shapes.shape import Shape
 
 
 class Enemy(PhysicsEntity):
-    extra_shapes: list[Shape]
     health: float
 
     _initial_health: float
@@ -28,6 +27,7 @@ class Enemy(PhysicsEntity):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
+        extra_shapes: list[Shape] = [],
     ):
         super().__init__(
             density=density,
@@ -43,12 +43,13 @@ class Enemy(PhysicsEntity):
             own_gravity=own_gravity,
             secondary_theme=secondary_theme,
             is_collideable=True,
+            extra_shapes=extra_shapes,
         )
-        self.extra_shapes = []
         self.health = health
         self._initial_health = health
         self._initial_theme = Theme(color=theme.color)
         self.name = name
+        self.extra_shapes = extra_shapes
 
     def receive_damage(self, amount: float) -> None:
         self.health -= amount
