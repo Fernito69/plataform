@@ -158,6 +158,7 @@ class Scenario:
     ) -> list[GetEnemiesInRangeRes]:
         possible_victims = [
             GetEnemiesInRangeRes(enemy, distance)
+            # TODO: do we need it sorted?
             for enemy, distance in sorted(
                 [
                     (

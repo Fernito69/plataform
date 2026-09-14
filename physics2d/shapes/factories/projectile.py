@@ -93,7 +93,7 @@ def get_lightning_bolts(
     num_segments: int = 12,
 ) -> "ParticleGenerator":
     def _lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
-        return lightning_bolts(
+        return _lightning_bolts(
             scenario,
             source,
             initial_color,
@@ -109,7 +109,7 @@ def get_lightning_bolts(
     return _lightning
 
 
-def lightning_bolts(
+def _lightning_bolts(
     scenario: "Scenario",
     source: "PhysicsEntity",
     initial_color: RGB,
@@ -169,7 +169,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _DAMAGE = 100
     _ROCKET_SPEED = 8
     _LIFE_TIME = 100
-    _BLAST_RADIUS = 15
+    _BLAST_RADIUS = 20
     _MAX_BLAST_DAMAGE = 100
 
     rocket = Projectile(
@@ -201,10 +201,10 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _ROCKET_SPEED = 3.5
     _TRIGGER_DISTANCE = 50
     _HOMING_FACTOR = 1.2
-    _HOMING_KICK_IN_TIME = 6
+    _HOMING_KICK_IN_TIME = 10
     _LIFE_TIME = 200
-    _BLAST_RADIUS = 12
-    _MAX_BLAST_DAMAGE = 80
+    _BLAST_RADIUS = 15
+    _MAX_BLAST_DAMAGE = 60
 
     rocket = Projectile(
         owner=source,

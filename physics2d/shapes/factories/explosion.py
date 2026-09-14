@@ -324,7 +324,7 @@ def get_rocket_explosion(
     little_explosions_color: RGB | None = None,
 ) -> "ParticleGenerator":
     def _explosion(scenario: "Scenario", source: "PhysicsEntity") -> None:
-        return rocket_explosion(
+        return _rocket_explosion(
             scenario,
             source,
             damage=damage,
@@ -340,9 +340,9 @@ def get_rocket_explosion(
     return _explosion
 
 
-def rocket_explosion(
+def _rocket_explosion(
     scenario: "Scenario",
-    source: "PhysicsEntity",
+    rocket: "PhysicsEntity",
     damage: float,
     blast_radius: float,
     blast_damage_at_ground_zero: float,
@@ -353,12 +353,12 @@ def rocket_explosion(
     little_explosions_color: RGB | None = None,
 ) -> None:
     _SIZE = damage / 10
-    _VELOCITY = (-0.1 * source.velocity).as_vector()
+    _VELOCITY = (-0.1 * rocket.velocity).as_vector()
 
     particles: list[CircularParticle] = []
 
-    eye_x = source.center.x - source.velocity.x
-    eye_y = source.center.y - source.velocity.y
+    eye_x = rocket.center.x - rocket.velocity.x
+    eye_y = rocket.center.y - rocket.velocity.y
 
     color_2 = secondary_color or RGB(255, 255, 255, 1)
     end_color_2 = secondary_color.with_intensity(0.2) if secondary_color else RGB(180, 180, 120, 1)
@@ -458,34 +458,13 @@ def rocket_explosion(
 
     scenario.fg_pieces[0:0] = secondary_explosions
 
-    # smoke_trails: list[CircularParticle] = []
-
-    # for i in range(round(size)):
-    #     smoke_trail = CircularParticle(
-    #         origin=PointF(x=eye_x + (size / 2) * random_offset(), y=eye_y + (size / 2) * random()),
-    #         initial_velocity=(source.velocity + random_offset_vector() * size).as_vector(),
-    #         size=_sec_size,
-    #         size_change_type=TransitionType.LINEAR_DECREASE,
-    #         initial_color=RGB(110, 60, 10, 1),
-    #         ending_color=RGB(10, 10, 10, 1),  # smokelike
-    #         life_time=50,
-    #         # floating_multi=0.2,
-    #         gravity=0.07,
-    #     )
-
-    #     smoke_trails.append(smoke_trail)
-
-    # if i % 3 == 0:
-    #     scenario.bg_pieces[0:0] = smoke_trails
-    # else:
-    #     scenario.fg_pieces[0:0] = smoke_trails
     if throw_sparks:
         for _ in range(round(_SIZE * 3)):
             # TODO: make these sparks and other useful things into their own class
             sparks = CircularParticle(
                 origin=PointF(
-                    x=eye_x + random_offset() * source.radius * 2,
-                    y=eye_y + random_offset() * source.radius * 2,
+                    x=eye_x + random_offset() * rocket.radius * 2,
+                    y=eye_y + random_offset() * rocket.radius * 2,
                 ),
                 initial_velocity=(
                     VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
@@ -505,9 +484,9 @@ def rocket_explosion(
     # Needs to be refactored
     shock_wave = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        size=_SIZE * 0.5,
+        size=blast_radius/3,
         size_change_type=TransitionType.LINEAR_INCREASE,
-        final_radius=blast_radius,
+        final_radius=blast_radius / 1.75,
         initial_color=RGB(255, 255, 255, 1),
         ending_color=RGB(0, 0, 0, intensity=1),
         life_time=15,
@@ -515,16 +494,20 @@ def rocket_explosion(
     scenario.bg_pieces.append(shock_wave)
 
     blast_radius_victims = scenario.get_enemies_in_range(
-        blast_radius, source, calc_distance_to_border=True
+        blast_radius, rocket, calc_distance_to_border=True
     )
 
     # TODO: this should damage the player as well
     for res in blast_radius_victims:
-        damage_factor = 1 - (res.distance / blast_radius)
+        damage_factor = 1 - (max(0, res.distance) / blast_radius)
+        # TODO: show damage in screen!
         damage = damage_factor * blast_damage_at_ground_zero
+        vector_magnitude = damage / res.enemy.weight
+
+        # Semd ememy flying away
         res.enemy.velocity = (
             res.enemy.velocity
-            + ((res.enemy.center - source.center).as_vector().unit_vector(damage_factor * 0.5))
+            + ((res.enemy.center - rocket.center).as_vector().unit_vector(vector_magnitude))
         ).as_vector()
         res.enemy.receive_damage(damage)
 
