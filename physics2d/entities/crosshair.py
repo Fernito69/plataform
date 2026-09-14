@@ -13,11 +13,11 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _CROSSHAIR_THEME = Theme(color=RGB(255, 0, 0))
-_DOT_SIZE = 0.75
+_DOT_SIZE = 1
 _HAIR_SIZE = 4
 
-_CROSSHAIR_ACCEL_AMOUNT = 6
-_CROSSHAIR_MAX_SPEED = 12
+_CROSSHAIR_ACCEL_AMOUNT = 6.4
+_CROSSHAIR_MAX_SPEED = 15
 
 
 # TODO: this moves similar to player, should share a base class
@@ -57,10 +57,10 @@ class Crosshair(PhysicsEntity, KeyboardHandler):
             )
 
         self.extra_shapes = [
-            _make_line(((0, 1), (0, 1 + _HAIR_SIZE))),
-            _make_line(((1, 0), (1 + _HAIR_SIZE, 0))),
-            _make_line(((0, -1), (0, -1 - _HAIR_SIZE))),
-            _make_line(((-1, 0), (-1 - _HAIR_SIZE, 0))),
+            _make_line(((0, 3), (0, 3 + _HAIR_SIZE))),
+            _make_line(((3, 0), (3 + _HAIR_SIZE, 0))),
+            _make_line(((0, -3), (0, -3 - _HAIR_SIZE))),
+            _make_line(((-3, 0), (-3 - _HAIR_SIZE, 0))),
         ]
 
     ##############
