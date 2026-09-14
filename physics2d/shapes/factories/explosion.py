@@ -484,7 +484,7 @@ def _rocket_explosion(
     # Needs to be refactored
     shock_wave = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        size=blast_radius/3,
+        size=blast_radius / 3,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
         initial_color=RGB(255, 255, 255, 1),

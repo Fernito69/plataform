@@ -11,15 +11,13 @@ from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruste
 from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBallThruster
 from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
 from physics2d.entities.equipment.thrusters.sonic_thruster import SonicThruster
-from physics2d.entities.equipment.weapon import (
-    BFG,
-    HomingMissileLauncher,
-    LightningGun,
-    MachineGun,
-    RocketLauncher,
-    Shotgun,
-    Weapon,
-)
+from physics2d.entities.equipment.weapon import Weapon
+from physics2d.entities.equipment.weapons.bfg import BFG
+from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
+from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
+from physics2d.entities.equipment.weapons.machine_gun import MachineGun
+from physics2d.entities.equipment.weapons.rocket_launcher import RocketLauncher
+from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from terminal import on_key_press
 
 if TYPE_CHECKING:

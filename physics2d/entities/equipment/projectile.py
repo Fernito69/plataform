@@ -7,10 +7,7 @@ from physics2d.shapes.particle import CircularParticle
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.entities.model.shared import (
-        ParticleGenerator,
-        ParticleGeneratorWithTarget,
-    )
+    from physics2d.entities.model.shared import ParticleGenerator, ParticleGeneratorWithTarget
     from physics2d.physics2d import Physics2D
 
 
