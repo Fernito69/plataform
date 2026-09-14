@@ -18,7 +18,6 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.entities.enemy import Enemy
     from physics2d.scenario.scenario import Scenario
 
 
@@ -87,14 +86,14 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     pieces: list[Line] = []
 
-    # TODO: abstract this logic
-    possible_victims: list["Enemy"] = [
-        enemy
-        for enemy, distance in sorted(
-            [(e, abs(source.center - e.center)) for e in scenario.enemies], key=lambda v: v[1]
-        )
-        if distance < _MAX_RANGE
-    ]
+    # possible_victims: list["Enemy"] = [
+    #     enemy
+    #     for enemy, distance in sorted(
+    #         [(e, abs(source.center - e.center)) for e in scenario.enemies], key=lambda v: v[1]
+    #     )
+    #     if distance < _MAX_RANGE
+    # ]
+    possible_victims = [r.enemy for r in scenario.get_enemies_in_range(_MAX_RANGE)]
 
     _initial_color = RGB(255, 220, 200, 1)
     _ending_color = RGB(0, 0, 100, 1)
@@ -139,6 +138,8 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _DAMAGE = 100
     _ROCKET_SPEED = 8
     _LIFE_TIME = 100
+    _BLAST_RADIUS = 15
+    _MAX_BLAST_DAMAGE = 100
 
     rocket = Projectile(
         owner=source,
@@ -153,7 +154,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         # ending_color=RGB(30, 30, 30, 1),
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
-        explosion_generator=get_rocket_explosion(_DAMAGE),
+        explosion_generator=get_rocket_explosion(_DAMAGE, _BLAST_RADIUS, _MAX_BLAST_DAMAGE),
         trail_generator=rocket_trail,
         density=3,
         explode_on_life_time_over=True,
@@ -171,6 +172,8 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _HOMING_FACTOR = 1.2
     _HOMING_KICK_IN_TIME = 6
     _LIFE_TIME = 200
+    _BLAST_RADIUS = 12
+    _MAX_BLAST_DAMAGE = 80
 
     rocket = Projectile(
         owner=source,
@@ -185,7 +188,7 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         # ending_color=RGB(30, 30, 30, 1),
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
-        explosion_generator=get_rocket_explosion(_DAMAGE),
+        explosion_generator=get_rocket_explosion(_DAMAGE, _BLAST_RADIUS, _MAX_BLAST_DAMAGE),
         trail_generator=homing_missile_trail,
         density=3,
         explode_on_life_time_over=True,

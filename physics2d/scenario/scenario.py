@@ -10,6 +10,7 @@ from physics2d.shapes.particle import Particle
 from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
+    from physics2d.entities.base import PhysicsEntity
     from physics2d.physics2d import Physics2D
 
 
@@ -19,6 +20,12 @@ if TYPE_CHECKING:
 class PieceHierarchy:
     layer_index: int
     pieces: list[Shape]
+
+
+@dataclass
+class GetEnemiesInRangeRes:
+    enemy: Enemy
+    distance: float
 
 
 class Scenario:
@@ -142,3 +149,26 @@ class Scenario:
     def handle_render_info(self, render_info: list[RenderInfo]) -> None:
         for info in render_info:
             self.engine.add_pixel_info_to_buffer(info)
+
+    def get_enemies_in_range(
+        self,
+        max_range: float,
+        subject: "PhysicsEntity | None" = None,
+        calc_distance_to_border: bool = False,
+    ) -> list[GetEnemiesInRangeRes]:
+        possible_victims = [
+            GetEnemiesInRangeRes(enemy, distance)
+            for enemy, distance in sorted(
+                [
+                    (
+                        e,
+                        abs((subject.center if subject else self.player.center) - (e.center))
+                        - (e.radius if calc_distance_to_border else 0),
+                    )
+                    for e in self.enemies
+                ],
+                key=lambda v: v[1],
+            )
+            if distance < max_range
+        ]
+        return possible_victims

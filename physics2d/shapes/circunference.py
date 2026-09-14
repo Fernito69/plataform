@@ -16,7 +16,6 @@ from utils import (
 )
 
 if TYPE_CHECKING:
-    from physics2d.entities.enemy import Enemy
     from physics2d.physics2d import Physics2D
 
 
@@ -131,17 +130,11 @@ class Circunference(Shape):
                     and self.life_time is not None
                     and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
                 ):
-                    # TODO: abstract this logic
-                    possible_victims: list["Enemy"] = [
-                        enemy
-                        for enemy, distance in sorted(
-                            [(e, abs(self.center - e.center)) for e in engine.scenario.enemies],
-                            key=lambda v: v[1],
-                        )
-                        if distance < self.target_acquire_threshold
-                    ]
+                    possible_victims = engine.scenario.get_enemies_in_range(
+                        self.target_acquire_threshold, self
+                    )
                     if len(possible_victims) > 0:
-                        self.target = possible_victims[0]
+                        self.target = possible_victims[0].enemy
 
         self.update_center_of_mass()
         self._apply_friction()

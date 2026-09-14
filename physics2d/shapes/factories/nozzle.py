@@ -194,6 +194,7 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 
 # TODO: ideally should be aware of what we are shooting at
+# TODO: make it like a non-targeted lightning weapon beam but less intense
 def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list["PhysicsEntity"] = []
 

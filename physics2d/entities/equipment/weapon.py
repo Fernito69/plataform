@@ -240,3 +240,54 @@ class HomingMissileLauncher(Weapon):
         ).as_vector()
 
     def secondary_fire(self) -> None: ...
+
+
+#################################################################
+
+
+# TODO: handle blast damage
+class BFG(Weapon):
+    def __init__(
+        self,
+        scenario: "Scenario",
+    ):
+        super().__init__(
+            name="BFG",
+            scenario=scenario,
+            max_ammo=5,
+            refractory_period=50,
+            fire_particle_generator=rocket_launcher_nozzle,
+            projectile_generator=homing_missile,
+            ammo=30,
+            color=RGB(0, 255, 0, 1),
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def _effect_on_player(self) -> None:
+        # recoil!
+        self._scenario.player.velocity = (
+            self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
+        ).as_vector()
+
+    def fire(self) -> None:
+        if (
+            self._ammo <= 0
+            or self._refractory_limit > self._scenario.now()
+            or (
+                self._scenario.player.get_last_known_direction().x == 0
+                and self._scenario.player.get_last_known_direction().y == 0
+            )
+        ):
+            return
+
+        self._fire_particle_generator(self._scenario, self._scenario.player)
+        self._projectile_generator(self._scenario, self._scenario.player)
+
+        self._spend_ammo()
+        self._effect_on_player()
+
+        self._refractory_limit = self._scenario.now() + self._refractory_period
+
+    def secondary_fire(self) -> None: ...

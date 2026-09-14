@@ -313,14 +313,30 @@ def lightning_impact(
 #####################################################
 
 
-def get_rocket_explosion(damage: float) -> "ParticleGenerator":
+def get_rocket_explosion(
+    damage: float,
+    blast_radius: float,
+    blast_damage_at_ground_zero: float,
+) -> "ParticleGenerator":
     def _explosion(scenario: "Scenario", source: "PhysicsEntity") -> None:
-        return rocket_explosion(scenario, source, damage=damage)
+        return rocket_explosion(
+            scenario,
+            source,
+            damage=damage,
+            blast_radius=blast_radius,
+            blast_damage_at_ground_zero=blast_damage_at_ground_zero,
+        )
 
     return _explosion
 
 
-def rocket_explosion(scenario: "Scenario", source: "PhysicsEntity", damage: float) -> None:
+def rocket_explosion(
+    scenario: "Scenario",
+    source: "PhysicsEntity",
+    damage: float,
+    blast_radius: float,
+    blast_damage_at_ground_zero: float,
+) -> None:
     _SIZE = damage / 10
     _VELOCITY = (-0.1 * source.velocity).as_vector()
 
@@ -328,17 +344,6 @@ def rocket_explosion(scenario: "Scenario", source: "PhysicsEntity", damage: floa
 
     eye_x = source.center.x - source.velocity.x
     eye_y = source.center.y - source.velocity.y
-
-    blast_radius = CircularParticle(
-        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        size=_SIZE * 0.5,
-        size_change_type=TransitionType.LINEAR_INCREASE,
-        final_radius=15,
-        initial_color=RGB(255, 255, 255, 1),
-        ending_color=RGB(0, 0, 0, intensity=1),
-        life_time=15,
-    )
-    scenario.bg_pieces.append(blast_radius)
 
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -465,6 +470,34 @@ def rocket_explosion(scenario: "Scenario", source: "PhysicsEntity", damage: floa
         particles.append(sparks)
 
     scenario.bg_pieces[0:0] = particles
+
+    # Render shock wave and calc blast damage
+    # TODO: I don't like the particle generator taking care of damage (same with Lightning).
+    # Needs to be refactored
+    shock_wave = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        size=_SIZE * 0.5,
+        size_change_type=TransitionType.LINEAR_INCREASE,
+        final_radius=blast_radius,
+        initial_color=RGB(255, 255, 255, 1),
+        ending_color=RGB(0, 0, 0, intensity=1),
+        life_time=15,
+    )
+    scenario.bg_pieces.append(shock_wave)
+
+    blast_radius_victims = scenario.get_enemies_in_range(
+        blast_radius, source, calc_distance_to_border=True
+    )
+
+    # TODO: this should damage the player as well
+    for res in blast_radius_victims:
+        damage_factor = 1 - (res.distance / blast_radius)
+        damage = damage_factor * blast_damage_at_ground_zero
+        res.enemy.velocity = (
+            res.enemy.velocity
+            + (damage_factor * (res.enemy.center - source.center).as_vector().unit_vector())
+        ).as_vector()
+        res.enemy.receive_damage(damage)
 
 
 #################################
