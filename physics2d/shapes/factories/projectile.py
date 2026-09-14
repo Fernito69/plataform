@@ -18,6 +18,7 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
+    from physics2d.entities.enemy import Enemy
     from physics2d.entities.equipment.model.shared import ParticleGenerator
     from physics2d.scenario.scenario import Scenario
 
@@ -81,53 +82,82 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ############################################################
 
 
-def get_lightning_bolts(_initial_color: RGB, _ending_color: RGB) -> "ParticleGenerator":
+def get_lightning_bolts(
+    initial_color: RGB,
+    ending_color: RGB,
+    damage: float | None = None,
+    damage_range: float = 50,
+    default_tendril_length: float = 40,
+    num_tendrils: int = 1,
+    life_time: int = 4,
+    num_segments: int = 12,
+) -> "ParticleGenerator":
     def _lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
-        return lightning_bolts(scenario, source, _initial_color, _ending_color)
+        return lightning_bolts(
+            scenario,
+            source,
+            initial_color,
+            ending_color,
+            damage,
+            damage_range,
+            default_tendril_length=default_tendril_length,
+            num_tendrils=num_tendrils,
+            life_time=life_time,
+            num_segments=num_segments,
+        )
 
     return _lightning
 
 
 def lightning_bolts(
-    scenario: "Scenario", source: "PhysicsEntity", _initial_color: RGB, _ending_color: RGB
+    scenario: "Scenario",
+    source: "PhysicsEntity",
+    initial_color: RGB,
+    ending_color: RGB,
+    damage: float | None = None,
+    damage_range: float = 50,
+    default_tendril_length: float = 40,
+    num_tendrils: int = 1,
+    life_time: int = 4,
+    num_segments: int = 12,
 ) -> None:
-    _MAX_RANGE = 50
-    _DAMAGE = 3
-
     pieces: list[Line] = []
+    possible_victims: list["Enemy"] = []
 
-    possible_victims = [r.enemy for r in scenario.get_enemies_in_range(_MAX_RANGE, source)]
-
-    _end_point: PointF
-
-    if len(possible_victims) > 0:
-        _size = possible_victims[0].size / 2
-        _end_point = possible_victims[0].center + random_offset_vector(_size, _size)
-        # TODO: is it right that the particle gen takes care of this?
-        possible_victims[0].receive_damage(_DAMAGE)
-        lightning_impact(
-            scenario,
-            possible_victims[0],
-            possible_victims[0].center + random_offset_vector(_size, _size),
-        )
-    else:
-        _end_point = source.center + random_offset_vector(40, 40)
-
-    l1 = Lightning(
-        source=source,
-        end_point=_end_point,
-        initial_color=_initial_color,
-        ending_color=_ending_color,
-        normal_noise=2,
-        parallel_noise=3,
-        life_time=4,
-        num_segments=12,
-        thickness=1,
-        final_thickness=0.001,
-        render_behind_player=True,
-        target=possible_victims[0] if len(possible_victims) > 0 else None,
+    _end_point: PointF = source.center + random_offset_vector(
+        default_tendril_length, default_tendril_length
     )
-    pieces.append(l1)
+
+    if damage is not None:
+        possible_victims = [r.enemy for r in scenario.get_enemies_in_range(damage_range, source)]
+
+        if len(possible_victims) > 0:
+            _size = possible_victims[0].size / 2
+            _end_point = possible_victims[0].center + random_offset_vector(_size, _size)
+            # TODO: is it right that the particle gen takes care of this?
+            possible_victims[0].receive_damage(damage)
+            lightning_impact(
+                scenario,
+                possible_victims[0],
+                possible_victims[0].center + random_offset_vector(_size, _size),
+            )
+
+    for _ in range(num_tendrils):
+        l1 = Lightning(
+            source=source,
+            end_point=_end_point,
+            initial_color=initial_color,
+            ending_color=ending_color,
+            normal_noise=2,
+            parallel_noise=3,
+            life_time=life_time,
+            num_segments=num_segments,
+            thickness=1,
+            final_thickness=0.001,
+            render_behind_player=True,
+            target=possible_victims[0] if len(possible_victims) > 0 else None,
+        )
+        pieces.append(l1)
 
     scenario.fg_pieces.extend(pieces)
 
@@ -209,6 +239,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _LIFE_TIME = 100
     _BLAST_RADIUS = 75
     _MAX_BLAST_DAMAGE = 200
+    _TENDRILS_DAMAGE = 4
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
@@ -240,8 +271,12 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
         explosion_generator=_explosion_generator,
-        # TODO: SAME AS WEAPON, make its own
-        particle_generator=get_lightning_bolts(_COLOR, _COLOR.with_intensity(0.2)),
+        particle_generator=get_lightning_bolts(
+            _COLOR,
+            _COLOR.with_intensity(0.2),
+            _TENDRILS_DAMAGE,
+            damage_range=40,
+        ),
         density=3,
         explode_on_life_time_over=True,
     )
