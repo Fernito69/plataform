@@ -259,6 +259,80 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ################
 
 
+def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    # TODO: this is copy/paste, generalize
+    _bfg_color = RGB(100, 255, 100)
+
+    bfg_1 = CircularParticle(
+        origin=source.center + 7 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=9,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=_bfg_color,
+        ending_color=RGB(90, 120, 30, intensity=1),
+        life_time=12,
+    )
+
+    bfg_2 = CircularParticle(
+        origin=source.center + 9 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=7,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(220, 255, 20),
+        ending_color=RGB(110, 150, 30),
+        life_time=10,
+    )
+    bfg_3 = CircularParticle(
+        origin=source.center
+        + 13 * (source.get_last_known_direction())
+        + 2 * random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=6,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(170, 255, 20),
+        ending_color=RGB(60, 120, 20),
+        life_time=9,
+    )
+    fire_white = CircularParticle(
+        origin=source.center + 6 * (source.get_last_known_direction()) + random_offset_vector(),
+        initial_velocity=source.velocity,
+        size=6,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=RGB(230, 255, 230, 1),
+        ending_color=RGB(150, 200, 150, 1),
+        life_time=8,
+    )
+    # sparks: list[CircularParticle] = []
+
+    # spark = CircularParticle(
+    #     origin=source.center + 6 * (source.get_last_known_direction() + random_offset_vector()),
+    #     initial_velocity=(
+    #         source.velocity
+    #         + 5
+    #         * (
+    #             source.get_last_known_direction()
+    #             + VectorF(0, random_offset() * 2).rotate(
+    #                 get_vector_angle(source.get_last_known_direction())
+    #             )
+    #         )
+    #     ).as_vector(),
+    #     size=0.5,
+    #     size_change_type=TransitionType.NONE,
+    #     initial_color=RGB(255, 255, 200, 1),  # almost white hot
+    #     ending_color=RGB(80, 10, 0, 1),  # dark orange
+    #     life_time=5,
+    #     gravity=0.1,
+    # )
+    # sparks.append(spark)
+
+    scenario.fg_pieces.extend([fire_white, bfg_1, bfg_2, bfg_3])
+
+
+########
+
+################
+
+
 def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TODO: this is copy/paste, generalize
     _fire_1_color = (

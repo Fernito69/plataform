@@ -14,6 +14,7 @@ from physics2d.entities.equipment.thruster import (
     Thruster,
 )
 from physics2d.entities.equipment.weapon import (
+    BFG,
     HomingMissileLauncher,
     LightningGun,
     MachineGun,
@@ -76,6 +77,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
 
     def do_your_thing(self) -> None:
         self.get_curr_thruster().handle_particles()
+        self.get_curr_weapon().do_your_thing()
 
         self.handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
@@ -264,6 +266,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             LightningGun(self._scenario),
             RocketLauncher(self._scenario),
             HomingMissileLauncher(self._scenario),
+            BFG(self._scenario),
         ]
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme

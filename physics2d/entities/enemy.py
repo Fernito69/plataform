@@ -8,7 +8,9 @@ from physics2d.shapes.shape import Shape
 class Enemy(PhysicsEntity):
     extra_shapes: list[Shape]
     health: float
+
     _initial_health: float
+    _initial_theme: Theme
 
     def __init__(
         self,
@@ -45,20 +47,22 @@ class Enemy(PhysicsEntity):
         self.extra_shapes = []
         self.health = health
         self._initial_health = health
+        self._initial_theme = Theme(color=theme.color)
         self.name = name
 
     def receive_damage(self, amount: float) -> None:
         self.health -= amount
 
-        if not self.theme.color:
+        if not self._initial_theme.color:
             return
 
         _factor = self.health / self._initial_health
-        _new_color = self.theme.color.with_intensity(_factor) + (
+        _new_color = self._initial_theme.color.with_intensity(_factor) + (
             self.secondary_theme.color
             if self.secondary_theme and self.secondary_theme.color
-            else RGB(112, 77, 16, 1)  # horrible brown
-        )
+            else RGB(80, 44, 16, 1)  # horrible brown
+        ).with_intensity(1 - _factor)
+
         self.theme.color = _new_color
 
     def _die(self, engine, _death_explosion_size: int | None = None) -> None:

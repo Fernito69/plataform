@@ -98,8 +98,8 @@ class PointF:
 
 @dataclass
 class VectorF(PointF):
-    def unit_vector(self) -> VectorF:
-        magnitude = 1 / (abs(self) or ALMOST_ZERO)
+    def unit_vector(self, magnitude: float = 1) -> VectorF:
+        magnitude = magnitude / (abs(self) or ALMOST_ZERO)
         return (magnitude * self).as_vector()
 
     @staticmethod

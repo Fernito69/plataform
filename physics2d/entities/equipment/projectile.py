@@ -37,6 +37,7 @@ class Projectile(CircularParticle):
         damage: float,
         initial_color: RGB,
         explosion_generator: "ParticleGenerator",
+        particle_generator: "ParticleGenerator | None" = None,
         trail_generator: "ParticleGeneratorWithTarget | None" = None,
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
@@ -65,6 +66,7 @@ class Projectile(CircularParticle):
             ending_color_fade_type=ending_color_fade_type,
             floating_multi=floating_multi,
             density=density,
+            particle_generator=particle_generator,
         )
         self.damage = damage
         self.owner = owner
@@ -72,6 +74,7 @@ class Projectile(CircularParticle):
         self.is_collideable = True
         self._explosion_generator = explosion_generator
         self._trail_generator = trail_generator
+        self._particle_generator = particle_generator
         self.explode_on_life_time_over = explode_on_life_time_over
         self.target = target
         self.target_acquire_threshold = target_acquire_threshold

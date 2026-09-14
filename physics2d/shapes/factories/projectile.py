@@ -18,6 +18,7 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
+    from physics2d.entities.equipment.model.shared import ParticleGenerator
     from physics2d.scenario.scenario import Scenario
 
 
@@ -80,23 +81,23 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
 ############################################################
 
 
-def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def get_lightning_bolts(_initial_color: RGB, _ending_color: RGB) -> "ParticleGenerator":
+    def _lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
+        return lightning_bolts(scenario, source, _initial_color, _ending_color)
+
+    return _lightning
+
+
+def lightning_bolts(
+    scenario: "Scenario", source: "PhysicsEntity", _initial_color: RGB, _ending_color: RGB
+) -> None:
     _MAX_RANGE = 50
     _DAMAGE = 3
 
     pieces: list[Line] = []
 
-    # possible_victims: list["Enemy"] = [
-    #     enemy
-    #     for enemy, distance in sorted(
-    #         [(e, abs(source.center - e.center)) for e in scenario.enemies], key=lambda v: v[1]
-    #     )
-    #     if distance < _MAX_RANGE
-    # ]
-    possible_victims = [r.enemy for r in scenario.get_enemies_in_range(_MAX_RANGE)]
+    possible_victims = [r.enemy for r in scenario.get_enemies_in_range(_MAX_RANGE, source)]
 
-    _initial_color = RGB(255, 220, 200, 1)
-    _ending_color = RGB(0, 0, 100, 1)
     _end_point: PointF
 
     if len(possible_victims) > 0:
@@ -197,3 +198,51 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         homing_kick_in_time=_HOMING_KICK_IN_TIME,
     )
     scenario.projectiles.append(rocket)
+
+
+############################################################
+
+
+def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    _DAMAGE = 500
+    _ROCKET_SPEED = 2
+    _LIFE_TIME = 100
+    _BLAST_RADIUS = 75
+    _MAX_BLAST_DAMAGE = 200
+
+    _COLOR = RGB(127, 255, 127, 1)
+    _COLOR_2 = RGB(180, 255, 90, 1)
+    _COLOR_3 = RGB(200, 255, 60, 1)
+    _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
+
+    _explosion_generator = get_rocket_explosion(
+        _DAMAGE,
+        _BLAST_RADIUS,
+        _MAX_BLAST_DAMAGE,
+        throw_sparks=False,
+        main_color=_COLOR,
+        secondary_color=_COLOR_2,
+        tertiary_color=_COLOR_3,
+        little_explosions_color=_MINI_EXPLOSION_COLOR,
+    )
+
+    bfg_ball = Projectile(
+        owner=source,
+        origin=source.center + random_offset_vector(),
+        initial_velocity=(
+            (_ROCKET_SPEED + random_offset()) * source.get_last_known_direction() + source.velocity
+        ).as_vector(),
+        size=3.5,
+        size_change_type=TransitionType.NONE,
+        ending_color_fade_type=TransitionType.NONE,
+        initial_color=_COLOR,
+        # ending_color=RGB(30, 30, 30, 1),
+        life_time=_LIFE_TIME,
+        damage=_DAMAGE,
+        explosion_generator=_explosion_generator,
+        # TODO: SAME AS WEAPON, make its own
+        particle_generator=get_lightning_bolts(_COLOR, _COLOR.with_intensity(0.2)),
+        density=3,
+        explode_on_life_time_over=True,
+    )
+    scenario.projectiles.append(bfg_ball)

@@ -1,21 +1,27 @@
+import math
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.model.shared import ParticleGenerator
 from physics2d.shapes.factories.nozzle import (
+    bfg_nozzle,
     lightning,
     machine_gun_nozzle,
     rocket_launcher_nozzle,
     shotgun_nozzle,
 )
 from physics2d.shapes.factories.projectile import (
+    bfg_ball,
     buckshot,
     bullet,
+    get_lightning_bolts,
     homing_missile,
-    lightning_bolts,
     rocket,
 )
+from physics2d.shapes.model.shared import TransitionType
+from physics2d.shapes.particle import CircularParticle
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -75,6 +81,13 @@ class Weapon:
         self._effect_on_player()
 
         self._refractory_limit = self._scenario.now() + self._refractory_period
+
+    def can_shoot(self) -> bool:
+        return self._refractory_limit <= self._scenario.now()
+
+    def do_your_thing(self) -> None:
+        """No-op for most weapons"""
+        ...
 
     @abstractmethod
     def secondary_fire(self) -> None:
@@ -158,13 +171,15 @@ class LightningGun(Weapon):
         self,
         scenario: "Scenario",
     ):
+        _START_COLOR = RGB(255, 220, 200, 1)
+        _END_COLOR = RGB(0, 0, 100, 1)
         super().__init__(
             name="LightningGun",
             scenario=scenario,
             max_ammo=2000,
             refractory_period=0,
             fire_particle_generator=lightning,
-            projectile_generator=lightning_bolts,
+            projectile_generator=get_lightning_bolts(_START_COLOR, _END_COLOR),
             ammo=2000,
             color=RGB(255, 190, 255, 1),
         )
@@ -244,6 +259,11 @@ class HomingMissileLauncher(Weapon):
 
 #################################################################
 
+_BFG_BASE_COUNTDOWN = 15
+_BFG_READY_LIGHT = RGB(0, 255, 0, 1)
+_BFG_DEPLETED_LIGHT = RGB(30, 50, 30, 1)
+_BFG_FIRING_LIGHT = RGB(255, 0, 0, 1)
+
 
 # TODO: handle blast damage
 class BFG(Weapon):
@@ -256,10 +276,10 @@ class BFG(Weapon):
             scenario=scenario,
             max_ammo=5,
             refractory_period=50,
-            fire_particle_generator=rocket_launcher_nozzle,
-            projectile_generator=homing_missile,
-            ammo=30,
-            color=RGB(0, 255, 0, 1),
+            fire_particle_generator=bfg_nozzle,
+            projectile_generator=bfg_ball,
+            ammo=5,
+            color=_BFG_READY_LIGHT,
         )
 
     def _spend_ammo(self) -> None:
@@ -271,23 +291,69 @@ class BFG(Weapon):
             self._scenario.player.velocity - (self._scenario.player.get_last_known_direction())
         ).as_vector()
 
-    def fire(self) -> None:
-        if (
-            self._ammo <= 0
-            or self._refractory_limit > self._scenario.now()
-            or (
-                self._scenario.player.get_last_known_direction().x == 0
-                and self._scenario.player.get_last_known_direction().y == 0
+    _firing_countdown: int = _BFG_BASE_COUNTDOWN
+    _trigger_pressed: bool = False
+
+    def do_your_thing(self) -> None:
+        if self._trigger_pressed:
+            self._firing_countdown -= 1
+
+        if self._firing_countdown <= 0:
+            self.color = _BFG_DEPLETED_LIGHT
+
+            super().fire()
+            self._trigger_pressed = False
+            self._firing_countdown = _BFG_BASE_COUNTDOWN
+        elif not self.can_shoot():
+            # charging up
+            _target = _BFG_READY_LIGHT.with_intensity(0.5)
+            _factor = (self._refractory_limit - self._scenario.now()) / self._refractory_period
+            self.color = _BFG_DEPLETED_LIGHT.with_intensity(_factor) + _target.with_intensity(
+                1 - _factor
             )
-        ):
-            return
 
-        self._fire_particle_generator(self._scenario, self._scenario.player)
-        self._projectile_generator(self._scenario, self._scenario.player)
+        if self.can_shoot() and not self._trigger_pressed:
+            self.color = _BFG_READY_LIGHT
 
-        self._spend_ammo()
-        self._effect_on_player()
+    def fire(self) -> None:
+        if not self._trigger_pressed and self._refractory_limit <= self._scenario.now():
+            self._trigger_pressed = True
+            self.color = _BFG_FIRING_LIGHT
+            self._trigger_fire_sequence()
 
-        self._refractory_limit = self._scenario.now() + self._refractory_period
+    def _trigger_fire_sequence(self) -> None:
+        player = self._scenario.player
+        _radius = 20
+        _size = 3
+        _particle_color = RGB(100, 255, 100, 1)
+
+        # Particles, come to me!
+        for angle in range(0, 360, 30):
+            offset = VectorF(_radius, 0).rotate(math.radians(angle), PointF(0, 0))
+
+            def _particle(s, c) -> None:
+                particle = CircularParticle(
+                    origin=c,
+                    initial_velocity=VectorF.random_offset_vector(),
+                    size=0.4,
+                    final_radius=0.01,
+                    initial_color=_particle_color,
+                    ending_color=_particle_color.with_intensity(0.2),
+                    life_time=8,
+                    floating_multi=1,
+                )
+                s.fg_pieces.append(particle)
+
+            particle = CircularParticle(
+                origin=player.center + offset,
+                initial_velocity=(-(1 / _radius) * offset).as_vector(),
+                size=_size,
+                size_change_type=TransitionType.LINEAR_DECREASE,
+                initial_color=_particle_color.with_intensity(0.2),
+                ending_color=_particle_color,
+                life_time=_BFG_BASE_COUNTDOWN,
+                particle_generator=_particle,
+            )
+            self._scenario.fg_pieces.append(particle)
 
     def secondary_fire(self) -> None: ...
