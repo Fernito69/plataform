@@ -71,6 +71,8 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 
 def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    _offset = 6.5
+
     _fire_1_color = (
         RGB(
             255,
@@ -85,7 +87,9 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ).with_intensity(1)
     )
     fire_1 = CircularParticle(
-        origin=source.center + 5 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center
+        + (_offset + 0.5) * (source.get_last_known_direction())
+        + random_offset_vector(),
         initial_velocity=source.velocity,
         size=4,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -94,7 +98,9 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=5,
     )
     fire_2 = CircularParticle(
-        origin=source.center + 7.5 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center
+        + (_offset + 3) * (source.get_last_known_direction())
+        + random_offset_vector(),
         initial_velocity=source.velocity,
         size=3.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -108,7 +114,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
     fire_3 = CircularParticle(
         origin=source.center
-        + 10 * (source.get_last_known_direction())
+        + (_offset + 5.5) * (source.get_last_known_direction())
         + 2 * random_offset_vector(),
         initial_velocity=source.velocity,
         size=2,
@@ -122,7 +128,9 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=5,
     )
     fire_white = CircularParticle(
-        origin=source.center + 4.5 * (source.get_last_known_direction()) + random_offset_vector(),
+        origin=source.center
+        + (_offset) * (source.get_last_known_direction())
+        + random_offset_vector(),
         initial_velocity=source.velocity,
         size=3,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -134,7 +142,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     if scenario.now() % 3 == 0:
         spark = CircularParticle(
             origin=source.center
-            + 4.5 * (source.get_last_known_direction() + random_offset_vector()),
+            + (_offset) * (source.get_last_known_direction() + random_offset_vector()),
             initial_velocity=(
                 source.velocity
                 + 5
