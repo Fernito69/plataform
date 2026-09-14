@@ -318,6 +318,8 @@ def get_rocket_explosion(
     blast_radius: float,
     blast_damage_at_ground_zero: float,
     throw_sparks: bool = True,
+    bfg_sparks: bool = False,
+    with_smoke: bool = True,
     main_color: RGB | None = None,
     secondary_color: RGB | None = None,
     tertiary_color: RGB | None = None,
@@ -335,6 +337,8 @@ def get_rocket_explosion(
             secondary_color=secondary_color,
             tertiary_color=tertiary_color,
             little_explosions_color=little_explosions_color,
+            bfg_sparks=bfg_sparks,
+            with_smoke=with_smoke,
         )
 
     return _explosion
@@ -351,6 +355,8 @@ def _rocket_explosion(
     secondary_color: RGB | None = None,
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
+    bfg_sparks: bool = False,
+    with_smoke: bool = True,
 ) -> None:
     _SIZE = damage / 10
     _VELOCITY = (-0.1 * rocket.velocity).as_vector()
@@ -452,7 +458,7 @@ def _rocket_explosion(
             ending_color=_ending_color_4,  # smokelike
             life_time=15,
             gravity=-0.05,
-            particle_generator=smoke_generator,
+            particle_generator=smoke_generator if with_smoke else None,
         )
         secondary_explosions.append(sec_explosion)
 
@@ -461,19 +467,49 @@ def _rocket_explosion(
     if throw_sparks:
         for _ in range(round(_SIZE * 3)):
             # TODO: make these sparks and other useful things into their own class
-            sparks = CircularParticle(
-                origin=PointF(
-                    x=eye_x + random_offset() * rocket.radius * 2,
-                    y=eye_y + random_offset() * rocket.radius * 2,
-                ),
-                initial_velocity=(
-                    VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
-                ).as_vector(),
-                size=0.5,
-                initial_color=RGB(255, 255, 200, 1),  # almost white hot
-                ending_color=RGB(40, 5, 0, 1),  # dark orange
-                life_time=70,
-                gravity=0.1,
+            # TODO: see why custom_sparks can't be passed into get_explosion()
+            sparks = (
+                CircularParticle(
+                    origin=(
+                        rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
+                    ).as_point(),
+                    initial_velocity=(10 * random_offset_vector()).as_vector(),
+                    size=1.5,
+                    size_change_type=TransitionType.LINEAR_DECREASE,
+                    initial_color=RGB(200, 255, 200),
+                    ending_color=RGB(0, 60, 0),
+                    life_time=35,
+                    floating_multi=1,
+                    gravity=-0.01,
+                )
+                if bfg_sparks
+                else CircularParticle(
+                    origin=PointF(
+                        x=eye_x + random_offset() * rocket.radius * 2,
+                        y=eye_y + random_offset() * rocket.radius * 2,
+                    ),
+                    initial_velocity=(
+                        VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
+                    ).as_vector(),
+                    size=0.5,
+                    initial_color=RGB(255, 255, 200, 1),  # almost white hot
+                    ending_color=RGB(40, 5, 0, 1),  # dark orange
+                    life_time=70,
+                    gravity=0.1,
+                )
+                # CircularParticle(
+                #     origin=(
+                #         rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
+                #     ).as_point(),
+                #     initial_velocity=(10 * random_offset_vector()).as_vector(),
+                #     size=1.5,
+                #     size_change_type=TransitionType.LINEAR_DECREASE,
+                #     initial_color=RGB(200, 255, 200),
+                #     ending_color=RGB(0, 60, 0),
+                #     life_time=35,
+                #     floating_multi=1,
+                #     gravity=-0.01,
+                # )
             )
             particles.append(sparks)
 

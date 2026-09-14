@@ -133,15 +133,17 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _COLOR_3 = RGB(200, 255, 60, 1)
     _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
 
-    _explosion_generator = get_rocket_explosion(
-        _DAMAGE,
-        _BLAST_RADIUS,
-        _MAX_BLAST_DAMAGE,
-        throw_sparks=False,
+    _explosion = get_rocket_explosion(
+        damage=_DAMAGE,
+        blast_radius=_BLAST_RADIUS,
+        blast_damage_at_ground_zero=_MAX_BLAST_DAMAGE,
         main_color=_COLOR,
         secondary_color=_COLOR_2,
         tertiary_color=_COLOR_3,
         little_explosions_color=_MINI_EXPLOSION_COLOR,
+        with_smoke=False,
+        throw_sparks=True,
+        bfg_sparks=True,
     )
 
     bfg_ball = Projectile(
@@ -157,7 +159,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         # ending_color=RGB(30, 30, 30, 1),
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
-        explosion_generator=_explosion_generator,
+        explosion_generator=_explosion,
         particle_generator=get_lightning_bolts(
             _COLOR,
             _COLOR.with_intensity(0.2),
@@ -217,26 +219,21 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color=RGB(150, 200, 150, 1),
         life_time=8,
     )
+
     # sparks: list[CircularParticle] = []
 
     # spark = CircularParticle(
     #     origin=source.center + 6 * (direction + random_offset_vector()),
     #     initial_velocity=(
     #         source.velocity
-    #         + 5
-    #         * (
-    #             direction
-    #             + VectorF(0, random_offset() * 2).rotate(
-    #                 get_vector_angle(direction)
-    #             )
-    #         )
+    #         + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
     #     ).as_vector(),
     #     size=0.5,
     #     size_change_type=TransitionType.NONE,
     #     initial_color=RGB(255, 255, 200, 1),  # almost white hot
     #     ending_color=RGB(80, 10, 0, 1),  # dark orange
     #     life_time=5,
-    #     gravity=0.1,
+    #     floating_multi=0.4,
     # )
     # sparks.append(spark)
 
