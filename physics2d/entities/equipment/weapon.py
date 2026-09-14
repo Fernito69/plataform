@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB
-from physics2d.entities.equipment.model.shared import ParticleGenerator
+from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.shapes.factories.nozzle import (
     bfg_nozzle,
     lightning_nozzle,

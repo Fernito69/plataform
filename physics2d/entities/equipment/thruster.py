@@ -1,14 +1,7 @@
 from typing import TYPE_CHECKING
 
-from model.theme import RGB, Theme
-from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.thruster import (
-    lightning_bolts,
-    ln2_vapor,
-    meteor_trail,
-    sonic_wave,
-    standard_thruster,
-)
+from model.theme import Theme
+from physics2d.entities.model.shared import ParticleGenerator
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -48,98 +41,13 @@ class Thruster:
 #################################################################
 
 
-class BasicThruster(Thruster):
-    """Standard issue"""
-
-    def __init__(self, scenario: "Scenario"):
-        super().__init__(
-            scenario=scenario,
-            particle_generator=standard_thruster,
-            name="BasicThruster",
-            player_theme=Theme(
-                color=RGB(150, 220, 150),
-            ),
-            max_speed=3.5,
-            accel=.8,
-            decel=0.3,
-        )
+#################################################################
 
 
 #################################################################
 
 
-class SoapyThruster(Thruster):
-    """Looks like SOAP bubbles!"""
-
-    def __init__(self, scenario: "Scenario"):
-        super().__init__(
-            scenario=scenario,
-            particle_generator=ln2_vapor,
-            name="SoapyThruster",
-            player_theme=Theme(
-                color=RGB(0, 0, 255),
-            ),
-            max_speed=5,
-            accel=0.4,
-            decel=0.2,
-        )
-
-
 #################################################################
 
 
-class MeteorThruster(Thruster):
-    """Looks like a meteor!"""
-
-    def __init__(self, scenario: "Scenario"):
-        super().__init__(
-            scenario=scenario,
-            particle_generator=meteor_trail,
-            name="MeteorThruster",
-            player_theme=Theme(
-                color=RGB(255, 50, 50),
-            ),
-            max_speed=6,
-            accel=1.3,
-            decel=0.3,
-        )
-
-
 #################################################################
-
-
-class SonicThruster(Thruster):
-    """I dunno!"""
-
-    def __init__(self, scenario: "Scenario"):
-        super().__init__(
-            scenario=scenario,
-            particle_generator=sonic_wave,
-            name="SonicThruster",
-            player_theme=Theme(
-                color=RGB(122, 23, 255),
-            ),
-            max_speed=7,
-            accel=2,
-            decel=1.5,
-        )
-
-
-#################################################################
-
-
-class PlasmaBallThruster(Thruster):
-    """Looks kewwwl"""
-
-    def __init__(self, scenario: "Scenario"):
-        super().__init__(
-            scenario=scenario,
-            particle_generator=lightning_bolts,
-            name="PlasmaBallThruster",
-            player_theme=Theme(
-                color=RGB(255, 255, 190),
-            ),
-            max_speed=8,
-            accel=3,
-            decel=1.5,
-        )

@@ -4,7 +4,7 @@ from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.entities.equipment.model.shared import ParticleGenerator
+from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.model.shared import RenderInfo
 from physics2d.shapes.line import Line
 from physics2d.shapes.model.shared import TransitionType

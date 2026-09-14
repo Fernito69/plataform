@@ -5,14 +5,12 @@ from model.keyboard import ActionKeys, CheatKeys, MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.entities.equipment.thruster import (
-    BasicThruster,
-    MeteorThruster,
-    PlasmaBallThruster,
-    SoapyThruster,
-    SonicThruster,
-    Thruster,
-)
+from physics2d.entities.equipment.thruster import Thruster
+from physics2d.entities.equipment.thrusters.basic_thruster import BasicThruster
+from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruster
+from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBallThruster
+from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
+from physics2d.entities.equipment.thrusters.sonic_thruster import SonicThruster
 from physics2d.entities.equipment.weapon import (
     BFG,
     HomingMissileLauncher,

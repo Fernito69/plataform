@@ -19,7 +19,7 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.enemy import Enemy
-    from physics2d.entities.equipment.model.shared import ParticleGenerator
+    from physics2d.entities.model.shared import ParticleGenerator
     from physics2d.scenario.scenario import Scenario
 
 
