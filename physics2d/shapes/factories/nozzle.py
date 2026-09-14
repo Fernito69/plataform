@@ -206,10 +206,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
     sonic_boom_2 = CircularParticle(
         origin=(source.center - 0.2 * source.velocity)
         - VectorF(x=random_offset(), y=random_offset()),
-        initial_velocity=(
-            -0.4
-            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
-        ).as_vector(),
+        initial_velocity=(-0.4 * (source.velocity + VectorF.random_offset_vector())).as_vector(),
         size=source.radius * 0.8,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
@@ -223,7 +220,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # MAIN BOOM
     sonic_boom = CircularParticle(
         origin=(source.center) - VectorF(x=random_offset(), y=random_offset()),
-        initial_velocity=(-0.4 * VectorF(x=random_offset(), y=random_offset())).as_vector(),
+        initial_velocity=(1 * (source.velocity + VectorF.random_offset_vector())).as_vector(),
         size=source.radius * 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
@@ -240,7 +237,7 @@ def lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
             origin=(source.center - source.velocity)
             - VectorF(x=random_offset(), y=random_offset()),
             initial_velocity=(
-                -0.4
+                1
                 * VectorF(
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )

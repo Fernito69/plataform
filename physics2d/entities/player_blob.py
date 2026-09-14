@@ -6,6 +6,7 @@ from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.thruster import (
+    BasicThruster,
     MeteorThruster,
     PlasmaBallThruster,
     SoapyThruster,
@@ -250,9 +251,10 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             return
 
         self._thrusters = [
-            SonicThruster(self._scenario),
-            MeteorThruster(self._scenario),
+            BasicThruster(self._scenario),
             SoapyThruster(self._scenario),
+            MeteorThruster(self._scenario),
+            SonicThruster(self._scenario),
             PlasmaBallThruster(self._scenario),
         ]
         self._curr_thruster_index = 0

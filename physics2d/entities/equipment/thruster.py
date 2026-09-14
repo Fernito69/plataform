@@ -2,7 +2,13 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.model.shared import ParticleGenerator
-from physics2d.shapes.factories.thruster import lightning_bolts, ln2_vapor, meteor_trail, sonic_wave
+from physics2d.shapes.factories.thruster import (
+    lightning_bolts,
+    ln2_vapor,
+    meteor_trail,
+    sonic_wave,
+    standard_thruster,
+)
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario
@@ -37,6 +43,26 @@ class Thruster:
 
     def handle_particles(self) -> None:
         self.particle_generator(self.scenario, self.scenario.player)
+
+
+#################################################################
+
+
+class BasicThruster(Thruster):
+    """Standard issue"""
+
+    def __init__(self, scenario: "Scenario"):
+        super().__init__(
+            scenario=scenario,
+            particle_generator=standard_thruster,
+            name="BasicThruster",
+            player_theme=Theme(
+                color=RGB(150, 220, 150),
+            ),
+            max_speed=3.5,
+            accel=.8,
+            decel=0.3,
+        )
 
 
 #################################################################
