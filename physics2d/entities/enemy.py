@@ -65,8 +65,9 @@ class Enemy(PhysicsEntity):
 
         self.theme.color = _new_color
 
-    def _die(self, engine, _death_explosion_size: int | None = None) -> None:
+    def die(self, engine, _death_explosion_size: int | None = None) -> None:
         enemy_explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
+        engine.scenario.enemies = [e for e in engine.scenario.enemies if e is not self]
 
     # TODO: type this shit
     def do_your_thing(self, engine) -> None:
@@ -80,5 +81,4 @@ class Enemy(PhysicsEntity):
 
         if self.health <= 0:
             # die :(
-            self._die(engine)
-            engine.scenario.enemies = [e for e in engine.scenario.enemies if e is not self]
+            self.die(engine)

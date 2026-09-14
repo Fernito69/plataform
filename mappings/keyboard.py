@@ -1,4 +1,12 @@
-from model.keyboard import ActionKeys, DisplayKeys, KeyboardKeys, MenuKeys, MovementKeys, PhysicsKey
+from model.keyboard import (
+    ActionKeys,
+    CheatKeys,
+    DisplayKeys,
+    KeyboardKeys,
+    MenuKeys,
+    MovementKeys,
+    PhysicsKey,
+)
 
 default_keyboard_mapping: dict[KeyboardKeys, str] = {
     MenuKeys.QUIT: "q",
@@ -33,4 +41,5 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     ActionKeys.SHOOT: "j",
     ActionKeys.PREVIOUS_WEAPON: "k",
     ActionKeys.NEXT_WEAPON: "l",
+    CheatKeys.KILL_MONSTERS: "y",
 }

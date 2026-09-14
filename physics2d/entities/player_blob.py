@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.keyboard import ActionKeys, MovementKeys
+from model.keyboard import ActionKeys, CheatKeys, MovementKeys
 from model.shared import KeyboardHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
@@ -128,6 +128,48 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
                 round(player_y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - y_res),
             )
 
+    def get_curr_thruster(self) -> Thruster:
+        return self._thrusters[self._curr_thruster_index]
+
+    def get_curr_weapon(self) -> Weapon:
+        return self._weapons[self._curr_weapon_index]
+
+    def _get_max_speed(self) -> float:
+        return self.get_curr_thruster().max_speed
+
+    def _get_accel(self) -> float:
+        return self.get_curr_thruster().accel
+
+    def _get_decel(self) -> float:
+        return self.get_curr_thruster().decel
+
+    def init_player(self) -> None:
+        if not self._scenario:
+            return
+
+        self._thrusters = [
+            BasicThruster(self._scenario),
+            SoapyThruster(self._scenario),
+            MeteorThruster(self._scenario),
+            SonicThruster(self._scenario),
+            PlasmaBallThruster(self._scenario),
+        ]
+        self._curr_thruster_index = 0
+        self._weapons = [
+            MachineGun(self._scenario),
+            Shotgun(self._scenario),
+            LightningGun(self._scenario),
+            RocketLauncher(self._scenario),
+            HomingMissileLauncher(self._scenario),
+            BFG(self._scenario),
+        ]
+        self._curr_weapon_index = 0
+        self.theme = self.get_curr_thruster().player_theme
+
+    def set_scenario(self, scenario: "Scenario") -> None:
+        self._scenario = scenario
+        self.init_player()
+
     ##############
     """KEYBOARD"""
     ##############
@@ -144,6 +186,8 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
 
         self._decelerate_if_not_pressing()
 
+        # cheats
+        self._kill_all_monsters()
         # TODO: fix this
         # if abs(self.velocity) >= _MAX_MOVING_VELOCITY:
         #     return
@@ -233,44 +277,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
         self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
         self.set_last_known_direction()
 
-    def get_curr_thruster(self) -> Thruster:
-        return self._thrusters[self._curr_thruster_index]
-
-    def get_curr_weapon(self) -> Weapon:
-        return self._weapons[self._curr_weapon_index]
-
-    def _get_max_speed(self) -> float:
-        return self.get_curr_thruster().max_speed
-
-    def _get_accel(self) -> float:
-        return self.get_curr_thruster().accel
-
-    def _get_decel(self) -> float:
-        return self.get_curr_thruster().decel
-
-    def init_player(self) -> None:
-        if not self._scenario:
-            return
-
-        self._thrusters = [
-            BasicThruster(self._scenario),
-            SoapyThruster(self._scenario),
-            MeteorThruster(self._scenario),
-            SonicThruster(self._scenario),
-            PlasmaBallThruster(self._scenario),
-        ]
-        self._curr_thruster_index = 0
-        self._weapons = [
-            MachineGun(self._scenario),
-            Shotgun(self._scenario),
-            LightningGun(self._scenario),
-            RocketLauncher(self._scenario),
-            HomingMissileLauncher(self._scenario),
-            BFG(self._scenario),
-        ]
-        self._curr_weapon_index = 0
-        self.theme = self.get_curr_thruster().player_theme
-
-    def set_scenario(self, scenario: "Scenario") -> None:
-        self._scenario = scenario
-        self.init_player()
+    @on_key_press(CheatKeys.KILL_MONSTERS)
+    def _kill_all_monsters(self) -> None:
+        for e in self.engine.scenario.enemies:
+            e.die(self.engine)

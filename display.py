@@ -394,6 +394,21 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
+            s = player.engine.scenario
+            num_particles = (
+                len(s.bg_pieces) + len(s.fg_pieces) + len(s.projectiles) + len(s.solid_pieces)
+            )
+            _factor = 1 - (num_particles / 1000)
+            _particles_color = RGB(
+                100,
+                255,
+                100,
+            ).with_intensity(_factor) + RGB(
+                255,
+                100,
+                100,
+            ).with_intensity(1 - _factor)
+            hud += f"# Particles: {colored(str(num_particles), _particles_color)}{SEPARATOR}"
 
             return hud
 

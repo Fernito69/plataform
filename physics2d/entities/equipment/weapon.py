@@ -64,13 +64,9 @@ class Weapon:
         self._refractory_limit = scenario.now()
 
     def fire(self) -> None:
-        if (
-            self._ammo <= 0
-            or self._refractory_limit > self._scenario.now()
-            or (
-                self._scenario.player.get_last_known_direction().x == 0
-                and self._scenario.player.get_last_known_direction().y == 0
-            )
+        if not self.can_shoot() or (
+            self._scenario.player.get_last_known_direction().x == 0
+            and self._scenario.player.get_last_known_direction().y == 0
         ):
             return
 
@@ -83,7 +79,8 @@ class Weapon:
         self._refractory_limit = self._scenario.now() + self._refractory_period
 
     def can_shoot(self) -> bool:
-        return self._refractory_limit <= self._scenario.now()
+        # TODO: self._ammo should be >= the amount of ammo per shot
+        return self._refractory_limit <= self._scenario.now() and self._ammo > 0
 
     def do_your_thing(self) -> None:
         """No-op for most weapons"""
@@ -322,11 +319,7 @@ class BFG(Weapon):
             self.color = _BFG_READY_LIGHT
 
     def fire(self) -> None:
-        if (
-            not self._trigger_pressed
-            and self._refractory_limit <= self._scenario.now()
-            and self._ammo > 0
-        ):
+        if not self._trigger_pressed and self.can_shoot():
             self._trigger_pressed = True
             self.color = _BFG_FIRING_LIGHT
             self._trigger_fire_sequence()

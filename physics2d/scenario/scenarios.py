@@ -55,12 +55,12 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         _smoll_enemy(PointF(384, 322)),
         _smoll_enemy(PointF(350, 290)),
         _smoll_enemy(PointF(384, 322)),
-        _smoll_enemy(PointF(484, 312), VectorF.random_offset_vector(0.1, 0.1)),
-        _smoll_enemy(PointF(494, 322), VectorF.random_offset_vector(0.1, 0.1)),
-        _smoll_enemy(PointF(474, 332), VectorF.random_offset_vector(0.1, 0.1)),
-        _smoll_enemy(PointF(464, 342), VectorF.random_offset_vector(0.1, 0.1)),
-        _smoll_enemy(PointF(454, 352), VectorF.random_offset_vector(0.1, 0.1)),
-        _smoll_enemy(PointF(444, 362), VectorF.random_offset_vector(0.1, 0.1)),
+        _smoll_enemy(PointF(484, 312)),
+        _smoll_enemy(PointF(494, 322)),
+        _smoll_enemy(PointF(474, 332)),
+        _smoll_enemy(PointF(464, 342)),
+        _smoll_enemy(PointF(454, 352)),
+        _smoll_enemy(PointF(444, 362)),
         _mid_enemy(PointF(150, 150)),
         _mid_enemy(PointF(250, 150)),
         _mid_enemy(PointF(230, 180)),
@@ -73,7 +73,18 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             position=PointF(150, 100),
             theme=Theme(color=RGB(170, 0, 0, 1)),
         ),
+        Enemy(
+            size=35,
+            health=600,
+            name="BigEnemy",
+            position=PointF(300, 100),
+            theme=Theme(color=RGB(170, 122, 0, 1)),
+        ),
     ]
+
+    for a in range(15):
+        enemies.append(_smoll_enemy(PointF(484 - a * 15, 312 - a * 15)))
+        enemies.append(_smoll_enemy(PointF(380 - a * 15, 280)))
 
     line_1 = LinePiece(
         points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2

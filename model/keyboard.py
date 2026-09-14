@@ -53,4 +53,8 @@ class ActionKeys(StrEnum):
     PREVIOUS_WEAPON = auto()
 
 
-KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey | ActionKeys
+class CheatKeys(StrEnum):
+    KILL_MONSTERS = auto()
+
+
+KeyboardKeys = MenuKeys | MovementKeys | DisplayKeys | PhysicsKey | ActionKeys | CheatKeys
