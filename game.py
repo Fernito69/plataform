@@ -9,7 +9,7 @@ from physics2d.entities.player_blob import PlayerBlob
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
-from terminal import on_key_press
+from terminal import on_key_press, stop_mouse_listener
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.line_renderer import LineRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
@@ -99,6 +99,7 @@ class Game(Engine, KeyboardHandler):
     def quit_game(self, message: str = f"BYE BYE!{BR}Thanks for playing :)") -> None:
         self.display.set_message(message)
         self.display.print_curr_screen()
+        stop_mouse_listener()
         self.status = GameStatus.QUIT
 
     def _check_game_status(self) -> None:

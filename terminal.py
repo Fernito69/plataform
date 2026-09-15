@@ -1,6 +1,9 @@
 import os
 import platform
 from functools import wraps
+from threading import Lock
+
+from pynput import mouse as _pynput_mouse
 
 from mappings.keyboard import default_keyboard_mapping
 from model.keyboard import KeyboardKeys
@@ -90,3 +93,43 @@ def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
         return wrapper
 
     return decorator
+
+
+_mouse_lock = Lock()
+_mouse_previous_position: tuple[float, float] | None = None
+_mouse_delta = (0.0, 0.0)
+
+
+def _on_mouse_move(x: float, y: float) -> None:
+    global _mouse_previous_position, _mouse_delta
+
+    with _mouse_lock:
+        if _mouse_previous_position is not None:
+            previous_x, previous_y = _mouse_previous_position
+            dx, dy = _mouse_delta
+
+            # Accumulate movement between game updates.
+            _mouse_delta = (
+                dx + x - previous_x,
+                dy + y - previous_y,
+            )
+
+        _mouse_previous_position = (x, y)
+
+
+def consume_mouse_movement() -> tuple[float, float]:
+    """Return accumulated movement and reset it for the next frame."""
+    global _mouse_delta
+
+    with _mouse_lock:
+        movement = _mouse_delta
+        _mouse_delta = (0.0, 0.0)
+        return movement
+
+
+_mouse_listener = _pynput_mouse.Listener(on_move=_on_mouse_move)
+_mouse_listener.start()
+
+
+def stop_mouse_listener() -> None:
+    _mouse_listener.stop()

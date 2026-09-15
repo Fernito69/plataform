@@ -51,10 +51,6 @@ class ActionKeys(StrEnum):
     SHOOT = auto()
     NEXT_WEAPON = auto()
     PREVIOUS_WEAPON = auto()
-    MOVE_CROSSHAIR_UP = auto()
-    MOVE_CROSSHAIR_DOWN = auto()
-    MOVE_CROSSHAIR_LEFT = auto()
-    MOVE_CROSSHAIR_RIGHT = auto()
 
 
 class CheatKeys(StrEnum):

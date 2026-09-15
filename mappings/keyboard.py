@@ -38,10 +38,6 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     ActionKeys.PREVIOUS_WEAPON: "u",
     ActionKeys.NEXT_WEAPON: "o",
     # MOVEMENT
-    ActionKeys.MOVE_CROSSHAIR_UP: "i",
-    ActionKeys.MOVE_CROSSHAIR_DOWN: "k",
-    ActionKeys.MOVE_CROSSHAIR_LEFT: "j",
-    ActionKeys.MOVE_CROSSHAIR_RIGHT: "l",
     CheatKeys.KILL_MONSTERS: "y",
     MovementKeys.UP: "w",
     MovementKeys.DOWN: "s",
