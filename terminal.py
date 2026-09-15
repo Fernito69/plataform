@@ -17,19 +17,26 @@ if platform.system() == "Windows":
 else:
     from pynput import keyboard as _pynput_keyboard
 
+    def _normalize_key(key) -> str | None:
+        if key == _pynput_keyboard.Key.space:
+            return " "
+
+        if isinstance(key, _pynput_keyboard.KeyCode):
+            return key.char.lower() if key.char is not None else None
+
+        return None
+
     _pressed_keys = set()
 
     def _on_press(key):
-        try:
-            _pressed_keys.add(key.char.lower())
-        except AttributeError:
-            pass
+        value = _normalize_key(key)
+        if value is not None:
+            _pressed_keys.add(value)
 
     def _on_release(key):
-        try:
-            _pressed_keys.discard(key.char.lower())
-        except AttributeError:
-            pass
+        value = _normalize_key(key)
+        if value is not None:
+            _pressed_keys.discard(value)
 
     _listener = _pynput_keyboard.Listener(on_press=_on_press, on_release=_on_release)
     _listener.daemon = True
