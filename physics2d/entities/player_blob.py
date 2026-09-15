@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.keyboard import ActionKeys, CheatKeys, MovementKeys
-from model.shared import KeyboardHandler
+from model.shared import KeyboardHandler, MouseHandler
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.thruster import Thruster
@@ -18,7 +18,7 @@ from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import MachineGun
 from physics2d.entities.equipment.weapons.rocket_launcher import RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
-from terminal import consume_mouse_scroll, is_mouse_pressed, on_key_press
+from terminal import consume_mouse_scroll, on_key_press, on_mouse_press
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -34,7 +34,7 @@ _PLAYER_GRAVITY = 0  # we float freely!
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 
-class PlayerBlob(PhysicsEntity, KeyboardHandler):
+class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     _thrusters: list[Thruster]
     _curr_thruster_index: int
     _last_known_direction: VectorF
@@ -182,24 +182,8 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             .unit_vector()
         )
 
-    ##############
-    """KEYBOARD"""
-    ##############
-
-    def handle_keyboard_input(self):
-        self._switch_thruster()
-        self._move_up()
-        self._move_left()
-        self._move_right()
-        self._move_down()
-        self._next_weapon()
-        self._previous_weapon()
-        self._shoot()
-
-        self._decelerate_if_not_pressing()
-
-        # cheats
-        self._kill_all_monsters()
+    def _cycle_weapon(self, direction: int) -> None:
+        self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
 
     def _decelerate_if_not_pressing(self) -> None:
         _decel_amount = self._get_decel()
@@ -229,8 +213,35 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
                 self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
             ).as_vector()
 
-    def _cycle_weapon(self, direction: int) -> None:
-        self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
+    ###############
+    """  INPUT  """
+    ###############
+
+    def handle_keyboard_input(self):
+        self._switch_thruster()
+        self._move_up()
+        self._move_left()
+        self._move_right()
+        self._move_down()
+        self._next_weapon()
+        self._previous_weapon()
+        self._shoot()
+
+        self._decelerate_if_not_pressing()
+
+        # cheats
+        self._kill_all_monsters()
+
+    def handle_mouse_input(self) -> None:
+        steps = consume_mouse_scroll()
+
+        if steps:
+            # Up → next weapon; down → previous weapon.
+            self._cycle_weapon(steps)
+
+    @on_mouse_press()
+    def _shoot(self) -> None:
+        self.get_curr_weapon().fire()
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:
@@ -240,13 +251,6 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
     def _previous_weapon(self) -> None:
         self._cycle_weapon(-1)
 
-    def handle_mouse_input(self) -> None:
-        steps = consume_mouse_scroll()
-
-        if steps:
-            # Up → next weapon; down → previous weapon.
-            self._cycle_weapon(steps)
-
     @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
     def _switch_thruster(self) -> None:
         self._curr_thruster_index = (
@@ -255,10 +259,6 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
             else 0
         )
         self.theme = self.get_curr_thruster().player_theme
-
-    def _shoot(self) -> None:
-        if is_mouse_pressed():
-            self.get_curr_weapon().fire()
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
@@ -292,6 +292,10 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
         self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
         self.set_last_known_direction()
 
+    ################
+    """ CHEATS!! """
+
+    ################
     @on_key_press(CheatKeys.KILL_MONSTERS)
     def _kill_all_monsters(self) -> None:
         for e in self.engine.scenario.enemies:

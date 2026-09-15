@@ -76,32 +76,6 @@ def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
-    """Any class that uses this decorator has to inherit
-    from the KeyboardHandler mixin in model.shared"""
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            pressed = is_pressed(key)
-
-            if pressed and not act_once_per_press:
-                return func(self, *args, **kwargs)
-
-            was_pressed = self._pressed_key_map.get(key, False)
-
-            if pressed and not was_pressed:
-                self._set_pressed_key(key, True)
-                func(self, *args, **kwargs)
-
-            elif not pressed and was_pressed:
-                self._set_pressed_key(key, False)
-
-        return wrapper
-
-    return decorator
-
-
 _mouse_lock = Lock()
 _mouse_previous_position: tuple[float, float] | None = None
 _mouse_delta = (0.0, 0.0)
@@ -185,3 +159,62 @@ _mouse_listener.start()
 
 def stop_mouse_listener() -> None:
     _mouse_listener.stop()
+
+
+##############
+# DECORATORS #
+##############
+
+
+def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
+    """Any class that uses this decorator has to inherit
+    from the KeyboardHandler mixin in model.shared"""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            pressed = is_pressed(key)
+
+            if pressed and not act_once_per_press:
+                return func(self, *args, **kwargs)
+
+            was_pressed = self._pressed_key_map.get(key, False)
+
+            if pressed and not was_pressed:
+                self._set_pressed_key(key, True)
+                func(self, *args, **kwargs)
+
+            elif not pressed and was_pressed:
+                self._set_pressed_key(key, False)
+
+        return wrapper
+
+    return decorator
+
+
+def on_mouse_press(
+    button: _pynput_mouse.Button = _pynput_mouse.Button.left,
+    act_once_per_press: bool = False,
+):
+    """Any class that uses this decorator has to inherit
+    from the MouseHandler mixin in model.shared"""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            pressed = is_mouse_pressed(button)
+
+            if not act_once_per_press:
+                if pressed:
+                    return func(self, *args, **kwargs)
+                return None
+
+            was_pressed = self._pressed_mouse_map.get(button, False)
+            self._set_pressed_button(button, True)
+
+            if pressed and not was_pressed:
+                return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
