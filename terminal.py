@@ -105,6 +105,7 @@ def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
 _mouse_lock = Lock()
 _mouse_previous_position: tuple[float, float] | None = None
 _mouse_delta = (0.0, 0.0)
+_mouse_scroll_delta = 0.0
 
 
 def _on_mouse_move(x: float, y: float) -> None:
@@ -134,7 +135,51 @@ def consume_mouse_movement() -> tuple[float, float]:
         return movement
 
 
-_mouse_listener = _pynput_mouse.Listener(on_move=_on_mouse_move)
+def _on_mouse_scroll(x: float, y: float, dx: float, dy: float) -> None:
+    global _mouse_scroll_delta
+
+    with _mouse_lock:
+        _mouse_scroll_delta += dy
+
+
+def consume_mouse_scroll() -> int:
+    global _mouse_scroll_delta
+
+    with _mouse_lock:
+        # Preserve fractional scrolling until it adds up to a step.
+        steps = int(_mouse_scroll_delta)
+        _mouse_scroll_delta -= steps
+        return steps
+
+
+_pressed_mouse_buttons: set[_pynput_mouse.Button] = set()
+
+
+def _on_mouse_click(
+    x: float,
+    y: float,
+    button: _pynput_mouse.Button,
+    pressed: bool,
+) -> None:
+    with _mouse_lock:
+        if pressed:
+            _pressed_mouse_buttons.add(button)
+        else:
+            _pressed_mouse_buttons.discard(button)
+
+
+def is_mouse_pressed(
+    button: _pynput_mouse.Button = _pynput_mouse.Button.left,
+) -> bool:
+    with _mouse_lock:
+        return button in _pressed_mouse_buttons
+
+
+_mouse_listener = _pynput_mouse.Listener(
+    on_move=_on_mouse_move,
+    on_click=_on_mouse_click,
+    on_scroll=_on_mouse_scroll,
+)
 _mouse_listener.start()
 
 

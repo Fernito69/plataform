@@ -18,7 +18,7 @@ from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import MachineGun
 from physics2d.entities.equipment.weapons.rocket_launcher import RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
-from terminal import on_key_press
+from terminal import consume_mouse_scroll, is_mouse_pressed, on_key_press
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -75,6 +75,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
         self.get_curr_thruster().handle_particles()
         self.get_curr_weapon().do_your_thing()
 
+        self.handle_mouse_input()
         self.handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
         self._apply_movement()
@@ -199,9 +200,6 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
 
         # cheats
         self._kill_all_monsters()
-        # TODO: fix this
-        # if abs(self.velocity) >= _MAX_MOVING_VELOCITY:
-        #     return
 
     def _decelerate_if_not_pressing(self) -> None:
         _decel_amount = self._get_decel()
@@ -231,6 +229,24 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
                 self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
             ).as_vector()
 
+    def _cycle_weapon(self, direction: int) -> None:
+        self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
+
+    @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
+    def _next_weapon(self) -> None:
+        self._cycle_weapon(1)
+
+    @on_key_press(ActionKeys.PREVIOUS_WEAPON, act_once_per_press=True)
+    def _previous_weapon(self) -> None:
+        self._cycle_weapon(-1)
+
+    def handle_mouse_input(self) -> None:
+        steps = consume_mouse_scroll()
+
+        if steps:
+            # Up → next weapon; down → previous weapon.
+            self._cycle_weapon(steps)
+
     @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
     def _switch_thruster(self) -> None:
         self._curr_thruster_index = (
@@ -240,21 +256,9 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler):
         )
         self.theme = self.get_curr_thruster().player_theme
 
-    @on_key_press(ActionKeys.SHOOT)
     def _shoot(self) -> None:
-        self.get_curr_weapon().fire()
-
-    @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
-    def _next_weapon(self) -> None:
-        self._curr_weapon_index = (
-            self._curr_weapon_index + 1 if len(self._weapons) > self._curr_weapon_index + 1 else 0
-        )
-
-    @on_key_press(ActionKeys.PREVIOUS_WEAPON, act_once_per_press=True)
-    def _previous_weapon(self) -> None:
-        self._curr_weapon_index = (
-            self._curr_weapon_index - 1 if self._curr_weapon_index > 0 else len(self._weapons) - 1
-        )
+        if is_mouse_pressed():
+            self.get_curr_weapon().fire()
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
