@@ -133,7 +133,7 @@ class Physics2D(Engine, KeyboardHandler):
 
         self.display.put_screen_content(new_screen_grid)
         self.display.print_curr_screen(self.player)
-        
+
     def handle_keyboard_input(self) -> None:
         self._reset_scenario()
         self._move_screen_down()
@@ -144,7 +144,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
     def _reset_scenario(self):
-        self.scenario = default_scenario(self)
+        self.init_player()
 
     @on_key_press(MovementKeys.UP)
     def _move_screen_up(self):

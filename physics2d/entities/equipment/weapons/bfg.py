@@ -36,16 +36,11 @@ class BFG(Weapon):
             projectile_generator=bfg_ball,
             ammo=5,
             color=_BFG_READY_LIGHT,
+            recoil=3,
         )
 
     def _spend_ammo(self) -> None:
         self._ammo -= 1
-
-    def _effect_on_player(self) -> None:
-        # recoil!
-        self._scenario.player.velocity = (
-            self._scenario.player.velocity - 3 * (self._scenario.player.get_aiming_direction())
-        ).as_vector()
 
     _firing_countdown: int = _BFG_BASE_COUNTDOWN
     _trigger_pressed: bool = False

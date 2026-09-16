@@ -29,12 +29,11 @@ class DeathRay(Weapon):
             projectile_generator=ray,
             ammo=30,
             color=RGB(255, 255, 50, 1),
+            recoil=1,
         )
 
     def _spend_ammo(self) -> None:
         self._ammo -= 1
-
-    def _effect_on_player(self) -> None: ...
 
     def secondary_fire(self) -> None: ...
 
@@ -76,8 +75,8 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
 # TODO: ideally should be aware of what we are shooting at
 # TODO: make it like a non-targeted lightning weapon beam but less intense
 def ray(scenario: "Scenario", source: "PhysicsEntity") -> None:
-    _ending_color= RGB(255, 255, 200, 1)
-    _initial_color  = RGB(255, 255, 10, 1)
+    _ending_color = RGB(255, 255, 200, 1)
+    _initial_color = RGB(255, 255, 10, 1)
 
     line = LineParticle(
         source=source,
@@ -87,7 +86,7 @@ def ray(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=10,
         thickness=2,
         pulsate_amplitude=2,
-        pulsate_freq=10
+        pulsate_freq=10,
     )
 
     scenario.fg_pieces.append(line)

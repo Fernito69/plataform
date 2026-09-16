@@ -92,6 +92,7 @@ class Circunference(Shape):
     def _apply_movement(self, engine: "Physics2D") -> None:
         # TODO: I don't like this lazy import
         from physics2d.entities.base import PhysicsEntity
+        from physics2d.entities.enemy import Enemy
         from physics2d.entities.equipment.projectile import Projectile
         from physics2d.shapes.particle import Particle
 
@@ -109,7 +110,7 @@ class Circunference(Shape):
 
         self.center += self.velocity
 
-        # TODO: this
+        # TODO: every class should take of this on their own!
         if isinstance(self, PhysicsEntity):
             self.position = self.center
 
@@ -118,6 +119,9 @@ class Circunference(Shape):
 
             if isinstance(self, Projectile):
                 if self.target:
+                    if isinstance(self.target, Enemy) and self.target.health <= 0:
+                        self.target = None
+                        return
                     to_target = (
                         self.homing_factor
                         * (self.target.position - self.position).as_vector().unit_vector()
@@ -142,9 +146,7 @@ class Circunference(Shape):
     def update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
 
-    def get_circunference_equations(
-        self,
-    ) -> GetCircunferenceEquationResponse:
+    def get_circunference_equations(self) -> GetCircunferenceEquationResponse:
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
             root_arg = self.radius**2 - (x - self.center.x) ** 2
             if root_arg < 0:

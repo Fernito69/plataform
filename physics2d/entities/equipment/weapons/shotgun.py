@@ -23,7 +23,7 @@ class Shotgun(Weapon):
             name="Shotgun",
             scenario=scenario,
             max_ammo=100,
-            refractory_period=18,
+            refractory_period=12,
             fire_particle_generator=shotgun_nozzle,
             projectile_generator=buckshot,
             ammo=100,

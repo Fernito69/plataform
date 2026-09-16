@@ -18,7 +18,7 @@ _CROSSHAIR_SHOOTING_THEME = Theme(color=RGB(255, 0, 0))
 
 _DOT_SIZE = 1
 _HAIR_SIZE = 4
-
+_HAIR_OFFSET = 5
 
 _MOUSE_SENSITIVITY = 0.2
 
@@ -60,11 +60,13 @@ class Crosshair(PhysicsEntity, MouseHandler):
             )
 
         self.extra_shapes = [
-            _make_line(((0, 3), (0, 3 + _HAIR_SIZE))),
-            _make_line(((3, 0), (3 + _HAIR_SIZE, 0))),
-            _make_line(((0, -3), (0, -3 - _HAIR_SIZE))),
-            _make_line(((-3, 0), (-3 - _HAIR_SIZE, 0))),
+            _make_line(((0, _HAIR_OFFSET), (0, _HAIR_OFFSET + _HAIR_SIZE))),
+            _make_line(((_HAIR_OFFSET, 0), (_HAIR_OFFSET + _HAIR_SIZE, 0))),
+            _make_line(((0, -_HAIR_OFFSET), (0, -_HAIR_OFFSET - _HAIR_SIZE))),
+            _make_line(((-_HAIR_OFFSET, 0), (-_HAIR_OFFSET - _HAIR_SIZE, 0))),
         ]
+        # give a lil offset:
+        # self.center -= PointF(_DOT_SIZE / 2, _DOT_SIZE / 2)
 
     ##############
     """MOVEMENT"""

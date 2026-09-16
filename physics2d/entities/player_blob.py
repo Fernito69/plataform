@@ -16,8 +16,8 @@ from physics2d.entities.equipment.weapons.bfg import BFG
 from physics2d.entities.equipment.weapons.death_ray import DeathRay
 from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
 from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
-from physics2d.entities.equipment.weapons.machine_gun import MachineGun
-from physics2d.entities.equipment.weapons.rocket_launcher import RocketLauncher
+from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, MachineGun
+from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
@@ -157,8 +157,10 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
             MachineGun(self._scenario),
             Shotgun(self._scenario),
             LightningGun(self._scenario),
+            HeavyMachineGun(self._scenario),
             RocketLauncher(self._scenario),
             HomingMissileLauncher(self._scenario),
+            HeavyRocketLauncher(self._scenario),
             DeathRay(self._scenario),
             BFG(self._scenario),
         ]

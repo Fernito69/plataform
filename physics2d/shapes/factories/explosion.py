@@ -156,6 +156,7 @@ def smoke_generator(
     life_time: int | None = None,
     random_offset_threshold: float = 0.25,
     initial_velocity: VectorF | None = None,
+    floating_multi: float = 0,
 ) -> None:
     if random_offset() < random_offset_threshold:
         return
@@ -170,7 +171,7 @@ def smoke_generator(
         ending_color=RGB(30, 30, 30, 1),  # smokelike
         life_time=life_time or 30,
         gravity=-0.05,
-        # floating_multi=0.1,
+        floating_multi=floating_multi,
     )
     smokes.append(main_smoke)
 
@@ -584,7 +585,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
         _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
         def _smoke(engine, source) -> None:
-            return smoke_generator(engine, source, 5)
+            return smoke_generator(engine, source, life_time=5, floating_multi=0.1)
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -726,7 +727,6 @@ def homing_missile_trail(
     pieces = sorted(pieces, key=random_offset)
 
     # If target exists, we show a red light!
-    # frequency = round(abs(target.position - source.position))
     frequency = 7 if target else 12
 
     if scenario.now() % frequency == 0:

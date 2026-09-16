@@ -27,16 +27,11 @@ class HomingMissileLauncher(Weapon):
             projectile_generator=homing_missile,
             ammo=30,
             color=RGB(180, 90, 255, 1),
+            recoil=1,
         )
 
     def _spend_ammo(self) -> None:
         self._ammo -= 1
-
-    def _effect_on_player(self) -> None:
-        # recoil!
-        self._scenario.player.velocity = (
-            self._scenario.player.velocity - (self._scenario.player.get_aiming_direction())
-        ).as_vector()
 
     def secondary_fire(self) -> None: ...
 

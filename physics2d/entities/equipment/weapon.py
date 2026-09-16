@@ -23,6 +23,8 @@ class Weapon:
     _ammo: int
     _max_ammo: int
 
+    _recoil: float
+
     def __init__(
         self,
         scenario: "Scenario",
@@ -33,6 +35,7 @@ class Weapon:
         projectile_generator: ParticleGenerator,
         refractory_period: int,
         ammo: int = 0,
+        recoil: float = 0,
     ):
         self._scenario = scenario
         self.name = name
@@ -43,6 +46,7 @@ class Weapon:
         self._refractory_period = refractory_period
         self._ammo = min(ammo, max_ammo)
         self._refractory_limit = scenario.now()
+        self._recoil = recoil
 
     def fire(self) -> None:
         if not self.can_shoot() or (
@@ -77,7 +81,12 @@ class Weapon:
         ...
         """Spend an amount of ammo per shot"""
 
-    @abstractmethod
     def _effect_on_player(self) -> None:
-        ...
-        """e.g. recoil, etc."""
+        if self._recoil <= 0:
+            return
+
+        # recoil!
+        self._scenario.player.velocity = (
+            self._scenario.player.velocity
+            - self._recoil * (self._scenario.player.get_aiming_direction())
+        ).as_vector()

@@ -52,7 +52,7 @@ class Projectile(CircularParticle):
     ):
         super().__init__(
             # origin=origin,
-            origin=owner,
+            origin=origin or owner,
             size=size,
             initial_color=initial_color,
             initial_velocity=initial_velocity,
