@@ -72,10 +72,6 @@ if os.name == "nt":
         return key.lower()
 
 
-def clear():
-    os.system("cls" if os.name == "nt" else "clear")
-
-
 _mouse_lock = Lock()
 _mouse_previous_position: tuple[float, float] | None = None
 _mouse_delta = (0.0, 0.0)

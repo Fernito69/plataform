@@ -24,7 +24,7 @@ from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUT
 from physics2d.entities.player_blob import PlayerBlob
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
-from terminal import clear, on_key_press
+from terminal import on_key_press
 from three_d_renderer.constants import (
     ANTIALIASING_INTENSITY,
     MAX_FPS_3D,
@@ -216,8 +216,13 @@ class Display(KeyboardHandler):
                 + to_print
             )
 
-        clear()
-        print(screen_content)
+        print(
+            "\x1b[H"  # move cursor to top left.
+            + screen_content
+            + "\x1b[J",  # erase anything left after the frame.
+            end="",  # don't append a newline.
+            flush=True,
+        )
 
     # TODO: allow color in the message string instead of hardcoding it
     # TODO: this logic is all sooo hacky, do better
