@@ -10,7 +10,7 @@ from physics2d.shapes.line import Line
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
-
+# TODO: get rid of this
 class LinePiece(Line, ScenarioPiece):
     _pulsate_freq: float
     _pulsate_amplitude: float

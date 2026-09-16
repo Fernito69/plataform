@@ -14,7 +14,7 @@ class TransitionType(StrEnum):
 
 @dataclass
 class LifeStep:
-    step: int
+    life_tick: int
     theme: Theme | None
     theme_change: TransitionType = TransitionType.NONE
 

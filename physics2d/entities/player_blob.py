@@ -13,6 +13,7 @@ from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
 from physics2d.entities.equipment.thrusters.sonic_thruster import SonicThruster
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.entities.equipment.weapons.bfg import BFG
+from physics2d.entities.equipment.weapons.death_ray import DeathRay
 from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
 from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import MachineGun
@@ -158,6 +159,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
             LightningGun(self._scenario),
             RocketLauncher(self._scenario),
             HomingMissileLauncher(self._scenario),
+            DeathRay(self._scenario),
             BFG(self._scenario),
         ]
         self._curr_weapon_index = 0

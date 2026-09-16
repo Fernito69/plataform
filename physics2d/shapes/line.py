@@ -1,7 +1,7 @@
 import math
 from typing import TYPE_CHECKING
 
-from constants import ALMOST_ZERO, HALF_PIXEL
+from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import White
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
@@ -17,6 +17,9 @@ class Line(Shape):
     points: tuple[PointF, PointF]
     thickness: float
 
+    _pulsate_freq: float
+    _pulsate_amplitude: float
+
     def __init__(
         self,
         points: tuple[PointF, PointF],
@@ -31,6 +34,8 @@ class Line(Shape):
         floating_multi: float = 0,
         density: float = 1,
         render_behind_player: bool = False,
+        pulsate_freq: float = 0,
+        pulsate_amplitude: float = 0,
     ):
         self.points = points
         self.thickness = thickness
@@ -38,6 +43,8 @@ class Line(Shape):
         self.volume = abs(points[0] - points[1]) * thickness
         self.weight = self.volume * density
         self.render_behind_player = render_behind_player
+        self._pulsate_freq = pulsate_freq
+        self._pulsate_amplitude = pulsate_amplitude
 
         self.update_center_of_mass()
         super().__init__(
@@ -60,6 +67,10 @@ class Line(Shape):
             (self.points[0].x + self.points[1].x) / 2,
             (self.points[0].y + self.points[1].y) / 2,
         )
+
+    def do_your_thing(self, engine: "Physics2D") -> None:
+        self._pulsate()
+        return super().do_your_thing(engine)
 
     # TODO: make abstract in Shape and not private
     def _move_by(self, vector: VectorF) -> None:
@@ -133,6 +144,15 @@ class Line(Shape):
             and point.y <= y2 + total_offset
         )
 
+    _counter: float
+    
+    def _pulsate(self) -> None:
+        if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
+            return
+
+        self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
+        self.thickness += math.sin(self._counter) * self._pulsate_amplitude
+
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:
             return self.theme.color or White()
@@ -170,6 +190,7 @@ class Line(Shape):
     def _apply_movement(self, engine: "Physics2D") -> None:
         self._float_around()
         self.rotate()
+        self._pulsate()
 
         if not any(a != 0 for a in self.velocity):
             return
