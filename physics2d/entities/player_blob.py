@@ -18,6 +18,8 @@ from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import MachineGun
 from physics2d.entities.equipment.weapons.rocket_launcher import RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
+from physics2d.shapes.model.shared import TransitionType
+from physics2d.shapes.particle import CircularParticle
 from terminal import consume_mouse_scroll, on_key_press, on_mouse_press
 
 if TYPE_CHECKING:
@@ -27,9 +29,7 @@ if TYPE_CHECKING:
 _PLAYER_RADIUS = 4
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
-_PLAYER_GRAVITY = 0  # we float freely!
-
-# _MAX_MOVING_VELOCITY = 7
+_CROSSHAIR_PARTICLE_NAME = "CrosshairParticle"
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
@@ -225,14 +225,15 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         self._move_down()
         self._next_weapon()
         self._previous_weapon()
-        self._shoot()
-
         self._decelerate_if_not_pressing()
 
         # cheats
         self._kill_all_monsters()
 
     def handle_mouse_input(self) -> None:
+        self._shoot()
+        self._add_indicator_on_target_point()
+
         steps = consume_mouse_scroll()
 
         if steps:
@@ -242,6 +243,26 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     @on_mouse_press()
     def _shoot(self) -> None:
         self.get_curr_weapon().fire()
+
+    @on_mouse_press(act_once_per_press=True)
+    def _add_indicator_on_target_point(self) -> None:
+
+        # if any(p for p in self.engine.scenario.bg_pieces if p.name == _CROSSHAIR_PARTICLE_NAME):
+        #     return
+        _light = CircularParticle(
+            name=_CROSSHAIR_PARTICLE_NAME,
+            origin=self.engine.scenario.crosshair.center + self.engine.screen_corner,
+            size=0.1,
+            final_radius=8,
+            life_time=10,
+            initial_color=RGB(255, 100, 100),
+            ending_color=RGB(60, 0, 0),
+            size_change_type=TransitionType.LINEAR_INCREASE,
+        )
+        # self.engine.scenario.bg_pieces = [
+        #     p for p in self.engine.scenario.bg_pieces if p.name != _CROSSHAIR_PARTICLE_NAME
+        # ]
+        self.engine.scenario.bg_pieces[0:0] = [_light]
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:

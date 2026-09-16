@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
@@ -12,6 +12,7 @@ from physics2d.shapes.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
+    from physics2d.entities.equipment.projectile import Projectile
     from physics2d.physics2d import Physics2D
 
 
@@ -27,6 +28,9 @@ class PieceHierarchy:
 class GetEnemiesInRangeRes:
     enemy: Enemy
     distance: float
+
+
+type Layer = Literal["fg", "bg", "solid"]
 
 
 class Scenario:
@@ -122,6 +126,69 @@ class Scenario:
     def now(self) -> int:
         """Get the current game tick"""
         return self._game_tick
+
+    # TODO: do we want this? code reads better, but will be more expensive 
+    def add_to_scenario(
+        self,
+        entity: "PhysicsEntity | list[PhysicsEntity] | Projectile | list[Projectile]",
+        render_first: bool = False,
+        layer: Layer = "bg",
+    ) -> None:
+        from physics2d.entities.base import PhysicsEntity
+
+        _map: dict[Layer, list[Shape]] = {
+            "bg": self.bg_pieces,
+            "fg": self.solid_pieces,
+            "solid": self.solid_pieces,
+        }
+
+        if isinstance(entity, list):
+            if len(entity) == 0:
+                return
+
+            if render_first:
+                _map[layer][0:0] = entity
+
+        if isinstance(entity, list):
+            if len(entity) == 0:
+                return
+            if isinstance(entity[0], PhysicsEntity):
+                match layer:
+                    case "bg":
+                        if render_first:
+                            self.bg_pieces[0:0] = entity
+                        else:
+                            self.bg_pieces.extend(entity)
+                    case "fg":
+                        if render_first:
+                            self.fg_pieces[0:0] = entity
+                        else:
+                            self.fg_pieces.extend(entity)
+                    case "solid":
+                        if render_first:
+                            self.solid_pieces[0:0] = entity
+                        else:
+                            self.solid_pieces.extend(entity)
+
+        else:
+            pass
+
+    # TODO: these functions are KISS, but there's a lot of repeated code
+    def _add_projectile_to_scenario(
+        self, projectile: "Projectile", render_first: bool = False
+    ) -> None:
+        if not render_first:
+            self.projectiles.append(projectile)
+        else:
+            self.projectiles[0:0] = [projectile]
+
+    def _add_projectiles_to_scenario(
+        self, projectile: list["Projectile"], render_first: bool = False
+    ) -> None:
+        if not render_first:
+            self.projectiles.extend(projectile)
+        else:
+            self.projectiles[0:0] = projectile
 
     def render(self) -> None:
         self._render_crosshair()

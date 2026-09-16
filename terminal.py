@@ -188,6 +188,7 @@ def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
     return decorator
 
 
+# TODO: create on_mouse_release
 def on_mouse_press(
     button: _pynput_mouse.Button = _pynput_mouse.Button.left,
     act_once_per_press: bool = False,
@@ -210,6 +211,9 @@ def on_mouse_press(
 
             if pressed and not was_pressed:
                 return func(self, *args, **kwargs)
+
+            elif not pressed and was_pressed:
+                self._set_pressed_button(button, False)
 
         return wrapper
 

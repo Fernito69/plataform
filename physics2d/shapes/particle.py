@@ -92,6 +92,7 @@ class CircularParticle(Particle, PhysicsEntity):
         particle_generator: ParticleGenerator | None = None,
         density: float = 1,
         final_radius: float | None = None,
+        name="Particle",
     ):
         self.life_time = life_time
         self._original_life_time = life_time
@@ -118,6 +119,7 @@ class CircularParticle(Particle, PhysicsEntity):
         self.is_collideable = is_collideable
         self._particle_generator = particle_generator
         self.density = density
+        self.name = name
 
         super().__init__(
             initial_color=initial_color,
@@ -140,6 +142,7 @@ class CircularParticle(Particle, PhysicsEntity):
             is_collideable=is_collideable,
             density=density,
             size=size * 2,
+            name=name,
         )
 
     def _handle_life_time(self) -> None:

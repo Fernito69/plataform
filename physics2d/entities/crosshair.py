@@ -1,24 +1,30 @@
 from typing import TYPE_CHECKING
 
+from pynput import mouse
+
 from model.base import PointF, VectorF
+from model.shared import MouseHandler
 from model.theme import RGB, Theme
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.base import PhysicsEntity
 from physics2d.shapes.line import Line
-from terminal import consume_mouse_movement
+from terminal import consume_mouse_movement, on_mouse_press
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _CROSSHAIR_THEME = Theme(color=RGB(120, 255, 255))
+_CROSSHAIR_SHOOTING_THEME = Theme(color=RGB(255, 0, 0))
+
 _DOT_SIZE = 1
 _HAIR_SIZE = 4
+
 
 _MOUSE_SENSITIVITY = 0.2
 
 
 # TODO: this moves similar to player, should share a base class
-class Crosshair(PhysicsEntity):
+class Crosshair(PhysicsEntity, MouseHandler):
     def __init__(
         self,
         engine: "Physics2D",
@@ -65,6 +71,8 @@ class Crosshair(PhysicsEntity):
     ##############
 
     def do_your_thing(self) -> None:
+        self.handle_mouse_input()
+
         dx, dy = consume_mouse_movement()
 
         if dx != 0 or dy != 0:
@@ -74,6 +82,18 @@ class Crosshair(PhysicsEntity):
                     -dy * _MOUSE_SENSITIVITY,
                 )
             )
+
+    def handle_mouse_input(self) -> None:
+        self._press_trigger()
+        self._release_trigger()
+
+    @on_mouse_press()
+    def _press_trigger(self) -> None:
+        self.theme = _CROSSHAIR_SHOOTING_THEME
+
+    def _release_trigger(self) -> None:
+        if not self._is_mouse_pressed(mouse.Button.left) and self.theme is not _CROSSHAIR_THEME:
+            self.theme = _CROSSHAIR_THEME
 
     def _move_by(self, vector: VectorF) -> None:
         new_center = self.center + vector
