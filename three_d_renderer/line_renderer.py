@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from constants import HALF_PIXEL, PI, PIXEL, QUARTER_PIXEL
 from factories.theme import DEFAULT_CHAR, White
-from model.base import PointF
+from model.base import PointF, Slope
 from model.theme import RGB
 from three_d_renderer.model.base import PixelContribution, SubpixelContribution, Vertex3, WorldData
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
@@ -37,10 +37,12 @@ DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER = 0.559
 
 
 # TODO: move this function elsewhere or make it static method
-def _get_contribution(distance: float, slope: float | None) -> float:
+def _get_contribution(distance: float, slope: Slope) -> float:
     # Corrected by the 2/1 ratio between real x and real y
     # TODO: I'm assuming it's a linear relationship with the angle, maybe it's not.
-    distance /= (1 + abs((math.atan(slope)) / (PI / 2))) if slope is not None else 2
+    distance /= (
+        (1 + abs((math.atan(slope)) / (PI / 2))) if slope != "+Inf" and slope != "-Inf" else 2
+    )
 
     return max(
         1 - distance / DISTANCE_FROM_SUBPIXEL_CENTER_TO_CORNER,

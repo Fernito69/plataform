@@ -10,7 +10,7 @@ from terminal import consume_mouse_movement
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
-_CROSSHAIR_THEME = Theme(color=RGB(255, 0, 0))
+_CROSSHAIR_THEME = Theme(color=RGB(120, 255, 255))
 _DOT_SIZE = 1
 _HAIR_SIZE = 4
 
