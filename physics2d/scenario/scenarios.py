@@ -11,7 +11,7 @@ from physics2d.scenario.pieces.circunference import CircunferencePiece
 from physics2d.scenario.pieces.line import LinePiece
 from physics2d.scenario.pieces.rectangle import RectanglePiece
 from physics2d.scenario.scenario import Scenario
-from physics2d.shapes.shape import Shape
+from physics2d.shape.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D

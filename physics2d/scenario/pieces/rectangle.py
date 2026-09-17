@@ -6,7 +6,7 @@ from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.piece import ScenarioPiece
-from physics2d.shapes.line import Line
+from physics2d.shape.line import Line
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D

@@ -7,8 +7,8 @@ from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
-from physics2d.shapes.particle import Particle
-from physics2d.shapes.shape import Shape
+from physics2d.shape.particle.base import Particle
+from physics2d.shape.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity

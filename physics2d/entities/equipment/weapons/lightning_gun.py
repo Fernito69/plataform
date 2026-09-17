@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB
 from physics2d.entities.equipment.weapon import Weapon
-from physics2d.shapes.factories.projectile import get_lightning_bolts
+from physics2d.shape.factories.projectile import get_lightning_bolts
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity

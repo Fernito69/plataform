@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from model.theme import RGB
-from physics2d.shapes.factories.explosion import (
+from physics2d.shape.factories.explosion import (
     lightning_impact,
 )
-from physics2d.shapes.line import Line
-from physics2d.shapes.particle import Lightning
+from physics2d.shape.line import Line
+from physics2d.shape.particle.lightning import Lightning
 from utils import random_offset_vector
 
 if TYPE_CHECKING:

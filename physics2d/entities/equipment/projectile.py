@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
-from physics2d.shapes.model.shared import TransitionType
-from physics2d.shapes.particle import CircularParticle
+from physics2d.shape.model.shared import TransitionType
+from physics2d.shape.particle.circular_particle import CircularParticle
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity

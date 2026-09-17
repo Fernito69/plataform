@@ -7,7 +7,7 @@ from model.shared import MouseHandler
 from model.theme import RGB, Theme
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.base import PhysicsEntity
-from physics2d.shapes.line import Line
+from physics2d.shape.line import Line
 from terminal import consume_mouse_movement, on_mouse_press
 
 if TYPE_CHECKING:

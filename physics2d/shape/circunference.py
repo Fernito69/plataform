@@ -6,8 +6,8 @@ from constants import PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
-from physics2d.shapes.line import Line
-from physics2d.shapes.shape import Shape
+from physics2d.shape.line import Line
+from physics2d.shape.shape import Shape
 from utils import (
     distance_from_line_to_point,
     get_angle_from_slope,
@@ -94,7 +94,7 @@ class Circunference(Shape):
         from physics2d.entities.base import PhysicsEntity
         from physics2d.entities.enemy import Enemy
         from physics2d.entities.equipment.projectile import Projectile
-        from physics2d.shapes.particle import Particle
+        from physics2d.shape.particle.base import Particle
 
         self._float_around()
         self._apply_gravity()

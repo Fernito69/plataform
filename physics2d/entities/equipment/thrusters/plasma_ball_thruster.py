@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING
 
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.thruster import Thruster
-from physics2d.shapes.particle import Lightning
-from physics2d.shapes.shape import Shape
+from physics2d.shape.particle.lightning import Lightning
+from physics2d.shape.shape import Shape
 from utils import random_offset_vector
 
 if TYPE_CHECKING:

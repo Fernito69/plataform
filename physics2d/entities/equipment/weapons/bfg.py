@@ -5,10 +5,10 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
-from physics2d.shapes.factories.explosion import get_rocket_explosion
-from physics2d.shapes.factories.projectile import get_lightning_bolts
-from physics2d.shapes.model.shared import TransitionType
-from physics2d.shapes.particle import CircularParticle
+from physics2d.shape.factories.explosion import get_rocket_explosion
+from physics2d.shape.factories.projectile import get_lightning_bolts
+from physics2d.shape.model.shared import TransitionType
+from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:

@@ -1,8 +1,8 @@
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.shapes.factories.explosion import enemy_explosion
-from physics2d.shapes.shape import Shape
+from physics2d.shape.factories.explosion import enemy_explosion
+from physics2d.shape.shape import Shape
 
 
 class Enemy(PhysicsEntity):

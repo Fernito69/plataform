@@ -6,7 +6,7 @@ from factories.theme import White
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
-from physics2d.shapes.shape import Shape
+from physics2d.shape.shape import Shape
 from utils import distance_from_line_to_point, rotate_point
 
 if TYPE_CHECKING:

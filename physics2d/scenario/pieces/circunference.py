@@ -3,7 +3,7 @@ from typing import Callable
 
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.shapes.circunference import Circunference
+from physics2d.shape.circunference import Circunference
 
 
 @dataclass

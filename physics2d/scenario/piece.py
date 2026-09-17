@@ -1,6 +1,6 @@
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.shapes.shape import Shape
+from physics2d.shape.shape import Shape
 
 
 # TODO: evaluate, do we even need pieces?

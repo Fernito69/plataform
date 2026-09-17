@@ -4,8 +4,8 @@ from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.entities.equipment.weapons.rocket_launcher import rocket_launcher_nozzle
-from physics2d.shapes.factories.explosion import get_rocket_explosion, homing_missile_trail
-from physics2d.shapes.model.shared import TransitionType
+from physics2d.shape.factories.explosion import get_rocket_explosion, homing_missile_trail
+from physics2d.shape.model.shared import TransitionType
 from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:
