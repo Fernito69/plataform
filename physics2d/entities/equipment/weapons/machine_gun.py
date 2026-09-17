@@ -76,7 +76,7 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     bullet = Projectile(
         owner=source,
-        origin=source.center + random_offset_vector(),
+        offset_from_origin=random_offset_vector(),
         initial_velocity=velocity,
         size=0.7,
         size_change_type=TransitionType.NONE,
@@ -95,18 +95,15 @@ def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
 
-    _bullets_per_frame = 2
+    _bullets_per_frame = 3
     bullets = []
     angle = get_vector_angle(velocity)
 
     for i in range(_bullets_per_frame):
-        factor = 10 * i / _bullets_per_frame
-        # origin = source.center + random_offset_vector(1, 1)
-        origin = source.center + VectorF(factor, 0).rotate(angle, source.center)
+        factor = 8 * i / _bullets_per_frame
 
         bullet = Projectile(
             owner=source,
-            origin=origin,
             initial_velocity=velocity,
             size=0.7,
             size_change_type=TransitionType.NONE,
@@ -115,6 +112,7 @@ def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity") -> None:
             life_time=50,
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
+            offset_from_origin=VectorF(factor, random_offset() * 4).rotate(angle).as_vector(),
         )
         bullets.append(bullet)
 

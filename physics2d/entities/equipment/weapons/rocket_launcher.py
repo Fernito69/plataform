@@ -84,7 +84,7 @@ def _rocket_factory(
 ):
     return Projectile(
         owner=source,
-        origin=source.center + random_offset_vector(),
+        offset_from_origin=random_offset_vector(),
         initial_velocity=(
             (rocket_speed + random_offset()) * source.get_aiming_direction()
         ).as_vector(),

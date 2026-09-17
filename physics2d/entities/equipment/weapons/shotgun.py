@@ -58,7 +58,7 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
     for _ in range(_NUM_PELLETS):
         pellet = Projectile(
             owner=source,
-            origin=source.center + random_offset_vector(),
+            offset_from_origin=random_offset_vector(),
             initial_velocity=(
                 ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction())
                 + VectorF(0, _SPREAD * random_offset()).rotate(

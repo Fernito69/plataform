@@ -143,7 +143,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     bfg_ball = Projectile(
         owner=source,
-        origin=source.center + random_offset_vector(),
+        offset_from_origin=random_offset_vector(),
         initial_velocity=(
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),

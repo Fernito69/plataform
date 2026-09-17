@@ -92,6 +92,7 @@ class CircularParticle(Particle, PhysicsEntity):
         particle_generator: ParticleGenerator | None = None,
         density: float = 1,
         final_radius: float | None = None,
+        offset_from_origin: VectorF = VectorF(0, 0),
         name="Particle",
     ):
         self.life_time = life_time
@@ -113,6 +114,8 @@ class CircularParticle(Particle, PhysicsEntity):
         origin = origin if isinstance(origin, PointF) else origin.position
         # TODO: why does this not seem to work?
         self.source = None if isinstance(origin, PointF) else origin
+
+        origin = origin + offset_from_origin
 
         self.center = origin
         self.position = origin

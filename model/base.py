@@ -37,7 +37,7 @@ class PointF:
         return PointF(x=self.x, y=self.y, z=self.z)
 
     def rotate(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
-        rotation_axis = rotation_axis or self
+        rotation_axis = rotation_axis or PointF(0, 0) if isinstance(self, VectorF) else self
         if angle_in_radians == 0:
             return self.as_vector()
         new_x = (

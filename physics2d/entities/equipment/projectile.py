@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF, VectorF
+from model.base import VectorF
 from model.theme import RGB
 from physics2d.shapes.model.shared import TransitionType
 from physics2d.shapes.particle import CircularParticle
@@ -29,7 +29,6 @@ class Projectile(CircularParticle):
     def __init__(
         self,
         owner: "PhysicsEntity",
-        origin: PointF,  # TODO: DEPRECATE
         size: float,
         damage: float,
         initial_color: RGB,
@@ -49,10 +48,10 @@ class Projectile(CircularParticle):
         target_acquire_threshold: float | None = None,
         homing_factor: float = 1,
         homing_kick_in_time: float = 0,
+        offset_from_origin: VectorF = VectorF(0, 0),
     ):
         super().__init__(
-            # origin=origin,
-            origin=origin or owner,
+            origin=owner,
             size=size,
             initial_color=initial_color,
             initial_velocity=initial_velocity,
@@ -64,6 +63,7 @@ class Projectile(CircularParticle):
             floating_multi=floating_multi,
             density=density,
             particle_generator=particle_generator,
+            offset_from_origin=offset_from_origin,
         )
         self.damage = damage
         self.owner = owner
@@ -78,6 +78,7 @@ class Projectile(CircularParticle):
         self.homing_factor = homing_factor
         self.homing_kick_in_time = homing_kick_in_time
         self.initial_velocity = initial_velocity
+        self.offset_from_origin = offset_from_origin
 
     def hit(self, engine: "Physics2D") -> None:
         self._explosion_generator(engine.scenario, self)
