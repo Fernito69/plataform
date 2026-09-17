@@ -22,6 +22,16 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     def _random_color():
         return RGB(127 + 127 * random(), 127 + 127 * random(), 127 + 127 * random(), 1)
 
+    def _tiny_enemy(position, velocity=VectorF(0, 0)):
+        return Enemy(
+            size=6,
+            health=30,
+            name="TinyEnemy",
+            position=position,
+            theme=Theme(color=_random_color(), bg_color=_random_color()),
+            initial_velocity=velocity,
+        )
+
     def _smoll_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(
             size=10,
@@ -85,6 +95,12 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     for a in range(15):
         enemies.append(_smoll_enemy(PointF(484 - a * 15, 312 - a * 15)))
         enemies.append(_smoll_enemy(PointF(380 - a * 15, 280)))
+
+    _spacing = 10
+    _cube_side = 10
+    for y in range(_cube_side):
+        for x in range(_cube_side):
+            enemies.append(_tiny_enemy(PointF(200 + y * _spacing, 100 + x * _spacing)))
 
     line_1 = LinePiece(
         points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2

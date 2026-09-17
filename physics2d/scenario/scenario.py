@@ -127,7 +127,7 @@ class Scenario:
         """Get the current game tick"""
         return self._game_tick
 
-    # TODO: do we want this? code reads better, but will be more expensive 
+    # TODO: do we want this? code reads better, but will be more expensive
     def add_to_scenario(
         self,
         entity: "PhysicsEntity | list[PhysicsEntity] | Projectile | list[Projectile]",
@@ -249,6 +249,6 @@ class Scenario:
                 ],
                 key=lambda v: v[1],
             )
-            if distance < max_range
+            if distance < max_range / 2 # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims
