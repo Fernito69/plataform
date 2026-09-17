@@ -66,7 +66,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
             _make_line(((-_HAIR_OFFSET, 0), (-_HAIR_OFFSET - _HAIR_SIZE, 0))),
         ]
         # give a lil offset:
-        # self.center -= PointF(_DOT_SIZE / 2, _DOT_SIZE / 2)
+        self.center -= PointF(_DOT_SIZE, _DOT_SIZE)
 
     ##############
     """MOVEMENT"""

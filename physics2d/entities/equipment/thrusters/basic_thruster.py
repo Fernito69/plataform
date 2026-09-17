@@ -36,7 +36,7 @@ class BasicThruster(Thruster):
 def standard_thruster(scenario: "Scenario", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
-    _smoke_density = 10
+    _smoke_density = 3
     for i in range(_smoke_density):
         # little particles doing particle stuff
         smoke = CircularParticle(

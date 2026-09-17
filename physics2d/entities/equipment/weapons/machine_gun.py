@@ -95,12 +95,12 @@ def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
 
-    _bullets_per_frame = 3
+    _bullets_per_frame = 2
     bullets = []
     angle = get_vector_angle(velocity)
 
     for i in range(_bullets_per_frame):
-        factor = 8 * i / _bullets_per_frame
+        factor = 10 * i / _bullets_per_frame
 
         bullet = Projectile(
             owner=source,
@@ -225,8 +225,8 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
     )
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
-        origin=source.center + (_offset + 0.5) * direction + random_offset_vector(),
-        initial_velocity=source.velocity,
+        origin=source.center + (_offset + 1) * direction + random_offset_vector(),
+        initial_velocity=(1.2 * source.velocity).as_vector(),
         size=_base_size + 2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_fire_1_color,
@@ -234,8 +234,8 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         life_time=5,
     )
     fire_2 = CircularParticle(
-        origin=source.center + (_offset + 3) * direction + random_offset_vector(),
-        initial_velocity=source.velocity,
+        origin=source.center + (_offset + 6) * direction + random_offset_vector(),
+        initial_velocity=(1.4 * source.velocity).as_vector(),
         size=_base_size + 1.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -247,8 +247,8 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         life_time=5,
     )
     fire_3 = CircularParticle(
-        origin=source.center + (_offset + 5.5) * direction + 2 * random_offset_vector(),
-        initial_velocity=source.velocity,
+        origin=source.center + (_offset + 11) * direction + 2 * random_offset_vector(),
+        initial_velocity=(1.7 * source.velocity).as_vector(),
         size=_base_size,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -259,31 +259,45 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ending_color=RGB(120, 60, 20, intensity=1),
         life_time=5,
     )
+    fire_4 = CircularParticle(
+        origin=source.center + (_offset + 14) * direction + 2 * random_offset_vector(),
+        initial_velocity=(2 * source.velocity).as_vector(),
+        size=_base_size * 0.75,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=RGB(
+            255,
+            50,
+            10,
+        ).with_intensity(1),
+        ending_color=RGB(100, 40, 10, intensity=1),
+        life_time=4,
+        floating_multi=.5
+    )
     fire_white = CircularParticle(
         origin=source.center + (_offset) * direction + random_offset_vector(),
-        initial_velocity=source.velocity,
+        initial_velocity=(2.3 * source.velocity).as_vector(),
         size=_base_size + 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
         life_time=4,
     )
+    
     sparks: list[CircularParticle] = []
-    if scenario.now() % 3 == 0:
-        spark = CircularParticle(
-            origin=source.center + (_offset) * (direction + random_offset_vector()),
-            initial_velocity=(
-                source.velocity
-                + 5
-                * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
-            ).as_vector(),
-            size=0.5,
-            size_change_type=TransitionType.NONE,
-            initial_color=RGB(255, 255, 200, 1),  # almost white hot
-            ending_color=RGB(80, 10, 0, 1),  # dark orange
-            life_time=5,
-            gravity=0.1,
-        )
-        sparks.append(spark)
+    spark = CircularParticle(
+        origin=source.center + (_offset) * (direction + random_offset_vector()),
+        initial_velocity=(
+            source.velocity
+            + 5
+            * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
+        ).as_vector(),
+        size=0.5,
+        size_change_type=TransitionType.NONE,
+        initial_color=RGB(255, 255, 200, 1),  # almost white hot
+        ending_color=RGB(80, 10, 0, 1),  # dark orange
+        life_time=5,
+        gravity=0.1,
+    )
+    sparks.append(spark)
 
-    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
