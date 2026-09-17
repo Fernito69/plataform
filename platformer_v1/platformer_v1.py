@@ -1,6 +1,8 @@
+import math
 from typing import TYPE_CHECKING
 
 from display import Display
+from model.base import PointF
 from model.shared import Engine
 from model.theme import EMPTY_SPACE
 from platformer_v1.entities.base import Entity2D
@@ -46,9 +48,15 @@ class PlatformerV1(Engine):
 
         self._print_game()
 
+    def _put_char_in_pixel(self, char: str, position: PointF):
+        x = math.floor(position.x)
+        y = math.floor(position.y)
+        if 0 <= y < self.display.curr_y_resolution and 0 <= x < self.display.curr_x_resolution:
+            self.display.screen_grid[y][x] = char
+
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
-        self.display.put_char_in_pixel(entity.get_char(), entity.position)
+        self._put_char_in_pixel(entity.get_char(), entity.position)
 
     def _print_game(self) -> None:
         self.display.print_curr_screen(self.player2d)
@@ -58,8 +66,8 @@ class PlatformerV1(Engine):
         d = self.display
         d.put_screen_content([])
         for y in range(d.curr_y_resolution):
-            d._screen_grid.append([])
+            d.screen_grid.append([])
             for x in range(d.curr_x_resolution):
-                d._screen_grid[y].append(
+                d.screen_grid[y].append(
                     self.levels_2d[self._current_level_index].map[y][x] or EMPTY_SPACE
                 )

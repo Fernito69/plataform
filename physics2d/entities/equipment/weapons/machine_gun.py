@@ -40,23 +40,27 @@ class MachineGun(Weapon):
 
 
 class HeavyMachineGun(Weapon):
-    def __init__(
-        self,
-        scenario: "Scenario",
-    ):
+    _ammo_per_gametick: int
+
+    def __init__(self, scenario: "Scenario", ammo_per_gametick: int = 2):
+        self._ammo_per_gametick = ammo_per_gametick
+
+        def _bullets(scenario: "Scenario", source: "PhysicsEntity"):
+            return gatling_bullets(scenario, source, ammo_per_gametick)
+
         super().__init__(
             name="HeavyMachineGun",
             scenario=scenario,
             max_ammo=4000,
             refractory_period=0,
             fire_particle_generator=heavy_machine_gun_nozzle,
-            projectile_generator=gatling_bullets,
+            projectile_generator=_bullets,
             ammo=4000,
             color=RGB(90, 90, 90, 1),
         )
 
     def _spend_ammo(self) -> None:
-        self._ammo -= 1
+        self._ammo -= self._ammo_per_gametick
 
     def secondary_fire(self) -> None:
         ...
@@ -89,18 +93,17 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     scenario.projectiles.append(bullet)
 
 
-def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity", bullets_per_frame: int) -> None:
     _DAMAGE = 5
     _BULLET_SPEED = 9
 
     velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
-
-    _bullets_per_frame = 2
-    bullets = []
     angle = get_vector_angle(velocity)
 
-    for i in range(_bullets_per_frame):
-        factor = 10 * i / _bullets_per_frame
+    bullets = []
+
+    for i in range(bullets_per_frame):
+        factor = 10 * i / bullets_per_frame
 
         bullet = Projectile(
             owner=source,
@@ -271,7 +274,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ).with_intensity(1),
         ending_color=RGB(100, 40, 10, intensity=1),
         life_time=4,
-        floating_multi=.5
+        floating_multi=0.5,
     )
     fire_white = CircularParticle(
         origin=source.center + (_offset) * direction + random_offset_vector(),
@@ -282,14 +285,13 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ending_color=RGB(200, 150, 200, 1),
         life_time=4,
     )
-    
+
     sparks: list[CircularParticle] = []
     spark = CircularParticle(
         origin=source.center + (_offset) * (direction + random_offset_vector()),
         initial_velocity=(
             source.velocity
-            + 5
-            * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,
