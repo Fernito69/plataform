@@ -161,6 +161,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
             _COLOR,
             _COLOR.with_intensity(0.2),
             _TENDRILS_DAMAGE,
+            life_time=2,
             damage_range=60,
             render_on_top=False,
             num_tendrils=_MAX_NUM_TENDRILS,
@@ -219,22 +220,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=8,
     )
 
-    # sparks: list[CircularParticle] = []
-
-    # spark = CircularParticle(
-    #     origin=source.center + 6 * (direction + random_offset_vector()),
-    #     initial_velocity=(
-    #         source.velocity
-    #         + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
-    #     ).as_vector(),
-    #     size=0.5,
-    #     size_change_type=TransitionType.NONE,
-    #     initial_color=RGB(255, 255, 200, 1),  # almost white hot
-    #     ending_color=RGB(80, 10, 0, 1),  # dark orange
-    #     life_time=5,
-    #     floating_multi=0.4,
-    # )
-    # sparks.append(spark)
+    # TODO: add sonic thruster like effects
 
     scenario.fg_shapes.extend([fire_white, bfg_1, bfg_2, bfg_3])
 
