@@ -111,7 +111,8 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         for x in range(_cube_side):
             enemies.append(
                 _tiny_enemy(
-                    PointF(200 + y * _spacing, 100 + x * _spacing),
+                    PointF(200 + y * _spacing, 100 + x * _spacing)
+                    + VectorF.random_offset_vector(3, 3),
                     theme=Theme(
                         color=RGB(
                             255 - (255 / _cube_side) * x,
