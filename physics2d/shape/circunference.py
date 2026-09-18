@@ -183,50 +183,63 @@ class Circunference(Shape):
 
         eq = self.get_circunference_equations()
 
-        for x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
+        # TODO: we should mirror all these calculations!
+        for curr_x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
+            # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
             # TODO: these calculations seem to be the ones slowing down big balls' rendering
-            y1, y2 = eq.get_ys(x)
+            y1, y2 = eq.get_ys(curr_x)
 
             # TODO: here we need to do something to make the upper border render
             if y1 is None or y2 is None:
                 continue
 
-            for y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
-                x1, x2 = eq.get_xs(y)
+            # This is in order to optimize the rendering, since calculating circunference equations is expensive
+            _go_full_color_until_next_x: bool = False
+            _next_x: float | None = None
+            _distance: float = -1
 
-                if (
-                    x1 is None or x2 is None
-                    # or (
-                    #     (eye_x is not None and round(eye_x) == round(x))
-                    #     and (eye_y is not None and round(eye_y) == round(y))
-                    # )
-                ):
+            x1: float | None = curr_x
+            x2: float | None = self.radius + self.center.x - curr_x
+
+            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
+                if not _go_full_color_until_next_x:
+                    x1, x2 = eq.get_xs(curr_y)
+
+                    if x1 is None or x2 is None:
+                        continue
+
+                    _distance = min(
+                        max(
+                            0,
+                            curr_y - y2,
+                            y1 - curr_y,
+                        ),
+                        max(
+                            0,
+                            curr_x - x2,
+                            x1 - curr_x,
+                        ),
+                    )
+                    _next_x = x2
+
+                if _distance > 1:
                     continue
 
-                # TODO: good proxy with good performance, but maybe can be done better
-                distance = min(
-                    max(
-                        0,
-                        y - y2,
-                        y1 - y,
-                    ),
-                    max(
-                        0,
-                        x - x2,
-                        x1 - x,
-                    ),
-                )
-                if distance > 1:
-                    continue
+                if _distance <= 0 and not _go_full_color_until_next_x:
+                    _go_full_color_until_next_x = True
 
                 piece_info.append(
                     RenderInfo(
-                        distance_to_pixel_center=distance,
+                        distance_to_pixel_center=_distance,
                         color=self.theme.color or RGB(255, 255, 255),
-                        point=PointF(x, y),
+                        point=PointF(curr_x, curr_y),
                     )
                 )
 
+                if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
+                    _go_full_color_until_next_x = False
+
+        # Add player details and ornaments (TODO: move to player rendering)
         if isinstance(self, PlayerBlob):
             weapon_badge = Circunference(
                 center=self.center + self.radius * self.get_fire_direction(),

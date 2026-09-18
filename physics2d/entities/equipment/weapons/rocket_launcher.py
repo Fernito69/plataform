@@ -59,6 +59,7 @@ class HeavyRocketLauncher(RocketLauncher):
             color=RGB(160, 10, 4, 1),
             recoil=2,
             projectile_generator=heavy_rocket,
+            name="HeavyRocketLauncher",
         )
 
     def _spend_ammo(self) -> None:
