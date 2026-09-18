@@ -122,11 +122,13 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _BLAST_RADIUS = 75
     _MAX_BLAST_DAMAGE = 200
     _TENDRILS_DAMAGE = 4
+    _MAX_NUM_TENDRILS = 4
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
     _COLOR_3 = RGB(200, 255, 60, 1)
     _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
+    _ENDING_COLOR = RGB(127, 255, 30, 1)
 
     _explosion = get_rocket_explosion(
         damage=_DAMAGE,
@@ -149,9 +151,9 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ).as_vector(),
         size=3.5,
         size_change_type=TransitionType.NONE,
-        ending_color_fade_type=TransitionType.NONE,
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         initial_color=_COLOR,
-        # ending_color=RGB(30, 30, 30, 1),
+        ending_color=_ENDING_COLOR,
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
         explosion_generator=_explosion,
@@ -159,7 +161,9 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
             _COLOR,
             _COLOR.with_intensity(0.2),
             _TENDRILS_DAMAGE,
-            damage_range=40,
+            damage_range=60,
+            render_on_top=False,
+            num_tendrils=_MAX_NUM_TENDRILS,
         ),
         density=3,
         explode_on_life_time_over=True,
