@@ -19,6 +19,7 @@ from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, MachineGun
 from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
+from physics2d.entities.equipment.weapons.zapper import Zapper
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from system import consume_mouse_scroll, on_key_press, on_mouse_press
@@ -83,9 +84,8 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         self._keep_player_in_screen()
 
     def _move_by(self, vector: VectorF) -> None:
-        # TODO: test with +=
-        self.center = self.center + vector
-        self.position = self.position + vector
+        self.center += vector
+        self.position += vector
 
     def _apply_gravity(self, gravity_accel: float) -> None:
         # we float freely for now
@@ -131,6 +131,24 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     def get_curr_weapon(self) -> Weapon:
         return self._weapons[self._curr_weapon_index]
 
+    def get_fire_direction(self) -> VectorF:
+        _screen_pos = self.engine.screen_corner
+
+        return (
+            (
+                self.engine.scenario.crosshair.position
+                - VectorF(
+                    self.position.x - _screen_pos.x,
+                    self.position.y - _screen_pos.y,
+                )
+            )
+            .as_vector()
+            .unit_vector()
+        )
+
+    def get_weapon_position(self) -> PointF:
+        return self.center + self.radius * self.get_fire_direction()
+
     def _get_max_speed(self) -> float:
         return self.get_curr_thruster().max_speed
 
@@ -160,6 +178,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
             RocketLauncher(self._scenario),
             HomingMissileLauncher(self._scenario),
             HeavyRocketLauncher(self._scenario),
+            Zapper(self._scenario),
             DeathRay(self._scenario),
             BFG(self._scenario),
         ]
@@ -169,21 +188,6 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
         self.init_player()
-
-    def get_fire_direction(self) -> VectorF:
-        _screen_pos = self.engine.screen_corner
-
-        return (
-            (
-                self.engine.scenario.crosshair.position
-                - VectorF(
-                    self.position.x - _screen_pos.x,
-                    self.position.y - _screen_pos.y,
-                )
-            )
-            .as_vector()
-            .unit_vector()
-        )
 
     def _cycle_weapon(self, direction: int) -> None:
         self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
