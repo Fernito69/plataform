@@ -646,85 +646,92 @@ def homing_missile_trail(
 ) -> None:
     pieces: list[CircularParticle] = []
 
-    vel_magnitude = abs(source.velocity)
+    if target:
+        vel_magnitude = abs(source.velocity)
 
-    for _i in range(1, 3):
-        i = _i / 2
-        distance_factor = (source.radius - i) * 1
-        eye_x = source.center.x - source.velocity.x * distance_factor
-        eye_y = source.center.y - source.velocity.y * distance_factor
+        for _i in range(1, 3):
+            i = _i / 2
+            distance_factor = (source.radius - i) * 1
+            eye_x = source.center.x - source.velocity.x * distance_factor
+            eye_y = source.center.y - source.velocity.y * distance_factor
 
-        is_odd = _i % 2 == 1
-        _randomness_multi = random() * 2
-        _radius_factor = random() * 1.2
+            is_odd = _i % 2 == 1
+            _randomness_multi = random() * 2
+            _radius_factor = random() * 1.2
 
-        # METEOR KINDA TRAIL
-        _meteor_color = (
-            RGB(
-                255,
-                190 - (i * 10),
-                50,
-            ).with_intensity(1)
-            if is_odd
-            else RGB(
-                255,
-                255 - (i - 1) * 12,
-                (i - 1) * 1,
-            ).with_intensity(1)
-        )
+            # METEOR KINDA TRAIL
+            _meteor_color = (
+                RGB(
+                    255,
+                    190 - (i * 10),
+                    50,
+                ).with_intensity(1)
+                if is_odd
+                else RGB(
+                    255,
+                    255 - (i - 1) * 12,
+                    (i - 1) * 1,
+                ).with_intensity(1)
+            )
 
-        _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
+            _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
-        def _smoke(engine, source) -> None:
-            return smoke_generator(engine, source, 5)
+            def _smoke(engine, source) -> None:
+                return smoke_generator(engine, source, 5)
 
-        thrust_fire = CircularParticle(
-            origin=PointF(
-                x=eye_x
-                + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                + random_offset() * 0.5,
-                y=eye_y
-                + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
-                + random_offset() * 0.5,
-            ),
-            initial_velocity=VectorF(
-                x=source.velocity.x * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
-                + random_offset() * 0.5,
-                y=source.velocity.y * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
-                + random_offset() * 0.5,
-            ),
-            size=i * _radius_factor * (1 + vel_magnitude / 5),
-            size_change_type=TransitionType.LINEAR_DECREASE,
-            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            initial_color=_meteor_color,
-            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
-            life_time=15,
-            gravity=-0.07,
-            floating_multi=0.1,
-            particle_generator=_smoke,
-        )
-        pieces.append(thrust_fire)
+            thrust_fire = CircularParticle(
+                origin=PointF(
+                    x=eye_x
+                    + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                    + random_offset() * 0.5,
+                    y=eye_y
+                    + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
+                    + random_offset() * 0.5,
+                ),
+                initial_velocity=VectorF(
+                    x=source.velocity.x
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi
+                    * 0.1
+                    + random_offset() * 0.5,
+                    y=source.velocity.y
+                    * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR
+                    * _randomness_multi
+                    * 0.1
+                    + random_offset() * 0.5,
+                ),
+                size=i * _radius_factor * (1 + vel_magnitude / 5),
+                size_change_type=TransitionType.LINEAR_DECREASE,
+                ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+                initial_color=_meteor_color,
+                ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+                life_time=15,
+                gravity=-0.07,
+                floating_multi=0.1,
+                particle_generator=_smoke,
+            )
+            pieces.append(thrust_fire)
 
-    if scenario.now() % 7 == 0:
-        sparks = CircularParticle(
-            origin=PointF(
-                x=eye_x + random_offset() * source.radius * 2,
-                y=eye_y + random_offset() * source.radius * 2,
-            ),
-            initial_velocity=VectorF(0, 0)
-            if vel_magnitude == 0
-            else (
-                VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
-            ).as_vector(),
-            size=0.3,
-            initial_color=RGB(255, 255, 200, 1),  # almost white hot
-            ending_color=RGB(40, 5, 0, 1),  # dark orange
-            life_time=70,
-            gravity=0.1,
-        )
-        pieces.append(sparks)
+        if scenario.now() % 7 == 0:
+            sparks = CircularParticle(
+                origin=PointF(
+                    x=eye_x + random_offset() * source.radius * 2,
+                    y=eye_y + random_offset() * source.radius * 2,
+                ),
+                initial_velocity=VectorF(0, 0)
+                if vel_magnitude == 0
+                else (
+                    VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
+                ).as_vector(),
+                size=0.3,
+                initial_color=RGB(255, 255, 200, 1),  # almost white hot
+                ending_color=RGB(40, 5, 0, 1),  # dark orange
+                life_time=70,
+                gravity=0.1,
+            )
+            pieces.append(sparks)
 
-    pieces = sorted(pieces, key=random_offset)
+        pieces = sorted(pieces, key=random_offset)
 
     # If target exists, we show a red light!
     frequency = 7 if target else 12
@@ -733,7 +740,7 @@ def homing_missile_trail(
         _initial_color = RGB(255, 120, 120, 1) if target else RGB(255, 255, 255, 1)
         _ending_color = RGB(255, 0, 0, 1) if target else RGB(80, 80, 80, 1)
         _lift_time = 3 if target else 6
-        _final_radius = 10 if target else 8
+        _final_radius = 10 if target else 15
 
         light = CircularParticle(
             origin=source,

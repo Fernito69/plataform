@@ -43,10 +43,10 @@ class HomingMissileLauncher(Weapon):
 
 def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _DAMAGE = 70
-    _ROCKET_SPEED = 3.5
-    _TRIGGER_DISTANCE = 50
+    _ROCKET_SPEED = 3
+    _TRIGGER_DISTANCE = 80
     _HOMING_FACTOR = 1.2
-    _HOMING_KICK_IN_TIME = 10
+    _HOMING_KICK_IN_TIME =10
     _LIFE_TIME = 200
     _BLAST_RADIUS = 15
     _MAX_BLAST_DAMAGE = 60
