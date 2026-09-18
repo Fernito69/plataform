@@ -413,7 +413,7 @@ class Display(KeyboardHandler):
     ##############
     # PLAYER INPUT
     ##############
-    def handle_keyboard_input(self) -> None:
+    def _handle_keyboard_input(self) -> None:
         if self._game.mode == GameMode.PLATFORMER_V1:
             return
 

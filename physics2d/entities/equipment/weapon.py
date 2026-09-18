@@ -12,6 +12,8 @@ class Weapon:
     name: str
     color: RGB
 
+    _original_color: RGB
+
     _scenario: "Scenario"
     _fire_particle_generator: ParticleGenerator
     _projectile_generator: ParticleGenerator
@@ -40,6 +42,7 @@ class Weapon:
         self._scenario = scenario
         self.name = name
         self.color = color
+        self._original_color = color
         self._fire_particle_generator = fire_particle_generator
         self._projectile_generator = projectile_generator
         self._max_ammo = max_ammo
@@ -68,8 +71,21 @@ class Weapon:
         return self._refractory_limit <= self._scenario.now() and self._ammo > 0
 
     def do_your_thing(self) -> None:
-        """No-op for most weapons"""
-        ...
+        self._handle_color()
+
+    def get_life_time_ellapsed_ratio(self) -> float:
+        return (self._refractory_limit - self._scenario.now()) / self._refractory_period
+
+    def _handle_color(self) -> None:
+        if not self.can_shoot():
+            # charging up
+            _factor = self.get_life_time_ellapsed_ratio()
+            _target_color = self._original_color.with_intensity(0.7)
+            self.color = self._original_color.with_intensity(0.2).with_intensity(
+                _factor
+            ) + _target_color.with_intensity(1 - _factor)
+        else:
+            self.color = self._original_color.with_intensity(1)
 
     @abstractmethod
     def secondary_fire(self) -> None:

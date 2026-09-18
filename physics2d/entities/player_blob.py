@@ -76,8 +76,8 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         self.get_curr_thruster().handle_particles()
         self.get_curr_weapon().do_your_thing()
 
-        self.handle_mouse_input()
-        self.handle_keyboard_input()
+        self._handle_mouse_input()
+        self._handle_keyboard_input()
         self._apply_gravity(self.engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
@@ -220,7 +220,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     """  INPUT  """
     ###############
 
-    def handle_keyboard_input(self):
+    def _handle_keyboard_input(self):
         self._switch_thruster()
         self._move_up()
         self._move_left()
@@ -233,7 +233,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         # cheats
         self._kill_all_monsters()
 
-    def handle_mouse_input(self) -> None:
+    def _handle_mouse_input(self) -> None:
         self._shoot()
         self._add_indicator_on_target_point()
 

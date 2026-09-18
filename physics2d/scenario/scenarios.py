@@ -27,13 +27,17 @@ def default_scenario(engine: "Physics2D") -> Scenario:
 
         return RGB(_val(), _val(), _val())
 
-    def _tiny_enemy(position, velocity=VectorF(0, 0)):
+    def _tiny_enemy(
+        position,
+        velocity=VectorF(0, 0),
+        theme: Theme = Theme(color=_random_color(), bg_color=_random_color()),
+    ):
         return Enemy(
             size=6,
             health=30,
             name="TinyEnemy",
             position=position,
-            theme=Theme(color=_random_color(), bg_color=_random_color()),
+            theme=theme,
             initial_velocity=velocity,
         )
 
@@ -105,7 +109,18 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     _cube_side = 10
     for y in range(_cube_side):
         for x in range(_cube_side):
-            enemies.append(_tiny_enemy(PointF(200 + y * _spacing, 100 + x * _spacing)))
+            enemies.append(
+                _tiny_enemy(
+                    PointF(200 + y * _spacing, 100 + x * _spacing),
+                    theme=Theme(
+                        color=RGB(
+                            255 - (255 / _cube_side) * x,
+                            (255 / _cube_side) * y,
+                            255 - (255 / _cube_side) * x,
+                        )
+                    ),
+                )
+            )
 
     line_1 = Line(points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2)
     line_1_1 = Line(

@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
 
 
-# for now a fixed camera
 class Player3D(KeyboardHandler, LivingEntity3D):
     status: PlayerStatus
     lives: int
@@ -35,6 +34,9 @@ class Player3D(KeyboardHandler, LivingEntity3D):
 
     def _normalize_by_angle(self) -> None:
         return
+
+    def do_your_thing(self) -> None:
+        self._handle_keyboard_input()
 
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:
@@ -97,7 +99,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
     def _fly_down(self) -> None:
         self.move_by(VectorF(0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR))
 
-    def handle_keyboard_input(self):
+    def _handle_keyboard_input(self):
         self._move_forward()
         self._move_backward()
         self._strafe_left()

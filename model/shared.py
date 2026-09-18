@@ -19,7 +19,7 @@ class KeyboardHandler:
         # return self._pressed_key_map.get(key) or False
 
     @abstractmethod
-    def handle_keyboard_input(cls) -> None:
+    def _handle_keyboard_input(cls) -> None:
         pass
 
 
@@ -36,7 +36,7 @@ class MouseHandler:
         # return self._pressed_key_map.get(key) or False
 
     @abstractmethod
-    def handle_mouse_input(cls) -> None:
+    def _handle_mouse_input(cls) -> None:
         pass
 
 

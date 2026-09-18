@@ -8,7 +8,7 @@ from model.theme import RGB, Theme
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.base import PhysicsEntity
 from physics2d.shape.line import Line
-from system import consume_mouse_movement, on_mouse_press
+from system import consume_mouse_movement
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -73,7 +73,8 @@ class Crosshair(PhysicsEntity, MouseHandler):
     ##############
 
     def do_your_thing(self) -> None:
-        self.handle_mouse_input()
+        self._handle_mouse_input()
+        self._handle_color()
 
         dx, dy = consume_mouse_movement()
 
@@ -85,17 +86,26 @@ class Crosshair(PhysicsEntity, MouseHandler):
                 )
             )
 
-    def handle_mouse_input(self) -> None:
-        self._press_trigger()
-        self._release_trigger()
+    def _handle_color(self) -> None:
+        curr_weapon = self.engine.scenario.player.get_curr_weapon()
+        _is_pressing_trigger = self._is_mouse_pressed(mouse.Button.left)
 
-    @on_mouse_press()
-    def _press_trigger(self) -> None:
-        self.theme = _CROSSHAIR_SHOOTING_THEME
+        _og_color = (
+            _CROSSHAIR_SHOOTING_THEME.color if _is_pressing_trigger else _CROSSHAIR_THEME.color
+        ) or RGB()
 
-    def _release_trigger(self) -> None:
-        if not self._is_mouse_pressed(mouse.Button.left) and self.theme is not _CROSSHAIR_THEME:
-            self.theme = _CROSSHAIR_THEME
+        _initial_intensity = 0.1 if _is_pressing_trigger else 0.2
+        _target_intensity = 0.9 if _is_pressing_trigger else 0.6
+
+        if not curr_weapon.can_shoot():
+            _factor = curr_weapon.get_life_time_ellapsed_ratio()
+            _target_color = _og_color.with_intensity(_target_intensity)
+            _final_color = _og_color.with_intensity(_initial_intensity).with_intensity(
+                _factor
+            ) + _target_color.with_intensity(1 - _factor)
+            self.theme = Theme(_final_color)
+        elif not self._is_mouse_pressed(mouse.Button.left):
+            self.theme = Theme(_og_color)
 
     def _move_by(self, vector: VectorF) -> None:
         new_center = self.center + vector

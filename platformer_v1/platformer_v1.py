@@ -35,7 +35,7 @@ class PlatformerV1(Engine):
         self._player2d.set_curr_level(self._levels_2d[self._current_level_index])
 
     def main_loop(self) -> None:
-        self._player2d.handle_keyboard_input()
+        self._player2d._handle_keyboard_input()
         self.populate_level_into_screen_grid()
 
         self._compute_actions_and_add_to_screen(self._player2d)

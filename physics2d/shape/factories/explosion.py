@@ -466,7 +466,7 @@ def _rocket_explosion(
     scenario.fg_shapes[0:0] = secondary_explosions
 
     if throw_sparks:
-        for _ in range(round(_SIZE * 3)):
+        for _ in range(round(_SIZE)):
             # TODO: make these sparks and other useful things into their own class
             # TODO: see why custom_sparks can't be passed into get_explosion()
             sparks = (

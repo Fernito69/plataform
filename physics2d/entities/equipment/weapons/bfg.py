@@ -45,7 +45,7 @@ class BFG(Weapon):
     _firing_countdown: int = _BFG_BASE_COUNTDOWN
     _trigger_pressed: bool = False
 
-    def do_your_thing(self) -> None:
+    def _handle_color(self) -> None:
         if self._trigger_pressed:
             self._firing_countdown -= 1
 
@@ -57,8 +57,8 @@ class BFG(Weapon):
             self._firing_countdown = _BFG_BASE_COUNTDOWN
         elif not self.can_shoot():
             # charging up
+            _factor = self.get_life_time_ellapsed_ratio()
             _target = _BFG_READY_LIGHT.with_intensity(0.5)
-            _factor = (self._refractory_limit - self._scenario.now()) / self._refractory_period
             self.color = _BFG_DEPLETED_LIGHT.with_intensity(_factor) + _target.with_intensity(
                 1 - _factor
             )

@@ -78,8 +78,8 @@ class Game(Engine, KeyboardHandler):
             self._check_game_status()
             self._handle_welcome_message()
 
-            self.handle_keyboard_input()
-            self.display.handle_keyboard_input()
+            self._handle_keyboard_input()
+            self.display._handle_keyboard_input()
 
             match self.mode:
                 case GameMode.PHYSICS_2D:
@@ -139,7 +139,7 @@ class Game(Engine, KeyboardHandler):
     # PLAYER INPUT
     ##############
 
-    def handle_keyboard_input(self) -> None:
+    def _handle_keyboard_input(self) -> None:
         self._press_quit()
         self._switch_3d_rendering_mode()
         self._switch_2d_mode()
