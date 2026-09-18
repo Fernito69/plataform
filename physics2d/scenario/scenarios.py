@@ -116,8 +116,8 @@ def default_scenario(engine: "Physics2D") -> Scenario:
                     theme=Theme(
                         color=RGB(
                             255 - (255 / _cube_side) * x,
-                            (255 / _cube_side) * y,
-                            255 - (255 / _cube_side) * x,
+                            (255 / _cube_side) * abs(x - y),
+                            255 - (255 / _cube_side) * abs(y - x),
                         )
                     ),
                 )
