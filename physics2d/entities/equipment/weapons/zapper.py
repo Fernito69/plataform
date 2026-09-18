@@ -63,7 +63,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     _DAMAGE = 500
     _ROCKET_SPEED = 2
-    _LIFE_TIME = 9
+    _LIFE_TIME = 7
     _BLAST_RADIUS = 75
     _MAX_BLAST_DAMAGE = 200
     _TENDRILS_DAMAGE = 4
@@ -77,7 +77,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _SEGMENT_LENGTH = 4
     _NUM_SECONDARY_RAYS = 2
 
-    _START_COLOR = RGB(255, 220, 200, 1)
+    _START_COLOR = RGB(180, 180, 255, 1)
     _END_COLOR = RGB(0, 0, 100, 1)
 
     # TODO: this doesn't work?
@@ -91,7 +91,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
     if target:
         target.receive_damage(_DAMAGE)
-
+    _life_time = round(_LIFE_TIME * (1.5 if target else 1))
     main_l = Lightning(
         source=source,
         start_point=start_point,
@@ -100,7 +100,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color=_END_COLOR,
         normal_noise=2,
         parallel_noise=3,
-        life_time=_LIFE_TIME,
+        life_time=_life_time,
         num_segments=num_segments,
         thickness=1.5,
         final_thickness=0.5,
@@ -109,18 +109,21 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
     scenario.fg_shapes.append(main_l)
 
-    for _ in range(_NUM_SECONDARY_RAYS):
+    for index in range(_NUM_SECONDARY_RAYS):
+        # TODO: horrible, do it well
+        _color = RGB(255, 100, 100, 1) if index == 0 else RGB(100, 255, 100, 1)
+        _ending_color = _color.with_intensity(0.3)
         sec_l = Lightning(
             source=source,
             start_point=start_point,
             end_point=end_point,
-            initial_color=_START_COLOR,
-            ending_color=_END_COLOR,
+            initial_color=_color,
+            ending_color=_ending_color,
             normal_noise=8,
             parallel_noise=8,
-            life_time=_LIFE_TIME,
+            life_time=_life_time,
             num_segments=num_segments,
-            thickness=0.8,
+            thickness=0.7,
             final_thickness=0.01,
             render_behind_player=True,
             target=target,
