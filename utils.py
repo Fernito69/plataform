@@ -10,20 +10,16 @@ from model.base import DistVector3D, PointF, ScreenPos, Slope, VectorF
 from model.theme import RGB
 from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC, PIXEL_ASPECT_RATIO
 
-_RESET = "\033[0m"
-_FG_CODE = "\033[38;2;"
-_BG_CODE = "\033[48;2;"
+# TODO: separate functions here in a file per domain
 
-# TODO: separate functions here by domain
+######################
+"""  RANDOM """
+######################
 
 
-# TODO: make these built-in into vector
+# TODO: now that this is built-in in VectorF, deprecate it
 def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
     return VectorF(scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset())
-
-
-def random_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
-    return VectorF(scale_x * random(), scale_y * random(), scale_z * random())
 
 
 def random_offset(_: Any | None = None) -> float:
@@ -31,6 +27,15 @@ def random_offset(_: Any | None = None) -> float:
     returns a random number between -.5 and .5, good for shuffling lists
     """
     return 0.5 - random()
+
+
+######################
+"""  COLOR  """
+######################
+
+_RESET = "\033[0m"
+_FG_CODE = "\033[38;2;"
+_BG_CODE = "\033[48;2;"
 
 
 def _encode_rgb(color: RGB) -> str:
@@ -93,41 +98,9 @@ def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
     )
 
 
-# def add_tuple(
-#     orig: tuple[float | int, float | int], add: tuple[float | int, float | int]
-# ) -> tuple[float | int, float | int]:
-#     return (orig[0] + add[0], orig[1] + add[1])
-
-
-# # TODO: these are dumb, there must be a way to generalize
-# def scale_tuple(
-#     orig: tuple[float | int, float | int], multi: float
-# ) -> tuple[float | int, float | int]:
-#     return (orig[0] * multi, orig[1] * multi)
-
-
-# def scale_triplet(
-#     orig: tuple[float | int, float | int, float | int], multi: float
-# ) -> tuple[float | int, float | int, float | int]:
-#     return (orig[0] * multi, orig[1] * multi, orig[2] * multi)
-
-
-def add_triplet(
-    orig: tuple[float | int, float | int, float | int],
-    add: tuple[float | int, float | int, float | int],
-) -> tuple[float | int, float | int, float | int]:
-    return (orig[0] + add[0], orig[1] + add[1], orig[2] + add[2])
-
-
-# def subtract_triplet(
-#     victim: tuple[float | int, float | int, float | int],
-#     subtracter: tuple[float | int, float | int, float | int],
-# ) -> tuple[float | int, float | int, float | int]:
-#     return (
-#         victim[0] - subtracter[0],
-#         victim[1] - subtracter[1],
-#         victim[2] - subtracter[2],
-#     )
+##################################
+"""  POINT/VECTOR ARITMETIC  """
+##################################
 
 
 # Instead of diameter, pass an Entity3D and call an internal get diameter function
@@ -137,10 +110,6 @@ def distance_between_points(
     p2: PointF,
     diameter_p2: float | None = 0.0,
 ) -> DistVector3D:
-    # if len(p1) != len(p2):
-    #     print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
-    #     raise IndexError("They should have the same length")
-
     vector = (p1 - p2).as_vector()
     distance = abs(vector)
     # TODO: this kinda works but not quite. We have to calculate the distance to the current vertex. this factor should become 1
@@ -153,10 +122,6 @@ def distance_between_points(
         vector=vector,
         distance_to_edge=distance_to_border,
     )
-
-
-# def vector_length(v: Vector3F | Vector2F) -> float:
-#     return (v[0] ** 2 + v[1] ** 2 + (v[2] ** 2 if len(v) == 3 else 0)) ** 0.5
 
 
 # TODO: deprecate in favor of PointF.rotate()
@@ -285,6 +250,43 @@ def get_angle_from_slope(slope: Slope) -> float:
     )
 
 
+def get_line_angle(point1: PointF, point2: PointF) -> float:
+    return get_angle_from_slope(get_slope(point1, point2))
+
+
+# TODO: make it built in into VectorF
+def get_vector_angle(vector: VectorF) -> float:
+    return get_angle_from_slope(get_slope(vector, 2 * vector))
+
+
+@dataclass
+class GetLineEquationResponse:
+    get_y: Callable[[float], float]
+    get_x: Callable[[float], float]
+    m: Slope
+
+
+def get_line_equations(point1: PointF, point2: PointF) -> GetLineEquationResponse:
+    m = get_slope(point1, point2)
+
+    def get_y(x: float) -> float:
+        if m == "+Inf" or m == "-Inf":
+            return point1.y
+        return m * (x - point1.x) + point1.y
+
+    def get_x(y: float):
+        if m == "+Inf" or m == "-Inf" or m == 0:
+            return point1.x
+        return ((y - point1.y) / m) + point1.x
+
+    return GetLineEquationResponse(get_y, get_x, m)
+
+
+##################################
+"""  3D PROJECTION  """
+##################################
+
+
 def project_3d_into_2d(
     point3: PointF,
     curr_resolution: ScreenPos,
@@ -323,35 +325,3 @@ def normalize_vertex_according_to_another(
     )
     # Normalize by position
     return rotated_vertex - reference_vertex
-
-
-def get_line_angle(point1: PointF, point2: PointF) -> float:
-    return get_angle_from_slope(get_slope(point1, point2))
-
-
-# TODO: make it built in into VectorF
-def get_vector_angle(vector: VectorF) -> float:
-    return get_angle_from_slope(get_slope(vector, 2 * vector))
-
-
-@dataclass
-class GetLineEquationResponse:
-    get_y: Callable[[float], float]
-    get_x: Callable[[float], float]
-    m: Slope
-
-
-def get_line_equations(point1: PointF, point2: PointF) -> GetLineEquationResponse:
-    m = get_slope(point1, point2)
-
-    def get_y(x: float) -> float:
-        if m == "+Inf" or m == "-Inf":
-            return point1.y
-        return m * (x - point1.x) + point1.y
-
-    def get_x(y: float):
-        if m == "+Inf" or m == "-Inf" or m == 0:
-            return point1.x
-        return ((y - point1.y) / m) + point1.x
-
-    return GetLineEquationResponse(get_y, get_x, m)

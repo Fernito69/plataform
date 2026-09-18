@@ -105,14 +105,28 @@ class VectorF(PointF):
     @staticmethod
     def random_offset_vector(
         scale_x: float = 1,
-        scale_y: float = 1,
-        scale_z: float = 1,
+        scale_y: float | None = None,
+        scale_z: float | None = None,
     ) -> VectorF:
         def _random_offset():
             return 0.5 - random()
 
         return VectorF(
-            scale_x * _random_offset(), scale_y * _random_offset(), scale_z * _random_offset()
+            scale_x * _random_offset(),
+            (scale_y or scale_x) * _random_offset(),
+            (scale_z or scale_x) * _random_offset(),
+        )
+
+    @staticmethod
+    def random_vector(
+        scale_x: float = 1,
+        scale_y: float | None = None,
+        scale_z: float | None = None,
+    ) -> VectorF:
+        return VectorF(
+            scale_x * random(),
+            (scale_y or scale_x) * random(),
+            (scale_z or scale_x) * random(),
         )
 
 
