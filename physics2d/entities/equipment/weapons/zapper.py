@@ -62,18 +62,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
     from physics2d.entities.player_blob import PlayerBlob
 
     _DAMAGE = 500
-    _ROCKET_SPEED = 2
     _LIFE_TIME = 7
-    _BLAST_RADIUS = 75
-    _MAX_BLAST_DAMAGE = 200
-    _TENDRILS_DAMAGE = 4
-    _MAX_NUM_TENDRILS = 4
-
-    _COLOR = RGB(127, 255, 127, 1)
-    _COLOR_2 = RGB(180, 255, 90, 1)
-    _COLOR_3 = RGB(200, 255, 60, 1)
-    _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
-    _ENDING_COLOR = RGB(127, 255, 30, 1)
     _SEGMENT_LENGTH = 4
     _NUM_SECONDARY_RAYS = 2
 
