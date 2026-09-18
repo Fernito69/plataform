@@ -3,7 +3,6 @@ import random
 from collections.abc import Callable
 from dataclasses import dataclass
 from random import random
-from typing import Any
 
 from constants import PI
 from model.base import DistVector3D, PointF, ScreenPos, Slope, VectorF
@@ -19,14 +18,14 @@ from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC, PIXEL_ASPECT_RA
 
 # TODO: now that this is built-in in VectorF, deprecate it
 def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
-    return VectorF(scale_x * random_offset(), scale_y * random_offset(), scale_z * random_offset())
+    return VectorF(random_offset(scale_x), random_offset(scale_y), random_offset(scale_z))
 
 
-def random_offset(_: Any | None = None) -> float:
+def random_offset(scale: float = 1) -> float:
     """
-    returns a random number between -.5 and .5, good for shuffling lists
+    returns a random number between -.5 and .5, good for shuffling lists. Also receives an optional scale factor
     """
-    return 0.5 - random()
+    return scale * (0.5 - random())
 
 
 ######################
