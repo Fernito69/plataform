@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Optional
 from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.model.shared import RenderInfo
+from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
-from physics2d.shape.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.scenario.scenario import Scenario

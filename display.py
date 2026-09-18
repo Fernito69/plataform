@@ -394,7 +394,7 @@ class Display(KeyboardHandler):
             )
             s = player.engine.scenario
             num_particles = (
-                len(s.bg_pieces) + len(s.fg_pieces) + len(s.projectiles) + len(s.solid_pieces)
+                len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)
             )
             _factor = 1 - (num_particles / 1000)
             _particles_color = RGB(100, 255, 100).with_intensity(_factor) + RGB(

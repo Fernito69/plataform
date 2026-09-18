@@ -107,12 +107,12 @@ def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
                 gravity=0.1,
             )
             # pieces.append(icy_sparks)
-            scenario.bg_pieces.append(icy_sparks)
+            scenario.bg_shapes.append(icy_sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
     for index in range(len(pieces)):
         if index % 8 == 0:
-            scenario.fg_pieces.append(pieces[index])
+            scenario.fg_shapes.append(pieces[index])
         else:
-            scenario.bg_pieces.append(pieces[index])
+            scenario.bg_shapes.append(pieces[index])

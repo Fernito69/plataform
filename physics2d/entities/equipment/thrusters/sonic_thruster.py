@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 from model.base import VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.thruster import Thruster
+from physics2d.shape.base import Shape
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from physics2d.shape.shape import Shape
 from utils import random_offset
 
 if TYPE_CHECKING:
@@ -137,4 +137,4 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TOOD: y esto?
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
-    scenario.bg_pieces[0:0] = pieces
+    scenario.bg_shapes[0:0] = pieces

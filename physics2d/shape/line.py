@@ -6,7 +6,7 @@ from factories.theme import White
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
-from physics2d.shape.shape import Shape
+from physics2d.shape.base import Shape
 from utils import distance_from_line_to_point, rotate_point
 
 if TYPE_CHECKING:
@@ -23,8 +23,8 @@ class Line(Shape):
     def __init__(
         self,
         points: tuple[PointF, PointF],
-        thickness: float,
         theme: Theme,
+        thickness: float = 1,
         secondary_theme: Theme | None = None,
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -36,6 +36,7 @@ class Line(Shape):
         render_behind_player: bool = False,
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
+        name: str = "Line",
     ):
         self.points = points
         self.thickness = thickness
@@ -57,7 +58,7 @@ class Line(Shape):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             center_of_mass=self.center_of_mass,
-            name="Line",
+            name=name,
             volume=self.volume,
             density=density,
         )
@@ -145,7 +146,7 @@ class Line(Shape):
         )
 
     _counter: float
-    
+
     def _pulsate(self) -> None:
         if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
             return

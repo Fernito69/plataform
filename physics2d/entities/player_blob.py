@@ -94,7 +94,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     def _apply_movement(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
-        for piece in self.engine.scenario.solid_pieces + self.engine.scenario.enemies:
+        for piece in self.engine.scenario.solid_shapes + self.engine.scenario.enemies:
             self.would_collide_with(piece, self.engine)
 
         self._move_by(self.velocity)
@@ -266,7 +266,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         # self.engine.scenario.bg_pieces = [
         #     p for p in self.engine.scenario.bg_pieces if p.name != _CROSSHAIR_PARTICLE_NAME
         # ]
-        self.engine.scenario.bg_pieces[0:0] = [_light]
+        self.engine.scenario.bg_shapes[0:0] = [_light]
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:

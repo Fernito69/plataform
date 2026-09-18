@@ -102,7 +102,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         )
         secondary_explosions.append(sec_explosion)
 
-    scenario.fg_pieces[0:0] = secondary_explosions
+    scenario.fg_shapes[0:0] = secondary_explosions
 
     # smoke_trails: list[CircularParticle] = []
 
@@ -144,7 +144,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         )
         particles.append(sparks)
 
-    scenario.bg_pieces[0:0] = particles
+    scenario.bg_shapes[0:0] = particles
 
 
 #################################################################
@@ -176,9 +176,9 @@ def smoke_generator(
     smokes.append(main_smoke)
 
     if random_offset() > 0:
-        scenario.fg_pieces[0:0] = smokes
+        scenario.fg_shapes[0:0] = smokes
     else:
-        scenario.bg_pieces[0:0] = smokes
+        scenario.bg_shapes[0:0] = smokes
 
 
 #################################################################
@@ -209,7 +209,7 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=15,
         gravity=-0.02,
     )
-    scenario.fg_pieces.append(explosion)
+    scenario.fg_shapes.append(explosion)
 
     if scenario.now() % 5 < 1:
         return
@@ -228,7 +228,7 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=10,
         gravity=0.1,
     )
-    scenario.bg_pieces.append(ricochet)
+    scenario.bg_shapes.append(ricochet)
 
 
 ################################################################
@@ -306,9 +306,9 @@ def lightning_impact(
             life_time=8,
             gravity=0.05,
         )
-        scenario.fg_pieces.append(blue_spark)
+        scenario.fg_shapes.append(blue_spark)
 
-    scenario.fg_pieces[0:0] = pieces
+    scenario.fg_shapes[0:0] = pieces
 
 
 #####################################################
@@ -463,7 +463,7 @@ def _rocket_explosion(
         )
         secondary_explosions.append(sec_explosion)
 
-    scenario.fg_pieces[0:0] = secondary_explosions
+    scenario.fg_shapes[0:0] = secondary_explosions
 
     if throw_sparks:
         for _ in range(round(_SIZE * 3)):
@@ -514,7 +514,7 @@ def _rocket_explosion(
             )
             particles.append(sparks)
 
-    scenario.bg_pieces[0:0] = particles
+    scenario.bg_shapes[0:0] = particles
 
     # Render shock wave and calc blast damage
     # TODO: I don't like the particle generator taking care of damage (same with Lightning).
@@ -528,7 +528,7 @@ def _rocket_explosion(
         ending_color=RGB(0, 0, 0, intensity=1),
         life_time=15,
     )
-    scenario.bg_pieces.append(shock_wave)
+    scenario.bg_shapes.append(shock_wave)
 
     blast_radius_victims = scenario.get_enemies_in_range(
         blast_radius, rocket, calc_distance_to_border=True
@@ -635,7 +635,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
 
     pieces = sorted(pieces, key=random_offset)
 
-    scenario.bg_pieces[0:0] = pieces
+    scenario.bg_shapes[0:0] = pieces
 
 
 #################################
@@ -745,6 +745,6 @@ def homing_missile_trail(
             life_time=_lift_time,
             final_radius=_final_radius,
         )
-        scenario.bg_pieces.append(light)
+        scenario.bg_shapes.append(light)
 
-    scenario.bg_pieces[0:0] = pieces
+    scenario.bg_shapes[0:0] = pieces

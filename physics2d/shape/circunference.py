@@ -6,8 +6,8 @@ from constants import PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
+from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
-from physics2d.shape.shape import Shape
 from utils import (
     distance_from_line_to_point,
     get_angle_from_slope,

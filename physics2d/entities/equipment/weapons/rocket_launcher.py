@@ -254,4 +254,4 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
     )
     sparks.append(spark)
 
-    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])

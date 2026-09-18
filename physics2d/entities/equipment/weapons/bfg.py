@@ -93,7 +93,7 @@ class BFG(Weapon):
                     life_time=8,
                     floating_multi=1,
                 )
-                s.fg_pieces.append(particle)
+                s.fg_shapes.append(particle)
 
             particle = CircularParticle(
                 origin=player.center + offset,
@@ -105,7 +105,7 @@ class BFG(Weapon):
                 life_time=_BFG_BASE_COUNTDOWN,
                 particle_generator=_particle,
             )
-            self._scenario.fg_pieces.append(particle)
+            self._scenario.fg_shapes.append(particle)
 
     def secondary_fire(self) -> None: ...
 
@@ -232,7 +232,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # )
     # sparks.append(spark)
 
-    scenario.fg_pieces.extend([fire_white, bfg_1, bfg_2, bfg_3])
+    scenario.fg_shapes.extend([fire_white, bfg_1, bfg_2, bfg_3])
 
 
 ########

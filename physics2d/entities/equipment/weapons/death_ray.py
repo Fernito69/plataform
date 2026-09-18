@@ -89,7 +89,7 @@ def ray(scenario: "Scenario", source: "PhysicsEntity") -> None:
         pulsate_freq=10,
     )
 
-    scenario.fg_pieces.append(line)
+    scenario.fg_shapes.append(line)
 
 
 ################

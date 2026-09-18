@@ -7,8 +7,8 @@ from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
+from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
-from physics2d.shape.shape import Shape
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -35,9 +35,9 @@ type Layer = Literal["fg", "bg", "solid"]
 
 class Scenario:
     # TODO: refactor this
-    fg_pieces: list[Shape]
-    bg_pieces: list[Shape]
-    solid_pieces: list[Shape]
+    fg_shapes: list[Shape]
+    bg_shapes: list[Shape]
+    solid_shapes: list[Shape]
 
     projectiles: list[Projectile]
 
@@ -56,17 +56,17 @@ class Scenario:
         enemies: list[Enemy],
         engine: "Physics2D",
         player: PlayerBlob,
-        fg_pieces: list[Shape] = [],
-        bg_pieces: list[Shape] = [],
-        solid_pieces: list[Shape] = [],
+        fg_shapes: list[Shape] = [],
+        bg_shapes: list[Shape] = [],
+        solid_shapes: list[Shape] = [],
     ):
         self.engine = engine
         self.enemies = enemies
-        self.fg_pieces = fg_pieces
-        self.bg_pieces = bg_pieces
-        self.solid_pieces = solid_pieces
+        self.fg_shapes = fg_shapes
+        self.bg_shapes = bg_shapes
+        self.solid_shapes = solid_shapes
 
-        for p in self.solid_pieces:
+        for p in self.solid_shapes:
             p.is_collideable = True
 
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
@@ -82,7 +82,7 @@ class Scenario:
         self.crosshair.do_your_thing()
 
         for entity in (
-            self.fg_pieces + self.bg_pieces + self.solid_pieces + self.projectiles + self.enemies
+            self.fg_shapes + self.bg_shapes + self.solid_shapes + self.projectiles + self.enemies
         ):
             entity.do_your_thing(self.engine)
 
@@ -90,32 +90,19 @@ class Scenario:
         self._game_tick += 1
 
     def _particle_lifetime_cleanup(self) -> None:
-        # TODO: unify this
-        filtered = [
-            p
-            for p in self.fg_pieces
-            if not isinstance(p, Particle) or p.life_time is None or p.life_time > 0
-        ]
+        def _remove_dead_particles(arr: list[Shape]) -> list[Shape] | None:
+            filtered = [
+                p
+                for p in arr
+                if not isinstance(p, Particle) or p.life_time is None or p.life_time > 0
+            ]
 
-        if len(filtered) < len(self.fg_pieces):
-            # TODO: filter them
-            self.fg_pieces = filtered
+            if len(filtered) < len(arr):
+                arr[:] = filtered
 
-        filtered = [
-            p
-            for p in self.bg_pieces
-            if not isinstance(p, Particle) or p.life_time is None or p.life_time > 0
-        ]
-        if len(filtered) < len(self.bg_pieces):
-            self.bg_pieces = filtered
-
-        filtered = [
-            p
-            for p in self.solid_pieces
-            if not isinstance(p, Particle) or p.life_time is None or p.life_time > 0
-        ]
-        if len(filtered) < len(self.solid_pieces):
-            self.solid_pieces = filtered
+        _remove_dead_particles(self.bg_shapes)
+        _remove_dead_particles(self.fg_shapes)
+        _remove_dead_particles(self.solid_shapes)
 
         for p in self.projectiles:
             if p.life_time is not None and p.life_time <= 0:
@@ -126,69 +113,6 @@ class Scenario:
     def now(self) -> int:
         """Get the current game tick"""
         return self._game_tick
-
-    # TODO: do we want this? code reads better, but will be more expensive
-    def add_to_scenario(
-        self,
-        entity: "PhysicsEntity | list[PhysicsEntity] | Projectile | list[Projectile]",
-        render_first: bool = False,
-        layer: Layer = "bg",
-    ) -> None:
-        from physics2d.entities.base import PhysicsEntity
-
-        _map: dict[Layer, list[Shape]] = {
-            "bg": self.bg_pieces,
-            "fg": self.solid_pieces,
-            "solid": self.solid_pieces,
-        }
-
-        if isinstance(entity, list):
-            if len(entity) == 0:
-                return
-
-            if render_first:
-                _map[layer][0:0] = entity
-
-        if isinstance(entity, list):
-            if len(entity) == 0:
-                return
-            if isinstance(entity[0], PhysicsEntity):
-                match layer:
-                    case "bg":
-                        if render_first:
-                            self.bg_pieces[0:0] = entity
-                        else:
-                            self.bg_pieces.extend(entity)
-                    case "fg":
-                        if render_first:
-                            self.fg_pieces[0:0] = entity
-                        else:
-                            self.fg_pieces.extend(entity)
-                    case "solid":
-                        if render_first:
-                            self.solid_pieces[0:0] = entity
-                        else:
-                            self.solid_pieces.extend(entity)
-
-        else:
-            pass
-
-    # TODO: these functions are KISS, but there's a lot of repeated code
-    def _add_projectile_to_scenario(
-        self, projectile: "Projectile", render_first: bool = False
-    ) -> None:
-        if not render_first:
-            self.projectiles.append(projectile)
-        else:
-            self.projectiles[0:0] = [projectile]
-
-    def _add_projectiles_to_scenario(
-        self, projectile: list["Projectile"], render_first: bool = False
-    ) -> None:
-        if not render_first:
-            self.projectiles.extend(projectile)
-        else:
-            self.projectiles[0:0] = projectile
 
     def render(self) -> None:
         self._render_crosshair()
@@ -201,7 +125,7 @@ class Scenario:
         # Foreground gets differentiated treatment
         _handle_in_front_of_player: list[Shape] = []
         _render_behind_player: list[Shape] = []
-        for shape in self.fg_pieces:
+        for shape in self.fg_shapes:
             if shape.render_behind_player:
                 _render_behind_player.append(shape)
             else:
@@ -211,7 +135,7 @@ class Scenario:
         self.handle_render_info(self.player.get_render_info())
         _handle(_handle_in_front_of_player)
 
-        _handle(self.solid_pieces)
+        _handle(self.solid_shapes)
         _handle(self.projectiles)
         _handle(self.enemies)
 
@@ -219,7 +143,7 @@ class Scenario:
         for e in self.enemies:
             _ = e.get_render_info()
 
-        _handle(self.bg_pieces)
+        _handle(self.bg_shapes)
 
     def handle_render_info(self, render_info: list[RenderInfo]) -> None:
         for info in render_info:
@@ -249,6 +173,8 @@ class Scenario:
                 ],
                 key=lambda v: v[1],
             )
-            if distance < max_range / 2 # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
+            if distance
+            < max_range
+            / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims

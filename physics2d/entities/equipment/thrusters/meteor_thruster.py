@@ -113,4 +113,4 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     pieces = sorted(pieces, key=random_offset)
 
-    scenario.bg_pieces[0:0] = pieces
+    scenario.bg_shapes[0:0] = pieces

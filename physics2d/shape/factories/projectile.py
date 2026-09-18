@@ -93,4 +93,4 @@ def _lightning_bolts(
         )
         pieces.append(l1)
 
-    scenario.fg_pieces.extend(pieces)
+    scenario.fg_shapes.extend(pieces)

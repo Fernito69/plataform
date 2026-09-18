@@ -7,11 +7,11 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
-from physics2d.scenario.pieces.circunference import CircunferencePiece
-from physics2d.scenario.pieces.line import LinePiece
-from physics2d.scenario.pieces.rectangle import RectanglePiece
 from physics2d.scenario.scenario import Scenario
-from physics2d.shape.shape import Shape
+from physics2d.shape.base import Shape
+from physics2d.shape.circunference import Circunference
+from physics2d.shape.line import Line
+from physics2d.shape.rectangle import Rectangle
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -102,36 +102,32 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         for x in range(_cube_side):
             enemies.append(_tiny_enemy(PointF(200 + y * _spacing, 100 + x * _spacing)))
 
-    line_1 = LinePiece(
-        points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2
-    )
-    line_1_1 = LinePiece(
+    line_1 = Line(points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2)
+    line_1_1 = Line(
         points=(PointF(60, 2), PointF(120, 50)), theme=Theme(color=White()), thickness=2
     )
-    line_1_2 = LinePiece(
+    line_1_2 = Line(
         points=(PointF(120, 50), PointF(60, 100)), theme=Theme(color=White()), thickness=2
     )
-    line_1_3 = LinePiece(
+    line_1_3 = Line(
         points=(PointF(60, 100), PointF(0, 80)), theme=Theme(color=White()), thickness=2
     )
-    line_1_4 = LinePiece(
+    line_1_4 = Line(
         points=(PointF(0, 80), PointF(-10, 30)), theme=Theme(color=White()), thickness=2
     )
-    line_1_5 = LinePiece(
-        points=(PointF(-10, 30), PointF(0, 0)), theme=Theme(color=White()), thickness=2
-    )
-    line_2 = LinePiece(
+    line_1_5 = Line(points=(PointF(-10, 30), PointF(0, 0)), theme=Theme(color=White()), thickness=2)
+    line_2 = Line(
         points=(PointF(2, 3), PointF(50, 22)),
         theme=Theme(color=Magenta()),
     )
-    red_rotating_line_3 = LinePiece(
+    red_rotating_line_3 = Line(
         points=(PointF(4, 52), PointF(40, 1)),
         theme=Theme(color=Red()),
         thickness=2,
         initial_angular_velocity=10,
         name="LINEA MIA",
     )
-    fancy_rotating_line = LinePiece(
+    fancy_rotating_line = Line(
         points=(
             PointF(4, Y_RESOLUTION_PHYSICS / 2 - 6),
             PointF(X_RESOLUTION_PHYSICS - 4, Y_RESOLUTION_PHYSICS / 2 + 12),
@@ -144,21 +140,21 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         pulsate_amplitude=0.5,
         initial_angular_velocity=200,
     )
-    bg_rectangle_1 = RectanglePiece(
+    bg_rectangle_1 = Rectangle(
         vertices=(PointF(6, 33), PointF(17, 5)),
         theme=Theme(color=MakeColor(0.5, (255, 140, 160))),
         secondary_theme=Theme(color=MakeColor(0.5, (80, 80, 250))),
         initial_velocity=VectorF(0.3, 0.5),
         own_gravity=0.005,
     )
-    rectangle_2 = RectanglePiece(
+    rectangle_2 = Rectangle(
         vertices=(PointF(110, 0), PointF(115, 3)),
         theme=Theme(color=MakeColor(1, (244, 25, 45))),
         secondary_theme=Theme(color=MakeColor(1, (1, 254, 45))),
         initial_velocity=VectorF(-0.5, 0.6),
         own_gravity=0.005,
     )
-    rectangle_3 = RectanglePiece(
+    rectangle_3 = Rectangle(
         vertices=(
             PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
             PointF(X_RESOLUTION_PHYSICS / 2 + 4, Y_RESOLUTION_PHYSICS / 2 + 9),
@@ -167,7 +163,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         secondary_theme=Theme(color=MakeColor(1, (255, 0, 56))),
         floating_multi=0.005,
     )
-    bg_circle_1 = CircunferencePiece(
+    bg_circle_1 = Circunference(
         center=PointF(40, 40),
         theme=Theme(color=Cyan().with_intensity(0.3)),
         radius=6,
@@ -175,7 +171,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         initial_velocity=VectorF(-0.8, 4),
         floating_multi=0.2,
     )
-    bg_circle_5 = CircunferencePiece(
+    bg_circle_5 = Circunference(
         center=PointF(1, 1),
         theme=Theme(color=Yellow().with_intensity(0.3)),
         radius=1.5,
@@ -183,19 +179,19 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         initial_velocity=VectorF(2, 5),
         floating_multi=0.8,
     )
-    bg_circle_2 = CircunferencePiece(
+    bg_circle_2 = Circunference(
         center=PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
         theme=Theme(color=Blue().with_intensity(0.3)),
         radius=5,
         floating_multi=0.05,
     )
-    bg_circle_3 = CircunferencePiece(
+    bg_circle_3 = Circunference(
         center=PointF(30, 21),
         theme=Theme(color=Green().with_intensity(0.3)),
         radius=15,
         floating_multi=ALMOST_ZERO,
     )
-    bg_circle_4 = CircunferencePiece(
+    bg_circle_4 = Circunference(
         center=PointF(0, 0),
         theme=Theme(color=MakeColor(0.3, (134, 89, 177))),
         radius=25,
@@ -211,7 +207,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     ]
 
     solid_pieces: list[Shape] = [
-        CircunferencePiece(
+        Circunference(
             center=PointF(50, 50),
             theme=Theme(color=MakeColor(1, (255, 200, 255))),
             radius=15,
@@ -239,9 +235,9 @@ def default_scenario(engine: "Physics2D") -> Scenario:
 
     return Scenario(
         enemies=enemies,
-        fg_pieces=fg_pieces,
-        bg_pieces=bg_pieces,
-        solid_pieces=solid_pieces,
+        fg_shapes=fg_pieces,
+        bg_shapes=bg_pieces,
+        solid_shapes=solid_pieces,
         engine=engine,
         player=engine.player,
     )

@@ -206,7 +206,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         )
         sparks.append(spark)
 
-    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
 
 
 def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
@@ -302,4 +302,4 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
     )
     sparks.append(spark)
 
-    scenario.fg_pieces.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
+    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
