@@ -21,7 +21,7 @@ from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLaun
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from terminal import consume_mouse_scroll, on_key_press, on_mouse_press
+from system import consume_mouse_scroll, on_key_press, on_mouse_press
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D

@@ -13,6 +13,10 @@ from model.keyboard import KeyboardKeys
 ##################
 
 
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
+
 def print_and_reset_cursor(screen_content: str) -> None:
     print(
         "\x1b[H"  # move cursor to top left.

@@ -3,7 +3,7 @@ from abc import abstractmethod
 from pynput import mouse as _pynput_mouse
 
 from model.keyboard import KeyboardKeys
-from terminal import is_mouse_pressed, is_pressed
+from system import is_mouse_pressed, is_pressed
 
 
 class KeyboardHandler:

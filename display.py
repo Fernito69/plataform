@@ -3,16 +3,7 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 from constants import ALMOST_ZERO
-from factories.theme import (
-    RGB,
-    SEPARATOR,
-    Cyan,
-    DoubleLines,
-    Green,
-    Red,
-    White,
-    Yellow,
-)
+from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
 from model.base import PointF, PointI, VectorI
 from model.game import GameMode
@@ -23,7 +14,7 @@ from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUT
 from physics2d.entities.player_blob import PlayerBlob
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
-from terminal import on_key_press, print_and_reset_cursor
+from system import clear_screen, on_key_press, print_and_reset_cursor
 from three_d_renderer.constants import (
     ANTIALIASING_INTENSITY,
     MAX_FPS_3D,
@@ -74,6 +65,8 @@ class Display(KeyboardHandler):
         self.set_mode()
 
     def set_mode(self) -> None:
+        clear_screen()
+
         match self.game.mode:
             case GameMode.PLATFORMER_V1:
                 self._set_2d_mode()

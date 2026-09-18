@@ -5,7 +5,7 @@ from model.base import VectorF
 from model.keyboard import MovementKeys
 from model.player import PlayerStatus
 from model.shared import KeyboardHandler
-from terminal import on_key_press
+from system import on_key_press
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
 from three_d_renderer.scenario.levels_3d import build_3d_levels

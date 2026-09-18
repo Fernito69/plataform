@@ -8,7 +8,7 @@ from model.shared import KeyboardHandler
 from model.theme import Theme
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
-from terminal import on_key_press
+from system import on_key_press
 from utils import colored
 
 if TYPE_CHECKING:

@@ -10,7 +10,7 @@ from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios import default_scenario
-from terminal import on_key_press
+from system import on_key_press
 from utils import colored
 
 if TYPE_CHECKING:
