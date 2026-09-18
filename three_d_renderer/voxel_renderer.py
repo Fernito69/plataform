@@ -16,8 +16,7 @@ class VoxelRenderer(ThreeDeeRenderer):
         self.draw_screen_border()
 
     def draw_screen_border(self):
-        X_RES = self.display.curr_x_resolution
-        Y_RES = self.display.curr_y_resolution
+        X_RES, Y_RES = self._display.get_resolution()
 
         self._screen_buffer[0][0] = DoubleLines.UL
         self._screen_buffer[Y_RES - 1][X_RES - 1] = DoubleLines.LR
@@ -48,8 +47,7 @@ class VoxelRenderer(ThreeDeeRenderer):
         if not player.curr_level:
             return
 
-        X_RES = self.display.curr_x_resolution
-        Y_RES = self.display.curr_y_resolution
+        X_RES, Y_RES = self._display.get_resolution()
 
         # we make a matrix representation of the playfield
         self.reset_screen_buffer(keep_border=True)
@@ -118,5 +116,5 @@ class VoxelRenderer(ThreeDeeRenderer):
                     )
                     self._screen_buffer[rounded_y_pos][rounded_x_pos] = _char
 
-        self.display.put_screen_content(self._screen_buffer)
-        self.display.print_curr_screen(player)
+        self._display.put_screen_content(self._screen_buffer)
+        self._display.print_curr_screen(player)

@@ -101,8 +101,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
 
     def _keep_player_in_screen(self) -> None:
         """Adjusts the screen position in order to keep the player always visible"""
-        x_res = self.engine.screen_buffer_x_res
-        y_res = self.engine.screen_buffer_y_res
+        x_res, y_res = self.engine.get_resolution()
         player_x, player_y, _ = self.position
 
         if player_x < self.engine.screen_corner.x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:

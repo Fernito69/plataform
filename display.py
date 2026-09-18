@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable
 from constants import ALMOST_ZERO
 from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
-from model.base import PointF, PointI, VectorI
+from model.base import PointF, ScreenPos, ScreenVector
 from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
@@ -38,9 +38,9 @@ _MAX_DEBUG_LOGS = 15
 
 
 class Display(KeyboardHandler):
-    curr_x_resolution: int
-    curr_y_resolution: int
-    antialiasing: bool
+    _curr_x_resolution: int
+    _curr_y_resolution: int
+    _antialiasing: bool
 
     screen_grid: list[list[str]]
 
@@ -56,8 +56,8 @@ class Display(KeyboardHandler):
         fps: float = _DEFAULT_FPS,
         print_fps: bool = True,
     ):
-        self.game = game
-        self.antialiasing = True
+        self._antialiasing = True
+        self._game = game
         self._curr_fps = fps
         self._print_fps = print_fps
         self._message = None
@@ -65,9 +65,9 @@ class Display(KeyboardHandler):
         self.set_mode()
 
     def set_mode(self) -> None:
-        clear_screen()
+        self.clear_curr_screen()
 
-        match self.game.mode:
+        match self._game.mode:
             case GameMode.PLATFORMER_V1:
                 self._set_2d_mode()
             case GameMode.VOXELS_3D | GameMode.LINES_3D:
@@ -103,16 +103,20 @@ class Display(KeyboardHandler):
 
     # TODO: border thickness should not be passed here
     def is_in_screen(self, point: PointF, border_thickness: int = 1) -> bool:
+        X_RES, Y_RES = self.get_resolution()
         return (
             point.x >= border_thickness
-            and point.x < self.curr_x_resolution - border_thickness
+            and point.x < X_RES - border_thickness
             and point.y >= border_thickness
-            and point.y < self.curr_y_resolution - border_thickness
+            and point.y < Y_RES - border_thickness
         )
 
-    def modify_resolution(self, amount: VectorI) -> None:
-        self.curr_x_resolution += amount.x
-        self.curr_y_resolution += amount.y
+    def get_resolution(self) -> ScreenPos:
+        return ScreenPos(self._curr_x_resolution, self._curr_y_resolution)
+
+    def _modify_resolution(self, amount: ScreenVector) -> None:
+        self._curr_x_resolution += amount.x
+        self._curr_y_resolution += amount.y
 
     def set_message(self, message: str | None, intensity: float = 0.7) -> None:
         self._message = message
@@ -123,6 +127,8 @@ class Display(KeyboardHandler):
 
     def get_screen_content(self) -> list[list[str]]:
         return self.screen_grid
+
+    #######################
 
     _measured_fps: float = 0
 
@@ -140,15 +146,18 @@ class Display(KeyboardHandler):
 
         time.sleep(max(0, period - ellapsed))
 
+    def clear_curr_screen(self) -> None:
+        clear_screen()
+
     def print_curr_screen(self, player: Player2D | Player3D | PlayerBlob | None = None):
-        message_container_coords: tuple[PointI, PointI] | None = None
+        message_container_coords: tuple[ScreenPos, ScreenPos] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
 
         screen_content = ""
 
-        for y in range(self.curr_y_resolution):
-            for x in range(self.curr_x_resolution):
+        for y in range(self._curr_y_resolution):
+            for x in range(self._curr_x_resolution):
                 is_part_of_message: bool = (
                     message_container_coords[1].y <= y <= message_container_coords[1].x
                     or message_container_coords[0].y <= x <= message_container_coords[0].x
@@ -168,11 +177,11 @@ class Display(KeyboardHandler):
                         bg_color=extract_color_from_string(self.screen_grid[y][x]).with_intensity(
                             ANTIALIASING_INTENSITY
                         )
-                        if (self.antialiasing and not is_part_of_message)
+                        if (self._antialiasing and not is_part_of_message)
                         else RGB(0, 0, 0),
                     )
                 )
-            if y < self.curr_y_resolution - 1:
+            if y < self._curr_y_resolution - 1:
                 screen_content += BR
 
         if player:
@@ -197,7 +206,7 @@ class Display(KeyboardHandler):
             to_print = self._debug_str + BR * (_MAX_DEBUG_LOGS - len(as_list))
             screen_content += (
                 colored(BR + "DEBUG ", Red())
-                + colored(DoubleLines.H * (self.curr_x_resolution - 6), Red(0.5))
+                + colored(DoubleLines.H * (self._curr_x_resolution - 6), Red(0.5))
                 + BR
                 + to_print
             )
@@ -208,7 +217,7 @@ class Display(KeyboardHandler):
     # TODO: this logic is all sooo hacky, do better
     def _add_message_to_screen_grid(
         self, padding_x: int = 12, padding_y: int = 4
-    ) -> tuple[PointI, PointI] | None:
+    ) -> tuple[ScreenPos, ScreenPos] | None:
         if self._message is None or len(self._message) <= 0:
             return
 
@@ -216,8 +225,8 @@ class Display(KeyboardHandler):
         message_height: int = len(message_parts)
         max_message_lenght = max(len(p) for p in message_parts)
 
-        mid_x = round(self.curr_x_resolution / 2)
-        mid_y = round(self.curr_y_resolution / 2)
+        mid_x = round(self._curr_x_resolution / 2)
+        mid_y = round(self._curr_y_resolution / 2)
 
         # Set up border
         # TODO: de-dup code
@@ -252,7 +261,9 @@ class Display(KeyboardHandler):
                 # TODO: Voxel still prints them flipped, fix!
                 _bg_intensity = 1 - self._message_intensity if self._message_intensity else 0.7
                 char: str = colored(
-                    LOWER_PIXEL_CHAR if self.game.mode == GameMode.PHYSICS_2D else UPPER_PIXEL_CHAR,
+                    LOWER_PIXEL_CHAR
+                    if self._game.mode == GameMode.PHYSICS_2D
+                    else UPPER_PIXEL_CHAR,
                     color=extract_color_from_string(self.screen_grid[y][x]).with_intensity(
                         _bg_intensity
                     ),
@@ -303,38 +314,38 @@ class Display(KeyboardHandler):
                 self.screen_grid[new_y_idx][x] = _c(index)
 
         return (
-            PointI(starting_border_x, starting_border_y),
-            PointI(ending_border_y, ending_border_y),
+            ScreenPos(starting_border_x, starting_border_y),
+            ScreenPos(ending_border_y, ending_border_y),
         )
 
     def _set_2d_mode(self):
-        self.antialiasing = True
-        self._set_resolution(PointI(X_RESOLUTION_2D, Y_RESOLUTION_2D))
+        self._antialiasing = True
+        self._set_resolution(ScreenPos(X_RESOLUTION_2D, Y_RESOLUTION_2D))
         self._set_max_fps(MAX_FPS_2D)
 
     def _set_physics_mode(self):
         # Handled in-engine
-        self.antialiasing = False
+        self._antialiasing = False
         self._set_max_fps(MAX_FPS_PHYSICS)
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
         self._set_resolution(
-            PointI(
+            ScreenPos(
                 X_RESOLUTION_PHYSICS,
                 round(Y_RESOLUTION_PHYSICS / 2),
             )
         )
 
     def _set_3d_mode(self):
-        self.antialiasing = True
+        self._antialiasing = True
         self._set_max_fps(MAX_FPS_3D)
-        self._set_resolution(PointI(X_RESOLUTION_3D, Y_RESOLUTION_3D))
+        self._set_resolution(ScreenPos(X_RESOLUTION_3D, Y_RESOLUTION_3D))
 
     def _set_max_fps(self, fps: float) -> None:
         self._curr_fps = fps
 
-    def _set_resolution(self, resolution: PointI) -> None:
-        self.curr_x_resolution = resolution.x
-        self.curr_y_resolution = resolution.y
+    def _set_resolution(self, resolution: ScreenPos) -> None:
+        self._curr_x_resolution = resolution.x
+        self._curr_y_resolution = resolution.y
 
     def _get_hud_content(self, player: Player2D | Player3D | PlayerBlob) -> str:
         hud = ""
@@ -403,7 +414,7 @@ class Display(KeyboardHandler):
     # PLAYER INPUT
     ##############
     def handle_keyboard_input(self) -> None:
-        if self.game.mode == GameMode.PLATFORMER_V1:
+        if self._game.mode == GameMode.PLATFORMER_V1:
             return
 
         self._increase_x_resolution()
@@ -414,16 +425,16 @@ class Display(KeyboardHandler):
     # TODO: increase res functionality is broken, fix
     @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
     def _increase_x_resolution(self):
-        self.modify_resolution(VectorI(1, 0))
+        self._modify_resolution(ScreenVector(1, 0))
 
     @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
     def _decrease_x_resolution(self):
-        self.modify_resolution(VectorI(-1, 0))
+        self._modify_resolution(ScreenVector(-1, 0))
 
     @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
     def _increase_y_resolution(self):
-        self.modify_resolution(VectorI(0, 1))
+        self._modify_resolution(ScreenVector(0, 1))
 
     @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
     def _decrease_y_resolution(self):
-        self.modify_resolution(VectorI(0, -1))
+        self._modify_resolution(ScreenVector(0, -1))

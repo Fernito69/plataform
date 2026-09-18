@@ -191,7 +191,7 @@ class Game(Engine, KeyboardHandler):
 
     @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
     def _switch_antialiasing(self):
-        self.display.antialiasing = not self.display.antialiasing
+        self.display._antialiasing = not self.display._antialiasing
 
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):

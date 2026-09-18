@@ -41,6 +41,7 @@ class MouseHandler:
 
 
 class Engine:
+    # TODO: what else goes here? e.g. Display?
     @abstractmethod
     def main_loop(cls) -> None:
         pass

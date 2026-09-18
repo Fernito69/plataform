@@ -9,6 +9,7 @@ from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
+from three_d_renderer.entities.base3d import Entity3D
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -39,6 +40,9 @@ class Scenario:
     bg_shapes: list[Shape]
     solid_shapes: list[Shape]
 
+    # TODO: project them in the screen! abstract the projecting logic into a function in utils and use it both in 3d renderer and here
+    three_d_shapes: list[Entity3D]
+
     projectiles: list[Projectile]
 
     # TODO: add _debug_pieces, for angle lines, etc
@@ -59,12 +63,15 @@ class Scenario:
         fg_shapes: list[Shape] = [],
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
+        three_d_shapes: list[Entity3D] = [],
     ):
         self.engine = engine
         self.enemies = enemies
         self.fg_shapes = fg_shapes
         self.bg_shapes = bg_shapes
         self.solid_shapes = solid_shapes
+        # TODO: coming soon!
+        self.three_d_shapes = three_d_shapes
 
         for p in self.solid_shapes:
             p.is_collideable = True

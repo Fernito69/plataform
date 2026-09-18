@@ -25,6 +25,7 @@ from three_d_renderer.entities.base3d import Entity3D
 from utils import rotate_point
 
 if TYPE_CHECKING:
+    from display import Display
     from game import Game
 
 # TODO: this is a temporary hack
@@ -33,6 +34,7 @@ random.shuffle(colors)
 
 
 class ThreeDeeRenderer(Engine):
+    _display: "Display"
     _screen_buffer: list[list[str]] = []
 
     # physics params
@@ -45,7 +47,7 @@ class ThreeDeeRenderer(Engine):
 
     def __init__(self, game: "Game"):
         self.game = game
-        self.display = self.game.display
+        self._display = self.game.display
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         # TODO: this doesn't go here
@@ -55,8 +57,7 @@ class ThreeDeeRenderer(Engine):
         self.reset_screen_buffer()
 
     def reset_screen_buffer(self, keep_border: bool = False, border_thickness: int = 1):
-        X_RES = self.display.curr_x_resolution
-        Y_RES = self.display.curr_y_resolution
+        X_RES, Y_RES = self._display.get_resolution()
 
         if keep_border:
             for y in range(border_thickness, Y_RES - border_thickness):
@@ -73,12 +74,14 @@ class ThreeDeeRenderer(Engine):
     def _get_screen_projection(
         self, point3: PointF, player: Entity3D | None = None
     ) -> PointF | None:
+        X_RES, Y_RES = self._display.get_resolution()
+
         x, y, z = self._normalize_vertex_to_entity(point3, player) if player else point3
         if y <= 0:
             return
 
-        x_pos = (x * self.fov / y) + (self.display.curr_x_resolution / 2)
-        y_pos = ((z * self.fov / y) + (self.display.curr_y_resolution / 2)) / PIXEL_ASPECT_RATIO
+        x_pos = (x * self.fov / y) + (X_RES / 2)
+        y_pos = ((z * self.fov / y) + (Y_RES / 2)) / PIXEL_ASPECT_RATIO
 
         return PointF(x_pos, y_pos)
 

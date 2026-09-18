@@ -117,14 +117,29 @@ class VectorF(PointF):
 
 
 @dataclass
-class PointI(PointF):
+class ScreenPos:
     x: int
     y: int
-    z: int | None = None
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
+    def __add__(self, other: "ScreenVector") -> "ScreenPos":
+        return ScreenPos(
+            x=self.x + other.x,
+            y=self.y + other.y,
+        )
+
+    def __sub__(self, other: "ScreenVector") -> "ScreenPos":
+        return ScreenPos(
+            x=self.x - other.x,
+            y=self.y - other.y,
+        )
 
 
 @dataclass
-class VectorI(PointI): ...
+class ScreenVector(ScreenPos): ...
 
 
 @dataclass

@@ -337,7 +337,7 @@ class Circunference(Shape):
                     def _get_angle(angle) -> int:
                         return int(angle * 180 / PI)
 
-                    engine.display.debug_log(
+                    engine._display.debug_log(
                         f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
                     )
 

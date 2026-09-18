@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
-from model.base import PointF
+from model.base import PointF, ScreenPos
 from model.keyboard import MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
@@ -24,11 +24,11 @@ INTENSITY_BLEND_THRESHOLD = 1
 
 
 class Physics2D(Engine, KeyboardHandler):
-    display: Display
-    screen_buffer: list[list[list[RenderInfo]]]
+    _display: Display
+    _screen_buffer: list[list[list[RenderInfo]]]
 
-    screen_buffer_x_res: int
-    screen_buffer_y_res: int
+    _screen_buffer_x_res: int
+    _screen_buffer_y_res: int
 
     player: PlayerBlob
     scenario: Scenario
@@ -38,7 +38,7 @@ class Physics2D(Engine, KeyboardHandler):
     def __init__(self, game: "Game", initial_screen_corner: PointF = INITIAL_CORNER):
         self.game = game
         self.screen_corner = initial_screen_corner
-        self.display = self.game.display
+        self._display = self.game.display
         self.init_screen_buffer()
 
     # TODO: we need to do the same for entities/pieces
@@ -48,16 +48,17 @@ class Physics2D(Engine, KeyboardHandler):
         self.player.set_scenario(self.scenario)
 
     def init_screen_buffer(self) -> None:
-        self.screen_buffer_x_res = self.display.curr_x_resolution
+        res = self._display.get_resolution()
+        self._screen_buffer_x_res = res.x
         # Since we vertically stack 2 "sub-pixels" per terminal character ("▀" and "▄"),
         # our screen buffer is actually twice the y-resolution
-        self.screen_buffer_y_res = self.display.curr_y_resolution * 2
+        self._screen_buffer_y_res = res.y * 2
 
-        self.screen_buffer: list[list[list[RenderInfo]]] = []
-        for y in range(self.screen_buffer_y_res):
-            self.screen_buffer.append([])
-            for _ in range(self.screen_buffer_x_res):
-                self.screen_buffer[y].append([])
+        self._screen_buffer: list[list[list[RenderInfo]]] = []
+        for y in range(self._screen_buffer_y_res):
+            self._screen_buffer.append([])
+            for _ in range(self._screen_buffer_x_res):
+                self._screen_buffer[y].append([])
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
@@ -66,12 +67,15 @@ class Physics2D(Engine, KeyboardHandler):
         self.scenario.render()
         self.convert_screen_buffer_to_display_data()
 
+    def get_resolution(self) -> ScreenPos:
+        return ScreenPos(self._screen_buffer_x_res, self._screen_buffer_y_res)
+
     def is_visible(self, point: PointF) -> bool:
         return (
             point.x >= 0
-            and point.x < self.screen_buffer_x_res
+            and point.x < self._screen_buffer_x_res
             and point.y >= 0
-            and point.y < self.screen_buffer_y_res
+            and point.y < self._screen_buffer_y_res
         )
 
     def add_pixel_info_to_buffer(
@@ -91,7 +95,7 @@ class Physics2D(Engine, KeyboardHandler):
         )
 
         if self.is_visible(PointF(new_x, new_y)):
-            self.screen_buffer[new_y][new_x].append(render_info)
+            self._screen_buffer[new_y][new_x].append(render_info)
 
     def convert_screen_buffer_to_display_data(self) -> None:
         new_screen_grid: list[list[str]] = []
@@ -103,18 +107,18 @@ class Physics2D(Engine, KeyboardHandler):
         # TODO: for now, we assume y-res is always evenaaaaaaaq
 
         # Note the step is 2 here <─────────────────┐
-        for y in range(0, self.screen_buffer_y_res, 2):
+        for y in range(0, self._screen_buffer_y_res, 2):
             new_y = int(y / 2)
             # we use the backwards index because, in the buffer, `going up == y++`,
             # whereas in the screen grid it's actually the opposite
-            backwards_y = self.screen_buffer_y_res - 1 - y
+            backwards_y = self._screen_buffer_y_res - 1 - y
 
             if len(new_screen_grid) <= new_y:
                 new_screen_grid.append([])
 
-            for x in range(self.screen_buffer_x_res):
-                upper_pixel_info = self.screen_buffer[backwards_y - 1][x]
-                lower_pixel_info = self.screen_buffer[backwards_y][x]
+            for x in range(self._screen_buffer_x_res):
+                upper_pixel_info = self._screen_buffer[backwards_y - 1][x]
+                lower_pixel_info = self._screen_buffer[backwards_y][x]
 
                 if not upper_pixel_info and not lower_pixel_info:
                     new_screen_grid[new_y].append(DEFAULT_CHAR)
@@ -131,8 +135,8 @@ class Physics2D(Engine, KeyboardHandler):
                     )
                 )
 
-        self.display.put_screen_content(new_screen_grid)
-        self.display.print_curr_screen(self.player)
+        self._display.put_screen_content(new_screen_grid)
+        self._display.print_curr_screen(self.player)
 
     def handle_keyboard_input(self) -> None:
         self._reset_scenario()

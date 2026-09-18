@@ -97,10 +97,12 @@ class LineRenderer(ThreeDeeRenderer):
         return r.dist_vector.distance
 
     def reset_world_data(self) -> None:
+        X_RES, Y_RES = self._display.get_resolution()
+
         self.world_data = []
-        for y in range(self.display.curr_y_resolution):
+        for y in range(Y_RES):
             self.world_data.append([])
-            for _ in range(self.display.curr_x_resolution):
+            for _ in range(X_RES):
                 self.world_data[y].append([])
 
     def calculate_world(self) -> None:
@@ -142,18 +144,20 @@ class LineRenderer(ThreeDeeRenderer):
                     continue
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
-                if not self.display.is_in_screen(curr_pixel_pos) and not self.display.is_in_screen(
-                    connecting_pixel_pos
-                ):
+                if not self._display.is_in_screen(
+                    curr_pixel_pos
+                ) and not self._display.is_in_screen(connecting_pixel_pos):
                     continue
 
                 self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
 
         new_screen_buffer = self._screen_buffer
 
+        X_RES, Y_RES = self._display.get_resolution()
+
         # Fill in screen data!!!
-        for x in range(self.display.curr_x_resolution):
-            for y in range(self.display.curr_y_resolution):
+        for x in range(X_RES):
+            for y in range(Y_RES):
                 data = self.world_data[y][x]
 
                 if len(data) == 0:
@@ -188,26 +192,27 @@ class LineRenderer(ThreeDeeRenderer):
                 # TODO: do properly
                 new_screen_buffer[y][x] = colored("▀", color=color, bg_color=bg_color)
 
-        self.display.put_screen_content(new_screen_buffer)
-        self.display.print_curr_screen(self.game.player3d)
+        self._display.put_screen_content(new_screen_buffer)
+        self._display.print_curr_screen(self.game.player3d)
 
     def _compute_pixel_contributions(self, data: WorldData, line: tuple[PointF, PointF]) -> None:
         # Check the affected pixels:
         curr_pixel_pos, connecting_pixel_pos = line
         x1, y1, _ = curr_pixel_pos
         x2, y2, _ = connecting_pixel_pos
+        X_RES, Y_RES = self._display.get_resolution()
 
         # get the target area of the screen
         range_x_min = math.floor(max(min(x1, x2), 0))
-        range_x_max = math.ceil(min(max(x1, x2), self.display.curr_x_resolution))
+        range_x_max = math.ceil(min(max(x1, x2), X_RES))
         range_y_min = math.floor(max(min(y1, y2), 0))
-        range_y_max = math.ceil(min(max(y1, y2), self.display.curr_y_resolution))
+        range_y_max = math.ceil(min(max(y1, y2), Y_RES))
 
         eq = get_line_equations(curr_pixel_pos, connecting_pixel_pos)
 
         for x in range(range_x_min, range_x_max):
             for y in range(range_y_min, range_y_max):
-                if not self.display.is_in_screen(PointF(x, y)):
+                if not self._display.is_in_screen(PointF(x, y)):
                     continue
 
                 calculated_y = eq.get_y(x)
