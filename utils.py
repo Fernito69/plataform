@@ -6,8 +6,9 @@ from random import random
 from typing import Any
 
 from constants import PI
-from model.base import DistVector3D, PointF, Slope, VectorF
+from model.base import DistVector3D, PointF, ScreenPos, Slope, VectorF
 from model.theme import RGB
+from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC, PIXEL_ASPECT_RATIO
 
 _RESET = "\033[0m"
 _FG_CODE = "\033[38;2;"
@@ -135,7 +136,6 @@ def distance_between_points(
     p1: PointF,
     p2: PointF,
     diameter_p2: float | None = 0.0,
-    entity: Any = None,
 ) -> DistVector3D:
     # if len(p1) != len(p2):
     #     print(f"p1: {p1}, p2: {p2} - Entity: {entity.vertices}, {entity.name}")
@@ -153,8 +153,6 @@ def distance_between_points(
         vector=vector,
         distance_to_edge=distance_to_border,
     )
-
-    return DistVector3D(0, (0, 0, 0))
 
 
 # def vector_length(v: Vector3F | Vector2F) -> float:
@@ -285,6 +283,46 @@ def get_angle_from_slope(slope: Slope) -> float:
         if slope == 0
         else math.atan(slope)
     )
+
+
+def project_3d_into_2d(
+    point3: PointF,
+    curr_resolution: ScreenPos,
+    spec_angle: VectorF = VectorF(0, 0, 0),
+    spec_position: PointF = PointF(0, 0, 0),
+    fov: float = DEFAULT_DISTANCE_TO_SPEC,
+    pixel_aspect_ratio: float = PIXEL_ASPECT_RATIO,
+) -> PointF | None:
+    X_RES, Y_RES = curr_resolution
+
+    x, y, z = normalize_vertex_according_to_another(point3, spec_position, spec_angle)
+
+    if y <= 0:
+        return
+
+    x_pos = (x * fov / y) + (X_RES / 2)
+    y_pos = ((z * fov / y) + (Y_RES / 2)) / pixel_aspect_ratio
+
+    return PointF(x_pos, y_pos)
+
+
+def normalize_vertex_according_to_another(
+    vertex: PointF, reference_vertex: PointF, reference_vertex_angle: VectorF
+) -> PointF:
+    """takes an absolutely-positioned vertex and transforms it according to another's position and angle"""
+    # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
+    rotated_point = rotate_point(
+        PointF(vertex.x, vertex.y),
+        PointF(reference_vertex.x, reference_vertex.y),
+        -reference_vertex_angle.x,
+    )
+    rotated_vertex = PointF(
+        x=rotated_point.x,
+        y=rotated_point.y,
+        z=vertex.z,
+    )
+    # Normalize by position
+    return rotated_vertex - reference_vertex
 
 
 def get_line_angle(point1: PointF, point2: PointF) -> float:

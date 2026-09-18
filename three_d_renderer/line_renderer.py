@@ -73,7 +73,7 @@ class LineRenderer(ThreeDeeRenderer):
                         entity_idx=entity_idx,
                         entity=entity,
                         vertex=Vertex3(point=vertex, index=vertex_idx),
-                        dist_vector=distance_between_points(vertex, player.position, entity=entity),
+                        dist_vector=distance_between_points(vertex, player.position),
                     )
                     for entity_idx, entity in enumerate(player.curr_level.entities)
                     for vertex_idx, vertex in enumerate(entity.vertices)

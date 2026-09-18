@@ -13,16 +13,15 @@ from factories.theme import (
     White,
     Yellow,
 )
-from model.base import PointF
+from model.base import PointF, VectorF
 from model.shared import Engine
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_THRESHOLD,
-    PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
 from three_d_renderer.entities.base3d import Entity3D
-from utils import rotate_point
+from utils import normalize_vertex_according_to_another, project_3d_into_2d
 
 if TYPE_CHECKING:
     from display import Display
@@ -70,33 +69,18 @@ class ThreeDeeRenderer(Engine):
                 for _ in range(X_RES):
                     self._screen_buffer[y].append(DEFAULT_CHAR)
 
-    # This is where the 3D to 2D projection magic happens
     def _get_screen_projection(
-        self, point3: PointF, player: Entity3D | None = None
+        self,
+        point3: PointF,
+        player: Entity3D | None = None,
     ) -> PointF | None:
-        X_RES, Y_RES = self._display.get_resolution()
-
-        x, y, z = self._normalize_vertex_to_entity(point3, player) if player else point3
-        if y <= 0:
-            return
-
-        x_pos = (x * self.fov / y) + (X_RES / 2)
-        y_pos = ((z * self.fov / y) + (Y_RES / 2)) / PIXEL_ASPECT_RATIO
-
-        return PointF(x_pos, y_pos)
+        return project_3d_into_2d(
+            point3=point3,
+            spec_position=player.position if player else PointF(0, 0, 0),
+            spec_angle=player.angle if player else VectorF(0, 0, 0),
+            curr_resolution=self._display.get_resolution(),
+            fov=self.fov,
+        )
 
     def _normalize_vertex_to_entity(self, vertex1: PointF, entity: Entity3D) -> PointF:
-        """takes an absolutely-positioned vertex and transforms it according to an entities' position and angle"""
-        # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
-        rotated_point = rotate_point(
-            PointF(vertex1.x, vertex1.y),
-            PointF(entity.position.x, entity.position.y),
-            -entity.angle.x,
-        )
-        rotated_vertex = PointF(
-            x=rotated_point.x,
-            y=rotated_point.y,
-            z=vertex1.z,
-        )
-        # Normalize by position
-        return rotated_vertex - entity.position
+        return normalize_vertex_according_to_another(vertex1, entity.position, entity.angle)
