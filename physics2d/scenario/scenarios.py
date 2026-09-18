@@ -20,7 +20,12 @@ if TYPE_CHECKING:
 def default_scenario(engine: "Physics2D") -> Scenario:
     # TODO: make factories
     def _random_color():
-        return RGB(127 + 127 * random(), 127 + 127 * random(), 127 + 127 * random(), 1)
+        floor = 80
+
+        def _val() -> float:
+            return floor + (255 - floor) * random()
+
+        return RGB(_val(), _val(), _val())
 
     def _tiny_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(

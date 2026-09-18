@@ -8,6 +8,25 @@ from pynput import mouse as _pynput_mouse
 from mappings.keyboard import default_keyboard_mapping
 from model.keyboard import KeyboardKeys
 
+##################
+"""  TERMINAL  """
+##################
+
+
+def print_and_reset_cursor(screen_content: str) -> None:
+    print(
+        "\x1b[H"  # move cursor to top left.
+        + screen_content
+        + "\x1b[J",  # erase anything left after the frame.
+        end="",  # don't append a newline.
+        flush=True,
+    )
+
+
+####################
+"""   KEYBOARD   """
+####################
+
 if platform.system() == "Windows":
     import ctypes
 
@@ -72,6 +91,9 @@ if os.name == "nt":
         return key.lower()
 
 
+##################
+"""   MOUSE    """
+##################
 _mouse_lock = Lock()
 _mouse_previous_position: tuple[float, float] | None = None
 _mouse_delta = (0.0, 0.0)
@@ -157,9 +179,9 @@ def stop_mouse_listener() -> None:
     _mouse_listener.stop()
 
 
-##############
-# DECORATORS #
-##############
+##################
+""" DECORATORS """
+##################
 
 
 def on_key_press(key: KeyboardKeys, act_once_per_press: bool = False):
