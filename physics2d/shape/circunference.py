@@ -135,7 +135,9 @@ class Circunference(Shape):
                     and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
                 ):
                     possible_victims = engine.scenario.get_enemies_in_range(
-                        self.target_acquire_threshold, self, calc_distance_to_border=True
+                        self.target_acquire_threshold,
+                        self,
+                        calc_distance_to_border=True,
                     )
                     if len(possible_victims) > 0:
                         self.target = possible_victims[0].enemy

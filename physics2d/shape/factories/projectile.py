@@ -64,7 +64,14 @@ def _lightning_bolts(
     possible_victims: list[Enemy] = []
 
     if damage:
-        possible_victims = [r.enemy for r in scenario.get_enemies_in_range(damage_range, source)]
+        possible_victims = [
+            r.enemy
+            for r in scenario.get_enemies_in_range(
+                damage_range,
+                source,
+                calc_distance_to_border=True,
+            )
+        ]
 
     # Otherwise too messy!
     num_tendrils = min(num_tendrils, len(possible_victims) or 1) if damage else num_tendrils

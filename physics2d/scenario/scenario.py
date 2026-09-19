@@ -185,8 +185,7 @@ class Scenario:
                 ],
                 key=lambda v: v[1],
             )
-            if distance
-            < max_range
-            / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
+            if distance < max_range
+            # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims

@@ -116,8 +116,8 @@ class Enemy(PhysicsEntity):
         # TODO: this is sus, do better
         if (1 - _offset) - _factor > (self.engine.scenario.now() * (self.radius / 20)) % 1:
             _fire_color = RGB(
-                255 - random() * 110,
-                255 - random() * 110,
+                255 - random() * (40 * _factor),
+                255 - random() * 220 * (1 - _factor),
                 (1 - random()) * 20,
             ).with_intensity(1 - _factor - _offset / 2) + RGB(
                 140,
@@ -132,14 +132,15 @@ class Enemy(PhysicsEntity):
                 size=_explosion_size,
                 size_change_type=TransitionType.EXPONENTIAL_DECREASE,
                 initial_color=_fire_color,
-                ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+                ending_color=RGB(30, 30, 30),  # smokelike
                 life_time=15,
                 gravity=-0.07,
                 particle_generator=get_smoke_generator(
                     floating_multi=0.2,
                     gravity=-0.04,
-                    life_time=20,
-                    initial_velocity=VectorF(random_offset() * 0.25, 0),
+                    life_time=30,
+                    initial_velocity=VectorF(random_offset() * 0.15, 0),
+                    size_factor=0.8,
                 ),
             )
             self.engine.scenario.fg_shapes.append(_fire)

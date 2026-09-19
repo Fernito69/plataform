@@ -157,6 +157,7 @@ def get_smoke_generator(
     floating_multi: float = 0,
     only_fg: bool = False,
     gravity: float = 0.05,
+    size_factor: float = 0.5,
 ) -> "ParticleGenerator":
     def _gen(scenario: "Scenario", source: "PhysicsEntity") -> None:
         _smoke_generator(
@@ -168,6 +169,7 @@ def get_smoke_generator(
             floating_multi=floating_multi,
             only_fg=only_fg,
             gravity=gravity,
+            size_factor=size_factor,
         )
 
     return _gen
@@ -182,6 +184,7 @@ def _smoke_generator(
     floating_multi: float = 0,
     only_fg: bool = False,
     gravity: float = 0.05,
+    size_factor: float = 0.5,
 ) -> None:
     if random_offset() < random_offset_threshold:
         return
@@ -190,7 +193,7 @@ def _smoke_generator(
     main_smoke = CircularParticle(
         origin=source.center,
         initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
-        size=source.radius / 2,
+        size=source.radius * size_factor,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(110, 90, 90, 1),
         ending_color=RGB(30, 30, 30, 1),  # smokelike
@@ -556,22 +559,21 @@ def _rocket_explosion(
     scenario.bg_shapes.append(shock_wave)
 
     # TODO: rename
-    _PUSH_FACTOR = 1.5
+    _PUSH_FACTOR = 1.2
     blast_radius_victims = scenario.get_enemies_in_range(
         _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
     )
 
     # TODO: this should damage the player as well
     for res in blast_radius_victims:
-        # TODO: check why we need this
-        effective_radius = blast_radius * 0.8
-        damage_factor = 1 - (max(0, res.distance) / effective_radius)
-        push_factor = 1 - (max(0, res.distance) / (_PUSH_FACTOR * effective_radius))
+        damage_factor = 1 - (max(0, res.distance) / blast_radius)
+        push_factor = 1 - (max(0, res.distance) / (_PUSH_FACTOR * blast_radius))
         # TODO: show damage in screen!
         damage = damage_factor * blast_damage_at_ground_zero
         vector_magnitude = push_factor * blast_damage_at_ground_zero / res.enemy.weight
 
         # Semd ememy flying away
+        # TODO: Make receive_damage take care of pushing back
         res.enemy.velocity = (
             res.enemy.velocity
             + ((res.enemy.center - rocket.center).as_vector().unit_vector(vector_magnitude))
