@@ -6,10 +6,10 @@ from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
+from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
-from three_d_renderer.entities.base3d import Entity3D
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -41,7 +41,7 @@ class Scenario:
     solid_shapes: list[Shape]
 
     # TODO: project them in the screen! abstract the projecting logic into a function in utils and use it both in 3d renderer and here
-    three_d_shapes: list[Entity3D]
+    three_dee_enemies: list[ThreeDeeEnemy]
 
     projectiles: list[Projectile]
 
@@ -63,15 +63,14 @@ class Scenario:
         fg_shapes: list[Shape] = [],
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
-        three_d_shapes: list[Entity3D] = [],
+        three_dee_enemies: list[ThreeDeeEnemy] = [],
     ):
         self.engine = engine
         self.enemies = enemies
         self.fg_shapes = fg_shapes
         self.bg_shapes = bg_shapes
         self.solid_shapes = solid_shapes
-        # TODO: coming soon!
-        self.three_d_shapes = three_d_shapes
+        self.three_dee_enemies = three_dee_enemies
 
         for p in self.solid_shapes:
             p.is_collideable = True
@@ -89,7 +88,12 @@ class Scenario:
         self.crosshair.do_your_thing()
 
         for entity in (
-            self.fg_shapes + self.bg_shapes + self.solid_shapes + self.projectiles + self.enemies
+            self.fg_shapes
+            + self.bg_shapes
+            + self.solid_shapes
+            + self.projectiles
+            + self.enemies
+            + self.three_dee_enemies
         ):
             entity.do_your_thing(self.engine)
 
@@ -125,7 +129,7 @@ class Scenario:
         self._render_crosshair()
 
         # TODO: unify, we need a common class
-        def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy]):
+        def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy]):
             for p in pieces:
                 self.handle_render_info(p.get_render_info())
 
@@ -145,6 +149,7 @@ class Scenario:
         _handle(self.solid_shapes)
         _handle(self.projectiles)
         _handle(self.enemies)
+        _handle(self.three_dee_enemies)
 
         # TODO: do something
         for e in self.enemies:

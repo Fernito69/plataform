@@ -47,7 +47,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     def __init__(
         self,
         engine: "Physics2D",
-        position: PointF = PointF(200, 200),
+        position: PointF = PointF(0, 0),
         velocity=VectorF(0, 0),
         density: float = 1,
     ):

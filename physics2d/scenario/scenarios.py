@@ -7,11 +7,13 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
 from physics2d.shape.line import Line
 from physics2d.shape.rectangle import Rectangle
+from three_d_renderer.entities.polyhedra import Dodeca
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -253,9 +255,25 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         bg_circle_4,
         bg_circle_3,
     ]
+    three_dee_enemies: list[ThreeDeeEnemy] = [
+        ThreeDeeEnemy(
+            engine=engine,
+            health=100,
+            position=PointF(100, 0),
+            polyhedron=Dodeca(
+                position=PointF(0, 100, 20),
+                size=15,
+                angle=VectorF(0, 30, 0),
+                mov_vector=VectorF(0, 0, 0),
+                rot_vector=VectorF(-1, 2, 0),
+            ),
+            theme=Theme(RGB(255, 100, 255)),
+        )
+    ]
 
     return Scenario(
         enemies=enemies,
+        three_dee_enemies=three_dee_enemies,
         fg_shapes=fg_pieces,
         bg_shapes=bg_pieces,
         solid_shapes=solid_pieces,

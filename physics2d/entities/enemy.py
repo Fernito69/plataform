@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.shape.base import Shape
 from physics2d.shape.factories.explosion import enemy_explosion
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class Enemy(PhysicsEntity):
@@ -70,8 +75,7 @@ class Enemy(PhysicsEntity):
         enemy_explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
         engine.scenario.enemies = [e for e in engine.scenario.enemies if e is not self]
 
-    # TODO: type this shit
-    def do_your_thing(self, engine) -> None:
+    def do_your_thing(self, engine: "Physics2D") -> None:
         super().do_your_thing(engine)
 
         for projectile in engine.scenario.projectiles:

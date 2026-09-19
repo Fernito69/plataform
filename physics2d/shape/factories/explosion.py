@@ -530,16 +530,21 @@ def _rocket_explosion(
     )
     scenario.bg_shapes.append(shock_wave)
 
+    # TODO: rename
+    _PUSH_FACTOR = 1.5
     blast_radius_victims = scenario.get_enemies_in_range(
-        blast_radius, rocket, calc_distance_to_border=True
+        _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
     )
 
     # TODO: this should damage the player as well
     for res in blast_radius_victims:
-        damage_factor = 1 - (max(0, res.distance) / blast_radius)
+        # TODO: check why we need this
+        effective_radius = blast_radius * 0.8
+        damage_factor = 1 - (max(0, res.distance) / effective_radius)
+        push_factor = 1 - (max(0, res.distance) / (_PUSH_FACTOR * effective_radius))
         # TODO: show damage in screen!
         damage = damage_factor * blast_damage_at_ground_zero
-        vector_magnitude = damage / res.enemy.weight
+        vector_magnitude = push_factor * blast_damage_at_ground_zero / res.enemy.weight
 
         # Semd ememy flying away
         res.enemy.velocity = (
