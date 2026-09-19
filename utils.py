@@ -3,7 +3,7 @@ import random
 from collections.abc import Callable
 from dataclasses import dataclass
 from random import random
-
+from typing import Any
 from constants import PI
 from model.base import DistVector3D, PointF, ScreenPos, Slope, VectorF
 from model.theme import RGB
@@ -21,7 +21,7 @@ def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float 
     return VectorF(random_offset(scale_x), random_offset(scale_y), random_offset(scale_z))
 
 
-def random_offset(scale: float = 1) -> float:
+def random_offset(scale: Any = 1) -> float:
     """
     returns a random number between -.5 and .5, good for shuffling lists. Also receives an optional scale factor
     """
