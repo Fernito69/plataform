@@ -18,6 +18,7 @@ from model.shared import Engine
 from three_d_renderer.constants import (
     DEFAULT_DISTANCE_TO_SPEC,
     DEFAULT_VISIBILITY_THRESHOLD,
+    PIXEL_ASPECT_RATIO,
     PLAYER_3D_MOVING_SPEED_FACTOR,
 )
 from three_d_renderer.entities.base3d import Entity3D
@@ -80,6 +81,7 @@ class ThreeDeeRenderer(Engine):
             spec_angle=player.angle if player else VectorF(0, 0, 0),
             curr_resolution=self._display.get_resolution(),
             fov=self.fov,
+            pixel_aspect_ratio=PIXEL_ASPECT_RATIO,
         )
 
     def _normalize_vertex_to_entity(self, vertex1: PointF, entity: Entity3D) -> PointF:

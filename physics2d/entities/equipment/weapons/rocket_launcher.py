@@ -4,7 +4,11 @@ from model.base import VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
-from physics2d.shape.factories.explosion import get_rocket_explosion, rocket_trail, smoke_generator
+from physics2d.shape.factories.explosion import (
+    get_rocket_explosion,
+    get_smoke_generator,
+    rocket_trail,
+)
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import get_vector_angle, random_offset, random_offset_vector
@@ -193,15 +197,6 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         life_time=7,
     )
 
-    def _smoke(engine, source: "PhysicsEntity") -> None:
-        return smoke_generator(
-            engine,
-            source,
-            life_time=15,
-            random_offset_threshold=-0.25,
-            initial_velocity=(0.2 * scenario.player.get_aiming_direction()).as_vector(),
-        )
-
     fire_2 = CircularParticle(
         origin=source.center + 9 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
@@ -214,7 +209,11 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=6,
-        particle_generator=_smoke,
+        particle_generator=get_smoke_generator(
+            life_time=15,
+            random_offset_threshold=-0.25,
+            initial_velocity=(0.2 * scenario.player.get_aiming_direction()).as_vector(),
+        ),
     )
     fire_3 = CircularParticle(
         origin=source.center + 13 * (direction) + 2 * random_offset_vector(),

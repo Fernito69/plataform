@@ -58,6 +58,7 @@ class ThreeDeeEnemy(Enemy):
             secondary_theme=secondary_theme,
             floating_multi=floating_multi,
             extra_shapes=extra_shapes,
+            engine=engine,
         )
         self.health = health
         self._initial_health = health
@@ -85,9 +86,7 @@ class ThreeDeeEnemy(Enemy):
             #     vertex, PointF(0, 0, 0), VectorF(0, 0, 0)
             # )
             vertex_seen_from_player = vertex
-            screen_pos = project_3d_into_2d(
-                vertex_seen_from_player, self.engine.get_resolution(), pixel_aspect_ratio=1
-            )
+            screen_pos = project_3d_into_2d(vertex_seen_from_player, self.engine.get_resolution())
 
             if not screen_pos:
                 continue

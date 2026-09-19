@@ -8,7 +8,7 @@ from typing import Any
 from constants import PI
 from model.base import DistVector3D, PointF, ScreenPos, Slope, VectorF
 from model.theme import RGB
-from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC, PIXEL_ASPECT_RATIO
+from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC
 
 # TODO: separate functions here in a file per domain
 
@@ -293,7 +293,7 @@ def project_3d_into_2d(
     spec_angle: VectorF = VectorF(0, 0, 0),
     spec_position: PointF = PointF(0, 0, 0),
     fov: float = DEFAULT_DISTANCE_TO_SPEC,
-    pixel_aspect_ratio: float = PIXEL_ASPECT_RATIO,
+    pixel_aspect_ratio: float = 1,
 ) -> PointF | None:
     X_RES, Y_RES = curr_resolution
 

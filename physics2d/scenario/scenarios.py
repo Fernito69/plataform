@@ -35,6 +35,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme: Theme = Theme(color=_random_color(), bg_color=_random_color()),
     ):
         return Enemy(
+            engine=engine,
             size=6,
             health=30,
             name="TinyEnemy",
@@ -45,6 +46,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
 
     def _smoll_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(
+            engine=engine,
             size=10,
             health=100,
             name="SmollEnemy",
@@ -55,6 +57,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
 
     def _mid_enemy(position, velocity=VectorF(0, 0)):
         return Enemy(
+            engine=engine,
             size=20,
             health=400,
             name="MidEnemy",
@@ -88,6 +91,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         _mid_enemy(PointF(230, 290), VectorF.random_offset_vector(0.1, 0.1)),
         _mid_enemy(PointF(230, 500), VectorF.random_offset_vector(0.1, 0.1)),
         Enemy(
+            engine=engine,
             size=30,
             health=600,
             name="BigEnemy",
@@ -95,6 +99,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             theme=Theme(color=RGB(170, 0, 0, 1)),
         ),
         Enemy(
+            engine=engine,
             size=35,
             health=600,
             name="BigEnemy",

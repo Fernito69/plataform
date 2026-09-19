@@ -98,7 +98,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
             life_time=20,
             gravity=-0.08,
             floating_multi=0.1,
-            particle_generator=smoke_generator,
+            particle_generator=_smoke_generator,
         )
         secondary_explosions.append(sec_explosion)
 
@@ -150,13 +150,38 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
 #################################################################
 
 
-def smoke_generator(
-    scenario: "Scenario",
-    source: "PhysicsEntity",
-    life_time: int | None = None,
+def get_smoke_generator(
+    life_time: int = 30,
     random_offset_threshold: float = 0.25,
     initial_velocity: VectorF | None = None,
     floating_multi: float = 0,
+    only_fg: bool = False,
+    gravity: float = 0.05,
+) -> "ParticleGenerator":
+    def _gen(scenario: "Scenario", source: "PhysicsEntity") -> None:
+        _smoke_generator(
+            scenario=scenario,
+            source=source,
+            life_time=life_time,
+            random_offset_threshold=random_offset_threshold,
+            initial_velocity=initial_velocity,
+            floating_multi=floating_multi,
+            only_fg=only_fg,
+            gravity=gravity,
+        )
+
+    return _gen
+
+
+def _smoke_generator(
+    scenario: "Scenario",
+    source: "PhysicsEntity",
+    life_time: int = 30,
+    random_offset_threshold: float = 0.25,
+    initial_velocity: VectorF | None = None,
+    floating_multi: float = 0,
+    only_fg: bool = False,
+    gravity: float = 0.05,
 ) -> None:
     if random_offset() < random_offset_threshold:
         return
@@ -169,13 +194,13 @@ def smoke_generator(
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(110, 90, 90, 1),
         ending_color=RGB(30, 30, 30, 1),  # smokelike
-        life_time=life_time or 30,
-        gravity=-0.05,
+        life_time=life_time,
+        gravity=gravity,
         floating_multi=floating_multi,
     )
     smokes.append(main_smoke)
 
-    if random_offset() > 0:
+    if random_offset() > 0 or only_fg:
         scenario.fg_shapes[0:0] = smokes
     else:
         scenario.bg_shapes[0:0] = smokes
@@ -200,7 +225,7 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
 
     explosion = CircularParticle(
-        origin=source.center + random_offset_vector(),
+        origin=source.center + VectorF.random_offset_vector(),
         initial_velocity=VectorF(0, 0),
         size=2,
         size_change_type=TransitionType.LINEAR_DECREASE,
@@ -459,7 +484,7 @@ def _rocket_explosion(
             ending_color=_ending_color_4,  # smokelike
             life_time=15,
             gravity=-0.05,
-            particle_generator=smoke_generator if with_smoke else None,
+            particle_generator=_smoke_generator if with_smoke else None,
         )
         secondary_explosions.append(sec_explosion)
 
@@ -590,7 +615,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
         _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
         def _smoke(engine, source) -> None:
-            return smoke_generator(engine, source, life_time=5, floating_multi=0.1)
+            return _smoke_generator(engine, source, life_time=5, floating_multi=0.1)
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -682,7 +707,7 @@ def homing_missile_trail(
             _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
             def _smoke(engine, source) -> None:
-                return smoke_generator(engine, source, 5)
+                return _smoke_generator(engine, source, 5)
 
             thrust_fire = CircularParticle(
                 origin=PointF(
