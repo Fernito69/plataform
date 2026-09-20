@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.keyboard import ActionKeys, CheatKeys, MovementKeys
-from model.player import Player
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.thruster import Thruster
@@ -22,6 +21,7 @@ from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.entities.equipment.weapons.zapper import Zapper
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
+from player import Player
 from system import consume_mouse_scroll, on_key_press, on_mouse_press
 
 _INITIAL_HEALTH = 100

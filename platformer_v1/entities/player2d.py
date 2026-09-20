@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 from factories.theme import RGB, Cyan, Green, Red, White, Yellow
 from model.base import PointF, VectorF
 from model.keyboard import MovementKeys
-from model.player import Player, PlayerStatus
 from model.theme import Theme
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
+from player import Player, PlayerStatus
 from system import on_key_press
 from utils import colored
 

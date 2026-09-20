@@ -2,13 +2,13 @@ from display import Display
 from model.base import PointF
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
-from model.player import PlayerStatus
 from model.shared import Engine, KeyboardHandler
 from model.theme import BR
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
+from player import PlayerStatus
 from system import on_key_press, stop_mouse_listener
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.line_renderer import LineRenderer
