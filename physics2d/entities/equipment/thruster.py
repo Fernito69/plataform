@@ -4,12 +4,12 @@ from model.theme import Theme
 from physics2d.entities.model.shared import ParticleGenerator
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class Thruster:
     name: str
-    scenario: "Scenario"
+    _engine: "Physics2D"
     particle_generator: ParticleGenerator
     player_theme: Theme
     max_speed: float
@@ -18,7 +18,7 @@ class Thruster:
 
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
         name: str,
         particle_generator: ParticleGenerator,
         player_theme: Theme,
@@ -26,7 +26,7 @@ class Thruster:
         accel: float,
         decel: float,
     ):
-        self.scenario = scenario
+        self._engine = engine
         self.name = name
         self.particle_generator = particle_generator
         self.player_theme = player_theme
@@ -35,4 +35,4 @@ class Thruster:
         self.decel = decel
 
     def handle_particles(self) -> None:
-        self.particle_generator(self.scenario, self.scenario.player)
+        self.particle_generator(self._engine, self._engine.scenario.player)

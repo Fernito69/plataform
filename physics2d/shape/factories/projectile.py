@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.enemy import Enemy
     from physics2d.entities.model.shared import ParticleGenerator
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 def get_lightning_bolts(
@@ -27,9 +27,9 @@ def get_lightning_bolts(
     num_segments: int = 12,
     render_on_top: bool = True,
 ) -> "ParticleGenerator":
-    def _lightning(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    def _lightning(engine: "Physics2D", source: "PhysicsEntity") -> None:
         return _lightning_bolts(
-            scenario=scenario,
+            engine=engine,
             source=source,
             initial_color=initial_color,
             ending_color=ending_color,
@@ -46,7 +46,7 @@ def get_lightning_bolts(
 
 
 def _lightning_bolts(
-    scenario: "Scenario",
+    engine: "Physics2D",
     source: "PhysicsEntity",
     initial_color: RGB,
     ending_color: RGB,
@@ -66,7 +66,7 @@ def _lightning_bolts(
     if damage:
         possible_victims = [
             r.enemy
-            for r in scenario.get_enemies_in_range(
+            for r in engine.scenario.get_enemies_in_range(
                 damage_range,
                 source,
                 calc_distance_to_border=True,
@@ -90,6 +90,7 @@ def _lightning_bolts(
             ending_color=ending_color,
             normal_noise=2,
             parallel_noise=3,
+            engine=engine,
             life_time=life_time,
             num_segments=num_segments,
             thickness=1,
@@ -104,12 +105,12 @@ def _lightning_bolts(
             # TODO: is it right that the particle gen takes care of this?
             possible_victims[index].receive_damage(damage or 0)
             lightning_impact(
-                scenario,
+                engine,
                 possible_victims[index],
                 possible_victims[index].center + random_offset_vector(_size, _size),
             )
 
     if render_on_top:
-        scenario.fg_shapes.extend(pieces)
+        engine.scenario.fg_shapes.extend(pieces)
     else:
-        scenario.bg_shapes.extend(pieces)
+        engine.scenario.bg_shapes.extend(pieces)

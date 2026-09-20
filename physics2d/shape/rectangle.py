@@ -18,6 +18,7 @@ class Rectangle(Line):
     def __init__(
         self,
         vertices: tuple[PointF, PointF],
+        engine: "Physics2D",
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -39,6 +40,7 @@ class Rectangle(Line):
             initial_angular_velocity=initial_angular_velocity,
             points=vertices,
             density=density,
+            engine=engine,
         )
         self.theme = theme
         self.secondary_theme = secondary_theme
@@ -69,7 +71,7 @@ class Rectangle(Line):
         )
         return (min_x, max_x, min_y, max_y)
 
-    def _apply_movement(self, engine: "Physics2D") -> None:
+    def _apply_movement(self) -> None:
         self._float_around()
 
         if not any(a != 0 for a in self.velocity):
@@ -84,9 +86,9 @@ class Rectangle(Line):
     def rotate(self) -> None:
         pass
 
-    def do_your_thing(self, engine: "Physics2D") -> None:
-        self._apply_gravity(engine.scenario.gravity_acceleration)
-        self._apply_movement(engine)
+    def do_your_thing(self) -> None:
+        self._apply_gravity(self._engine.scenario.gravity_acceleration)
+        self._apply_movement()
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:

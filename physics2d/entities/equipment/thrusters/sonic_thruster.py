@@ -11,15 +11,14 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class SonicThruster(Thruster):
     """I dunno!"""
 
-    def __init__(self, scenario: "Scenario"):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
-            scenario=scenario,
             particle_generator=sonic_wave,
             name="SonicThruster",
             player_theme=Theme(
@@ -28,10 +27,11 @@ class SonicThruster(Thruster):
             max_speed=7,
             accel=2,
             decel=1.5,
+            engine=engine,
         )
 
 
-def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
     vel_magnitude = abs(source.velocity)
@@ -56,6 +56,7 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         life_time=2,
         floating_multi=1,
+        engine=engine,
     )
     pieces.append(sonic_boom_vacuum)
 
@@ -73,6 +74,7 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         life_time=5,
         floating_multi=1,
+        engine=engine,
     )
     pieces.append(sonic_boom_2)
 
@@ -90,6 +92,7 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         life_time=25,
         floating_multi=1,
+        engine=engine,
     )
     pieces.append(sonic_boom)
 
@@ -111,6 +114,7 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=15,
             floating_multi=6,
+            engine=engine,
         )
         pieces.append(sonic_challa)
 
@@ -137,4 +141,4 @@ def sonic_wave(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TOOD: y esto?
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
@@ -7,6 +9,9 @@ from physics2d.shape.line import Line
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.base import Particle
 from utils import get_normal_unit_vector_from_line, random_offset
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class Lightning(Particle, Line):
@@ -27,6 +32,7 @@ class Lightning(Particle, Line):
         self,
         source: PhysicsEntity,
         end_point: PointF,
+        engine: "Physics2D",
         start_point: PointF | None = None,
         life_time: int | None = 5,
         thickness: float = 1,
@@ -77,6 +83,7 @@ class Lightning(Particle, Line):
             secondary_theme=Theme(color=ending_color),
             thickness=thickness,
             render_behind_player=render_behind_player,
+            engine=engine,
         )
         self.segments = []
         self._gen_lightning()
@@ -84,7 +91,7 @@ class Lightning(Particle, Line):
     def get_render_info(self) -> list[RenderInfo]:
         return [info for line in self.segments for info in line.get_render_info()]
 
-    def _apply_movement(self, engine) -> None:
+    def _apply_movement(self) -> None:
         self._float_around()
         self.rotate()
 
@@ -110,7 +117,7 @@ class Lightning(Particle, Line):
         self.points = _get_new_points(self.points)
 
         for idx, _ in enumerate(self.segments):
-            self.segments[idx]._apply_movement(engine)
+            self.segments[idx]._apply_movement()
 
         self.update_center_of_mass()
 
@@ -155,6 +162,7 @@ class Lightning(Particle, Line):
                     thickness=self.thickness,
                     theme=self.theme,
                     initial_velocity=self.velocity,
+                    engine=self._engine,
                 )
             ]
             + [
@@ -166,6 +174,7 @@ class Lightning(Particle, Line):
                     thickness=_get_thickness(idx),
                     theme=self.theme,
                     initial_velocity=self.velocity,
+                    engine=self._engine,
                 )
                 for idx, p in enumerate(segment_points[:-1])
             ]
@@ -175,6 +184,7 @@ class Lightning(Particle, Line):
                     thickness=self.final_thickness or self.thickness,
                     theme=self.theme,
                     initial_velocity=self.velocity,
+                    engine=self._engine,
                 )
             ]
         )
@@ -207,6 +217,6 @@ class Lightning(Particle, Line):
             for idx in range(len(self.segments)):
                 self.segments[idx].theme = self.theme
 
-    def _act(self, engine) -> None:
+    def _act(self) -> None:
         self._gen_lightning()
-        self._apply_movement(engine)
+        self._apply_movement()

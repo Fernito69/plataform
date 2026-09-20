@@ -10,15 +10,15 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class MeteorThruster(Thruster):
     """Looks like a meteor!"""
 
-    def __init__(self, scenario: "Scenario"):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
-            scenario=scenario,
+            engine=engine,
             particle_generator=meteor_trail,
             name="MeteorThruster",
             player_theme=Theme(
@@ -33,7 +33,7 @@ class MeteorThruster(Thruster):
 ###############################
 
 
-def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def meteor_trail(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -86,11 +86,12 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
             life_time=15,
             gravity=-0.07,
+            engine=engine,
         )
         pieces.append(thrust_fire)
 
     for _ in range(round((vel_magnitude / 6) + 1)):
-        if vel_magnitude == 0 and scenario.now() % 8 != 0:
+        if vel_magnitude == 0 and engine.scenario.now() % 8 != 0:
             continue
 
         sparks = CircularParticle(
@@ -108,9 +109,10 @@ def meteor_trail(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ending_color=RGB(40, 5, 0, 1),  # dark orange
             life_time=70,
             gravity=0.1,
+            engine=engine,
         )
         pieces.append(sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces

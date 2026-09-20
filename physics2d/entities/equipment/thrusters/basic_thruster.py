@@ -10,15 +10,15 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class BasicThruster(Thruster):
     """Standard issue"""
 
-    def __init__(self, scenario: "Scenario"):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
-            scenario=scenario,
+            engine=engine,
             particle_generator=standard_thruster,
             name="BasicThruster",
             player_theme=Theme(
@@ -33,7 +33,7 @@ class BasicThruster(Thruster):
 ######################################
 
 
-def standard_thruster(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def standard_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
     _smoke_density = 3
@@ -56,7 +56,8 @@ def standard_thruster(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=10,
             gravity=-0.07,
+            engine=engine,
         )
         pieces.append(smoke)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces

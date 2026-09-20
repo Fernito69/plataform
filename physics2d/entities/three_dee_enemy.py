@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 
 class ThreeDeeEnemy(Enemy):
-    # TOOD: this should apply for all entites actually, and stop drilling it via do_your_thing
     engine: "Physics2D"
 
     polyhedron: Entity3D
@@ -66,11 +65,11 @@ class ThreeDeeEnemy(Enemy):
         self.name = name
         self.extra_shapes = extra_shapes
 
-    def do_your_thing(self, engine: "Physics2D") -> None:
+    def do_your_thing(self) -> None:
         self.polyhedron.calc_legacy_voxels()
         self.polyhedron.movement()
 
-        super().do_your_thing(engine)
+        super().do_your_thing()
 
     #################################################################
     """ RENDERING """

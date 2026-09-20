@@ -39,8 +39,9 @@ class Crosshair(PhysicsEntity, MouseHandler):
             density=density,
             size=_DOT_SIZE,
             theme=_CROSSHAIR_THEME,
+            engine=engine,
         )
-        self.engine = engine
+        self._engine = engine
         self.center = position
         self.position = position
         self.radius = _DOT_SIZE
@@ -57,6 +58,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
                 ),
                 thickness=1,
                 theme=_CROSSHAIR_THEME,
+                engine=self._engine,
             )
 
         self.extra_shapes = [
@@ -87,7 +89,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
             )
 
     def _handle_color(self) -> None:
-        curr_weapon = self.engine.scenario.player.get_curr_weapon()
+        curr_weapon = self._engine.scenario.player.get_curr_weapon()
         _is_pressing_trigger = self._is_mouse_pressed(mouse.Button.left)
 
         _og_color = (

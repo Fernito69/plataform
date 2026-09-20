@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import Theme
@@ -7,7 +7,7 @@ from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class PhysicsEntity(Circunference):
@@ -21,7 +21,7 @@ class PhysicsEntity(Circunference):
         self,
         density: float,
         size: float,
-        scenario: Optional["Scenario"] = None,
+        engine: "Physics2D",
         name: str = "PhysicsEntity",
         position: PointF = PointF(0, 0),
         # velocity: VectorF = VectorF(0, 0),
@@ -49,8 +49,9 @@ class PhysicsEntity(Circunference):
             floating_multi=floating_multi,
             initial_velocity=initial_velocity,
             is_collideable=is_collideable,
+            engine=engine,
         )
-        self._scenario = scenario
+        self._engine = engine
         self.position = position
         self.extra_shapes = extra_shapes
 
@@ -59,9 +60,6 @@ class PhysicsEntity(Circunference):
         self.size = size
 
         # volume depends on the type of entity
-
-    def set_scenario(self, scenario: "Scenario") -> None:
-        self._scenario = scenario
 
     def get_render_info(self) -> list[RenderInfo]:
         info = super().get_render_info()

@@ -95,7 +95,7 @@ class Scenario:
             + self.enemies
             + self.three_dee_enemies
         ):
-            entity.do_your_thing(self.engine)
+            entity.do_your_thing()
 
         self._particle_lifetime_cleanup()
         self._game_tick += 1
@@ -117,7 +117,7 @@ class Scenario:
 
         for p in self.projectiles:
             if p.life_time is not None and p.life_time <= 0:
-                p.hit(self.engine)
+                p.hit()
                 if p in self.projectiles:
                     self.projectiles.remove(p)
 

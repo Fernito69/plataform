@@ -13,7 +13,7 @@ from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 _BFG_BASE_COUNTDOWN = 15
 _BFG_READY_LIGHT = RGB(0, 255, 0, 1)
@@ -25,11 +25,11 @@ _BFG_FIRING_LIGHT = RGB(255, 0, 0, 1)
 class BFG(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         super().__init__(
             name="BFG",
-            scenario=scenario,
+            engine=engine,
             max_ammo=5,
             refractory_period=50,
             fire_particle_generator=bfg_nozzle,
@@ -73,7 +73,7 @@ class BFG(Weapon):
             self._trigger_fire_sequence()
 
     def _trigger_fire_sequence(self) -> None:
-        player = self._scenario.player
+        player = self._engine.scenario.player
         _radius = 20
         _size = 3
         _particle_color = RGB(100, 255, 100, 1)
@@ -82,7 +82,7 @@ class BFG(Weapon):
         for angle in range(0, 360, 30):
             offset = VectorF(2 * _radius, 0).rotate(math.radians(angle), PointF(0, 0))
 
-            def _particle(s: "Scenario", c) -> None:
+            def _particle(engine: "Physics2D", c) -> None:
                 particle = CircularParticle(
                     origin=c,
                     initial_velocity=VectorF.random_offset_vector(),
@@ -92,8 +92,9 @@ class BFG(Weapon):
                     ending_color=_particle_color.with_intensity(0.2),
                     life_time=8,
                     floating_multi=1,
+                    engine=engine,
                 )
-                s.fg_shapes.append(particle)
+                engine.scenario.fg_shapes.append(particle)
 
             particle = CircularParticle(
                 origin=player.center + offset,
@@ -104,8 +105,9 @@ class BFG(Weapon):
                 ending_color=_particle_color,
                 life_time=_BFG_BASE_COUNTDOWN,
                 particle_generator=_particle,
+                engine=self._engine,
             )
-            self._scenario.fg_shapes.append(particle)
+            self._engine.scenario.fg_shapes.append(particle)
 
     def secondary_fire(self) -> None: ...
 
@@ -115,7 +117,7 @@ class BFG(Weapon):
 #################################################################
 
 
-def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 500
     _ROCKET_SPEED = 2
     _LIFE_TIME = 100
@@ -149,6 +151,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_velocity=(
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
+        engine=engine,
         size=3.5,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
@@ -169,7 +172,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
         density=3,
         explode_on_life_time_over=True,
     )
-    scenario.projectiles.append(bfg_ball)
+    engine.scenario.projectiles.append(bfg_ball)
 
 
 #################################################################
@@ -177,7 +180,7 @@ def bfg_ball(scenario: "Scenario", source: "PhysicsEntity") -> None:
 #################################################################
 
 
-def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def bfg_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     direction = source.get_aiming_direction()
     # TODO: this is copy/paste, generalize
     _bfg_color = RGB(100, 255, 100)
@@ -186,6 +189,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         origin=source.center + 7 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=9,
+        engine=engine,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_bfg_color,
         ending_color=RGB(90, 120, 30, intensity=1),
@@ -200,11 +204,13 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=RGB(220, 255, 20),
         ending_color=RGB(110, 150, 30),
         life_time=10,
+        engine=engine,
     )
     bfg_3 = CircularParticle(
         origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
+        engine=engine,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(170, 255, 20),
         ending_color=RGB(60, 120, 20),
@@ -214,6 +220,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         origin=source.center + 6 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
+        engine=engine,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(230, 255, 230, 1),
         ending_color=RGB(150, 200, 150, 1),
@@ -222,7 +229,7 @@ def bfg_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
     # TODO: add sonic thruster like effects
 
-    scenario.fg_shapes.extend([fire_white, bfg_1, bfg_2, bfg_3])
+    engine.scenario.fg_shapes.extend([fire_white, bfg_1, bfg_2, bfg_3])
 
 
 ########

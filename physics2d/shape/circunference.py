@@ -39,6 +39,7 @@ class Circunference(Shape):
         center: PointF,
         radius: float,
         theme: Theme,
+        engine: "Physics2D",
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
@@ -70,6 +71,7 @@ class Circunference(Shape):
             volume=self.volume,
             density=self.density,
             is_collideable=is_collideable,
+            engine=engine,
         )
 
     # TODO: unify with PlayerBlob
@@ -89,7 +91,7 @@ class Circunference(Shape):
         if 0 <= self.velocity.y < _DECEL_FACTOR:
             self.velocity.y = 0
 
-    def _apply_movement(self, engine: "Physics2D") -> None:
+    def _apply_movement(self) -> None:
         # TODO: I don't like this lazy import
         from physics2d.entities.base import PhysicsEntity
         from physics2d.entities.enemy import Enemy
@@ -99,7 +101,7 @@ class Circunference(Shape):
         self._float_around()
         self._apply_gravity()
 
-        self.would_collide_with(engine.scenario.player, engine)
+        self.would_collide_with(self._engine.scenario.player)
 
         # TOOD: why enabling this prevents the player collision from working
         # for p in scenario .solid_pieces:
@@ -115,7 +117,7 @@ class Circunference(Shape):
             self.position = self.center
 
             if isinstance(self, Particle) and self._particle_generator:
-                self._particle_generator(engine.scenario, self)
+                self._particle_generator(self._engine, self)
 
             if isinstance(self, Projectile):
                 if self.target:
@@ -134,7 +136,7 @@ class Circunference(Shape):
                     and self.life_time is not None
                     and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
                 ):
-                    possible_victims = engine.scenario.get_enemies_in_range(
+                    possible_victims = self._engine.scenario.get_enemies_in_range(
                         self.target_acquire_threshold,
                         self,
                         calc_distance_to_border=True,
@@ -165,101 +167,15 @@ class Circunference(Shape):
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
-    def get_render_info(self) -> list[RenderInfo]:
-        from physics2d.entities.player_blob import PlayerBlob
+        # this only makes sense if we implement textured circunferences
 
-        piece_info: list[RenderInfo] = []
-
-        min_x, max_x = sorted(
-            (
-                self.center.x + self.radius,
-                self.center.x - self.radius,
-            )
-        )
-        min_y, max_y = sorted(
-            (
-                self.center.y + self.radius,
-                self.center.y - self.radius,
-            )
-        )
-
-        eq = self.get_circunference_equations()
-
-        # TODO: we should mirror all these calculations!
-        for curr_x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
-            # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
-            # TODO: these calculations seem to be the ones slowing down big balls' rendering
-            y1, y2 = eq.get_ys(curr_x)
-
-            # TODO: here we need to do something to make the upper border render
-            if y1 is None or y2 is None:
-                continue
-
-            # This is in order to optimize the rendering, since calculating circunference equations is expensive
-            _go_full_color_until_next_x: bool = False
-            _next_x: float | None = None
-            _distance: float = -1
-
-            x1: float | None = curr_x
-            x2: float | None = self.radius + self.center.x - curr_x
-
-            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
-                if not _go_full_color_until_next_x:
-                    x1, x2 = eq.get_xs(curr_y)
-
-                    if x1 is None or x2 is None:
-                        continue
-
-                    _distance = min(
-                        max(
-                            0,
-                            curr_y - y2,
-                            y1 - curr_y,
-                        ),
-                        max(
-                            0,
-                            curr_x - x2,
-                            x1 - curr_x,
-                        ),
-                    )
-                    _next_x = x2
-
-                if _distance > 1:
-                    continue
-
-                if _distance <= 0 and not _go_full_color_until_next_x:
-                    _go_full_color_until_next_x = True
-
-                piece_info.append(
-                    RenderInfo(
-                        distance_to_pixel_center=_distance,
-                        color=self.theme.color or RGB(255, 255, 255),
-                        point=PointF(curr_x, curr_y),
-                    )
-                )
-
-                if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
-                    _go_full_color_until_next_x = False
-
-        # Add player details and ornaments (TODO: move to player rendering)
-        if isinstance(self, PlayerBlob):
-            weapon_badge = Circunference(
-                center=self.get_weapon_position(),
-                radius=1.2,
-                theme=Theme(color=self.get_curr_weapon().color),
-            )
-            piece_info[0:0] = weapon_badge.get_render_info()
-
-        return piece_info
-
-    # this only makes sense if we implement textured circunferences
     def rotate(self) -> None:
         pass
 
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
-    def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D") -> bool:
+    def would_collide_with(self, colliding_shape: Shape) -> bool:
         from physics2d.entities.equipment.projectile import Projectile
 
         if (
@@ -361,3 +277,221 @@ class Circunference(Shape):
 
         # TODO: add the other shapes
         return False
+
+    def get_render_info(self) -> list[RenderInfo]:
+        return (
+            self._get_render_info_cheap()
+            if self._engine.low_quality_mode
+            else self._get_render_info_v1()
+        )
+
+    def _get_render_info_v1(self) -> list[RenderInfo]:
+        from physics2d.entities.player_blob import PlayerBlob
+
+        piece_info: list[RenderInfo] = []
+
+        min_x, max_x = sorted(
+            (
+                self.center.x + self.radius,
+                self.center.x - self.radius,
+            )
+        )
+        min_y, max_y = sorted(
+            (
+                self.center.y + self.radius,
+                self.center.y - self.radius,
+            )
+        )
+
+        eq = self.get_circunference_equations()
+
+        # TODO: we should mirror all these calculations!
+        for curr_x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
+            # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
+            # TODO: these calculations seem to be the ones slowing down big balls' rendering
+            y1, y2 = eq.get_ys(curr_x)
+
+            # TODO: here we need to do something to make the upper border render
+            if y1 is None or y2 is None:
+                continue
+
+            # This is in order to optimize the rendering, since calculating circunference equations is expensive
+            _go_full_color_until_next_x: bool = False
+            _next_x: float | None = None
+            _distance: float = -1
+
+            x1: float | None = curr_x
+            x2: float | None = self.radius + self.center.x - curr_x
+
+            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
+                if not _go_full_color_until_next_x:
+                    x1, x2 = eq.get_xs(curr_y)
+
+                    if x1 is None or x2 is None:
+                        continue
+
+                    _distance = min(
+                        max(
+                            0,
+                            curr_y - y2,
+                            y1 - curr_y,
+                        ),
+                        max(
+                            0,
+                            curr_x - x2,
+                            x1 - curr_x,
+                        ),
+                    )
+                    _next_x = x2
+
+                if _distance > 1:
+                    continue
+
+                if _distance <= 0 and not _go_full_color_until_next_x:
+                    _go_full_color_until_next_x = True
+
+                piece_info.append(
+                    RenderInfo(
+                        distance_to_pixel_center=_distance,
+                        color=self.theme.color or RGB(255, 255, 255),
+                        point=PointF(curr_x, curr_y),
+                    )
+                )
+
+                if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
+                    _go_full_color_until_next_x = False
+
+        # Add player details and ornaments (TODO: move to player rendering)
+        if isinstance(self, PlayerBlob):
+            weapon_badge = Circunference(
+                engine=self._engine,
+                center=self.get_weapon_position(),
+                radius=1.2,
+                theme=Theme(color=self.get_curr_weapon().color),
+            )
+            piece_info[0:0] = weapon_badge.get_render_info()
+
+        return piece_info
+
+    # TODO: experimenting with a cheaper renderer
+    def _get_render_info_cheap(self) -> list[RenderInfo]:
+        from physics2d.entities.player_blob import PlayerBlob
+
+        piece_info: list[RenderInfo] = []
+
+        min_x, max_x = sorted(
+            (
+                self.center.x + self.radius,
+                self.center.x - self.radius,
+            )
+        )
+        min_y, max_y = sorted(
+            (
+                self.center.y + self.radius,
+                self.center.y - self.radius,
+            )
+        )
+
+        eq = self.get_circunference_equations()
+        x_range = range(math.floor(min_x), math.ceil(max_x))
+
+        for curr_x in x_range:
+            # Get full range of y for the current x_slice
+            y1, y2 = eq.get_ys(curr_x)
+            next_y1, next_y2 = eq.get_ys(curr_x + 1) if curr_x + 1 < len(x_range) else (None, None)
+
+            all_ys: list[float] = [v for v in [y1, y2, next_y1, next_y2] if v is not None]
+            if len(all_ys) == 0:
+                continue
+
+            local_max_y = max(all_ys)
+            local_min_y = min(all_ys)
+
+            y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
+
+            # _go_full_color_until_next_x: bool = False
+            # _next_x: float | None = None
+            # _distance: float = -1
+
+            # This is in order to optimize the rendering, since calculating circunference equations is expensive
+            for curr_y in y_range:
+                # Omit these roots for faster output!
+                # x1, x2 = eq.get_xs(curr_y)
+                _distance = min(
+                    max(
+                        0,
+                        (curr_y - y2) if y2 is not None else -1000,
+                        (y1 - curr_y) if y1 is not None else -1000,
+                    ),
+                    10000000,
+                    # max(
+                    #     0,
+                    #     (curr_x - x2) if x2 is not None else -1000,
+                    #     (x1 - curr_x) if x1 is not None else -1000,
+                    # ),
+                )
+                piece_info.append(
+                    RenderInfo(
+                        distance_to_pixel_center=_distance,
+                        color=self.theme.color or RGB(),
+                        point=PointF(curr_x, curr_y),
+                    )
+                )
+
+            # # This is in order to optimize the rendering, since calculating circunference equations is expensive
+            # _go_full_color_until_next_x: bool = False
+            # _next_x: float | None = None
+            # _distance: float = -1
+
+            # x1: float | None = curr_x
+            # x2: float | None = self.radius + self.center.x - curr_x
+
+            # for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
+            #     if not _go_full_color_until_next_x:
+            #         # x1, x2 = eq.get_xs(curr_y)
+
+            #         if x1 is None or x2 is None:
+            #             continue
+
+            #         _distance = min(
+            #             max(
+            #                 0,
+            #                 curr_y - y2,
+            #                 y1 - curr_y,
+            #             ),
+            #             max(
+            #                 0,
+            #                 curr_x - x2,
+            #                 x1 - curr_x,
+            #             ),
+            #         )
+            #         _next_x = x2
+
+            #     if _distance > 1:
+            #         continue
+
+            #     if _distance <= 0 and not _go_full_color_until_next_x:
+            #         _go_full_color_until_next_x = True
+
+            #     piece_info.append(
+            #         RenderInfo(
+            #             distance_to_pixel_center=_distance,
+            #             color=self.theme.color or RGB(255, 255, 255),
+            #             point=PointF(curr_x, curr_y),
+            #         )
+            #     )
+
+            #     if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
+            #         _go_full_color_until_next_x = False
+
+        # Add player details and ornaments (TODO: move to player rendering)
+        if isinstance(self, PlayerBlob):
+            weapon_badge = Circunference(
+                engine=self._engine,
+                center=self.get_weapon_position(),
+                radius=1.2,
+                theme=Theme(color=self.get_curr_weapon().color),
+            )
+            piece_info[0:0] = weapon_badge.get_render_info()
+
+        return piece_info

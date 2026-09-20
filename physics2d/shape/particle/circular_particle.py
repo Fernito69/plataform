@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.base import Particle
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class CircularParticle(Particle, PhysicsEntity):
@@ -19,6 +24,7 @@ class CircularParticle(Particle, PhysicsEntity):
         origin: PointF | PhysicsEntity,
         size: float,
         initial_color: RGB,
+        engine: "Physics2D",
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
         ending_color: RGB | None = None,
@@ -33,6 +39,7 @@ class CircularParticle(Particle, PhysicsEntity):
         offset_from_origin: VectorF = VectorF(0, 0),
         name="Particle",
     ):
+        self._engine = engine
         self.life_time = life_time
         self._original_life_time = life_time
         self.initial_color = initial_color
@@ -84,6 +91,7 @@ class CircularParticle(Particle, PhysicsEntity):
             density=density,
             size=size * 2,
             name=name,
+            engine=engine,
         )
 
     def _handle_life_time(self) -> None:
@@ -123,10 +131,10 @@ class CircularParticle(Particle, PhysicsEntity):
                 b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
             )
 
-    def _act(self, engine) -> None:
+    def _act(self) -> None:
         if self.source:
             self.position = self.source.position
             self.center = self.position
             self.update_center_of_mass()
             return
-        PhysicsEntity._apply_movement(self, engine)
+        PhysicsEntity._apply_movement(self)

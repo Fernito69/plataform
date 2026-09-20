@@ -12,9 +12,12 @@ if TYPE_CHECKING:
 
 
 class Shape:
+    _engine: "Physics2D"
+
     name: str
     theme: Theme
     secondary_theme: Theme | None
+    # TODO: do right and make it mandatory!
 
     # in radians
     angle: float
@@ -44,6 +47,7 @@ class Shape:
         name: str,
         density: float,
         volume: float,
+        engine: "Physics2D",
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -72,6 +76,7 @@ class Shape:
         self.is_collideable = is_collideable
         self.affected_by_friction = affected_by_friction
         self.render_behind_player = render_behind_player
+        self._engine = engine
 
     def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
         if not self._affected_by_gravity and not self._own_gravity_accel:
@@ -97,7 +102,7 @@ class Shape:
         raise NotImplementedError(f"Shape must have a get_render_info method")
 
     @abstractmethod
-    def would_collide_with(self, shape: "Shape", engine: "Physics2D") -> bool:
+    def would_collide_with(self, shape: "Shape") -> bool:
         """Determines wheter the current shape would collide with a particular shape, given their location"""
 
         # Each shape should do its thing
@@ -135,12 +140,12 @@ class Shape:
         ).as_vector()
 
     @abstractmethod
-    def _apply_movement(cls, scenario: "Physics2D") -> None:
+    def _apply_movement(cls) -> None:
         # Each entity should do its thing
         raise NotImplementedError(
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"
         )
 
-    def do_your_thing(self, engine: "Physics2D") -> None:
-        self._apply_gravity(engine.scenario.gravity_acceleration)
-        self._apply_movement(engine)
+    def do_your_thing(self) -> None:
+        self._apply_gravity(self._engine.scenario.gravity_acceleration)
+        self._apply_movement()

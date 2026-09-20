@@ -7,13 +7,13 @@ from physics2d.shape.particle.line_particle import LineParticle
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class DeathRay(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         _START_COLOR = RGB(255, 220, 200, 1)
         _END_COLOR = RGB(0, 0, 100, 1)
@@ -22,7 +22,7 @@ class DeathRay(Weapon):
 
         super().__init__(
             name="DeathRay",
-            scenario=scenario,
+            engine=engine,
             max_ammo=30,
             refractory_period=30,
             fire_particle_generator=lightning_nozzle,
@@ -45,7 +45,7 @@ class DeathRay(Weapon):
 
 # TODO: ideally should be aware of what we are shooting at
 # TODO: make it like a non-targeted lightning weapon beam but less intense
-def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def lightning_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     # _initial_color = RGB(
     #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
     # )
@@ -61,7 +61,7 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=8,
         num_segments=5,
     )
-    _lightning(scenario, source)
+    _lightning(engine, source)
 
 
 ################
@@ -74,13 +74,14 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
 
 # TODO: ideally should be aware of what we are shooting at
 # TODO: make it like a non-targeted lightning weapon beam but less intense
-def ray(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def ray(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _ending_color = RGB(255, 255, 200, 1)
     _initial_color = RGB(255, 255, 10, 1)
 
     line = LineParticle(
         source=source,
-        end_point=scenario.player.engine.screen_corner + scenario.crosshair.position,
+        end_point=engine.scenario.player._engine.screen_corner + engine.scenario.crosshair.position,
+        engine=engine,
         initial_color=_initial_color,
         ending_color=_ending_color,
         life_time=10,
@@ -89,7 +90,7 @@ def ray(scenario: "Scenario", source: "PhysicsEntity") -> None:
         pulsate_freq=10,
     )
 
-    scenario.fg_shapes.append(line)
+    engine.scenario.fg_shapes.append(line)
 
 
 ################

@@ -24,6 +24,7 @@ class Line(Shape):
         self,
         points: tuple[PointF, PointF],
         theme: Theme,
+        engine: "Physics2D",
         thickness: float = 1,
         secondary_theme: Theme | None = None,
         angle: float = 0,
@@ -49,6 +50,7 @@ class Line(Shape):
 
         self.update_center_of_mass()
         super().__init__(
+            engine=engine,
             theme=theme,
             angle=angle,
             affected_by_gravity=affected_by_gravity,
@@ -69,15 +71,15 @@ class Line(Shape):
             (self.points[0].y + self.points[1].y) / 2,
         )
 
-    def do_your_thing(self, engine: "Physics2D") -> None:
+    def do_your_thing(self) -> None:
         self._pulsate()
-        return super().do_your_thing(engine)
+        return super().do_your_thing()
 
     # TODO: make abstract in Shape and not private
     def _move_by(self, vector: VectorF) -> None:
         self.points = (self.points[0] + vector, self.points[1] + vector)
 
-    def would_collide_with(self, colliding_shape: Shape, engine: "Physics2D"):
+    def would_collide_with(self, colliding_shape: Shape):
         if not self.is_collideable or not colliding_shape.is_collideable:
             return
         # TODO: implement
@@ -188,7 +190,7 @@ class Line(Shape):
 
         return color
 
-    def _apply_movement(self, engine: "Physics2D") -> None:
+    def _apply_movement(self) -> None:
         self._float_around()
         self.rotate()
         self._pulsate()

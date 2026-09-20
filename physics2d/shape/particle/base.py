@@ -41,21 +41,20 @@ class Particle:
         self.floating_multi = floating_multi
         self._particle_generator = particle_generator
 
-    # TODO: type this
-    def do_your_thing(self, engine) -> None:
+    def do_your_thing(self) -> None:
         from physics2d.entities.equipment.projectile import Projectile
 
-        self._act(engine)
+        self._act()
         self._handle_life_time()
 
         # TODO: fix this, should apply for any shape/entity
         if self._particle_generator and isinstance(self, PhysicsEntity):
-            self._particle_generator(engine.scenario, self)
+            self._particle_generator(self._engine, self)
         if isinstance(self, Projectile) and self._trail_generator:
-            self._trail_generator(engine.scenario, self, self.target)
+            self._trail_generator(self._engine, self, self.target)
 
     @abstractmethod
-    def _act(cls, engine) -> None: ...
+    def _act(cls) -> None: ...
 
     @abstractmethod
     def _handle_life_time(cls) -> None: ...

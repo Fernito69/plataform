@@ -16,13 +16,13 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.model.shared import ParticleGenerator
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class RocketLauncher(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
         recoil: float = 1.5,
         max_ammo: int = 50,
         refractory_period: int = 15,
@@ -34,7 +34,7 @@ class RocketLauncher(Weapon):
     ):
         super().__init__(
             name=name,
-            scenario=scenario,
+            engine=engine,
             max_ammo=max_ammo,
             refractory_period=refractory_period,
             fire_particle_generator=fire_particle_generator or rocket_launcher_nozzle,
@@ -53,10 +53,9 @@ class RocketLauncher(Weapon):
 class HeavyRocketLauncher(RocketLauncher):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         super().__init__(
-            scenario=scenario,
             max_ammo=10,
             refractory_period=25,
             ammo=10,
@@ -64,6 +63,7 @@ class HeavyRocketLauncher(RocketLauncher):
             recoil=2,
             projectile_generator=heavy_rocket,
             name="HeavyRocketLauncher",
+            engine=engine,
         )
 
     def _spend_ammo(self) -> None:
@@ -78,6 +78,7 @@ class HeavyRocketLauncher(RocketLauncher):
 
 
 def _rocket_factory(
+    engine: "Physics2D",
     source: "PhysicsEntity",
     rocket_speed: float,
     life_time: int,
@@ -89,6 +90,7 @@ def _rocket_factory(
 ):
     return Projectile(
         owner=source,
+        engine=engine,
         offset_from_origin=random_offset_vector(),
         initial_velocity=(
             (rocket_speed + random_offset()) * source.get_aiming_direction()
@@ -106,7 +108,7 @@ def _rocket_factory(
     )
 
 
-def heavy_rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 250
     _ROCKET_SPEED = 5
     _LIFE_TIME = 120
@@ -133,7 +135,8 @@ def heavy_rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
     #     explode_on_life_time_over=True,
     # )
     rocket = _rocket_factory(
-        source,
+        engine=engine,
+        source=source,
         damage=_DAMAGE,
         rocket_speed=_ROCKET_SPEED,
         life_time=_LIFE_TIME,
@@ -142,10 +145,10 @@ def heavy_rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         size=_SIZE,
         color=RGB(255, 100, 100),
     )
-    scenario.projectiles.append(rocket)
+    engine.scenario.projectiles.append(rocket)
 
 
-def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 100
     _ROCKET_SPEED = 8
     _LIFE_TIME = 100
@@ -154,7 +157,8 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
     _SIZE = 1.2
 
     rocket = _rocket_factory(
-        source,
+        engine=engine,
+        source=source,
         damage=_DAMAGE,
         rocket_speed=_ROCKET_SPEED,
         life_time=_LIFE_TIME,
@@ -162,7 +166,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
         max_blast_damage=_MAX_BLAST_DAMAGE,
         size=_SIZE,
     )
-    scenario.projectiles.append(rocket)
+    engine.scenario.projectiles.append(rocket)
 
 
 #################################################################
@@ -170,7 +174,7 @@ def rocket(scenario: "Scenario", source: "PhysicsEntity") -> None:
 #################################################################
 
 
-def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def rocket_launcher_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     direction = source.get_aiming_direction()
 
     # TODO: this is copy/paste, generalize
@@ -195,6 +199,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         initial_color=_fire_1_color,
         ending_color=RGB(150, 120, 30, intensity=1),
         life_time=7,
+        engine=engine,
     )
 
     fire_2 = CircularParticle(
@@ -209,16 +214,18 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=6,
+        engine=engine,
         particle_generator=get_smoke_generator(
             life_time=15,
             random_offset_threshold=-0.25,
-            initial_velocity=(0.2 * scenario.player.get_aiming_direction()).as_vector(),
+            initial_velocity=(0.2 * engine.scenario.player.get_aiming_direction()).as_vector(),
         ),
     )
     fire_3 = CircularParticle(
         origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
         initial_velocity=source.velocity,
         size=4,
+        engine=engine,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
             255,
@@ -232,6 +239,7 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         origin=source.center + 6 * (direction) + random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
+        engine=engine,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
@@ -251,7 +259,8 @@ def rocket_launcher_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> Non
         ending_color=RGB(80, 10, 0, 1),  # dark orange
         life_time=5,
         gravity=0.1,
+        engine=engine,
     )
     sparks.append(spark)
 
-    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    engine.scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])

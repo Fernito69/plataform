@@ -10,10 +10,10 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.model.shared import ParticleGenerator
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
-def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) -> None:
+def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -> None:
     particles: list[CircularParticle] = []
 
     eye_x = source.center.x - source.velocity.x
@@ -28,6 +28,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         ending_color=RGB(180, 180, 120, intensity=1),  # smokelike
         life_time=20,
         gravity=-0.08,
+        engine=engine,
     )
     core_explosion_2 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -38,6 +39,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         ending_color=RGB(140, 140, 30, intensity=1),  # smokelike
         life_time=25,
         gravity=-0.075,
+        engine=engine,
     )
     particles.append(core_explosion_1)
     particles.append(core_explosion_2)
@@ -66,6 +68,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
         life_time=30,
         gravity=-0.07,
+        engine=engine,
     )
     particles.append(main_explosion)
 
@@ -98,11 +101,12 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
             life_time=20,
             gravity=-0.08,
             floating_multi=0.1,
+            engine=engine,
             particle_generator=_smoke_generator,
         )
         secondary_explosions.append(sec_explosion)
 
-    scenario.fg_shapes[0:0] = secondary_explosions
+    engine.scenario.fg_shapes[0:0] = secondary_explosions
 
     # smoke_trails: list[CircularParticle] = []
 
@@ -122,9 +126,9 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
     #     smoke_trails.append(smoke_trail)
 
     # if i % 3 == 0:
-    #     scenario.bg_pieces[0:0] = smoke_trails
+    #     engine.scenario.bg_pieces[0:0] = smoke_trails
     # else:
-    #     scenario.fg_pieces[0:0] = smoke_trails
+    #     engine.scenario.fg_pieces[0:0] = smoke_trails
 
     for _ in range(round(size * 3)):
         # TODO: make these sparks and other useful things into their own class
@@ -133,6 +137,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
                 x=eye_x + random_offset() * source.radius * 2,
                 y=eye_y + random_offset() * source.radius * 2,
             ),
+            engine=engine,
             initial_velocity=(
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
             ).as_vector(),
@@ -144,7 +149,7 @@ def enemy_explosion(scenario: "Scenario", source: "PhysicsEntity", size: float) 
         )
         particles.append(sparks)
 
-    scenario.bg_shapes[0:0] = particles
+    engine.scenario.bg_shapes[0:0] = particles
 
 
 #################################################################
@@ -159,9 +164,9 @@ def get_smoke_generator(
     gravity: float = 0.05,
     size_factor: float = 0.5,
 ) -> "ParticleGenerator":
-    def _gen(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    def _gen(engine: "Physics2D", source: "PhysicsEntity") -> None:
         _smoke_generator(
-            scenario=scenario,
+            engine=engine,
             source=source,
             life_time=life_time,
             random_offset_threshold=random_offset_threshold,
@@ -176,7 +181,7 @@ def get_smoke_generator(
 
 
 def _smoke_generator(
-    scenario: "Scenario",
+    engine: "Physics2D",
     source: "PhysicsEntity",
     life_time: int = 30,
     random_offset_threshold: float = 0.25,
@@ -186,12 +191,16 @@ def _smoke_generator(
     gravity: float = 0.05,
     size_factor: float = 0.5,
 ) -> None:
+    # from physics2d.scenario.scenario import Scenario
+    # if isinstance(engine, Scenario):
+    #     raise NotImplementedError(source.name)
     if random_offset() < random_offset_threshold:
         return
 
     smokes: list[CircularParticle] = []
     main_smoke = CircularParticle(
         origin=source.center,
+        engine=engine,
         initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
         size=source.radius * size_factor,
         size_change_type=TransitionType.LINEAR_DECREASE,
@@ -204,15 +213,15 @@ def _smoke_generator(
     smokes.append(main_smoke)
 
     if random_offset() > 0 or only_fg:
-        scenario.fg_shapes[0:0] = smokes
+        engine.scenario.fg_shapes[0:0] = smokes
     else:
-        scenario.bg_shapes[0:0] = smokes
+        engine.scenario.bg_shapes[0:0] = smokes
 
 
 #################################################################
 
 
-def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _main_explosion_color = (
         RGB(
             255,
@@ -230,6 +239,7 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
     explosion = CircularParticle(
         origin=source.center + VectorF.random_offset_vector(),
         initial_velocity=VectorF(0, 0),
+        engine=engine,
         size=2,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
@@ -237,9 +247,9 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=15,
         gravity=-0.02,
     )
-    scenario.fg_shapes.append(explosion)
+    engine.scenario.fg_shapes.append(explosion)
 
-    if scenario.now() % 5 < 1:
+    if engine.scenario.now() % 5 < 1:
         return
 
     ricochet = CircularParticle(
@@ -254,16 +264,17 @@ def bullet_ricochet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=RGB(255, 255, 240, 1),  # almost white hot
         ending_color=RGB(100, 60, 0, 1),  # dark orange
         life_time=10,
+        engine=engine,
         gravity=0.1,
     )
-    scenario.bg_shapes.append(ricochet)
+    engine.scenario.bg_shapes.append(ricochet)
 
 
 ################################################################
 
 
 def lightning_impact(
-    scenario: "Scenario", source: "PhysicsEntity", origin: PointF | None = None
+    engine: "Physics2D", source: "PhysicsEntity", origin: PointF | None = None
 ) -> None:
     pieces: list["PhysicsEntity"] = []
 
@@ -286,6 +297,7 @@ def lightning_impact(
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         life_time=5,
         floating_multi=1,
+        engine=engine,
     )
     pieces.append(sonic_boom_2)
 
@@ -299,6 +311,7 @@ def lightning_impact(
         ending_color=RGB(127, 0, 255, 1),
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         life_time=25,
+        engine=engine,
         floating_multi=1,
     )
     pieces.append(sonic_boom)
@@ -318,12 +331,13 @@ def lightning_impact(
             initial_color=RGB(255, 255, 255, 1),
             ending_color=RGB(127, 0, 255, 1),
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+            engine=engine,
             life_time=8,
             floating_multi=6,
         )
         pieces.append(sonic_challa)
 
-    if scenario.now() % 2 == 0:
+    if engine.scenario.now() % 2 == 0:
         # TODO: make Spark factory
         blue_spark = CircularParticle(
             origin=_origin,
@@ -331,12 +345,13 @@ def lightning_impact(
             size=0.5,
             initial_color=RGB(230, 230, 255, 1),
             ending_color=RGB(0, 0, 200, 1),
+            engine=engine,
             life_time=8,
             gravity=0.05,
         )
-        scenario.fg_shapes.append(blue_spark)
+        engine.scenario.fg_shapes.append(blue_spark)
 
-    scenario.fg_shapes[0:0] = pieces
+    engine.scenario.fg_shapes[0:0] = pieces
 
 
 #####################################################
@@ -354,10 +369,10 @@ def get_rocket_explosion(
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
 ) -> "ParticleGenerator":
-    def _explosion(scenario: "Scenario", source: "PhysicsEntity") -> None:
+    def _explosion(engine: "Physics2D", source: "PhysicsEntity") -> None:
         return _rocket_explosion(
-            scenario,
-            source,
+            engine=engine,
+            rocket=source,
             damage=damage,
             blast_radius=blast_radius,
             blast_damage_at_ground_zero=blast_damage_at_ground_zero,
@@ -374,7 +389,7 @@ def get_rocket_explosion(
 
 
 def _rocket_explosion(
-    scenario: "Scenario",
+    engine: "Physics2D",
     rocket: "PhysicsEntity",
     damage: float,
     blast_radius: float,
@@ -401,6 +416,7 @@ def _rocket_explosion(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
         initial_velocity=_VELOCITY,
         size=_SIZE * 0.5,
+        engine=engine,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=color_2,
         ending_color=end_color_2,
@@ -416,6 +432,7 @@ def _rocket_explosion(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
         initial_velocity=_VELOCITY,
         size=_SIZE * 0.75,
+        engine=engine,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=color_3,
         ending_color=end_color_3,  # smokelike
@@ -450,6 +467,7 @@ def _rocket_explosion(
         initial_color=_main_explosion_color,
         ending_color=_main_explosion_ending,
         life_time=30,
+        engine=engine,
         gravity=-0.07,
     )
     particles.append(main_explosion)
@@ -482,6 +500,7 @@ def _rocket_explosion(
             origin=PointF(x=eye_x + _factor * random_offset(), y=eye_y + _factor * random_offset()),
             initial_velocity=(0.2 * _VELOCITY + 0.1 * random_offset_vector()).as_vector(),
             size=_sec_size,
+            engine=engine,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_sec_explosion_color,
             ending_color=_ending_color_4,  # smokelike
@@ -491,7 +510,7 @@ def _rocket_explosion(
         )
         secondary_explosions.append(sec_explosion)
 
-    scenario.fg_shapes[0:0] = secondary_explosions
+    engine.scenario.fg_shapes[0:0] = secondary_explosions
 
     if throw_sparks:
         for _ in range(round(_SIZE)):
@@ -508,6 +527,7 @@ def _rocket_explosion(
                     initial_color=RGB(200, 255, 200),
                     ending_color=RGB(0, 60, 0),
                     life_time=35,
+                    engine=engine,
                     floating_multi=1,
                     gravity=-0.01,
                 )
@@ -524,6 +544,7 @@ def _rocket_explosion(
                     initial_color=RGB(255, 255, 200, 1),  # almost white hot
                     ending_color=RGB(40, 5, 0, 1),  # dark orange
                     life_time=70,
+                    engine=engine,
                     gravity=0.1,
                 )
                 # CircularParticle(
@@ -542,7 +563,7 @@ def _rocket_explosion(
             )
             particles.append(sparks)
 
-    scenario.bg_shapes[0:0] = particles
+    engine.scenario.bg_shapes[0:0] = particles
 
     # Render shock wave and calc blast damage
     # TODO: I don't like the particle generator taking care of damage (same with Lightning).
@@ -550,17 +571,18 @@ def _rocket_explosion(
     shock_wave = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
         size=blast_radius / 3,
+        engine=engine,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
         initial_color=RGB(255, 255, 255, 1),
         ending_color=RGB(0, 0, 0, intensity=1),
         life_time=15,
     )
-    scenario.bg_shapes.append(shock_wave)
+    engine.scenario.bg_shapes.append(shock_wave)
 
     # TODO: rename
     _PUSH_FACTOR = 1.2
-    blast_radius_victims = scenario.get_enemies_in_range(
+    blast_radius_victims = engine.scenario.get_enemies_in_range(
         _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
     )
 
@@ -584,7 +606,7 @@ def _rocket_explosion(
 #################################
 
 
-def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntity | None") -> None:
+def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity | None") -> None:
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -616,7 +638,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
 
         _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
-        def _smoke(engine, source) -> None:
+        def _smoke(engine: "Physics2D", source) -> None:
             return _smoke_generator(engine, source, life_time=5, floating_multi=0.1)
 
         thrust_fire = CircularParticle(
@@ -628,6 +650,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
                 + random_offset() * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi
                 + random_offset() * 0.5,
             ),
+            engine=engine,
             initial_velocity=VectorF(
                 x=source.velocity.x * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
@@ -646,7 +669,7 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
         )
         pieces.append(thrust_fire)
 
-    if scenario.now() % 7 == 0:
+    if engine.scenario.now() % 7 == 0:
         sparks = CircularParticle(
             origin=PointF(
                 x=eye_x + random_offset() * source.radius * 2,
@@ -662,19 +685,20 @@ def rocket_trail(scenario: "Scenario", source: "PhysicsEntity", _: "PhysicsEntit
             ending_color=RGB(40, 5, 0, 1),  # dark orange
             life_time=70,
             gravity=0.1,
+            engine=engine,
         )
         pieces.append(sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces
 
 
 #################################
 
 
 def homing_missile_trail(
-    scenario: "Scenario", source: "PhysicsEntity", target: "PhysicsEntity | None"
+    engine: "Physics2D", source: "PhysicsEntity", target: "PhysicsEntity | None"
 ) -> None:
     pieces: list[CircularParticle] = []
 
@@ -708,7 +732,7 @@ def homing_missile_trail(
 
             _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
-            def _smoke(engine, source) -> None:
+            def _smoke(engine: "Physics2D", source) -> None:
                 return _smoke_generator(engine, source, 5)
 
             thrust_fire = CircularParticle(
@@ -739,12 +763,13 @@ def homing_missile_trail(
                 ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
                 life_time=15,
                 gravity=-0.07,
+                engine=engine,
                 floating_multi=0.1,
                 particle_generator=_smoke,
             )
             pieces.append(thrust_fire)
 
-        if scenario.now() % 7 == 0:
+        if engine.scenario.now() % 7 == 0:
             sparks = CircularParticle(
                 origin=PointF(
                     x=eye_x + random_offset() * source.radius * 2,
@@ -760,6 +785,7 @@ def homing_missile_trail(
                 ending_color=RGB(40, 5, 0, 1),  # dark orange
                 life_time=70,
                 gravity=0.1,
+                engine=engine,
             )
             pieces.append(sparks)
 
@@ -768,7 +794,7 @@ def homing_missile_trail(
     # If target exists, we show a red light!
     frequency = 7 if target else 12
 
-    if scenario.now() % frequency == 0:
+    if engine.scenario.now() % frequency == 0:
         _initial_color = RGB(255, 120, 120, 1) if target else RGB(255, 255, 255, 1)
         _ending_color = RGB(255, 0, 0, 1) if target else RGB(80, 80, 80, 1)
         _lift_time = 3 if target else 6
@@ -783,7 +809,8 @@ def homing_missile_trail(
             ending_color=_ending_color,
             life_time=_lift_time,
             final_radius=_final_radius,
+            engine=engine,
         )
-        scenario.bg_shapes.append(light)
+        engine.scenario.bg_shapes.append(light)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces

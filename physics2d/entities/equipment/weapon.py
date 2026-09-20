@@ -5,7 +5,7 @@ from model.theme import RGB
 from physics2d.entities.model.shared import ParticleGenerator
 
 if TYPE_CHECKING:
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class Weapon:
@@ -14,7 +14,7 @@ class Weapon:
 
     _original_color: RGB
 
-    _scenario: "Scenario"
+    _engine: "Physics2D"
     _fire_particle_generator: ParticleGenerator
     _projectile_generator: ParticleGenerator
 
@@ -29,7 +29,7 @@ class Weapon:
 
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
         name: str,
         color: RGB,
         max_ammo: int,
@@ -39,7 +39,7 @@ class Weapon:
         ammo: int = 0,
         recoil: float = 0,
     ):
-        self._scenario = scenario
+        self._engine = engine
         self.name = name
         self.color = color
         self._original_color = color
@@ -48,33 +48,33 @@ class Weapon:
         self._max_ammo = max_ammo
         self._refractory_period = refractory_period
         self._ammo = min(ammo, max_ammo)
-        self._refractory_limit = scenario.now()
+        self._refractory_limit = engine.scenario.now()
         self._recoil = recoil
 
     def fire(self) -> None:
         if not self.can_shoot() or (
-            self._scenario.player.get_last_known_direction().x == 0
-            and self._scenario.player.get_last_known_direction().y == 0
+            self._engine.scenario.player.get_last_known_direction().x == 0
+            and self._engine.scenario.player.get_last_known_direction().y == 0
         ):
             return
 
-        self._fire_particle_generator(self._scenario, self._scenario.player)
-        self._projectile_generator(self._scenario, self._scenario.player)
+        self._fire_particle_generator(self._engine, self._engine.scenario.player)
+        self._projectile_generator(self._engine, self._engine.scenario.player)
 
         self._spend_ammo()
         self._effect_on_player()
 
-        self._refractory_limit = self._scenario.now() + self._refractory_period
+        self._refractory_limit = self._engine.scenario.now() + self._refractory_period
 
     def can_shoot(self) -> bool:
         # TODO: self._ammo should be >= the amount of ammo per shot
-        return self._refractory_limit <= self._scenario.now() and self._ammo > 0
+        return self._refractory_limit <= self._engine.scenario.now() and self._ammo > 0
 
     def do_your_thing(self) -> None:
         self._handle_color()
 
     def get_life_time_ellapsed_ratio(self) -> float:
-        return (self._refractory_limit - self._scenario.now()) / self._refractory_period
+        return (self._refractory_limit - self._engine.scenario.now()) / self._refractory_period
 
     def _handle_color(self) -> None:
         if not self.can_shoot():
@@ -102,7 +102,7 @@ class Weapon:
             return
 
         # recoil!
-        self._scenario.player.velocity = (
-            self._scenario.player.velocity
-            - self._recoil * (self._scenario.player.get_aiming_direction())
+        self._engine.scenario.player.velocity = (
+            self._engine.scenario.player.velocity
+            - self._recoil * (self._engine.scenario.player.get_aiming_direction())
         ).as_vector()

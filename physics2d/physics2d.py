@@ -35,10 +35,14 @@ class Physics2D(Engine, KeyboardHandler):
 
     screen_corner: PointF
 
+    # For better performance
+    low_quality_mode: bool
+
     def __init__(self, game: "Game", initial_screen_corner: PointF = INITIAL_CORNER):
         self.game = game
         self.screen_corner = initial_screen_corner
         self._display = self.game.display
+        self.low_quality_mode = False
         self.init_screen_buffer()
 
     # TODO: we need to do the same for entities/pieces

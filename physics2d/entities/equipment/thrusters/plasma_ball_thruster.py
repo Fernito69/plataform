@@ -8,15 +8,15 @@ from utils import random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class PlasmaBallThruster(Thruster):
     """Looks kewwwl"""
 
-    def __init__(self, scenario: "Scenario"):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
-            scenario=scenario,
+            engine=engine,
             particle_generator=lightning_bolts,
             name="PlasmaBallThruster",
             player_theme=Theme(
@@ -31,7 +31,7 @@ class PlasmaBallThruster(Thruster):
 #######################
 
 
-def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def lightning_bolts(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces: list[Shape] = []
 
     vel_magnitude = abs(source.velocity) * 4
@@ -58,8 +58,9 @@ def lightning_bolts(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=5,
         num_segments=15,
         thickness=1.5,
+        engine=engine,
         final_thickness=0.001,
     )
     pieces.append(l1)
 
-    scenario.bg_shapes[0:0] = pieces
+    engine.scenario.bg_shapes[0:0] = pieces

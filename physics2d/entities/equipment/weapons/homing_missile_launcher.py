@@ -10,17 +10,17 @@ from utils import random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class HomingMissileLauncher(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         super().__init__(
             name="HomingMissileLauncher",
-            scenario=scenario,
+            engine=engine,
             max_ammo=30,
             refractory_period=20,
             fire_particle_generator=rocket_launcher_nozzle,
@@ -41,12 +41,12 @@ class HomingMissileLauncher(Weapon):
 #################################################################
 
 
-def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 70
     _ROCKET_SPEED = 3
     _TRIGGER_DISTANCE = 80
     _HOMING_FACTOR = 1.2
-    _HOMING_KICK_IN_TIME =10
+    _HOMING_KICK_IN_TIME = 10
     _LIFE_TIME = 200
     _BLAST_RADIUS = 15
     _MAX_BLAST_DAMAGE = 60
@@ -57,6 +57,7 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_velocity=(
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
+        engine=engine,
         size=1.2,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.NONE,
@@ -72,4 +73,4 @@ def homing_missile(scenario: "Scenario", source: "PhysicsEntity") -> None:
         homing_factor=_HOMING_FACTOR,
         homing_kick_in_time=_HOMING_KICK_IN_TIME,
     )
-    scenario.projectiles.append(rocket)
+    engine.scenario.projectiles.append(rocket)

@@ -146,6 +146,7 @@ class Game(Engine, KeyboardHandler):
         self._switch_3d_mode()
         self._switch_physics2d_mode()
         self._toggle_rotation()
+        self._toggle_quality()
 
         if self.mode == GameMode.PLATFORMER_V1:
             return
@@ -230,3 +231,7 @@ class Game(Engine, KeyboardHandler):
     @on_key_press(MenuKeys.TOGGLE_ROTATION, act_once_per_press=True)
     def _toggle_rotation(self) -> None:
         self.player3d.curr_level.toggle_rotation()
+
+    @on_key_press(MenuKeys.TOGGLE_GRAPHICS_QUALITY, act_once_per_press=True)
+    def _toggle_quality(self) -> None:
+        self.physics_engine.low_quality_mode = not self.physics_engine.low_quality_mode

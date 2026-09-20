@@ -57,6 +57,7 @@ class Enemy(PhysicsEntity):
             secondary_theme=secondary_theme,
             is_collideable=True,
             extra_shapes=extra_shapes,
+            engine=engine,
         )
         self.engine = engine
         self.health = health
@@ -90,24 +91,24 @@ class Enemy(PhysicsEntity):
     def get_health_ratio(self) -> float:
         return self.health / self._initial_health
 
-    def die(self, engine, _death_explosion_size: int | None = None) -> None:
-        enemy_explosion(engine.scenario, self, _death_explosion_size or self.radius * 2)
-        engine.scenario.enemies = [e for e in engine.scenario.enemies if e is not self]
+    def die(self, _death_explosion_size: int | None = None) -> None:
+        enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
+        self._engine.scenario.enemies = [e for e in self._engine.scenario.enemies if e is not self]
 
-    def do_your_thing(self, engine: "Physics2D") -> None:
-        super().do_your_thing(engine)
+    def do_your_thing(self) -> None:
+        super().do_your_thing()
 
         self._handle_current_damage()
 
-        for projectile in engine.scenario.projectiles:
+        for projectile in self._engine.scenario.projectiles:
             # we don't differentiate between friend or
-            if self.would_collide_with(projectile, engine):
+            if self.would_collide_with(projectile):
                 self.receive_damage(projectile.damage)
-                projectile.hit(engine)
+                projectile.hit()
 
         if self.health <= 0:
             # die :(
-            self.die(engine)
+            self.die()
 
     def _handle_current_damage(self) -> None:
         _factor = self.get_health_ratio()
@@ -142,5 +143,6 @@ class Enemy(PhysicsEntity):
                     initial_velocity=VectorF(random_offset() * 0.15, 0),
                     size_factor=0.8,
                 ),
+                engine=self._engine,
             )
             self.engine.scenario.fg_shapes.append(_fire)

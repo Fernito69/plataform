@@ -10,15 +10,14 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class SoapyThruster(Thruster):
     """Looks like SOAP bubbles!"""
 
-    def __init__(self, scenario: "Scenario"):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
-            scenario=scenario,
             particle_generator=ln2_vapor,
             name="SoapyThruster",
             player_theme=Theme(
@@ -27,13 +26,14 @@ class SoapyThruster(Thruster):
             max_speed=5,
             accel=0.4,
             decel=0.2,
+            engine=engine,
         )
 
 
 ################
 
 
-def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def ln2_vapor(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces: list[CircularParticle] = []
     velocity_magnitude = abs(source.velocity)
 
@@ -79,6 +79,7 @@ def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
                 y=source.velocity.y * _VAPOR_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
             ),
+            engine=engine,
             # radius=i * math.cos((size - i) / size),
             size=i * _radius_factor,
             size_change_type=TransitionType.LINEAR_DECREASE,
@@ -105,14 +106,15 @@ def ln2_vapor(scenario: "Scenario", source: "PhysicsEntity") -> None:
                 initial_color=RGB(255, 255, 255, 1),
                 life_time=50,
                 gravity=0.1,
+                engine=engine,
             )
             # pieces.append(icy_sparks)
-            scenario.bg_shapes.append(icy_sparks)
+            engine.scenario.bg_shapes.append(icy_sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
     for index in range(len(pieces)):
         if index % 8 == 0:
-            scenario.fg_shapes.append(pieces[index])
+            engine.scenario.fg_shapes.append(pieces[index])
         else:
-            scenario.bg_shapes.append(pieces[index])
+            engine.scenario.bg_shapes.append(pieces[index])

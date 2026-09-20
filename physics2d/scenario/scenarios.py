@@ -130,26 +130,47 @@ def default_scenario(engine: "Physics2D") -> Scenario:
                 )
             )
 
-    line_1 = Line(points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2)
+    line_1 = Line(
+        points=(PointF(0, 0), PointF(60, 2)), theme=Theme(color=White()), thickness=2, engine=engine
+    )
     line_1_1 = Line(
-        points=(PointF(60, 2), PointF(120, 50)), theme=Theme(color=White()), thickness=2
+        points=(PointF(60, 2), PointF(120, 50)),
+        theme=Theme(color=White()),
+        thickness=2,
+        engine=engine,
     )
     line_1_2 = Line(
-        points=(PointF(120, 50), PointF(60, 100)), theme=Theme(color=White()), thickness=2
+        points=(PointF(120, 50), PointF(60, 100)),
+        theme=Theme(color=White()),
+        thickness=2,
+        engine=engine,
     )
     line_1_3 = Line(
-        points=(PointF(60, 100), PointF(0, 80)), theme=Theme(color=White()), thickness=2
+        points=(PointF(60, 100), PointF(0, 80)),
+        theme=Theme(color=White()),
+        thickness=2,
+        engine=engine,
     )
     line_1_4 = Line(
-        points=(PointF(0, 80), PointF(-10, 30)), theme=Theme(color=White()), thickness=2
+        points=(PointF(0, 80), PointF(-10, 30)),
+        theme=Theme(color=White()),
+        thickness=2,
+        engine=engine,
     )
-    line_1_5 = Line(points=(PointF(-10, 30), PointF(0, 0)), theme=Theme(color=White()), thickness=2)
+    line_1_5 = Line(
+        points=(PointF(-10, 30), PointF(0, 0)),
+        theme=Theme(color=White()),
+        thickness=2,
+        engine=engine,
+    )
     line_2 = Line(
         points=(PointF(2, 3), PointF(50, 22)),
         theme=Theme(color=Magenta()),
+        engine=engine,
     )
     red_rotating_line_3 = Line(
         points=(PointF(4, 52), PointF(40, 1)),
+        engine=engine,
         theme=Theme(color=Red()),
         thickness=2,
         initial_angular_velocity=10,
@@ -162,6 +183,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         ),
         theme=Theme(color=MakeColor(1, (12, 25, 230))),
         secondary_theme=Theme(color=MakeColor(1, (255, 1, 25))),
+        engine=engine,
         thickness=4,
         floating_multi=0.02,
         pulsate_freq=0.5,
@@ -172,6 +194,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         vertices=(PointF(6, 33), PointF(17, 5)),
         theme=Theme(color=MakeColor(0.5, (255, 140, 160))),
         secondary_theme=Theme(color=MakeColor(0.5, (80, 80, 250))),
+        engine=engine,
         initial_velocity=VectorF(0.3, 0.5),
         own_gravity=0.005,
     )
@@ -180,6 +203,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme=Theme(color=MakeColor(1, (244, 25, 45))),
         secondary_theme=Theme(color=MakeColor(1, (1, 254, 45))),
         initial_velocity=VectorF(-0.5, 0.6),
+        engine=engine,
         own_gravity=0.005,
     )
     rectangle_3 = Rectangle(
@@ -189,11 +213,13 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         ),
         theme=Theme(color=MakeColor(1, (244, 250, 22))),
         secondary_theme=Theme(color=MakeColor(1, (255, 0, 56))),
+        engine=engine,
         floating_multi=0.005,
     )
     bg_circle_1 = Circunference(
         center=PointF(40, 40),
         theme=Theme(color=Cyan().with_intensity(0.3)),
+        engine=engine,
         radius=6,
         affected_by_gravity=True,
         initial_velocity=VectorF(-0.8, 4),
@@ -202,6 +228,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     bg_circle_5 = Circunference(
         center=PointF(1, 1),
         theme=Theme(color=Yellow().with_intensity(0.3)),
+        engine=engine,
         radius=1.5,
         affected_by_gravity=True,
         initial_velocity=VectorF(2, 5),
@@ -210,6 +237,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     bg_circle_2 = Circunference(
         center=PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
         theme=Theme(color=Blue().with_intensity(0.3)),
+        engine=engine,
         radius=5,
         floating_multi=0.05,
     )
@@ -218,9 +246,11 @@ def default_scenario(engine: "Physics2D") -> Scenario:
         theme=Theme(color=Green().with_intensity(0.3)),
         radius=15,
         floating_multi=ALMOST_ZERO,
+        engine=engine,
     )
     bg_circle_4 = Circunference(
         center=PointF(0, 0),
+        engine=engine,
         theme=Theme(color=MakeColor(0.3, (134, 89, 177))),
         radius=25,
         floating_multi=0.005,
@@ -240,6 +270,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             theme=Theme(color=MakeColor(1, (255, 200, 255))),
             radius=15,
             initial_velocity=VectorF(0, -0.1),
+            engine=engine,
         ),
         # red_rotating_line_3,
         # line_1,

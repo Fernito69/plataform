@@ -53,13 +53,14 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     ):
         super().__init__(
             name="PlayerBlob",
+            engine=engine,
             position=position,
             initial_velocity=velocity,
             density=density,
             size=_PLAYER_RADIUS,
             theme=_PLAYER_THEME,
         )
-        self.engine = engine
+        self._engine = engine
         self.center = position
         self.position = position
         self.radius = _PLAYER_RADIUS
@@ -79,7 +80,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
 
         self._handle_mouse_input()
         self._handle_keyboard_input()
-        self._apply_gravity(self.engine.scenario.gravity_acceleration)
+        self._apply_gravity(self._engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
 
@@ -94,34 +95,36 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     def _apply_movement(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
-        for piece in self.engine.scenario.solid_shapes + self.engine.scenario.enemies:
-            self.would_collide_with(piece, self.engine)
+        for piece in self._engine.scenario.solid_shapes + self._engine.scenario.enemies:
+            self.would_collide_with(piece)
 
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:
         """Adjusts the screen position in order to keep the player always visible"""
-        x_res, y_res = self.engine.get_resolution()
+        x_res, y_res = self._engine.get_resolution()
         player_x, player_y, _ = self.position
 
-        if player_x < self.engine.screen_corner.x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self.engine.screen_corner = PointF(
+        if player_x < self._engine.screen_corner.x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
                 round(player_x - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
-                self.engine.screen_corner.y,
+                self._engine.screen_corner.y,
             )
-        if player_x > self.engine.screen_corner.x + (x_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER):
-            self.engine.screen_corner = PointF(
+        if player_x > self._engine.screen_corner.x + (
+            x_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER
+        ):
+            self._engine.screen_corner = PointF(
                 round(player_x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - x_res),
-                self.engine.screen_corner.y,
+                self._engine.screen_corner.y,
             )
-        if player_y < self.engine.screen_corner.y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self.engine.screen_corner = PointF(
-                self.engine.screen_corner.x,
+        if player_y < self._engine.screen_corner.y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
+                self._engine.screen_corner.x,
                 round(player_y - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
             )
-        if player_y > self.engine.screen_corner.y + y_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self.engine.screen_corner = PointF(
-                self.engine.screen_corner.x,
+        if player_y > self._engine.screen_corner.y + y_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
+                self._engine.screen_corner.x,
                 round(player_y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - y_res),
             )
 
@@ -132,11 +135,11 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         return self._weapons[self._curr_weapon_index]
 
     def get_fire_direction(self) -> VectorF:
-        _screen_pos = self.engine.screen_corner
+        _screen_pos = self._engine.screen_corner
 
         return (
             (
-                self.engine.scenario.crosshair.position
+                self._engine.scenario.crosshair.position
                 - VectorF(
                     self.position.x - _screen_pos.x,
                     self.position.y - _screen_pos.y,
@@ -163,24 +166,24 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
             return
 
         self._thrusters = [
-            BasicThruster(self._scenario),
-            SoapyThruster(self._scenario),
-            MeteorThruster(self._scenario),
-            SonicThruster(self._scenario),
-            PlasmaBallThruster(self._scenario),
+            BasicThruster(self._engine),
+            SoapyThruster(self._engine),
+            MeteorThruster(self._engine),
+            SonicThruster(self._engine),
+            PlasmaBallThruster(self._engine),
         ]
         self._curr_thruster_index = 0
         self._weapons = [
-            MachineGun(self._scenario),
-            Shotgun(self._scenario),
-            LightningGun(self._scenario),
-            HeavyMachineGun(self._scenario),
-            RocketLauncher(self._scenario),
-            HomingMissileLauncher(self._scenario),
-            HeavyRocketLauncher(self._scenario),
-            Zapper(self._scenario),
-            DeathRay(self._scenario),
-            BFG(self._scenario),
+            MachineGun(self._engine),
+            Shotgun(self._engine),
+            LightningGun(self._engine),
+            HeavyMachineGun(self._engine),
+            RocketLauncher(self._engine),
+            HomingMissileLauncher(self._engine),
+            HeavyRocketLauncher(self._engine),
+            Zapper(self._engine),
+            DeathRay(self._engine),
+            BFG(self._engine),
         ]
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme
@@ -258,18 +261,19 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         #     return
         _light = CircularParticle(
             name=_CROSSHAIR_PARTICLE_NAME,
-            origin=self.engine.scenario.crosshair.center + self.engine.screen_corner,
+            origin=self._engine.scenario.crosshair.center + self._engine.screen_corner,
             size=0.1,
             final_radius=8,
             life_time=10,
             initial_color=RGB(255, 100, 100),
             ending_color=RGB(60, 0, 0),
             size_change_type=TransitionType.LINEAR_INCREASE,
+            engine=self._engine,
         )
         # self.engine.scenario.bg_pieces = [
         #     p for p in self.engine.scenario.bg_pieces if p.name != _CROSSHAIR_PARTICLE_NAME
         # ]
-        self.engine.scenario.bg_shapes[0:0] = [_light]
+        self._engine.scenario.bg_shapes[0:0] = [_light]
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:
@@ -326,5 +330,5 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     ################
     @on_key_press(CheatKeys.KILL_MONSTERS)
     def _kill_all_monsters(self) -> None:
-        for e in self.engine.scenario.enemies:
-            e.die(self.engine)
+        for e in self._engine.scenario.enemies:
+            e.die()

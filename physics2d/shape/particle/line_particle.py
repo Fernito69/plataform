@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.shape.line import Line
 from physics2d.shape.model.shared import LineLifeStep, TransitionType
 from physics2d.shape.particle.base import Particle
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
 
 
 class LineParticle(Particle, Line):
@@ -18,6 +23,7 @@ class LineParticle(Particle, Line):
         self,
         source: PhysicsEntity,
         end_point: PointF,
+        engine: "Physics2D",
         start_point: PointF | None = None,
         life_time: int | None = 5,
         thickness: float = 1,
@@ -56,6 +62,7 @@ class LineParticle(Particle, Line):
         )
         self.life_steps = life_steps
         self._counter = 0
+        self._engine = engine
 
         super().__init__(
             initial_color=initial_color,
@@ -77,6 +84,7 @@ class LineParticle(Particle, Line):
             render_behind_player=render_behind_player,
             pulsate_amplitude=pulsate_amplitude,
             pulsate_freq=pulsate_freq,
+            engine=engine,
         )
 
     def _handle_life_time(self) -> None:
@@ -147,5 +155,5 @@ class LineParticle(Particle, Line):
 
                 # TODO: handle theme
 
-    def _act(self, engine) -> None:
-        self._apply_movement(engine)
+    def _act(self) -> None:
+        self._apply_movement()

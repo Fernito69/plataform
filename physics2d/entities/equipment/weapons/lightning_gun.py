@@ -6,13 +6,13 @@ from physics2d.shape.factories.projectile import get_lightning_bolts
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class LightningGun(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         _START_COLOR = RGB(255, 220, 200, 1)
         _END_COLOR = RGB(0, 0, 100, 1)
@@ -21,7 +21,7 @@ class LightningGun(Weapon):
 
         super().__init__(
             name="LightningGun",
-            scenario=scenario,
+            engine=engine,
             max_ammo=2000,
             refractory_period=0,
             fire_particle_generator=lightning_nozzle,
@@ -50,7 +50,7 @@ class LightningGun(Weapon):
 
 # TODO: ideally should be aware of what we are shooting at
 # TODO: make it like a non-targeted lightning weapon beam but less intense
-def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def lightning_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     # _initial_color = RGB(
     #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
     # )
@@ -66,7 +66,7 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=8,
         num_segments=5,
     )
-    _lightning(scenario, source)
+    _lightning(engine, source)
 
     """
     _initial_color = RGB(255 - ((8) * random()), 255, 255, 1)

@@ -11,17 +11,17 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class Shotgun(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         super().__init__(
             name="Shotgun",
-            scenario=scenario,
+            engine=engine,
             max_ammo=100,
             refractory_period=12,
             fire_particle_generator=shotgun_nozzle,
@@ -35,8 +35,9 @@ class Shotgun(Weapon):
 
     def _effect_on_player(self) -> None:
         # recoil!
-        self._scenario.player.velocity = (
-            self._scenario.player.velocity - (self._scenario.player.get_aiming_direction())
+        self._engine.scenario.player.velocity = (
+            self._engine.scenario.player.velocity
+            - (self._engine.scenario.player.get_aiming_direction())
         ).as_vector()
 
     def secondary_fire(self) -> None: ...
@@ -47,7 +48,7 @@ class Shotgun(Weapon):
 #################################################################
 
 
-def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def buckshot(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _NUM_PELLETS = 10
     _SPREAD = 3
     _DAMAGE = 8
@@ -72,10 +73,11 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
             life_time=50,
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
+            engine=engine,
         )
         pellets.append(pellet)
 
-    scenario.projectiles[0:0] = pellets
+    engine.scenario.projectiles[0:0] = pellets
 
 
 #################################################################
@@ -83,7 +85,7 @@ def buckshot(scenario: "Scenario", source: "PhysicsEntity") -> None:
 #################################################################
 
 
-def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     direction = source.get_aiming_direction()
 
     # TODO: this is copy/paste, generalize
@@ -107,6 +109,7 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_fire_1_color,
         ending_color=RGB(150, 120, 30, intensity=1),
+        engine=engine,
         life_time=7,
     )
     fire_2 = CircularParticle(
@@ -120,6 +123,7 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
             20,
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
+        engine=engine,
         life_time=6,
     )
     fire_3 = CircularParticle(
@@ -133,6 +137,7 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
             20,
         ).with_intensity(1),
         ending_color=RGB(120, 60, 20, intensity=1),
+        engine=engine,
         life_time=5,
     )
     fire_white = CircularParticle(
@@ -142,12 +147,14 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
+        engine=engine,
         life_time=5,
     )
     sparks: list[CircularParticle] = []
 
     spark = CircularParticle(
         origin=source.center + 6 * (direction + random_offset_vector()),
+        engine=engine,
         initial_velocity=(
             source.velocity
             + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
@@ -161,4 +168,4 @@ def shotgun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
     )
     sparks.append(spark)
 
-    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    engine.scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])

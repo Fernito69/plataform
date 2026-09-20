@@ -7,17 +7,17 @@ from physics2d.shape.particle.lightning import Lightning
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class Zapper(Weapon):
     def __init__(
         self,
-        scenario: "Scenario",
+        engine: "Physics2D",
     ):
         super().__init__(
             name="Zapper",
-            scenario=scenario,
+            engine=engine,
             max_ammo=50,
             refractory_period=15,
             fire_particle_generator=lightning_nozzle,
@@ -37,7 +37,7 @@ class Zapper(Weapon):
 #################################################################
 
 
-def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def lightning_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _initial_color = RGB(255, 220, 200, 1)
     _ending_color = RGB(0, 0, 100, 1)
 
@@ -50,7 +50,7 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=8,
         num_segments=5,
     )
-    _lightning(scenario, source)
+    _lightning(engine, source)
 
 
 #################################################################
@@ -58,7 +58,7 @@ def lightning_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
 #################################################################
 
 
-def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def zapper_bolt(engine: "Physics2D", source: "PhysicsEntity") -> None:
     from physics2d.entities.player_blob import PlayerBlob
 
     _DAMAGE = 500
@@ -72,11 +72,11 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
     # TODO: this doesn't work?
     start_point = source.get_weapon_position() if isinstance(source, PlayerBlob) else None
     # TODO: implement a method to get this more easily
-    end_point = scenario.crosshair.center + scenario.engine.screen_corner
+    end_point = engine.scenario.crosshair.center + engine.scenario.engine.screen_corner
     num_segments = round(max(4, abs(source.center - end_point) / _SEGMENT_LENGTH))
 
     target: "PhysicsEntity | None" = next(
-        (a for a in scenario.enemies if abs(a.position - end_point) < a.radius), None
+        (a for a in engine.scenario.enemies if abs(a.position - end_point) < a.radius), None
     )
     if target:
         target.receive_damage(_DAMAGE)
@@ -88,6 +88,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=_START_COLOR,
         ending_color=_END_COLOR,
         normal_noise=2,
+        engine=engine,
         parallel_noise=3,
         life_time=_life_time,
         num_segments=num_segments,
@@ -96,7 +97,7 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
         render_behind_player=True,
         target=target,
     )
-    scenario.fg_shapes.append(main_l)
+    engine.scenario.fg_shapes.append(main_l)
 
     for index in range(_NUM_SECONDARY_RAYS):
         # TODO: horrible, do it well
@@ -113,8 +114,9 @@ def zapper_bolt(scenario: "Scenario", source: "PhysicsEntity") -> None:
             life_time=_life_time,
             num_segments=num_segments,
             thickness=0.7,
+            engine=engine,
             final_thickness=0.01,
             render_behind_player=True,
             target=target,
         )
-        scenario.fg_shapes.append(sec_l)
+        engine.scenario.fg_shapes.append(sec_l)

@@ -31,6 +31,7 @@ class Projectile(CircularParticle):
         owner: "PhysicsEntity",
         size: float,
         damage: float,
+        engine: "Physics2D",
         initial_color: RGB,
         explosion_generator: "ParticleGenerator",
         particle_generator: "ParticleGenerator | None" = None,
@@ -52,6 +53,7 @@ class Projectile(CircularParticle):
     ):
         super().__init__(
             origin=owner,
+            engine=engine,
             size=size,
             initial_color=initial_color,
             initial_velocity=initial_velocity,
@@ -80,6 +82,6 @@ class Projectile(CircularParticle):
         self.initial_velocity = initial_velocity
         self.offset_from_origin = offset_from_origin
 
-    def hit(self, engine: "Physics2D") -> None:
-        self._explosion_generator(engine.scenario, self)
-        engine.scenario.projectiles.remove(self)
+    def hit(self) -> None:
+        self._explosion_generator(self._engine, self)
+        self._engine.scenario.projectiles.remove(self)

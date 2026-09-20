@@ -12,17 +12,14 @@ from utils import get_vector_angle, random_offset, random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.scenario.scenario import Scenario
+    from physics2d.physics2d import Physics2D
 
 
 class MachineGun(Weapon):
-    def __init__(
-        self,
-        scenario: "Scenario",
-    ):
+    def __init__(self, engine: "Physics2D"):
         super().__init__(
             name="MachineGun",
-            scenario=scenario,
+            engine=engine,
             max_ammo=1000,
             refractory_period=2,
             fire_particle_generator=machine_gun_nozzle,
@@ -42,22 +39,22 @@ class MachineGun(Weapon):
 class HeavyMachineGun(Weapon):
     _ammo_per_gametick: int
 
-    def __init__(self, scenario: "Scenario", ammo_per_gametick: int = 2):
+    def __init__(self, engine: "Physics2D", ammo_per_gametick: int = 2):
         self._ammo_per_gametick = ammo_per_gametick
 
-        def _bullets(scenario: "Scenario", source: "PhysicsEntity"):
-            return gatling_bullets(scenario, source, ammo_per_gametick)
+        def _bullets(engine: "Physics2D", source: "PhysicsEntity"):
+            return gatling_bullets(engine, source, ammo_per_gametick)
 
         super().__init__(
             recoil=0.1,
             name="HeavyMachineGun",
-            scenario=scenario,
             max_ammo=4000,
             refractory_period=0,
             fire_particle_generator=heavy_machine_gun_nozzle,
             projectile_generator=_bullets,
             ammo=4000,
             color=RGB(90, 90, 90, 1),
+            engine=engine,
         )
 
     def _spend_ammo(self) -> None:
@@ -73,7 +70,7 @@ class HeavyMachineGun(Weapon):
 #################################################################
 
 
-def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def bullet(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 10
     _BULLET_SPEED = 10
 
@@ -90,11 +87,12 @@ def bullet(scenario: "Scenario", source: "PhysicsEntity") -> None:
         life_time=50,
         damage=_DAMAGE,
         explosion_generator=bullet_ricochet,
+        engine=engine,
     )
-    scenario.projectiles.append(bullet)
+    engine.scenario.projectiles.append(bullet)
 
 
-def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity", bullets_per_frame: int) -> None:
+def gatling_bullets(engine: "Physics2D", source: "PhysicsEntity", bullets_per_frame: int) -> None:
     _DAMAGE = 5
     _BULLET_SPEED = 9
 
@@ -117,10 +115,11 @@ def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity", bullets_per_f
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
             offset_from_origin=VectorF(factor, random_offset() * 4).rotate(angle).as_vector(),
+            engine=engine,
         )
         bullets.append(bullet)
 
-    scenario.projectiles.extend(bullets)
+    engine.scenario.projectiles.extend(bullets)
 
 
 #################################################################
@@ -128,7 +127,7 @@ def gatling_bullets(scenario: "Scenario", source: "PhysicsEntity", bullets_per_f
 #################################################################
 
 
-def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _offset = 6.5
 
     _fire_1_color = (
@@ -153,6 +152,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=_fire_1_color,
         ending_color=RGB(150, 120, 30, intensity=1),
         life_time=5,
+        engine=engine,
     )
     fire_2 = CircularParticle(
         origin=source.center + (_offset + 3) * direction + random_offset_vector(),
@@ -166,6 +166,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=5,
+        engine=engine,
     )
     fire_3 = CircularParticle(
         origin=source.center + (_offset + 5.5) * direction + 2 * random_offset_vector(),
@@ -179,6 +180,7 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         ).with_intensity(1),
         ending_color=RGB(120, 60, 20, intensity=1),
         life_time=5,
+        engine=engine,
     )
     fire_white = CircularParticle(
         origin=source.center + (_offset) * direction + random_offset_vector(),
@@ -188,9 +190,10 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
         life_time=4,
+        engine=engine,
     )
     sparks: list[CircularParticle] = []
-    if scenario.now() % 3 == 0:
+    if engine.scenario.now() % 3 == 0:
         spark = CircularParticle(
             origin=source.center + (_offset) * (direction + random_offset_vector()),
             initial_velocity=(
@@ -204,13 +207,14 @@ def machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
             ending_color=RGB(80, 10, 0, 1),  # dark orange
             life_time=5,
             gravity=0.1,
+            engine=engine,
         )
         sparks.append(spark)
 
-    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
+    engine.scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3])
 
 
-def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> None:
+def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _offset = 8.5
     _base_size = 4
 
@@ -236,6 +240,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         initial_color=_fire_1_color,
         ending_color=RGB(150, 120, 30, intensity=1),
         life_time=5,
+        engine=engine,
     )
     fire_2 = CircularParticle(
         origin=source.center + (_offset + 6) * direction + random_offset_vector(),
@@ -249,6 +254,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ).with_intensity(1),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=5,
+        engine=engine,
     )
     fire_3 = CircularParticle(
         origin=source.center + (_offset + 11) * direction + 2 * random_offset_vector(),
@@ -260,6 +266,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
             80,
             20,
         ).with_intensity(1),
+        engine=engine,
         ending_color=RGB(120, 60, 20, intensity=1),
         life_time=5,
     )
@@ -275,6 +282,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ).with_intensity(1),
         ending_color=RGB(100, 40, 10, intensity=1),
         life_time=4,
+        engine=engine,
         floating_multi=0.5,
     )
     fire_white = CircularParticle(
@@ -285,6 +293,7 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
         life_time=4,
+        engine=engine,
     )
 
     sparks: list[CircularParticle] = []
@@ -300,7 +309,8 @@ def heavy_machine_gun_nozzle(scenario: "Scenario", source: "PhysicsEntity") -> N
         ending_color=RGB(80, 10, 0, 1),  # dark orange
         life_time=5,
         gravity=0.1,
+        engine=engine,
     )
     sparks.append(spark)
 
-    scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
+    engine.scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
