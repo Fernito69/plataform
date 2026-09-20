@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from factories.theme import Cyan, Green, Red, White, Yellow
+from factories.theme import RGB, Cyan, Green, Red, White, Yellow
 from model.base import PointF, VectorF
 from model.keyboard import MovementKeys
 from model.player import Player, PlayerStatus
@@ -13,13 +13,14 @@ from utils import colored
 if TYPE_CHECKING:
     from platformer_v1.level_2d import Level2D
 
-_PLAYER_COLOR = Green()
-_PLAYER_FRAMES = ["☺"]
+_PLAYER_COLOR = RGB(0, 255, 0)
+_PLAYER_FRAMES = ["☺", "☻"]
 
 _PLAYER_IMMUNE_COLOR = Cyan()
 _PLAYER_FLASHING_FRAMES = ["☻"]
 
 _INITIAL_HEALTH = 100
+
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
 
@@ -44,16 +45,6 @@ class Player2D(Player, LivingEntity2D):
         points: int = 0,
         health: float = _INITIAL_HEALTH,
     ):
-        self._char_frames = _PLAYER_FRAMES
-        self._default_char_frames = _PLAYER_FRAMES
-
-        self.player_number = player_number
-        self.lives: int = 3
-        self.points = 0
-        self.theme = Theme(color=_PLAYER_COLOR)
-        self.status = PlayerStatus.PLAYING
-        self._immune_counter: int = 0
-
         Player.__init__(
             self,
             lives=lives,
@@ -62,6 +53,15 @@ class Player2D(Player, LivingEntity2D):
             player_number=player_number,
         )
         LivingEntity2D.__init__(self, health=health)
+
+        self._char_frames = _PLAYER_FRAMES
+        self._default_char_frames = _PLAYER_FRAMES
+
+        self.player_number = player_number
+        self.lives: int = 3
+        self.points = 0
+        self.theme = Theme(color=_PLAYER_COLOR)
+        self.status = PlayerStatus.PLAYING
 
     def do_your_thing(self):
         self._do_the_bare_minimum()
