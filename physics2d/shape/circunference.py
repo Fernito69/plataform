@@ -306,7 +306,7 @@ class Circunference(Shape):
         eq = self.get_circunference_equations()
 
         # TODO: we should mirror all these calculations!
-        for curr_x in range(math.floor(min_x - 2), math.ceil(max_x + 1)):
+        for curr_x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
             # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
             # TODO: these calculations seem to be the ones slowing down big balls' rendering
             y1, y2 = eq.get_ys(curr_x)
@@ -323,12 +323,9 @@ class Circunference(Shape):
             x1: float | None = curr_x
             x2: float | None = self.radius + self.center.x - curr_x
 
-            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 2)):
+            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
                 if not _go_full_color_until_next_x:
                     x1, x2 = eq.get_xs(curr_y)
-
-                    # if x1 is None or x2 is None:
-                    #     continue
 
                     _distance = min(
                         max(
@@ -338,8 +335,8 @@ class Circunference(Shape):
                         ),
                         max(
                             0,
-                            curr_x - x2 if x2 is not None else 1,
-                            x1 - curr_x if x1 is not None else 1,
+                            curr_x - x2 if x2 is not None else 10,
+                            x1 - curr_x if x1 is not None else 10,
                         ),
                     )
                     _next_x = x2
