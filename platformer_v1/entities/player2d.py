@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING
 from factories.theme import Cyan, Green, Red, White, Yellow
 from model.base import PointF, VectorF
 from model.keyboard import MovementKeys
-from model.player import PlayerStatus
-from model.shared import KeyboardHandler
+from model.player import Player, PlayerStatus
 from model.theme import Theme
 from platformer_v1.constants import PLAYER_IMMUNE_TIME
 from platformer_v1.entities.base import LivingEntity2D
@@ -20,6 +19,7 @@ _PLAYER_FRAMES = ["☺"]
 _PLAYER_IMMUNE_COLOR = Cyan()
 _PLAYER_FLASHING_FRAMES = ["☻"]
 
+_INITIAL_HEALTH = 100
 _GOOD_HEALTH_LIMIT = 75
 _BAD_HEALTH_LIMIT = 25
 
@@ -28,17 +28,22 @@ _MID_HEALTH_COLOR = Yellow()
 _BAD_HEALTH_COLOR = Red()
 
 
-class Player2D(KeyboardHandler, LivingEntity2D):
+class Player2D(Player, LivingEntity2D):
     status: PlayerStatus
     lives: int
     points: int
     player_number: int
+    health: float
 
     _immune_counter: int
 
-    def __init__(self, player_number: int):
-        LivingEntity2D.__init__(self, health=100)
-        self._immune_counter: int = 0
+    def __init__(
+        self,
+        player_number: int = 1,
+        lives: int = 3,
+        points: int = 0,
+        health: float = _INITIAL_HEALTH,
+    ):
         self._char_frames = _PLAYER_FRAMES
         self._default_char_frames = _PLAYER_FRAMES
 
@@ -47,6 +52,16 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         self.points = 0
         self.theme = Theme(color=_PLAYER_COLOR)
         self.status = PlayerStatus.PLAYING
+        self._immune_counter: int = 0
+
+        Player.__init__(
+            self,
+            lives=lives,
+            points=points,
+            health=health,
+            player_number=player_number,
+        )
+        LivingEntity2D.__init__(self, health=health)
 
     def do_your_thing(self):
         self._do_the_bare_minimum()
@@ -126,7 +141,7 @@ class Player2D(KeyboardHandler, LivingEntity2D):
         self._collision_landscape(old_position)
         self._calc_collision()
 
-    def _handle_keyboard_input(self):
+    def handle_keyboard_input(self):
         self._jump()
         self._move_left()
         self._move_right()

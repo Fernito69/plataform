@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.keyboard import MovementKeys
-from model.player import PlayerStatus
-from model.shared import KeyboardHandler
+from model.player import Player, PlayerStatus
 from system import on_key_press
 from three_d_renderer.constants import PLAYER_3D_MOVING_SPEED_FACTOR
 from three_d_renderer.entities.base3d import LivingEntity3D
@@ -13,18 +12,24 @@ from three_d_renderer.scenario.levels_3d import build_3d_levels
 if TYPE_CHECKING:
     from three_d_renderer.scenario.level_3d import Level3D
 
+_INITIAL_HEALTH = 100
 
-class Player3D(KeyboardHandler, LivingEntity3D):
+
+class Player3D(Player, LivingEntity3D):
     status: PlayerStatus
     lives: int
     points: int
     player_number: int
 
     curr_level: "Level3D"
-    _immune_counter: int
 
-    def __init__(self, player_number: int = 1):
-        LivingEntity3D.__init__(self, health=100, vertices=[], angle=VectorF(0, 0, 0))
+    def __init__(
+        self,
+        player_number: int = 1,
+        lives: int = 3,
+        points: int = 0,
+        health: float = _INITIAL_HEALTH,
+    ):
         self._immune_counter: int = 0
         self.player_number = player_number
         self.lives: int = 3
@@ -32,11 +37,25 @@ class Player3D(KeyboardHandler, LivingEntity3D):
         self.status = PlayerStatus.PLAYING
         self.set_curr_level(build_3d_levels()[0])
 
+        Player.__init__(
+            self,
+            player_number=player_number,
+            lives=lives,
+            points=points,
+            health=health,
+        )
+        LivingEntity3D.__init__(
+            self,
+            health=100,
+            vertices=[],
+            angle=VectorF(0, 0, 0),
+        )
+
     def _normalize_by_angle(self) -> None:
         return
 
     def do_your_thing(self) -> None:
-        self._handle_keyboard_input()
+        self.handle_keyboard_input()
 
     @on_key_press(MovementKeys.UP)
     def _move_forward(self) -> None:
@@ -99,7 +118,7 @@ class Player3D(KeyboardHandler, LivingEntity3D):
     def _fly_down(self) -> None:
         self.move_by(VectorF(0, 0, 1 * PLAYER_3D_MOVING_SPEED_FACTOR))
 
-    def _handle_keyboard_input(self):
+    def handle_keyboard_input(self):
         self._move_forward()
         self._move_backward()
         self._strafe_left()

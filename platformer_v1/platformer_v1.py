@@ -36,8 +36,8 @@ class PlatformerV1(Engine):
         self._player2d.set_curr_level(self._levels_2d[self._current_level_index])
 
     def main_loop(self) -> None:
-        self._player2d._handle_keyboard_input()
-        self.populate_level_into_screen_grid()
+        self._player2d.handle_keyboard_input()
+        self._populate_level_into_screen_grid()
 
         self._compute_actions_and_add_to_screen(self._player2d)
 
@@ -64,7 +64,7 @@ class PlatformerV1(Engine):
         self._display.put_screen_content(self._screen_buffer)
         self._display.print_curr_screen(self._player2d)
 
-    def populate_level_into_screen_grid(self):
+    def _populate_level_into_screen_grid(self):
         self._screen_buffer = []
 
         X_RES, Y_RES = self._display.get_resolution()

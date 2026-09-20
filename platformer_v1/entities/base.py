@@ -1,4 +1,5 @@
 import math
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Optional
 
 from model.base import Orientation, PointF, VectorF
@@ -36,6 +37,9 @@ class Entity2D:
         self._curr_char_frame_index = 0
         self.theme = theme or Theme()
         self.position = position
+
+    @abstractmethod
+    def do_your_thing(self) -> None: ...
 
     def _do_the_bare_minimum(self) -> None:
         self._advance_character_frame()
@@ -85,10 +89,6 @@ class Entity2D:
             self.theme.color,
             self.theme.bg_color,
         )
-
-    def do_your_thing(self) -> None:
-        # This method should be overwritten by the inheriting classes
-        pass
 
     # TODO: this should calculate player collision before moving ()
     def _move_by(self, vector: VectorF) -> None:
@@ -219,8 +219,8 @@ class Entity2D:
 
 
 class LivingEntity2D(Entity2D):
-    health: int
+    health: float
 
-    def __init__(self, health: int):
+    def __init__(self, health: float):
         Entity2D.__init__(self)
         self.health = health

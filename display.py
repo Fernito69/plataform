@@ -62,9 +62,9 @@ class Display(KeyboardHandler):
         self._print_fps = print_fps
         self._message = None
         self._message_intensity = 0
-        self.set_mode()
+        self.switch_mode_by_game_mode()
 
-    def set_mode(self) -> None:
+    def switch_mode_by_game_mode(self) -> None:
         self.clear_curr_screen()
 
         match self._game.mode:
@@ -420,7 +420,7 @@ class Display(KeyboardHandler):
     ##############
     # PLAYER INPUT
     ##############
-    def _handle_keyboard_input(self) -> None:
+    def handle_keyboard_input(self) -> None:
         if self._game.mode == GameMode.PLATFORMER_V1:
             return
 

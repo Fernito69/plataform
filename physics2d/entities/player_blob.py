@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.keyboard import ActionKeys, CheatKeys, MovementKeys
-from model.shared import KeyboardHandler, MouseHandler
+from model.player import Player
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.equipment.thruster import Thruster
@@ -24,6 +24,8 @@ from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from system import consume_mouse_scroll, on_key_press, on_mouse_press
 
+_INITIAL_HEALTH = 100
+
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.scenario.scenario import Scenario
@@ -36,7 +38,7 @@ _CROSSHAIR_PARTICLE_NAME = "CrosshairParticle"
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 
-class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
+class PlayerBlob(PhysicsEntity, Player):
     _thrusters: list[Thruster]
     _curr_thruster_index: int
     _last_known_direction: VectorF
@@ -50,8 +52,13 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         position: PointF = PointF(0, 0),
         velocity=VectorF(0, 0),
         density: float = 1,
+        player_number: int = 1,
+        lives: int = 3,
+        points: int = 0,
+        health: float = _INITIAL_HEALTH,
     ):
-        super().__init__(
+        PhysicsEntity.__init__(
+            self,
             name="PlayerBlob",
             engine=engine,
             position=position,
@@ -59,6 +66,13 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
             density=density,
             size=_PLAYER_RADIUS,
             theme=_PLAYER_THEME,
+        )
+        Player.__init__(
+            self,
+            player_number=player_number,
+            lives=lives,
+            points=points,
+            health=health,
         )
         self._engine = engine
         self.center = position
@@ -79,7 +93,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
         self.get_curr_weapon().do_your_thing()
 
         self._handle_mouse_input()
-        self._handle_keyboard_input()
+        self.handle_keyboard_input()
         self._apply_gravity(self._engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
@@ -227,7 +241,7 @@ class PlayerBlob(PhysicsEntity, KeyboardHandler, MouseHandler):
     """  INPUT  """
     ###############
 
-    def _handle_keyboard_input(self):
+    def handle_keyboard_input(self):
         self._switch_thruster()
         self._move_up()
         self._move_left()

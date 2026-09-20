@@ -79,8 +79,8 @@ class Game(Engine, KeyboardHandler):
             self._check_game_status()
             self._handle_welcome_message()
 
-            self._handle_keyboard_input()
-            self.display._handle_keyboard_input()
+            self.handle_keyboard_input()
+            self.display.handle_keyboard_input()
 
             match self.mode:
                 case GameMode.PHYSICS_2D:
@@ -107,7 +107,7 @@ class Game(Engine, KeyboardHandler):
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        # TODO: players need a base class
+        # TODO: players need a base class?
         for player in [self.player2d, self.player3d]:
             match player.status:
                 case PlayerStatus.DEAD:
@@ -137,7 +137,7 @@ class Game(Engine, KeyboardHandler):
     # PLAYER INPUT
     ##############
 
-    def _handle_keyboard_input(self) -> None:
+    def handle_keyboard_input(self) -> None:
         self._press_quit()
         self._switch_3d_rendering_mode()
         self._switch_2d_mode()
@@ -164,23 +164,23 @@ class Game(Engine, KeyboardHandler):
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.mode = GameMode.PHYSICS_2D
-        self.display.set_mode()
+        self.display.switch_mode_by_game_mode()
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
         self.mode = GameMode.PLATFORMER_V1
-        self.display.set_mode()
+        self.display.switch_mode_by_game_mode()
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
         self.mode = GameMode.VOXELS_3D
-        self.display.set_mode()
+        self.display.switch_mode_by_game_mode()
         self.voxel_renderer.reset_screen_buffer()
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_3d_rendering_mode(self):
         self.mode = GameMode.VOXELS_3D if self.mode == GameMode.LINES_3D else GameMode.LINES_3D
-        self.display.set_mode()
+        self.display.switch_mode_by_game_mode()
 
         if self.mode == GameMode.VOXELS_3D:
             self.voxel_renderer.reset_screen_buffer()
@@ -188,13 +188,13 @@ class Game(Engine, KeyboardHandler):
             self.line_renderer.reset_screen_buffer()
             self.line_renderer.reset_world_data()
 
+    # TODO: deprecate this?
     @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
     def _switch_antialiasing(self):
         self.display._antialiasing = not self.display._antialiasing
 
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):
-        # TODO: I don't like this, should be a single source of truth. Same for all the rest.
         self.voxel_renderer.visibility_threshold += 5
         self.line_renderer.visibility_threshold += 5
 
