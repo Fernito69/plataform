@@ -77,8 +77,8 @@ class ThreeDeeEnemy(Enemy):
 
     #################################################################
     """ RENDERING """
-
     #################################################################
+
     def get_render_info(self) -> list[RenderInfo]:
         return (
             self._get_render_info_v1()
@@ -184,6 +184,9 @@ class ThreeDeeEnemy(Enemy):
             self.polyhedron.vertex_connections,
             key=lambda c: vertices_in_3d[c[0]][1] + vertices_in_3d[c[1]][1],
         )
+
+        # TODO: fix it to use this
+        # sorted_connections = self.polyhedron.get_sorted_vertex_connections()
 
         for num_a, num_b in sorted_connections:
             first_vertex, first_distance = vertices_in_3d[num_a]

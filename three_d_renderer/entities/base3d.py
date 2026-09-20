@@ -62,6 +62,23 @@ class Entity3D:
         # self.theme = theme or Theme()
         self.theme = Theme(color=color)
 
+    def get_sorted_vertex_connections(
+        self,
+        reference_point: PointF | None = None,
+    ) -> list[tuple[int, int]]:
+        vertices_in_3d = [
+            (
+                v if not reference_point else v - reference_point,
+                abs(v if not reference_point else v - reference_point),
+            )
+            for v in self.vertices
+        ]
+        return sorted(
+            self.vertex_connections,
+            # adding up distances makes sense, right?
+            key=lambda c: vertices_in_3d[c[0]][1] + vertices_in_3d[c[1]][1],
+        )
+
     def is_lazy(self) -> bool:
         # TODO: we are bypassing this, check why the optimization is not working
         return False and self.mov_vector == (0, 0, 0) and self.rot_vector == (0, 0, 0)
