@@ -149,7 +149,11 @@ class Display(KeyboardHandler):
     def clear_curr_screen(self) -> None:
         clear_screen()
 
-    def print_curr_screen(self, player: Player2D | Player3D | PlayerBlob | None = None):
+    def print_curr_screen(
+        self,
+        player: Player2D | Player3D | PlayerBlob | None = None,
+        clear_screen: bool = False,
+    ):
         message_container_coords: tuple[ScreenPos, ScreenPos] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
@@ -210,8 +214,11 @@ class Display(KeyboardHandler):
                 + BR
                 + to_print
             )
-
-        print_and_reset_cursor(screen_content)
+        if not clear_screen:
+            print_and_reset_cursor(screen_content)
+        else:
+            self.clear_curr_screen()
+            print(screen_content)
 
     # TODO: allow color in the message string instead of hardcoding it
     # TODO: this logic is all sooo hacky, do better

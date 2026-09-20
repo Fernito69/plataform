@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class VoxelRenderer(ThreeDeeRenderer):
     def __init__(self, game: "Game"):
-        ThreeDeeRenderer.__init__(self, game)
+        super().__init__(game)
         self.draw_screen_border()
 
     def draw_screen_border(self):

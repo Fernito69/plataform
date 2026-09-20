@@ -12,6 +12,7 @@ from platformer_v1.platformer_v1 import PlatformerV1
 from system import on_key_press, stop_mouse_listener
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.line_renderer import LineRenderer
+from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from three_d_renderer.voxel_renderer import VoxelRenderer
 from utils import random_offset
 
@@ -106,6 +107,7 @@ class Game(Engine, KeyboardHandler):
         self._check_player_status()
 
     def _check_player_status(self) -> None:
+        # TODO: players need a base class
         for player in [self.player2d, self.player3d]:
             match player.status:
                 case PlayerStatus.DEAD:
@@ -124,10 +126,6 @@ class Game(Engine, KeyboardHandler):
             return
         elif self._welcome_message_timer >= 0:
             _text = _WELCOME_TEXT
-            # TODO: fix this
-            # _WELCOME_TEXT[
-            #     0 : (len(_WELCOME_TEXT) - (_WELCOME_TIMER - self._welcome_message_timer))
-            # ]
             intensity = 1 - ((_WELCOME_TIMER - self._welcome_message_timer) / _WELCOME_TIMER)
             self.display.set_message(_text, intensity=intensity)
             self._welcome_message_timer -= 1
@@ -216,9 +214,8 @@ class Game(Engine, KeyboardHandler):
         self.line_renderer.fov += 5
 
     @on_key_press(DisplayKeys.SHUFFLE_COLORS, act_once_per_press=True)
-    # TODO: this is a hack, do properly
     def _shuffle_colors(self):
-        renderers = [self.voxel_renderer, self.line_renderer]
+        renderers: list[ThreeDeeRenderer] = [self.voxel_renderer, self.line_renderer]
 
         new_colors = sorted(
             renderers[0].colors,

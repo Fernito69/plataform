@@ -60,15 +60,18 @@ class PlatformerV1(Engine):
         self._put_char_in_pixel(entity.get_char(), entity.position)
 
     def _print_game(self) -> None:
-        self._display.clear_curr_screen()
         self._display.print_curr_screen(self._player2d)
 
     # TODO: this shouldn't be here?
     def populate_level_into_screen_grid(self):
+        _screen_content: list[list[str]] = []
+
         X_RES, Y_RES = self._display.get_resolution()
         for y in range(Y_RES):
-            self._display.screen_grid.append([])
+            _screen_content.append([])
             for x in range(X_RES):
-                self._display.screen_grid[y].append(
+                _screen_content[y].append(
                     self._levels_2d[self._current_level_index].map[y][x] or EMPTY_SPACE
                 )
+
+        self._display.put_screen_content(_screen_content)
