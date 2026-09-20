@@ -20,6 +20,8 @@ class PlatformerV1(Engine):
     _display: Display
     _player2d: Player2D
 
+    _screen_buffer: list[list[str]] = []
+
     def __init__(
         self,
         game: "Game",
@@ -27,7 +29,6 @@ class PlatformerV1(Engine):
     ):
         self.game = game
         self._current_level_index = current_level_index
-
         self._display = self.game.display
 
         self._player2d = self.game.player2d
@@ -53,25 +54,23 @@ class PlatformerV1(Engine):
         x = math.floor(position.x)
         y = math.floor(position.y)
         if 0 <= y < Y_RES and 0 <= x < X_RES:
-            self._display.screen_grid[y][x] = char
+            self._screen_buffer[y][x] = char
 
     def _compute_actions_and_add_to_screen(self, entity: Entity2D) -> None:
         entity.do_your_thing()
         self._put_char_in_pixel(entity.get_char(), entity.position)
 
     def _print_game(self) -> None:
+        self._display.put_screen_content(self._screen_buffer)
         self._display.print_curr_screen(self._player2d)
 
-    # TODO: this shouldn't be here?
     def populate_level_into_screen_grid(self):
-        _screen_content: list[list[str]] = []
+        self._screen_buffer = []
 
         X_RES, Y_RES = self._display.get_resolution()
         for y in range(Y_RES):
-            _screen_content.append([])
+            self._screen_buffer.append([])
             for x in range(X_RES):
-                _screen_content[y].append(
+                self._screen_buffer[y].append(
                     self._levels_2d[self._current_level_index].map[y][x] or EMPTY_SPACE
                 )
-
-        self._display.put_screen_content(_screen_content)
