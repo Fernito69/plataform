@@ -30,13 +30,6 @@ class Player3D(Player, LivingEntity3D):
         points: int = 0,
         health: float = _INITIAL_HEALTH,
     ):
-        self._immune_counter: int = 0
-        self.player_number = player_number
-        self.lives: int = 3
-        self.points = 0
-        self.status = PlayerStatus.PLAYING
-        self.set_curr_level(build_3d_levels()[0])
-
         Player.__init__(
             self,
             player_number=player_number,
@@ -50,6 +43,12 @@ class Player3D(Player, LivingEntity3D):
             vertices=[],
             angle=VectorF(0, 0, 0),
         )
+        self._immune_counter: int = 0
+        self.player_number = player_number
+        self.lives: int = 3
+        self.points = 0
+        self.status = PlayerStatus.PLAYING
+        self.set_curr_level(build_3d_levels()[0])
 
     def _normalize_by_angle(self) -> None:
         return
