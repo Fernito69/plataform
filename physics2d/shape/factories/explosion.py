@@ -145,7 +145,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             initial_velocity=(
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
             ).as_vector(),
-            size=0.5,
+            size=0.3,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
             ending_color=RGB(40, 5, 0, 1),  # dark orange
             life_time=70,
