@@ -49,6 +49,7 @@ class HeavyMachineGun(Weapon):
             return gatling_bullets(scenario, source, ammo_per_gametick)
 
         super().__init__(
+            recoil=0.1,
             name="HeavyMachineGun",
             scenario=scenario,
             max_ammo=4000,
