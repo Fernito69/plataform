@@ -195,17 +195,21 @@ class ThreeDeeEnemy(Enemy):
                 continue
 
             X_RES, Y_RES = self._engine.get_resolution()
+            x_min, y_min, _ = self._engine.screen_corner
+            x_max = x_min + X_RES
+            y_max = y_min + Y_RES
 
-            # TODO: the logic is not that dumb, we need at least one of them to be in the screen
+            # TODO: the logic should not that dumb, we need at least one of them to be in the screen
             if (
-                projected_point_1.x < X_RES
-                and projected_point_1.y < Y_RES
-                and projected_point_1.x > 0
-                and projected_point_1.y > 0
-                and projected_point_2.x < X_RES
-                and projected_point_2.y < Y_RES
-                and projected_point_2.x > 0
-                and projected_point_2.y > 0
+                projected_point_1.x < x_max
+                and projected_point_1.y < y_max
+                and projected_point_1.x > x_min
+                and projected_point_1.y > y_min
+            ) or (
+                projected_point_2.x < x_max
+                and projected_point_2.y < y_max
+                and projected_point_2.x > x_min
+                and projected_point_2.y > y_min
             ):
                 # TODO: make self.visibility_threshold not a float
                 _factor = 1 / self.visibility_threshold
@@ -216,10 +220,10 @@ class ThreeDeeEnemy(Enemy):
                     points=(projected_point_1, projected_point_2),
                     engine=self._engine,
                     theme=Theme(
-                        color=color.with_intensity(intensity_1),
+                        color=color.with_intensity(intensity_2),
                     ),
                     secondary_theme=Theme(
-                        color=color.with_intensity(intensity_2),
+                        color=color.with_intensity(intensity_1),
                     ),
                     thickness=self._line_thickness,
                 )

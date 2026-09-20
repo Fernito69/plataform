@@ -7,7 +7,12 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
-from utils import distance_from_line_to_point, rotate_point
+from utils import (
+    GetLineEquationResponse,
+    distance_from_line_to_point,
+    get_line_equations,
+    rotate_point,
+)
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -99,8 +104,22 @@ class Line(Shape):
             )
         )
 
-        for x in range(math.floor(min_x - self.thickness), math.ceil(max_x + self.thickness)):
-            for y in range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness)):
+        eq = self._get_equations()
+        x_range = range(math.floor(min_x - self.thickness), math.ceil(max_x + self.thickness))
+
+        for x in x_range:
+            # get y_range:
+            prev_y = eq.get_y(x - self.thickness)
+            next_y = eq.get_y(x + self.thickness)
+            local_min_y = max(min_y, (min(prev_y, next_y)))
+            local_max_y = min(max_y, (max(prev_y, next_y)))
+
+            # y_range = range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness))
+            y_range = range(
+                math.floor(local_min_y - self.thickness), math.ceil(local_max_y + self.thickness)
+            )
+
+            for y in y_range:
                 distance = distance_from_line_to_point(
                     self.points, PointF(x + HALF_PIXEL, y + HALF_PIXEL)
                 ).distance
@@ -189,6 +208,9 @@ class Line(Shape):
         )
 
         return color
+
+    def _get_equations(self) -> GetLineEquationResponse:
+        return get_line_equations(self.points[0], self.points[1])
 
     def _apply_movement(self) -> None:
         self._float_around()
