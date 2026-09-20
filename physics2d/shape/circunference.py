@@ -304,16 +304,30 @@ class Circunference(Shape):
         )
 
         eq = self.get_circunference_equations()
+        x_range = range(math.floor(min_x - 2), math.ceil(max_x + 1))
 
-        # TODO: we should mirror all these calculations!
-        for curr_x in range(math.floor(min_x - 1), math.ceil(max_x + 1)):
+        for x_index, curr_x in enumerate(x_range):
             # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
             # TODO: these calculations seem to be the ones slowing down big balls' rendering
             y1, y2 = eq.get_ys(curr_x)
+            next_y1, next_y2 = (
+                eq.get_ys(curr_x + 1) if x_index / len(x_range) < 0.5 else eq.get_ys(curr_x - 1)
+            )
+            next_next_y1, next_next_y2 = (
+                eq.get_ys(curr_x + 2) if curr_x + 2 < len(x_range) else eq.get_ys(curr_x - 1)
+            )
 
-            # TODO: here we need to do something to make the upper border render
-            if y1 is None or y2 is None:
+            all_ys: list[float] = [
+                v for v in [y1, y2, next_y1, next_y2, next_next_y1, next_next_y2] if v is not None
+            ]
+            if len(all_ys) == 0:
                 continue
+
+            local_max_y = max(all_ys)
+            local_min_y = min(all_ys)
+
+            y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
+            # y_range = range(math.floor(min_y - 1), math.ceil(max_y + 1))
 
             # This is in order to optimize the rendering, since calculating circunference equations is expensive
             _go_full_color_until_next_x: bool = False
@@ -323,15 +337,15 @@ class Circunference(Shape):
             x1: float | None = curr_x
             x2: float | None = self.radius + self.center.x - curr_x
 
-            for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
+            for curr_y in y_range:
                 if not _go_full_color_until_next_x:
                     x1, x2 = eq.get_xs(curr_y)
 
                     _distance = min(
                         max(
                             0,
-                            curr_y - y2,
-                            y1 - curr_y,
+                            curr_y - y2 if y2 is not None else 10,
+                            y1 - curr_y if y1 is not None else 10,
                         ),
                         max(
                             0,
@@ -355,7 +369,12 @@ class Circunference(Shape):
                     )
                 )
 
-                if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
+                if (
+                    _go_full_color_until_next_x
+                    and _next_x is not None
+                    and y2 is not None
+                    and curr_y >= y2 - 1
+                ):
                     _go_full_color_until_next_x = False
 
         # Add player details and ornaments (TODO: move to player rendering)
@@ -382,12 +401,12 @@ class Circunference(Shape):
                 self.center.x - self.radius,
             )
         )
-        min_y, max_y = sorted(
-            (
-                self.center.y + self.radius,
-                self.center.y - self.radius,
-            )
-        )
+        # min_y, max_y = sorted(
+        #     (
+        #         self.center.y + self.radius,
+        #         self.center.y - self.radius,
+        #     )
+        # )
 
         eq = self.get_circunference_equations()
         x_range = range(math.floor(min_x), math.ceil(max_x))
