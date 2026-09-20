@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB
+from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import get_vector_angle, random_offset, random_offset_vector
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 
 def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -> None:
+    if is_out_of_sight(engine, source):
+        return
+
     particles: list[CircularParticle] = []
 
     eye_x = source.center.x - source.velocity.x
@@ -165,6 +169,9 @@ def get_smoke_generator(
     size_factor: float = 0.5,
 ) -> "ParticleGenerator":
     def _gen(engine: "Physics2D", source: "PhysicsEntity") -> None:
+        if is_out_of_sight(engine, source):
+            return
+
         _smoke_generator(
             engine=engine,
             source=source,
@@ -191,9 +198,6 @@ def _smoke_generator(
     gravity: float = 0.05,
     size_factor: float = 0.5,
 ) -> None:
-    # from physics2d.scenario.scenario import Scenario
-    # if isinstance(engine, Scenario):
-    #     raise NotImplementedError(source.name)
     if random_offset() < random_offset_threshold:
         return
 
@@ -607,6 +611,9 @@ def _rocket_explosion(
 
 
 def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity | None") -> None:
+    if is_out_of_sight(engine, source):
+        return
+
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -700,6 +707,9 @@ def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity
 def homing_missile_trail(
     engine: "Physics2D", source: "PhysicsEntity", target: "PhysicsEntity | None"
 ) -> None:
+    if is_out_of_sight(engine, source):
+        return
+
     pieces: list[CircularParticle] = []
 
     if target:

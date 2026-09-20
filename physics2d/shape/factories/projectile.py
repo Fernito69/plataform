@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from model.theme import RGB
-from physics2d.shape.factories.explosion import (
-    lightning_impact,
-)
+from physics2d.shape.factories.explosion import lightning_impact
+from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.line import Line
 from physics2d.shape.particle.lightning import Lightning
 from utils import random_offset_vector
@@ -28,6 +27,9 @@ def get_lightning_bolts(
     render_on_top: bool = True,
 ) -> "ParticleGenerator":
     def _lightning(engine: "Physics2D", source: "PhysicsEntity") -> None:
+        if is_out_of_sight(engine, source):
+            return
+
         return _lightning_bolts(
             engine=engine,
             source=source,
@@ -60,8 +62,6 @@ def _lightning_bolts(
 ) -> None:
     pieces: list[Line] = []
     possible_victims: list["Enemy"] = []
-
-    possible_victims: list[Enemy] = []
 
     if damage:
         possible_victims = [
@@ -101,13 +101,12 @@ def _lightning_bolts(
         pieces.append(l1)
 
         if len(possible_victims) > index:
-            # _end_point = possible_victims[index].center + random_offset_vector(_size, _size)
             # TODO: is it right that the particle gen takes care of this?
             possible_victims[index].receive_damage(damage or 0)
             lightning_impact(
                 engine,
                 possible_victims[index],
-                possible_victims[index].center + random_offset_vector(_size, _size),
+                possible_victims[index].center + VectorF.random_offset_vector(_size),
             )
 
     if render_on_top:
