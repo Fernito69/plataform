@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 class Enemy(PhysicsEntity):
     # TODO: make a physics entity prop
-    engine: "Physics2D"
+    _engine: "Physics2D"
     health: float
 
     _initial_health: float

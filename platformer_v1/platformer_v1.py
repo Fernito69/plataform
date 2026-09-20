@@ -36,10 +36,13 @@ class PlatformerV1(Engine):
         self._player2d.set_curr_level(self._levels_2d[self._current_level_index])
 
     def main_loop(self) -> None:
-        self._player2d.handle_keyboard_input()
+        self._compute_actions()
+        self._print_game()
 
+    def _compute_actions(self) -> None:
         self._populate_level_into_screen_grid()
 
+        self._player2d.handle_keyboard_input()
         self._compute_actions_and_add_to_screen(self._player2d)
 
         for enemy in self._levels_2d[self._current_level_index].enemies:
@@ -48,9 +51,7 @@ class PlatformerV1(Engine):
         for exit in self._levels_2d[self._current_level_index].exits:
             self._compute_actions_and_add_to_screen(exit)
 
-        self._print_game()
-
-    def _put_char_in_pixel(self, char: str, position: PointF):
+    def _put_char_in_pixel(self, char: str, position: PointF) -> None:
         X_RES, Y_RES = self._display.get_resolution()
         x = math.floor(position.x)
         y = math.floor(position.y)

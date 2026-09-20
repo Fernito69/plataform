@@ -30,14 +30,6 @@ _BAD_HEALTH_COLOR = Red()
 
 
 class Player2D(Player, LivingEntity2D):
-    status: PlayerStatus
-    lives: int
-    points: int
-    player_number: int
-    health: float
-
-    _immune_counter: int
-
     def __init__(
         self,
         player_number: int = 1,

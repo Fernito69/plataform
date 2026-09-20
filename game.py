@@ -120,8 +120,8 @@ class Game(Engine, KeyboardHandler):
         _WELCOME_MESSAGE_SHOWN = -99
 
         if (
-            not self.status == GameStatus.RUNNING
-            or self._welcome_message_timer == _WELCOME_MESSAGE_SHOWN
+            self._welcome_message_timer == _WELCOME_MESSAGE_SHOWN
+            or not self.status == GameStatus.RUNNING
         ):
             return
         elif self._welcome_message_timer >= 0:

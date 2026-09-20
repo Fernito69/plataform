@@ -80,7 +80,7 @@ class Entity3D:
         pass
 
     @abstractmethod
-    def calc_legacy_voxels(self, apply: bool = False) -> list[PointF]:
+    def calc_legacy_voxels(self) -> list[PointF]:
         pass
 
     def _apply_gravity(self) -> None:

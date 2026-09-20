@@ -105,7 +105,7 @@ class LineRenderer(ThreeDeeRenderer):
             for _ in range(X_RES):
                 self.world_data[y].append([])
 
-    def calculate_world(self) -> None:
+    def _compute_world(self) -> None:
         if not (curr_level := self.game.player3d.curr_level):
             return
 
@@ -117,11 +117,10 @@ class LineRenderer(ThreeDeeRenderer):
     def main_loop(self) -> None:
         self.reset_world_data()
         self.game.player3d.do_your_thing()
-        self.calculate_world()
+        self._compute_world()
         self.render()
 
     def render(self):
-
         world_data: list[WorldData] = self._get_world_data()
 
         for data in world_data:

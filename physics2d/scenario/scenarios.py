@@ -13,7 +13,7 @@ from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
 from physics2d.shape.line import Line
 from physics2d.shape.rectangle import Rectangle
-from three_d_renderer.entities.polyhedra import Dodeca
+from three_d_renderer.entities.polyhedra import Dodeca, Ico
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -297,14 +297,29 @@ def default_scenario(engine: "Physics2D") -> Scenario:
             health=100,
             position=PointF(100, 0),
             polyhedron=Dodeca(
-                position=PointF(0, 100, 20),
-                size=15,
+                position=PointF(0, 100, 0),
+                size=20,
                 angle=VectorF(0, 30, 0),
                 mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(-1, 2, 0),
             ),
-            theme=Theme(RGB(255, 100, 255)),
-        )
+            theme=Theme(RGB(90, 255, 255)),
+        ),
+        ThreeDeeEnemy(
+            engine=engine,
+            health=100,
+            position=PointF(100, 0),
+            polyhedron=Ico(
+                color=RGB(90, 255, 255),
+                position=PointF(50, 100, 0),
+                size=16,
+                angle=VectorF(0, 30, 0),
+                mov_vector=VectorF(0, 0, 0),
+                rot_vector=VectorF(-1, 2, 0),
+            ),
+            theme=Theme(RGB(0, 255, 0)),
+            line_thickness=1.5,
+        ),
     ]
 
     return Scenario(

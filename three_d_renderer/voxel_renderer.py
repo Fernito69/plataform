@@ -13,9 +13,15 @@ if TYPE_CHECKING:
 class VoxelRenderer(ThreeDeeRenderer):
     def __init__(self, game: "Game"):
         super().__init__(game)
-        self.draw_screen_border()
+        self._draw_screen_border()
 
-    def draw_screen_border(self):
+    def main_loop(self) -> None:
+        self._draw_screen_border()
+        self.game.player3d.do_your_thing()
+        self._calculate_scenario()
+        self._visualize_scenario()
+
+    def _draw_screen_border(self):
         X_RES, Y_RES = self._display.get_resolution()
 
         self._screen_buffer[0][0] = DoubleLines.UL
@@ -31,18 +37,12 @@ class VoxelRenderer(ThreeDeeRenderer):
             self._screen_buffer[0][x] = DoubleLines.H
             self._screen_buffer[Y_RES - 1][x] = DoubleLines.H
 
-    def main_loop(self) -> None:
-        self.draw_screen_border()
-        self.game.player3d.do_your_thing()
-        self.calculate_scenario()
-        self.visualize_scenario()
-
-    def calculate_scenario(self):
+    def _calculate_scenario(self):
         for entity in self.game.player3d.curr_level.entities:
             entity.calc_legacy_voxels()
             entity.movement()
 
-    def visualize_scenario(self, border_thickness: int = 1):
+    def _visualize_scenario(self, border_thickness: int = 1):
         player = self.game.player3d
         if not player.curr_level:
             return

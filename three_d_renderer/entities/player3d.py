@@ -16,11 +16,6 @@ _INITIAL_HEALTH = 100
 
 
 class Player3D(Player, LivingEntity3D):
-    status: PlayerStatus
-    lives: int
-    points: int
-    player_number: int
-
     curr_level: "Level3D"
 
     def __init__(

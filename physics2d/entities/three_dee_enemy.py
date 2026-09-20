@@ -5,6 +5,8 @@ from model.theme import RGB, Theme
 from physics2d.entities.enemy import Enemy
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
+from physics2d.shape.factories.explosion import enemy_explosion
+from physics2d.shape.line import Line
 from three_d_renderer.entities.base3d import Entity3D
 from utils import project_3d_into_2d
 
@@ -13,9 +15,10 @@ if TYPE_CHECKING:
 
 
 class ThreeDeeEnemy(Enemy):
-    engine: "Physics2D"
+    _engine: "Physics2D"
 
     polyhedron: Entity3D
+    _line_thickness: float
     visibility_threshold: float
 
     def __init__(
@@ -35,12 +38,14 @@ class ThreeDeeEnemy(Enemy):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         extra_shapes: list[Shape] = [],
-        visibility_threshold: float = 0.01,
+        visibility_threshold: float = 0.007,
+        line_thickness: float = 1,
     ):
-        self.engine = engine
+        self._engine = engine
         self.polyhedron = polyhedron
         self.visibility_threshold = visibility_threshold
         self.theme = theme
+        self._line_thickness = line_thickness
 
         super().__init__(
             size=polyhedron.get_diameter(),
@@ -68,7 +73,6 @@ class ThreeDeeEnemy(Enemy):
     def do_your_thing(self) -> None:
         self.polyhedron.calc_legacy_voxels()
         self.polyhedron.movement()
-
         super().do_your_thing()
 
     #################################################################
@@ -76,21 +80,25 @@ class ThreeDeeEnemy(Enemy):
 
     #################################################################
     def get_render_info(self) -> list[RenderInfo]:
+        return (
+            self._get_render_info_v1()
+            if self._engine.low_quality_mode
+            else self._get_render_info_like_line_renderer()
+        )
+
+    def _get_render_info_v1(self) -> list[RenderInfo]:
         vertices_to_render: list[tuple[PointF, PointF]] = []
         entity = self.polyhedron
 
         # TODO: render distance is not working well, fix
         for vertex in entity.vertices:
-            # vertex_seen_from_player: PointF = normalize_vertex_according_to_another(
-            #     vertex, PointF(0, 0, 0), VectorF(0, 0, 0)
-            # )
             vertex_seen_from_player = vertex
-            screen_pos = project_3d_into_2d(vertex_seen_from_player, self.engine.get_resolution())
+            screen_pos = project_3d_into_2d(vertex_seen_from_player, self._engine.get_resolution())
 
             if not screen_pos:
                 continue
 
-            X_RES, Y_RES = self.engine.get_resolution()
+            X_RES, Y_RES = self._engine.get_resolution()
 
             if (
                 screen_pos.x < X_RES
@@ -160,3 +168,67 @@ class ThreeDeeEnemy(Enemy):
         # for y in len(self._screen_buffer):
         #     for x in len(self._screen_buffer[y]):
         #         render_info.append(RenderInfo(point=PointF(x, y), distance_to_pixel_center=0, color=))
+
+    def _get_render_info_like_line_renderer(self) -> list[RenderInfo]:
+        vertices_in_3d = [
+            (
+                v,
+                abs(v),
+            )
+            for v in self.polyhedron.vertices
+        ]
+
+        lines_to_render: list[RenderInfo] = []
+
+        sorted_connections = sorted(
+            self.polyhedron.vertex_connections,
+            key=lambda c: vertices_in_3d[c[0]][1] + vertices_in_3d[c[1]][1],
+        )
+
+        for num_a, num_b in sorted_connections:
+            first_vertex, first_distance = vertices_in_3d[num_a]
+            second_vertex, second_distance = vertices_in_3d[num_b]
+            projected_point_1 = project_3d_into_2d(first_vertex, self._engine.get_resolution())
+            projected_point_2 = project_3d_into_2d(second_vertex, self._engine.get_resolution())
+
+            if not projected_point_1 or not projected_point_2:
+                continue
+
+            X_RES, Y_RES = self._engine.get_resolution()
+
+            # TODO: the logic is not that dumb, we need at least one of them to be in the screen
+            if (
+                projected_point_1.x < X_RES
+                and projected_point_1.y < Y_RES
+                and projected_point_1.x > 0
+                and projected_point_1.y > 0
+                and projected_point_2.x < X_RES
+                and projected_point_2.y < Y_RES
+                and projected_point_2.x > 0
+                and projected_point_2.y > 0
+            ):
+                # TODO: make self.visibility_threshold not a float
+                _factor = 1 / self.visibility_threshold
+                intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
+                intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)
+                color = self.theme.color or RGB()
+                line = Line(
+                    points=(projected_point_1, projected_point_2),
+                    engine=self._engine,
+                    theme=Theme(
+                        color=color.with_intensity(intensity_1),
+                    ),
+                    secondary_theme=Theme(
+                        color=color.with_intensity(intensity_2),
+                    ),
+                    thickness=self._line_thickness,
+                )
+                lines_to_render.extend(line.get_render_info())
+
+        return lines_to_render
+
+    def die(self, _death_explosion_size: int | None = None) -> None:
+        enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
+        self._engine.scenario.three_dee_enemies = [
+            e for e in self._engine.scenario.three_dee_enemies if e is not self
+        ]
