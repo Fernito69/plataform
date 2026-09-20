@@ -13,7 +13,10 @@ from system import consume_mouse_movement
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
-_CROSSHAIR_THEME = Theme(color=RGB(120, 255, 255))
+_CROSSHAIR_THEME = Theme(
+    color=RGB(20, 255, 20),
+    bg_color=RGB(120, 255, 255),
+)
 _CROSSHAIR_SHOOTING_THEME = Theme(color=RGB(255, 0, 0))
 
 _DOT_SIZE = 1
@@ -57,7 +60,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
                     self.center + PointF(l[1][0], l[1][1]),
                 ),
                 thickness=1,
-                theme=_CROSSHAIR_THEME,
+                theme=Theme(_CROSSHAIR_THEME.bg_color),
                 engine=self._engine,
             )
 
@@ -101,12 +104,18 @@ class Crosshair(PhysicsEntity, MouseHandler):
 
         if not curr_weapon.can_shoot():
             _factor = curr_weapon.get_life_time_ellapsed_ratio()
-            _target_color = _og_color.with_intensity(_target_intensity)
-            _final_color = _og_color.with_intensity(_initial_intensity).with_intensity(
+            _target_color = (
+                _og_color.with_intensity(1 if _is_pressing_trigger else 0.6)
+            ).with_intensity(_target_intensity)
+            _final_color = (
+                RGB(110, 110, 110)
+                if _is_pressing_trigger or not _CROSSHAIR_SHOOTING_THEME.color
+                else _CROSSHAIR_SHOOTING_THEME.color
+            ).with_intensity(_initial_intensity).with_intensity(
                 _factor
             ) + _target_color.with_intensity(1 - _factor)
             self.theme = Theme(_final_color)
-        elif not self._is_mouse_pressed(mouse.Button.left):
+        elif not _is_pressing_trigger:
             self.theme = Theme(_og_color)
 
     def _move_by(self, vector: VectorF) -> None:
