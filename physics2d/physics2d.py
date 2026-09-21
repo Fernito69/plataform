@@ -6,10 +6,12 @@ from model.base import PointF, ScreenPos
 from model.keyboard import MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
+from physics2d.entities.model.shared import ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.scenario import Scenario
-from physics2d.scenario.scenarios import default_scenario
+from physics2d.scenario.scenarios.first_level import first_level
+from physics2d.scenario.scenarios.test_scenario import test_scenario
 from system import on_key_press
 from utils import colored
 
@@ -19,7 +21,7 @@ if TYPE_CHECKING:
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
 
-# Determines at what level of RGB intensity the antialiasing effect starts to kick in
+# Determines at what level of RGB intensity the antiScenarioGeneratoraliasing effect starts to kick in
 INTENSITY_BLEND_THRESHOLD = 1
 
 
@@ -31,24 +33,36 @@ class Physics2D(Engine, KeyboardHandler):
     _screen_buffer_y_res: int
 
     player: PlayerBlob
+
     scenario: Scenario
+    scenarios: list[ScenarioGenerator] = [
+        test_scenario,
+        first_level,
+    ]
+    curr_scenario_index: int
 
     screen_corner: PointF
 
     # For better performance
     low_quality_mode: bool
 
-    def __init__(self, game: "Game", initial_screen_corner: PointF = INITIAL_CORNER):
+    def __init__(
+        self,
+        game: "Game",
+        initial_screen_corner: PointF = INITIAL_CORNER,
+        curr_scenario_index: int = 1,
+    ):
         self.game = game
         self.screen_corner = initial_screen_corner
         self._display = self.game.display
         self.low_quality_mode = False
+        self.curr_scenario_index = curr_scenario_index
         self.init_screen_buffer()
 
     # TODO: we need to do the same for entities/pieces
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
-        self.scenario = scenario or default_scenario(self)
+        self.scenario = scenario or self.scenarios[self.curr_scenario_index](self)
         self.player.set_scenario(self.scenario)
 
     def init_screen_buffer(self) -> None:

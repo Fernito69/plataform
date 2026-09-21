@@ -107,6 +107,17 @@ class RGB:
         yield self.g
         yield self.b
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, RGB):
+            return NotImplemented
+
+        return (
+            self.r == other.r
+            and self.g == other.g
+            and self.b == other.b
+            and self.intensity == other.intensity
+        )
+
 
 # TODO: make this an enum
 type SequencingType = Literal["random", "sequential", "back&forth"]

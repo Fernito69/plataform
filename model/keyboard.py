@@ -27,6 +27,7 @@ class MenuKeys(StrEnum):
     SWITCH_PHYSICS_2D_MODE = auto()
     TOGGLE_ROTATION = auto()
     TOGGLE_GRAPHICS_QUALITY = auto()
+    CYCLE_LEVELS = auto()
 
 
 class MovementKeys(StrEnum):

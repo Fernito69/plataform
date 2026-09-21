@@ -386,6 +386,8 @@ class Display(KeyboardHandler):
             return hud
 
         if isinstance(player, PlayerBlob):
+            s = player._engine.scenario
+            hud += f"Scenario: {colored(str(s.name), RGB(127, 127, 255))}{SEPARATOR}"
             hud += f"Velocity: ({round(player.velocity.x, 1)},{round(player.velocity.y, 1)}){SEPARATOR}"
             hud += f"Position: ({round(player.position.x, 1)},{round(player.position.y, 1)}){SEPARATOR}"
             thruster = player.get_curr_thruster()
@@ -397,15 +399,15 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
-            s = player._engine.scenario
-            num_particles = (
-                len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)
-            )
-            _factor = 1 - (num_particles / 1000)
-            _particles_color = RGB(100, 255, 100).with_intensity(_factor) + RGB(
-                255, 100, 100
-            ).with_intensity(1 - _factor)
-            hud += f"# Particles: {colored(str(num_particles), _particles_color)}{SEPARATOR}"
+
+            # num_particles = (
+            #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)
+            # )
+            # _factor = 1 - (num_particles / 1000)
+            # _particles_color = RGB(100, 255, 100).with_intensity(_factor) + RGB(
+            #     255, 100, 100
+            # ).with_intensity(1 - _factor)
+            # hud += f"# Particles: {colored(str(num_particles), _particles_color)}{SEPARATOR}"
 
             return hud
 

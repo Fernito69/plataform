@@ -145,6 +145,7 @@ class Game(Engine, KeyboardHandler):
         self._switch_physics2d_mode()
         self._toggle_rotation()
         self._toggle_quality()
+        self._cycle_physics_levels()
 
         if self.mode == GameMode.PLATFORMER_V1:
             return
@@ -232,3 +233,14 @@ class Game(Engine, KeyboardHandler):
     @on_key_press(MenuKeys.TOGGLE_GRAPHICS_QUALITY, act_once_per_press=True)
     def _toggle_quality(self) -> None:
         self.physics_engine.low_quality_mode = not self.physics_engine.low_quality_mode
+
+    @on_key_press(MenuKeys.CYCLE_LEVELS, act_once_per_press=True)
+    def _cycle_physics_levels(self) -> None:
+        if self.mode != GameMode.PHYSICS_2D:
+            return
+
+        next_idx = (self.physics_engine.curr_scenario_index + 1) % len(
+            self.physics_engine.scenarios
+        )
+        self.physics_engine.curr_scenario_index = next_idx
+        self.physics_engine.scenario = self.physics_engine.scenarios[next_idx](self.physics_engine)

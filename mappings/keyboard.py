@@ -15,6 +15,7 @@ default_keyboard_mapping: dict[KeyboardKeys, str] = {
     MenuKeys.SWITCH_PHYSICS_2D_MODE: "p",
     MenuKeys.TOGGLE_ROTATION: "n",
     MenuKeys.TOGGLE_GRAPHICS_QUALITY: "z",
+    MenuKeys.CYCLE_LEVELS: "m",
     MovementKeys.STRAFE_LEFT: "a",
     MovementKeys.STRAFE_RIGHT: "d",
     MovementKeys.ROTATE_LEFT: "j",

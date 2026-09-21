@@ -14,14 +14,14 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _CROSSHAIR_THEME = Theme(
-    color=RGB(20, 255, 20),
-    bg_color=RGB(120, 255, 255),
+    bg_color=RGB(20, 255, 20),
+    color=RGB(120, 255, 255),
 )
 _CROSSHAIR_SHOOTING_THEME = Theme(color=RGB(255, 0, 0))
 
 _DOT_SIZE = 1
-_HAIR_SIZE = 4
-_HAIR_OFFSET = 5
+_HAIR_SIZE = 1
+_HAIR_OFFSET = 4
 
 _MOUSE_SENSITIVITY = 0.2
 
@@ -60,7 +60,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
                     self.center + PointF(l[1][0], l[1][1]),
                 ),
                 thickness=1,
-                theme=Theme(_CROSSHAIR_THEME.bg_color),
+                theme=_CROSSHAIR_THEME,
                 engine=self._engine,
             )
 
@@ -71,7 +71,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
             _make_line(((-_HAIR_OFFSET, 0), (-_HAIR_OFFSET - _HAIR_SIZE, 0))),
         ]
         # give a lil offset:
-        self.center -= PointF(_DOT_SIZE/2, _DOT_SIZE/2)
+        self.center -= PointF(_DOT_SIZE / 2, _DOT_SIZE / 2)
 
     ##############
     """MOVEMENT"""
@@ -117,6 +117,10 @@ class Crosshair(PhysicsEntity, MouseHandler):
             self.theme = Theme(_final_color)
         elif not _is_pressing_trigger:
             self.theme = Theme(_og_color)
+
+        if self.extra_shapes[0].theme.color != curr_weapon.color:
+            for l in self.extra_shapes:
+                l.theme = Theme(curr_weapon.color)
 
     def _move_by(self, vector: VectorF) -> None:
         new_center = self.center + vector

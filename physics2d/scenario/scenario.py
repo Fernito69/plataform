@@ -35,7 +35,8 @@ type Layer = Literal["fg", "bg", "solid"]
 
 
 class Scenario:
-    # TODO: refactor this
+    name: str
+
     fg_shapes: list[Shape]
     bg_shapes: list[Shape]
     solid_shapes: list[Shape]
@@ -57,6 +58,7 @@ class Scenario:
 
     def __init__(
         self,
+        name: str,
         enemies: list[Enemy],
         engine: "Physics2D",
         player: PlayerBlob,
@@ -65,6 +67,7 @@ class Scenario:
         solid_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
     ):
+        self.name = name
         self.engine = engine
         self.enemies = enemies
         self.fg_shapes = fg_shapes

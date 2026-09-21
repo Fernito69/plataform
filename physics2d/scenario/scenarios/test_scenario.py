@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-def default_scenario(engine: "Physics2D") -> Scenario:
+def test_scenario(engine: "Physics2D") -> Scenario:
     # TODO: make factories
     def _random_color():
         floor = 80
@@ -324,6 +324,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     ]
 
     return Scenario(
+        name="Test scenario",
         enemies=enemies,
         three_dee_enemies=three_dee_enemies,
         fg_shapes=fg_pieces,
