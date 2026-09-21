@@ -83,7 +83,7 @@ class Rectangle(Line):
         )
         self.center_of_mass = self.center_of_mass + self.velocity
 
-    def rotate(self) -> None:
+    def _rotate(self) -> None:
         pass
 
     def do_your_thing(self) -> None:

@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 
+from model.base import VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.entities.equipment.weapons.rocket_launcher import rocket_launcher_nozzle
 from physics2d.shape.factories.explosion import get_rocket_explosion, homing_missile_trail
 from physics2d.shape.model.shared import TransitionType
-from utils import random_offset, random_offset_vector
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -53,7 +54,7 @@ def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     rocket = Projectile(
         owner=source,
-        offset_from_origin=random_offset_vector(),
+        offset_from_origin=VectorF.random_offset_vector(),
         initial_velocity=(
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),

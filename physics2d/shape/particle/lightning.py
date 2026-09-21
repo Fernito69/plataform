@@ -93,7 +93,7 @@ class Lightning(Particle, Line):
 
     def _apply_movement(self) -> None:
         self._float_around()
-        self.rotate()
+        self._rotate()
 
         if not any(a != 0 for a in self.velocity):
             return

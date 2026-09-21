@@ -9,7 +9,7 @@ from physics2d.shape.factories.explosion import get_rocket_explosion
 from physics2d.shape.factories.projectile import get_lightning_bolts
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import random_offset, random_offset_vector
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -125,6 +125,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _MAX_BLAST_DAMAGE = 200
     _TENDRILS_DAMAGE = 4
     _MAX_NUM_TENDRILS = 4
+    _DAMAGE_RANGE = 60
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
@@ -147,7 +148,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     bfg_ball = Projectile(
         owner=source,
-        offset_from_origin=random_offset_vector(),
+        offset_from_origin=VectorF.random_offset_vector(),
         initial_velocity=(
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
@@ -165,7 +166,8 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
             _COLOR.with_intensity(0.2),
             _TENDRILS_DAMAGE,
             life_time=2,
-            damage_range=60,
+            damage_range=_DAMAGE_RANGE,
+            default_tendril_length=_DAMAGE_RANGE,
             render_on_top=False,
             num_tendrils=_MAX_NUM_TENDRILS,
         ),
@@ -186,7 +188,7 @@ def bfg_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _bfg_color = RGB(100, 255, 100)
 
     bfg_1 = CircularParticle(
-        origin=source.center + 7 * (direction) + random_offset_vector(),
+        origin=source.center + 7 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=9,
         engine=engine,
@@ -197,7 +199,7 @@ def bfg_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     )
 
     bfg_2 = CircularParticle(
-        origin=source.center + 9 * (direction) + random_offset_vector(),
+        origin=source.center + 9 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=7,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -207,7 +209,7 @@ def bfg_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine=engine,
     )
     bfg_3 = CircularParticle(
-        origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
+        origin=source.center + 13 * (direction) + 2 * VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         engine=engine,
@@ -217,7 +219,7 @@ def bfg_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=9,
     )
     fire_white = CircularParticle(
-        origin=source.center + 6 * (direction) + random_offset_vector(),
+        origin=source.center + 6 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         engine=engine,

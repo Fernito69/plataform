@@ -6,7 +6,6 @@ from physics2d.shape.factories.explosion import lightning_impact
 from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.line import Line
 from physics2d.shape.particle.lightning import Lightning
-from utils import random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -78,10 +77,9 @@ def _lightning_bolts(
     for index in range(num_tendrils):
         _size = possible_victims[index].size / 2 if len(possible_victims) > index else 1
         _end_point: PointF = (
-            possible_victims[index].center + random_offset_vector(_size, _size)
+            possible_victims[index].center + VectorF.random_offset_vector(_size)
             if len(possible_victims) > index
-            else source.center
-            + random_offset_vector(default_tendril_length, default_tendril_length)
+            else source.center + VectorF.random_offset_vector(default_tendril_length)
         )
         l1 = Lightning(
             source=source,
@@ -100,9 +98,9 @@ def _lightning_bolts(
         )
         pieces.append(l1)
 
-        if len(possible_victims) > index:
+        if damage and len(possible_victims) > index:
             # TODO: is it right that the particle gen takes care of this?
-            possible_victims[index].receive_damage(damage or 0)
+            possible_victims[index].receive_damage(damage)
             lightning_impact(
                 engine,
                 possible_victims[index],

@@ -17,11 +17,6 @@ from three_d_renderer.constants import DEFAULT_DISTANCE_TO_SPEC
 ######################
 
 
-# TODO: now that this is built-in in VectorF, deprecate it
-def random_offset_vector(scale_x: float = 1, scale_y: float = 1, scale_z: float = 1) -> VectorF:
-    return VectorF(random_offset(scale_x), random_offset(scale_y), random_offset(scale_z))
-
-
 def random_offset(_: Any = None) -> float:
     """
     returns a random number between -.5 and .5, good for shuffling lists. Also receives an optional scale factor
@@ -124,24 +119,6 @@ def distance_between_points(
     )
 
 
-# TODO: deprecate in favor of PointF.rotate()
-def rotate_point(point: PointF, rotation_axis: PointF, angle: float) -> PointF:
-    if angle == 0:
-        return point
-    a = math.radians(angle)
-    new_x = (
-        (point.x - rotation_axis.x) * math.cos(a)
-        - (point.y - rotation_axis.y) * math.sin(a)
-        + rotation_axis.x
-    )
-    new_y = (
-        (point.x - rotation_axis.x) * math.sin(a)
-        + (point.y - rotation_axis.y) * math.cos(a)
-        + rotation_axis.y
-    )
-    return PointF(new_x, new_y)
-
-
 @dataclass
 class DistanceFromLineToPointResponse:
     distance: float
@@ -221,7 +198,7 @@ def get_perpendicular_slope(point1: PointF, point2: PointF) -> Slope:
 def get_normal_unit_vector_from_line(point1: PointF, point2: PointF) -> VectorF:
     perpendicular_m = get_perpendicular_slope(point1, point2)
     angle = get_angle_from_slope(perpendicular_m)
-    return get_vector_from_angle(angle)
+    return VectorF.from_angle(angle)
 
 
 def get_normal_vectors(vector: VectorF, unit_vector: bool = False) -> tuple[VectorF, VectorF]:
@@ -229,13 +206,9 @@ def get_normal_vectors(vector: VectorF, unit_vector: bool = False) -> tuple[Vect
     angle = get_angle_from_slope(m) % PI
     magnitude = 1 if unit_vector else abs(vector)
     return (
-        get_vector_from_angle(angle + PI / 2, magnitude),
-        get_vector_from_angle(angle - PI / 2, magnitude),
+        VectorF.from_angle(angle + PI / 2, magnitude),
+        VectorF.from_angle(angle - PI / 2, magnitude),
     )
-
-
-def get_vector_from_angle(angle: float, magnitude: float = 1) -> VectorF:
-    return (magnitude * VectorF(x=math.cos(angle), y=math.sin(angle))).as_vector()
 
 
 def get_angle_from_slope(slope: Slope) -> float:
@@ -250,13 +223,9 @@ def get_angle_from_slope(slope: Slope) -> float:
     )
 
 
+# TODO: build-in in Line
 def get_line_angle(point1: PointF, point2: PointF) -> float:
     return get_angle_from_slope(get_slope(point1, point2))
-
-
-# TODO: make it built in into VectorF
-def get_vector_angle(vector: VectorF) -> float:
-    return get_angle_from_slope(get_slope(vector, 2 * vector))
 
 
 @dataclass
@@ -309,15 +278,15 @@ def project_3d_into_2d(
 
 
 def normalize_vertex_according_to_another(
-    vertex: PointF, reference_vertex: PointF, reference_vertex_angle: VectorF
+    vertex: PointF,
+    reference_vertex: PointF,
+    reference_vertex_angle: VectorF,
+    in_degrees: bool = True,
 ) -> PointF:
     """takes an absolutely-positioned vertex and transforms it according to another's position and angle"""
     # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
-    rotated_point = rotate_point(
-        PointF(vertex.x, vertex.y),
-        PointF(reference_vertex.x, reference_vertex.y),
-        -reference_vertex_angle.x,
-    )
+    angle = math.radians(-reference_vertex_angle.x) if in_degrees else -reference_vertex_angle.x
+    rotated_point = vertex.rotate(angle, reference_vertex)
     rotated_vertex = PointF(
         x=rotated_point.x,
         y=rotated_point.y,

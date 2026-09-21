@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
+from model.base import VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.lightning import Lightning
-from utils import random_offset_vector
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -41,11 +41,9 @@ def lightning_bolts(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     _random_magnitude = (vel_magnitude) + source.radius + (40 if vel_magnitude == 0 else 0)
     _end_point = (
-        source.center + source.velocity + random_offset_vector(_random_magnitude, _random_magnitude)
+        source.center + source.velocity + VectorF.random_offset_vector(_random_magnitude)
         if vel_magnitude > 0
-        else source.center
-        + source.velocity
-        + random_offset_vector(_random_magnitude, _random_magnitude)
+        else source.center + source.velocity + VectorF.random_offset_vector(_random_magnitude)
     )
 
     l1 = Lightning(

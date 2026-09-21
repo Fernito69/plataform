@@ -36,8 +36,14 @@ class PointF:
     def as_point(self) -> "PointF":
         return PointF(x=self.x, y=self.y, z=self.z)
 
+    def get_slope(self, point2: "PointF | None" = None) -> Slope:
+        point2 = point2 or PointF(0, 0)
+        if point2.x - self.x == 0:
+            return "+Inf" if self.y >= point2.y else "-Inf"
+        return (point2.y - self.y) / (point2.x - self.x)
+
     def rotate(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
-        rotation_axis = rotation_axis or PointF(0, 0) if isinstance(self, VectorF) else self
+        rotation_axis = rotation_axis or (PointF(0, 0) if isinstance(self, VectorF) else self)
         if angle_in_radians == 0:
             return self.as_vector()
         new_x = (
@@ -102,6 +108,18 @@ class VectorF(PointF):
         magnitude = magnitude / (abs(self) or ALMOST_ZERO)
         return (magnitude * self).as_vector()
 
+    def get_angle(self) -> float:
+        slope = self.get_slope()
+        return (
+            PI / 2
+            if slope == "+Inf"
+            else -PI / 2
+            if slope == "-Inf"
+            else 0
+            if slope == 0
+            else math.atan(slope)
+        )
+
     @staticmethod
     def random_offset_vector(
         scale_x: float = 1,
@@ -128,6 +146,10 @@ class VectorF(PointF):
             (scale_y or scale_x) * random(),
             (scale_z or scale_x) * random(),
         )
+
+    @staticmethod
+    def from_angle(angle: float, magnitude: float = 1) -> VectorF:
+        return (magnitude * VectorF(x=math.cos(angle), y=math.sin(angle))).as_vector()
 
 
 @dataclass

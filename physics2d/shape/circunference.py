@@ -169,7 +169,7 @@ class Circunference(Shape):
 
         # this only makes sense if we implement textured circunferences
 
-    def rotate(self) -> None:
+    def _rotate(self) -> None:
         pass
 
     # TODO: generalize this, every entity should know what to do!

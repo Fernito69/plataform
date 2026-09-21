@@ -11,7 +11,6 @@ from utils import (
     GetLineEquationResponse,
     distance_from_line_to_point,
     get_line_equations,
-    rotate_point,
 )
 
 if TYPE_CHECKING:
@@ -137,7 +136,7 @@ class Line(Shape):
 
         return piece_info
 
-    def rotate(self) -> None:
+    def _rotate(self) -> None:
         new_angle = 0
         if self.angular_velocity != 0:
             distance_from_center_to_farthest_point = abs(self.center_of_mass - self.points[0])
@@ -148,9 +147,11 @@ class Line(Shape):
         if not new_angle:
             return
 
+        new_angle = math.radians(new_angle)
+
         self.points = (
-            rotate_point(self.points[0], self.center_of_mass, new_angle),
-            rotate_point(self.points[1], self.center_of_mass, new_angle),
+            self.points[0].rotate(new_angle, self.center_of_mass),
+            self.points[1].rotate(new_angle, self.center_of_mass),
         )
         self.angle = new_angle
 
@@ -166,14 +167,14 @@ class Line(Shape):
             and point.y <= y2 + total_offset
         )
 
-    _counter: float
+    _pulsate_counter: float = 0
 
     def _pulsate(self) -> None:
         if self._pulsate_freq == 0 or self._pulsate_amplitude == 0:
             return
 
-        self._counter = (self._counter + self._pulsate_freq) % (2 * PI)
-        self.thickness += math.sin(self._counter) * self._pulsate_amplitude
+        self._pulsate_counter = (self._pulsate_counter + self._pulsate_freq) % (2 * PI)
+        self.thickness += math.sin(self._pulsate_counter) * self._pulsate_amplitude
 
     def _get_color(self, x: int | None = None, y: int | None = None) -> RGB:
         if not self.secondary_theme:
@@ -214,7 +215,7 @@ class Line(Shape):
 
     def _apply_movement(self) -> None:
         self._float_around()
-        self.rotate()
+        self._rotate()
         self._pulsate()
 
         if not any(a != 0 for a in self.velocity):

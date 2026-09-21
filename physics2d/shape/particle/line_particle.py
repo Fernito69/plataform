@@ -61,7 +61,7 @@ class LineParticle(Particle, Line):
             PointF(x=self._target.position.x, y=self._target.position.y) if self._target else None
         )
         self.life_steps = life_steps
-        self._counter = 0
+        self._pulsate_counter = 0
         self._engine = engine
 
         super().__init__(

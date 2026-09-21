@@ -8,7 +8,7 @@ from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import bullet_ricochet
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import get_vector_angle, random_offset, random_offset_vector
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -78,7 +78,7 @@ def bullet(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     bullet = Projectile(
         owner=source,
-        offset_from_origin=random_offset_vector(),
+        offset_from_origin=VectorF.random_offset_vector(),
         initial_velocity=velocity,
         size=0.7,
         size_change_type=TransitionType.NONE,
@@ -97,7 +97,7 @@ def gatling_bullets(engine: "Physics2D", source: "PhysicsEntity", bullets_per_fr
     _BULLET_SPEED = 9
 
     velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
-    angle = get_vector_angle(velocity)
+    angle = velocity.get_angle()
 
     bullets = []
 
@@ -145,7 +145,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     )
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
-        origin=source.center + (_offset + 0.5) * direction + random_offset_vector(),
+        origin=source.center + (_offset + 0.5) * direction + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=4,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -155,7 +155,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine=engine,
     )
     fire_2 = CircularParticle(
-        origin=source.center + (_offset + 3) * direction + random_offset_vector(),
+        origin=source.center + (_offset + 3) * direction + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=3.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -169,7 +169,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine=engine,
     )
     fire_3 = CircularParticle(
-        origin=source.center + (_offset + 5.5) * direction + 2 * random_offset_vector(),
+        origin=source.center + (_offset + 5.5) * direction + 2 * VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -183,7 +183,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine=engine,
     )
     fire_white = CircularParticle(
-        origin=source.center + (_offset) * direction + random_offset_vector(),
+        origin=source.center + (_offset) * direction + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=3,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -195,11 +195,10 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     sparks: list[CircularParticle] = []
     if engine.scenario.now() % 3 == 0:
         spark = CircularParticle(
-            origin=source.center + (_offset) * (direction + random_offset_vector()),
+            origin=source.center + (_offset) * (direction + VectorF.random_offset_vector()),
             initial_velocity=(
                 source.velocity
-                + 5
-                * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
+                + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
             ).as_vector(),
             size=0.5,
             size_change_type=TransitionType.NONE,
@@ -233,7 +232,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
-        origin=source.center + (_offset + 1) * direction + random_offset_vector(),
+        origin=source.center + (_offset + 1) * direction + VectorF.random_offset_vector(),
         initial_velocity=(1.2 * source.velocity).as_vector(),
         size=_base_size + 2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -243,7 +242,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         engine=engine,
     )
     fire_2 = CircularParticle(
-        origin=source.center + (_offset + 6) * direction + random_offset_vector(),
+        origin=source.center + (_offset + 6) * direction + VectorF.random_offset_vector(),
         initial_velocity=(1.4 * source.velocity).as_vector(),
         size=_base_size + 1.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -257,7 +256,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         engine=engine,
     )
     fire_3 = CircularParticle(
-        origin=source.center + (_offset + 11) * direction + 2 * random_offset_vector(),
+        origin=source.center + (_offset + 11) * direction + 2 * VectorF.random_offset_vector(),
         initial_velocity=(1.7 * source.velocity).as_vector(),
         size=_base_size,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -271,7 +270,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         life_time=5,
     )
     fire_4 = CircularParticle(
-        origin=source.center + (_offset + 14) * direction + 2 * random_offset_vector(),
+        origin=source.center + (_offset + 14) * direction + 2 * VectorF.random_offset_vector(),
         initial_velocity=(2 * source.velocity).as_vector(),
         size=_base_size * 0.75,
         size_change_type=TransitionType.LINEAR_DECREASE,
@@ -286,7 +285,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         floating_multi=0.5,
     )
     fire_white = CircularParticle(
-        origin=source.center + (_offset) * direction + random_offset_vector(),
+        origin=source.center + (_offset) * direction + VectorF.random_offset_vector(),
         initial_velocity=(2.3 * source.velocity).as_vector(),
         size=_base_size + 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -298,10 +297,10 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
 
     sparks: list[CircularParticle] = []
     spark = CircularParticle(
-        origin=source.center + (_offset) * (direction + random_offset_vector()),
+        origin=source.center + (_offset) * (direction + VectorF.random_offset_vector()),
         initial_velocity=(
             source.velocity
-            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,

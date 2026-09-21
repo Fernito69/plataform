@@ -121,7 +121,7 @@ class Shape:
         )
 
     @abstractmethod
-    def rotate(cls) -> None:
+    def _rotate(cls) -> None:
         # Each entity should do its thing
         raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a rotate method")
 

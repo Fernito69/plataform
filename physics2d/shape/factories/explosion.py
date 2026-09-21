@@ -6,7 +6,7 @@ from model.theme import RGB
 from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import get_vector_angle, random_offset, random_offset_vector
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -260,9 +260,7 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
         origin=source.center,
         initial_velocity=(
             (-0.25) * source.velocity
-            + VectorF(0, 2 * random_offset()).rotate(
-                get_vector_angle((-source.velocity).as_vector())
-            )
+            + VectorF(0, 2 * random_offset()).rotate((-source.velocity).as_vector().get_angle())
         ).as_vector(),
         size=0.5,
         initial_color=RGB(255, 255, 240, 1),  # almost white hot
@@ -345,7 +343,7 @@ def lightning_impact(
         # TODO: make Spark factory
         blue_spark = CircularParticle(
             origin=_origin,
-            initial_velocity=random_offset_vector(7, 7),
+            initial_velocity=VectorF.random_offset_vector(7),
             size=0.5,
             initial_color=RGB(230, 230, 255, 1),
             ending_color=RGB(0, 0, 200, 1),
@@ -502,7 +500,7 @@ def _rocket_explosion(
         _factor = _SIZE * 1.5
         sec_explosion = CircularParticle(
             origin=PointF(x=eye_x + _factor * random_offset(), y=eye_y + _factor * random_offset()),
-            initial_velocity=(0.2 * _VELOCITY + 0.1 * random_offset_vector()).as_vector(),
+            initial_velocity=(0.2 * _VELOCITY + 0.1 * VectorF.random_offset_vector()).as_vector(),
             size=_sec_size,
             engine=engine,
             size_change_type=TransitionType.LINEAR_DECREASE,
@@ -525,7 +523,7 @@ def _rocket_explosion(
                     origin=(
                         rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
                     ).as_point(),
-                    initial_velocity=(10 * random_offset_vector()).as_vector(),
+                    initial_velocity=(10 * VectorF.random_offset_vector()).as_vector(),
                     size=1.5,
                     size_change_type=TransitionType.LINEAR_DECREASE,
                     initial_color=RGB(200, 255, 200),

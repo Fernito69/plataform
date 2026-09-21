@@ -7,7 +7,7 @@ from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import bullet_ricochet
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import get_vector_angle, random_offset, random_offset_vector
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -59,11 +59,11 @@ def buckshot(engine: "Physics2D", source: "PhysicsEntity") -> None:
     for _ in range(_NUM_PELLETS):
         pellet = Projectile(
             owner=source,
-            offset_from_origin=random_offset_vector(),
+            offset_from_origin=VectorF.random_offset_vector(),
             initial_velocity=(
                 ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction())
                 + VectorF(0, _SPREAD * random_offset()).rotate(
-                    get_vector_angle((-source.get_aiming_direction()).as_vector())
+                    (-source.get_aiming_direction()).as_vector().get_angle()
                 )
             ).as_vector(),
             size=0.6,
@@ -103,7 +103,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         ).with_intensity(1)
     )
     fire_1 = CircularParticle(
-        origin=source.center + 7 * (direction) + random_offset_vector(),
+        origin=source.center + 7 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -113,7 +113,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=7,
     )
     fire_2 = CircularParticle(
-        origin=source.center + 9 * (direction) + random_offset_vector(),
+        origin=source.center + 9 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -127,7 +127,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=6,
     )
     fire_3 = CircularParticle(
-        origin=source.center + 13 * (direction) + 2 * random_offset_vector(),
+        origin=source.center + 13 * (direction) + 2 * VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=4,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -141,7 +141,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=5,
     )
     fire_white = CircularParticle(
-        origin=source.center + 6 * (direction) + random_offset_vector(),
+        origin=source.center + 6 * (direction) + VectorF.random_offset_vector(),
         initial_velocity=source.velocity,
         size=6,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
@@ -153,11 +153,11 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
     sparks: list[CircularParticle] = []
 
     spark = CircularParticle(
-        origin=source.center + 6 * (direction + random_offset_vector()),
+        origin=source.center + 6 * (direction + VectorF.random_offset_vector()),
         engine=engine,
         initial_velocity=(
             source.velocity
-            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(get_vector_angle(direction)))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,

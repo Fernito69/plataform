@@ -283,6 +283,7 @@ def default_scenario(engine: "Physics2D") -> Scenario:
     ]
 
     bg_pieces: list[Shape] = [
+        fancy_rotating_line,
         bg_circle_5,
         bg_rectangle_1,
         # line_2,
