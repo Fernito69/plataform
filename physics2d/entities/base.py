@@ -24,7 +24,6 @@ class PhysicsEntity(Circunference):
         engine: "Physics2D",
         name: str = "PhysicsEntity",
         position: PointF = PointF(0, 0),
-        # velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -71,12 +70,11 @@ class PhysicsEntity(Circunference):
         # TODO implement
         raise
 
+    def _move_by(self, vector: VectorF) -> None:
+        self.center += vector
+        self.position += vector
+
     # TODO: unify this with get_last_known_direction()
     def get_aiming_direction(self) -> VectorF:
-        from physics2d.entities.player_blob import PlayerBlob
-
-        return (
-            self.get_fire_direction()
-            if isinstance(self, PlayerBlob)
-            else self.get_last_known_direction()
-        )
+        # TODO: Fix typing
+        return self.get_fire_direction()

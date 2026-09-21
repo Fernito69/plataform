@@ -45,6 +45,7 @@ class Scenario:
     three_dee_enemies: list[ThreeDeeEnemy]
 
     projectiles: list[Projectile]
+    enemy_projectiles: list[Projectile]
 
     # TODO: add _debug_pieces, for angle lines, etc
 
@@ -85,6 +86,7 @@ class Scenario:
         self.crosshair = Crosshair(engine)
 
         self.projectiles = []
+        self.enemy_projectiles = []
 
     def act(self) -> None:
         self.player.do_your_thing()
@@ -95,6 +97,7 @@ class Scenario:
             + self.bg_shapes
             + self.solid_shapes
             + self.projectiles
+            + self.enemy_projectiles
             + self.enemies
             + self.three_dee_enemies
         ):
@@ -118,11 +121,18 @@ class Scenario:
         _remove_dead_particles(self.fg_shapes)
         _remove_dead_particles(self.solid_shapes)
 
+        # TODO: unify these two
         for p in self.projectiles:
             if p.life_time is not None and p.life_time <= 0:
                 p.hit()
                 if p in self.projectiles:
                     self.projectiles.remove(p)
+
+        for p in self.enemy_projectiles:
+            if p.life_time is not None and p.life_time <= 0:
+                p.hit()
+                if p in self.enemy_projectiles:
+                    self.enemy_projectiles.remove(p)
 
     def now(self) -> int:
         """Get the current game tick"""
@@ -151,6 +161,7 @@ class Scenario:
 
         _handle(self.solid_shapes)
         _handle(self.projectiles)
+        _handle(self.enemy_projectiles)
         _handle(self.enemies)
         _handle(self.three_dee_enemies)
 

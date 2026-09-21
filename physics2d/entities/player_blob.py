@@ -1,3 +1,5 @@
+import math
+from random import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -19,12 +21,14 @@ from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, Ma
 from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.entities.equipment.weapons.zapper import Zapper
+from physics2d.shape.factories.explosion import get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from player import Player
+from player import Player, PlayerStatus
 from system import consume_mouse_scroll, on_key_press, on_mouse_press
+from utils import random_offset
 
-_INITIAL_HEALTH = 100
+_INITIAL_HEALTH = 500
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -84,23 +88,37 @@ class PlayerBlob(PhysicsEntity, Player):
         self._last_known_direction = velocity
         self.name = "PlayerBlob"
 
-    ##############
-    """MOVEMENT"""
-    ##############
-
     def do_your_thing(self) -> None:
+        if self.health <= 0:
+            # die :(
+            self.die()
+
         self.get_curr_thruster().handle_particles()
         self.get_curr_weapon().do_your_thing()
+
+        self._check_projectile_impacts()
 
         self._handle_mouse_input()
         self.handle_keyboard_input()
         self._apply_gravity(self._engine.scenario.gravity_acceleration)
         self._apply_movement()
         self._keep_player_in_screen()
+        self._handle_current_damage()
 
-    def _move_by(self, vector: VectorF) -> None:
-        self.center += vector
-        self.position += vector
+    def die(self) -> None:
+        self.status = PlayerStatus.DEAD
+        raise
+
+    def _check_projectile_impacts(self) -> None:
+        ...
+        # for projectile in self._engine.scenario.enemy_projectiles:
+        #     self.would_collide_with(projectile)
+        #     # self.receive_damage(projectile.damage)
+        #     # projectile.hit()
+
+    ##############
+    """MOVEMENT"""
+    ##############
 
     def _apply_gravity(self, gravity_accel: float) -> None:
         # we float freely for now
@@ -176,7 +194,7 @@ class PlayerBlob(PhysicsEntity, Player):
         return self.get_curr_thruster().decel
 
     def init_player(self) -> None:
-        if not self._scenario:
+        if not self._engine:
             return
 
         self._thrusters = [
@@ -202,6 +220,10 @@ class PlayerBlob(PhysicsEntity, Player):
         self._curr_weapon_index = 0
         self.theme = self.get_curr_thruster().player_theme
 
+    def receive_damage(self, amount: float) -> None:
+        self.health -= amount
+
+    # TODO: deprecate this
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
         self.init_player()
@@ -236,6 +258,45 @@ class PlayerBlob(PhysicsEntity, Player):
             self.velocity = (
                 self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
             ).as_vector()
+
+    def _handle_current_damage(self) -> None:
+        # TODO: unify this with Enemy's
+        _factor = self.health / self._initial_health
+        _offset = 0.25
+
+        # TODO: this is sus, do better
+        if (1 - _offset) - _factor > (self._engine.scenario.now() * (self.radius / 20)) % 1:
+            _fire_color = RGB(
+                255 - random() * (40 * _factor),
+                255 - random() * 220 * (1 - _factor),
+                (1 - random()) * 20,
+            ).with_intensity(1 - _factor - _offset / 2) + RGB(
+                140,
+                140,
+                140,
+            ).with_intensity(_factor + _offset / 2)
+
+            _explosion_size = (2.5 - random()) * ((math.log((1 + self.volume / 1500), 2)) + 0.5)
+            _fire = CircularParticle(
+                origin=self.center + VectorF.random_offset_vector(self.radius * 1.8),
+                initial_velocity=self.velocity,
+                size=_explosion_size,
+                size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+                initial_color=_fire_color,
+                ending_color=RGB(30, 30, 30),  # smokelike
+                life_time=15,
+                gravity=-0.07,
+                particle_generator=get_smoke_generator(
+                    floating_multi=0.2,
+                    gravity=-0.04,
+                    life_time=30,
+                    initial_velocity=VectorF(random_offset() * 0.15, 0),
+                    size_factor=0.8,
+                    only_fg=True,
+                ),
+                engine=self._engine,
+            )
+            self._engine.scenario.fg_shapes[0:0] = [_fire]
 
     ###############
     """  INPUT  """

@@ -25,6 +25,7 @@ class Projectile(CircularParticle):
     _trail_generator: "ParticleGeneratorWithTarget | None"
 
     explode_on_life_time_over: bool
+    is_enemy: bool
 
     def __init__(
         self,
@@ -34,6 +35,7 @@ class Projectile(CircularParticle):
         engine: "Physics2D",
         initial_color: RGB,
         explosion_generator: "ParticleGenerator",
+        is_enemy: bool = False,
         particle_generator: "ParticleGenerator | None" = None,
         trail_generator: "ParticleGeneratorWithTarget | None" = None,
         initial_velocity: VectorF = VectorF(0, 0),
@@ -81,7 +83,12 @@ class Projectile(CircularParticle):
         self.homing_kick_in_time = homing_kick_in_time
         self.initial_velocity = initial_velocity
         self.offset_from_origin = offset_from_origin
+        self.is_enemy = is_enemy
 
     def hit(self) -> None:
         self._explosion_generator(self._engine, self)
-        self._engine.scenario.projectiles.remove(self)
+        
+        if not self.is_enemy:
+            self._engine.scenario.projectiles.remove(self)
+        else:
+            self._engine.scenario.enemy_projectiles.remove(self)

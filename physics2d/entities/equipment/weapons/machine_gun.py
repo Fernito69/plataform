@@ -6,6 +6,7 @@ from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import bullet_ricochet
+from physics2d.shape.factories.projectile import get_bullet
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
@@ -23,7 +24,7 @@ class MachineGun(Weapon):
             max_ammo=1000,
             refractory_period=2,
             fire_particle_generator=machine_gun_nozzle,
-            projectile_generator=bullet,
+            projectile_generator=get_bullet(),
             ammo=1000,
             color=RGB(127, 127, 127, 1),
         )
@@ -68,28 +69,6 @@ class HeavyMachineGun(Weapon):
 #################################################################
 """PROJECTILE"""
 #################################################################
-
-
-def bullet(engine: "Physics2D", source: "PhysicsEntity") -> None:
-    _DAMAGE = 10
-    _BULLET_SPEED = 10
-
-    velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
-
-    bullet = Projectile(
-        owner=source,
-        offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=velocity,
-        size=0.7,
-        size_change_type=TransitionType.NONE,
-        initial_color=RGB(127 + random_offset() * 80, 255 - random() * 60, 255, 1),
-        ending_color=RGB(30, 30, 30, 1),
-        life_time=50,
-        damage=_DAMAGE,
-        explosion_generator=bullet_ricochet,
-        engine=engine,
-    )
-    engine.scenario.projectiles.append(bullet)
 
 
 def gatling_bullets(engine: "Physics2D", source: "PhysicsEntity", bullets_per_frame: int) -> None:

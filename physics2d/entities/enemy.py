@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
+from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.shape.base import Shape
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
@@ -16,12 +17,17 @@ if TYPE_CHECKING:
 
 
 class Enemy(PhysicsEntity):
-    # TODO: make a physics entity prop
     _engine: "Physics2D"
     health: float
 
     _initial_health: float
     _initial_theme: Theme
+
+    _projectile_generator: ParticleGenerator | None
+    # The closer to 0, the more precise
+    _precision: float
+    # from 0 to 1
+    _aggressivity: float
 
     def __init__(
         self,
@@ -31,7 +37,6 @@ class Enemy(PhysicsEntity):
         density: float = 1,
         name: str = "Enemy",
         position: PointF = PointF(0, 0),
-        # velocity: VectorF = VectorF(0, 0),
         theme: Theme = Theme(),
         angle: float = 0,
         affected_by_gravity: bool = False,
@@ -41,6 +46,9 @@ class Enemy(PhysicsEntity):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         extra_shapes: list[Shape] = [],
+        projectile_generator: ParticleGenerator | None = None,
+        precision: float = 0,
+        aggressivity: float = 0,
     ):
         super().__init__(
             density=density,
@@ -59,12 +67,15 @@ class Enemy(PhysicsEntity):
             extra_shapes=extra_shapes,
             engine=engine,
         )
-        self.engine = engine
+        self._engine = engine
         self.health = health
         self._initial_health = health
         self._initial_theme = Theme(color=theme.color)
         self.name = name
         self.extra_shapes = extra_shapes
+        self._projectile_generator = projectile_generator
+        self._precision = precision
+        self._aggressivity = aggressivity
 
     def receive_damage(self, amount: float) -> None:
         self.health -= amount
@@ -95,16 +106,22 @@ class Enemy(PhysicsEntity):
         enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
         self._engine.scenario.enemies = [e for e in self._engine.scenario.enemies if e is not self]
 
+    def get_fire_direction(self) -> VectorF:
+        direction = (self._engine.player.position - self.position).as_vector().unit_vector()
+        return (
+            direction
+            + VectorF.random_offset_vector(0, self._precision).rotate(direction.get_angle())
+        ).as_vector()
+
     def do_your_thing(self) -> None:
         super().do_your_thing()
 
         self._handle_current_damage()
 
         for projectile in self._engine.scenario.projectiles:
-            # we don't differentiate between friend or
-            if self.would_collide_with(projectile):
-                self.receive_damage(projectile.damage)
-                projectile.hit()
+            self.would_collide_with(projectile)
+            # self.receive_damage(projectile.damage)
+            # projectile.hit()
 
         if self.health <= 0:
             # die :(
@@ -115,7 +132,7 @@ class Enemy(PhysicsEntity):
         _offset = 0.25
 
         # TODO: this is sus, do better
-        if (1 - _offset) - _factor > (self.engine.scenario.now() * (self.radius / 20)) % 1:
+        if (1 - _offset) - _factor > (self._engine.scenario.now() * (self.radius / 20)) % 1:
             _fire_color = RGB(
                 255 - random() * (40 * _factor),
                 255 - random() * 220 * (1 - _factor),
@@ -145,4 +162,4 @@ class Enemy(PhysicsEntity):
                 ),
                 engine=self._engine,
             )
-            self.engine.scenario.fg_shapes.append(_fire)
+            self._engine.scenario.fg_shapes.append(_fire)

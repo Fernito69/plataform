@@ -1,9 +1,9 @@
-from random import random
 from typing import TYPE_CHECKING
 
 from factories.theme import Theme
-from model.base import VectorF
+from model.base import PointF
 from model.theme import RGB
+from physics2d.entities.enemies.small_enemy import SmallEnemy
 from physics2d.entities.enemy import Enemy
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
@@ -13,53 +13,29 @@ if TYPE_CHECKING:
 
 
 def first_level(engine: "Physics2D") -> Scenario:
-    # TODO: make factories
-    def _random_color():
-        floor = 80
-
-        def _val() -> float:
-            return floor + (255 - floor) * random()
-
-        return RGB(_val(), _val(), _val())
-
-    def _tiny_enemy(
-        position,
-        velocity=VectorF(0, 0),
-        theme: Theme = Theme(color=_random_color(), bg_color=_random_color()),
-    ):
-        return Enemy(
-            engine=engine,
-            size=6,
-            health=30,
-            name="TinyEnemy",
-            position=position,
-            theme=theme,
-            initial_velocity=velocity,
-        )
-
-    def _smoll_enemy(position, velocity=VectorF(0, 0)):
-        return Enemy(
-            engine=engine,
+    enemies: list[Enemy] = [
+        SmallEnemy(
             size=10,
             health=100,
-            name="SmollEnemy",
-            position=position,
-            theme=Theme(color=_random_color(), bg_color=_random_color()),
-            initial_velocity=velocity,
-        )
-
-    def _mid_enemy(position, velocity=VectorF(0, 0)):
-        return Enemy(
+            position=PointF(50, 50),
+            theme=Theme(color=RGB(255, 0, 0)),
             engine=engine,
-            size=20,
-            health=400,
-            name="MidEnemy",
-            position=position,
-            theme=Theme(color=_random_color(), bg_color=_random_color()),
-            initial_velocity=velocity,
-        )
-
-    enemies: list[Enemy] = []
+        ),
+        SmallEnemy(
+            size=10,
+            health=100,
+            position=PointF(150, 150),
+            theme=Theme(color=RGB(255, 250, 0)),
+            engine=engine,
+        ),
+        SmallEnemy(
+            size=10,
+            health=100,
+            position=PointF(150, 200),
+            theme=Theme(color=RGB(255, 0, 255)),
+            engine=engine,
+        ),
+    ]
 
     fg_pieces: list[Shape] = []
 

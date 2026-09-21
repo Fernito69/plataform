@@ -399,6 +399,19 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
+            health_ratio = player.health / player._initial_health
+            health_bar = (
+                "["
+                + colored(" " * round(10 * health_ratio), bg_color=RGB(0, 255, 0))
+                # + colored(
+                #     " ",
+                #     bg_color=RGB(0, 255, 0).with_intensity(1 - (health_ratio % 1))
+                #     + RGB(255, 0, 0).with_intensity((health_ratio % 1)),
+                # )
+                + colored(" " * round(10 * (1 - health_ratio)), bg_color=RGB(255, 0, 0))
+                + "]"
+            )
+            hud += f"Health: {health_bar}{SEPARATOR}"
 
             # num_particles = (
             #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)

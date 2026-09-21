@@ -244,3 +244,4 @@ class Game(Engine, KeyboardHandler):
         )
         self.physics_engine.curr_scenario_index = next_idx
         self.physics_engine.scenario = self.physics_engine.scenarios[next_idx](self.physics_engine)
+        self.physics_engine.init_player()

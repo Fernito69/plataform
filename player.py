@@ -17,6 +17,7 @@ class Player(KeyboardHandler, MouseHandler):
     player_number: int
     health: float
 
+    _initial_health: float
     _immune_counter: int = 0
 
     def __init__(
@@ -31,6 +32,7 @@ class Player(KeyboardHandler, MouseHandler):
         self.points = points
         self.player_number = player_number
         self.health = health
+        self._initial_health = health
 
         KeyboardHandler.__init__(self)
         MouseHandler.__init__(self)

@@ -200,6 +200,28 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
+                    # THIS SHOULDN'T HAPPEN TWICE!
+                    # TODO: stupid repeated logic
+                    if isinstance(self, Projectile):
+                        from physics2d.entities.enemy import Enemy
+                        from physics2d.entities.player_blob import PlayerBlob
+
+                        if (isinstance(colliding_shape, PlayerBlob) and self.is_enemy) or (
+                            isinstance(colliding_shape, Enemy) and not self.is_enemy
+                        ):
+                            colliding_shape.receive_damage(self.damage)
+                            self.hit()
+
+                    if isinstance(colliding_shape, Projectile):
+                        from physics2d.entities.enemy import Enemy
+                        from physics2d.entities.player_blob import PlayerBlob
+
+                        if (isinstance(self, PlayerBlob) and colliding_shape.is_enemy) or (
+                            isinstance(self, Enemy) and not colliding_shape.is_enemy
+                        ):
+                            self.receive_damage(colliding_shape.damage)
+                            colliding_shape.hit()
+
                     # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                     # TODO: Fix the logic of this energy transfer
                     denominator = self.weight + colliding_shape.weight

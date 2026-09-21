@@ -1,11 +1,15 @@
+from random import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB
-from physics2d.shape.factories.explosion import lightning_impact
+from physics2d.entities.equipment.projectile import Projectile
+from physics2d.shape.factories.explosion import bullet_ricochet, lightning_impact
 from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.line import Line
+from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.lightning import Lightning
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -111,3 +115,37 @@ def _lightning_bolts(
         engine.scenario.fg_shapes.extend(pieces)
     else:
         engine.scenario.bg_shapes.extend(pieces)
+
+
+def get_bullet(
+    damage: float = 10,
+    speed: float = 10,
+    size: float = 0.7,
+    is_enemy: bool = False,
+    initial_color: RGB = RGB(127 + random_offset() * 80, 255 - random() * 60, 255, 1),
+    ending_color: RGB = RGB(30, 30, 30, 1),
+    life_time: int = 50,
+) -> "ParticleGenerator":
+    def _bullet(engine: "Physics2D", source: "PhysicsEntity"):
+        velocity = ((speed + random_offset()) * source.get_aiming_direction()).as_vector()
+
+        bullet = Projectile(
+            owner=source,
+            offset_from_origin=VectorF.random_offset_vector(),
+            initial_velocity=velocity,
+            size=size,
+            size_change_type=TransitionType.NONE,
+            initial_color=initial_color,
+            ending_color=ending_color,
+            life_time=life_time,
+            damage=damage,
+            explosion_generator=bullet_ricochet,
+            engine=engine,
+            is_enemy=is_enemy,
+        )
+        if is_enemy:
+            engine.scenario.enemy_projectiles.append(bullet)
+        else:
+            engine.scenario.projectiles.append(bullet)
+
+    return _bullet
