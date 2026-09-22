@@ -85,9 +85,20 @@ class Projectile(CircularParticle):
         self.offset_from_origin = offset_from_origin
         self.is_enemy = is_enemy
 
+    def do_your_thing(self) -> None:
+        super().do_your_thing()
+
+        # TODO: fix enemies being pushed back by bullet impacts
+        if self.is_enemy:
+            for entity in [self._engine.scenario.player] + self._engine.scenario.projectiles:
+                self.would_collide_with(entity)
+        else:
+            for entity in self._engine.scenario.enemies + self._engine.scenario.enemy_projectiles:
+                self.would_collide_with(entity)
+
     def hit(self) -> None:
         self._explosion_generator(self._engine, self)
-        
+
         if not self.is_enemy:
             self._engine.scenario.projectiles.remove(self)
         else:

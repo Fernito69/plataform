@@ -96,8 +96,6 @@ class PlayerBlob(PhysicsEntity, Player):
         self.get_curr_thruster().handle_particles()
         self.get_curr_weapon().do_your_thing()
 
-        self._check_projectile_impacts()
-
         self._handle_mouse_input()
         self.handle_keyboard_input()
         self._apply_gravity(self._engine.scenario.gravity_acceleration)
@@ -108,12 +106,6 @@ class PlayerBlob(PhysicsEntity, Player):
     def die(self) -> None:
         self.status = PlayerStatus.DEAD
 
-    def _check_projectile_impacts(self) -> None:
-        ...
-        # for projectile in self._engine.scenario.enemy_projectiles:
-        #     self.would_collide_with(projectile)
-        #     # self.receive_damage(projectile.damage)
-        #     # projectile.hit()
 
     ##############
     """MOVEMENT"""

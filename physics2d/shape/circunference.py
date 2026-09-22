@@ -175,6 +175,8 @@ class Circunference(Shape):
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
+    
+    # TODO: THIS SHOULD ONLY RETURN A BOOLEAN AND EVERY ENTITY SHOULD TAKE CARE OF THE ENTITY-SPECIFIC LOGIC
     def would_collide_with(self, colliding_shape: Shape) -> bool:
         from physics2d.entities.equipment.projectile import Projectile
 
@@ -188,8 +190,10 @@ class Circunference(Shape):
             return False
 
         # TODO: I know this is expensive and dumb, but let's see if it improves it
-        ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
+        # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
+        ranges = [0.8]
 
+        
         for value in ranges:
             new_pos = (value * self.velocity) + self.center
 
@@ -197,7 +201,16 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                    # TODO: stupid repeated logic
+                    if (
+                        isinstance(self, Projectile)
+                        and isinstance(colliding_shape, Projectile)
+                        and self.owner is not colliding_shape.owner
+                    ):
+                        self.hit()
+                        colliding_shape.hit()
+                        return True
+
+                    # TODO: stupid repeated logic. TODO: this logic doesn't go here!!!
                     if isinstance(self, Projectile):
                         from physics2d.entities.enemy import Enemy
                         from physics2d.entities.player_blob import PlayerBlob

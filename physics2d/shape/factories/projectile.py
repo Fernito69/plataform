@@ -4,7 +4,12 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
-from physics2d.shape.factories.explosion import bullet_ricochet, lightning_impact
+from physics2d.shape.factories.explosion import (
+    bullet_ricochet,
+    get_rocket_explosion,
+    lightning_impact,
+    rocket_trail,
+)
 from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.line import Line
 from physics2d.shape.model.shared import TransitionType
@@ -149,3 +154,67 @@ def get_bullet(
             engine.scenario.projectiles.append(bullet)
 
     return _bullet
+
+
+def rocket(
+    engine: "Physics2D",
+    source: "PhysicsEntity",
+    rocket_speed: float,
+    life_time: int,
+    damage: float,
+    blast_radius: float,
+    max_blast_damage: float,
+    size: float,
+    color: RGB = RGB(127, 127, 127, 1),
+    is_enemy: bool = False,
+):
+    return Projectile(
+        owner=source,
+        engine=engine,
+        offset_from_origin=VectorF.random_offset_vector(),
+        initial_velocity=(
+            (rocket_speed + random_offset()) * source.get_aiming_direction()
+        ).as_vector(),
+        size=size,
+        size_change_type=TransitionType.NONE,
+        ending_color_fade_type=TransitionType.NONE,
+        initial_color=color,
+        life_time=life_time,
+        damage=damage,
+        explosion_generator=get_rocket_explosion(damage, blast_radius, max_blast_damage),
+        trail_generator=rocket_trail,
+        density=3,
+        explode_on_life_time_over=True,
+        is_enemy=is_enemy,
+    )
+
+
+def get_rocket(
+    rocket_speed: float,
+    life_time: int,
+    damage: float,
+    blast_radius: float,
+    max_blast_damage: float,
+    size: float,
+    color: RGB = RGB(127, 127, 127, 1),
+    is_enemy: bool = False,
+) -> "ParticleGenerator":
+    def _get_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
+        _rocket = rocket(
+            engine=engine,
+            source=source,
+            damage=damage,
+            rocket_speed=rocket_speed,
+            life_time=life_time,
+            blast_radius=blast_radius,
+            max_blast_damage=max_blast_damage,
+            size=size,
+            color=color,
+            is_enemy=is_enemy,
+        )
+        if is_enemy:
+            engine.scenario.enemy_projectiles.append(_rocket)
+        else:
+            engine.scenario.projectiles.append(_rocket)
+
+    return _get_rocket

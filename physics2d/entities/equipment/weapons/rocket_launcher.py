@@ -2,13 +2,9 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
-from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
-from physics2d.shape.factories.explosion import (
-    get_rocket_explosion,
-    get_smoke_generator,
-    rocket_trail,
-)
+from physics2d.shape.factories.explosion import get_smoke_generator
+from physics2d.shape.factories.projectile import rocket
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
@@ -38,7 +34,7 @@ class RocketLauncher(Weapon):
             max_ammo=max_ammo,
             refractory_period=refractory_period,
             fire_particle_generator=fire_particle_generator or rocket_launcher_nozzle,
-            projectile_generator=projectile_generator or rocket,
+            projectile_generator=projectile_generator or _rocket,
             ammo=ammo,
             color=color,
             recoil=recoil,
@@ -76,38 +72,7 @@ class HeavyRocketLauncher(RocketLauncher):
 """PROJECTILE"""
 #################################################################
 
-
-def _rocket_factory(
-    engine: "Physics2D",
-    source: "PhysicsEntity",
-    rocket_speed: float,
-    life_time: int,
-    damage: float,
-    blast_radius: float,
-    max_blast_damage: float,
-    size: float,
-    color: RGB = RGB(127, 127, 127, 1),
-):
-    return Projectile(
-        owner=source,
-        engine=engine,
-        offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=(
-            (rocket_speed + random_offset()) * source.get_aiming_direction()
-        ).as_vector(),
-        size=size,
-        size_change_type=TransitionType.NONE,
-        ending_color_fade_type=TransitionType.NONE,
-        initial_color=color,
-        life_time=life_time,
-        damage=damage,
-        explosion_generator=get_rocket_explosion(damage, blast_radius, max_blast_damage),
-        trail_generator=rocket_trail,
-        density=3,
-        explode_on_life_time_over=True,
-    )
-
-
+# TODO: refactor these two with get_rocket factory
 def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 250
     _ROCKET_SPEED = 5
@@ -134,7 +99,7 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     #     density=3,
     #     explode_on_life_time_over=True,
     # )
-    rocket = _rocket_factory(
+    _rocket = rocket(
         engine=engine,
         source=source,
         damage=_DAMAGE,
@@ -145,10 +110,10 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
         size=_SIZE,
         color=RGB(255, 100, 100),
     )
-    engine.scenario.projectiles.append(rocket)
+    engine.scenario.projectiles.append(_rocket)
 
 
-def rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
+def _rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 100
     _ROCKET_SPEED = 8
     _LIFE_TIME = 100
@@ -156,7 +121,7 @@ def rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _MAX_BLAST_DAMAGE = 100
     _SIZE = 1.2
 
-    rocket = _rocket_factory(
+    _rocket = rocket(
         engine=engine,
         source=source,
         damage=_DAMAGE,
@@ -166,7 +131,7 @@ def rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
         max_blast_damage=_MAX_BLAST_DAMAGE,
         size=_SIZE,
     )
-    engine.scenario.projectiles.append(rocket)
+    engine.scenario.projectiles.append(_rocket)
 
 
 #################################################################

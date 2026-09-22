@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
+from physics2d.entities.enemies.rocket_enemy import RocketEnemy
 from physics2d.entities.enemies.small_enemy import SmallEnemy
 from physics2d.entities.enemy import Enemy
 from physics2d.scenario.scenario import Scenario
@@ -33,6 +34,13 @@ def first_level(engine: "Physics2D") -> Scenario:
             health=100,
             position=PointF(150, 200),
             theme=Theme(color=RGB(255, 0, 255)),
+            engine=engine,
+        ),
+        RocketEnemy(
+            size=15,
+            health=200,
+            position=PointF(200, 200),
+            theme=Theme(color=RGB(120, 120, 120)),
             engine=engine,
         ),
     ]

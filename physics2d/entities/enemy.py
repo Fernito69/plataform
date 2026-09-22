@@ -118,10 +118,8 @@ class Enemy(PhysicsEntity):
 
         self._handle_current_damage()
 
-        for projectile in self._engine.scenario.projectiles:
-            self.would_collide_with(projectile)
-            # self.receive_damage(projectile.damage)
-            # projectile.hit()
+        # for projectile in self._engine.scenario.projectiles:
+        #     self.would_collide_with(projectile)
 
         if self.health <= 0:
             # die :(
