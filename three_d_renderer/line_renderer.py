@@ -109,7 +109,6 @@ class LineRenderer(ThreeDeeRenderer):
         if not (curr_level := self.game.player3d.curr_level):
             return
 
-        # TODO: calculations should not be part of the rendering
         for entity in curr_level.entities:
             entity.calc_main_vertices(apply=True)
             entity.movement()

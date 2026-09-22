@@ -5,7 +5,6 @@ from model.theme import RGB
 from three_d_renderer.entities.base3d import Entity3D
 
 
-# TODO: Move
 @dataclass
 class Vertex3:
     # Index of vertex in the Entity (check calc_vertex_v2 method)

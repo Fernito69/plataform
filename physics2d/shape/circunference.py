@@ -187,9 +187,6 @@ class Circunference(Shape):
         ):
             return False
 
-        # TODO: this doesn't work, if velocity is too high, we get fucked
-        # new_pos = (0.6 * self.velocity) + self.center
-
         # TODO: I know this is expensive and dumb, but let's see if it improves it
         ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
 
@@ -200,7 +197,6 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                    # THIS SHOULDN'T HAPPEN TWICE!
                     # TODO: stupid repeated logic
                     if isinstance(self, Projectile):
                         from physics2d.entities.enemy import Enemy
@@ -318,12 +314,12 @@ class Circunference(Shape):
                 self.center.x - self.radius,
             )
         )
-        min_y, max_y = sorted(
-            (
-                self.center.y + self.radius,
-                self.center.y - self.radius,
-            )
-        )
+        # min_y, max_y = sorted(
+        #     (
+        #         self.center.y + self.radius,
+        #         self.center.y - self.radius,
+        #     )
+        # )
 
         eq = self.get_circunference_equations()
         x_range = range(math.floor(min_x - 2), math.ceil(max_x + 1))

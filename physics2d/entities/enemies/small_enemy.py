@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import TYPE_CHECKING
 
 from model.base import PointF
@@ -11,6 +12,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _IDEAL_DISTANCE_FROM_PLAYER = 60
+_IDEAL_DISTANCE_FROM_ENEMIES = 20
 _MAX_VELOCITY = 4
 
 
@@ -45,9 +47,25 @@ class SmallEnemy(Enemy):
         if self.would_collide_with(self._engine.player):
             self.velocity = (3 * self.velocity).as_vector()
 
+        enemies_in_range = self._engine.scenario.get_enemies_in_range(
+            _IDEAL_DISTANCE_FROM_ENEMIES,
+            self,
+            calc_distance_to_border=True,
+        )
+        if len(enemies_in_range) > 0:
+            # go in the opposite direction of the center of gravity of them all
+            center_of_gravity = reduce(
+                lambda acc, res: acc + res.enemy.position,
+                enemies_in_range,
+                PointF(0, 0),
+            ) * (1 / len(enemies_in_range))
+            self.velocity = (
+                self.velocity + (self.position - center_of_gravity).as_vector().unit_vector()
+            ).as_vector()
+
         for enemy in self._engine.scenario.enemies:
             if self.would_collide_with(enemy):
-                self.velocity = (3 * self.velocity).as_vector()
+                self.velocity = (2 * self.velocity).as_vector()
 
         self._move_by(self.velocity)
 
@@ -67,7 +85,7 @@ class SmallEnemy(Enemy):
         player_direction = self.position - player.position
         if (distance_from_player := abs(player_direction)) > _IDEAL_DISTANCE_FROM_PLAYER:
             velocity_magnitude = min(
-                0.8 - distance_from_player / _IDEAL_DISTANCE_FROM_PLAYER,
+                1 - distance_from_player / _IDEAL_DISTANCE_FROM_PLAYER,
                 _MAX_VELOCITY,
             )
             self.velocity = player_direction.as_vector().unit_vector(velocity_magnitude)
