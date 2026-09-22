@@ -26,7 +26,6 @@ _HAIR_OFFSET = 4
 _MOUSE_SENSITIVITY = 0.2
 
 
-# TODO: this moves similar to player, should share a base class
 class Crosshair(PhysicsEntity, MouseHandler):
     def __init__(
         self,

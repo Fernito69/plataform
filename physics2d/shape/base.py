@@ -146,6 +146,9 @@ class Shape:
             f"{cls.name or 'UnknownPiece'} must have an apply_movement method"
         )
 
+    @abstractmethod
+    def _move_by(self, vector: VectorF) -> None: ...
+
     def do_your_thing(self) -> None:
         self._apply_gravity(self._engine.scenario.gravity_acceleration)
         self._apply_movement()

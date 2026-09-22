@@ -79,7 +79,6 @@ class Line(Shape):
         self._pulsate()
         return super().do_your_thing()
 
-    # TODO: make abstract in Shape and not private
     def _move_by(self, vector: VectorF) -> None:
         self.points = (self.points[0] + vector, self.points[1] + vector)
 

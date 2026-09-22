@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-# TODO: should have its own rectangle Shape
 class Rectangle(Line):
     vertices: tuple[PointF, PointF]
 
@@ -123,20 +122,13 @@ class Rectangle(Line):
             .mix_with((self.secondary_theme.color or White()).with_intensity(1 - color_ratio))
         )
 
-        # mix_colors(
-        #     [
-        #         (self.theme.color or White()).with_intensity(color_ratio),
-        #         (self.secondary_theme.color or White()).with_intensity(1 - color_ratio),
-        #     ]
-        # )
-
         return color
 
     def get_render_info(self) -> list[RenderInfo]:
         piece_info = []
         min_x, max_x, min_y, max_y = self._get_sorted_vertices()
 
-        _DELTA = 1
+        _tolerance = 1
 
         for x in range(math.floor(min_x), math.ceil(max_x)):
             for y in range(math.floor(min_y), math.ceil(max_y)):
@@ -151,16 +143,16 @@ class Rectangle(Line):
 
                 distance_x = (
                     1 - distance_left_x
-                    if distance_left_x < _DELTA
+                    if distance_left_x < _tolerance
                     else 1 - distance_right_x
-                    if distance_right_x < _DELTA
+                    if distance_right_x < _tolerance
                     else 0
                 )
                 distance_y = (
                     1 - distance_up_y
-                    if distance_up_y < _DELTA
+                    if distance_up_y < _tolerance
                     else 1 - distance_down_y
-                    if distance_down_y < _DELTA
+                    if distance_down_y < _tolerance
                     else 0
                 )
 

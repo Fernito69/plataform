@@ -71,7 +71,12 @@ class HeavyMachineGun(Weapon):
 #################################################################
 
 
-def gatling_bullets(engine: "Physics2D", source: "PhysicsEntity", bullets_per_frame: int) -> None:
+# TODO: unify this with get_bullet, including get_bullet
+def gatling_bullets(
+    engine: "Physics2D",
+    source: "PhysicsEntity",
+    bullets_per_game_tick: int,
+) -> None:
     _DAMAGE = 5
     _BULLET_SPEED = 9
 
@@ -80,8 +85,8 @@ def gatling_bullets(engine: "Physics2D", source: "PhysicsEntity", bullets_per_fr
 
     bullets = []
 
-    for i in range(bullets_per_frame):
-        factor = 10 * i / bullets_per_frame
+    for i in range(bullets_per_game_tick):
+        factor = 10 * i / bullets_per_game_tick
 
         bullet = Projectile(
             owner=source,
