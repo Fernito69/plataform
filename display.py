@@ -1,4 +1,5 @@
 import datetime
+import math
 import time
 from typing import TYPE_CHECKING, Callable
 
@@ -37,12 +38,16 @@ _MESSAGE_TEXT_COLOR = Yellow()
 _MAX_DEBUG_LOGS = 15
 
 
+_GREEN = RGB(0, 255, 0)
+_RED = RGB(255, 0, 0)
+
+
 class Display(KeyboardHandler):
     _curr_x_resolution: int
     _curr_y_resolution: int
     _antialiasing: bool
 
-    screen_grid: list[list[str]]
+    _screen_grid: list[list[str]]
 
     _curr_fps: float
     _debug_str: str | None = None
@@ -123,10 +128,10 @@ class Display(KeyboardHandler):
         self._message_intensity = intensity if message else 0
 
     def put_screen_content(self, new_grid: list[list[str]]) -> None:
-        self.screen_grid = new_grid
+        self._screen_grid = new_grid
 
     def get_screen_content(self) -> list[list[str]]:
-        return self.screen_grid
+        return self._screen_grid
 
     #######################
 
@@ -170,15 +175,15 @@ class Display(KeyboardHandler):
                 )
                 # TODO: all this looks nice but is really hacky. Do properly.
                 screen_content += (
-                    self.screen_grid[y][x]
-                    if has_bg_color(self.screen_grid[y][x], black_is_not_condidered_bg=False)
+                    self._screen_grid[y][x]
+                    if has_bg_color(self._screen_grid[y][x], black_is_not_condidered_bg=False)
                     # TODO: it should not override the color behind it in the case of superposing objects
                     # check if it belongs to the same entity!! we can do that in the loop I think
                     # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
                     # use a precomputed store with the not rounded coord, aka subpixel??
                     else colored(
-                        self.screen_grid[y][x],
-                        bg_color=extract_color_from_string(self.screen_grid[y][x]).with_intensity(
+                        self._screen_grid[y][x],
+                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                             ANTIALIASING_INTENSITY
                         )
                         if (self._antialiasing and not is_part_of_message)
@@ -193,9 +198,7 @@ class Display(KeyboardHandler):
 
         if self._print_fps:
             _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
-            _fps_factor = (
-                self._measured_fps / 30
-            )  # <- TODO: this 30 shouldn't be hardcoded, we need a mapping between GameMode and max_fps
+            _fps_factor = self._measured_fps / self._curr_fps
             _fps_color = Green(min(1, _fps_factor)).mix_with(Red(max(0, 1 - _fps_factor)))
             screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
 
@@ -259,7 +262,7 @@ class Display(KeyboardHandler):
                         color=_MESSAGE_UPPER_BORDER_COLOR.with_intensity(_border_intensity)
                         .mix_with(_MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity))
                         .with_intensity(self._message_intensity),
-                        bg_color=extract_color_from_string(self.screen_grid[y][x]).with_intensity(
+                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                             (1 - self._message_intensity)
                         ),
                     )
@@ -271,10 +274,10 @@ class Display(KeyboardHandler):
                     LOWER_PIXEL_CHAR
                     if self._game.mode == GameMode.PHYSICS_2D
                     else UPPER_PIXEL_CHAR,
-                    color=extract_color_from_string(self.screen_grid[y][x]).with_intensity(
+                    color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                         _bg_intensity
                     ),
-                    bg_color=extract_bg_color_from_string(self.screen_grid[y][x]).with_intensity(
+                    bg_color=extract_bg_color_from_string(self._screen_grid[y][x]).with_intensity(
                         _bg_intensity
                     ),
                 )
@@ -296,7 +299,7 @@ class Display(KeyboardHandler):
                 elif x == starting_border_x or x == ending_border_x - 1:
                     char = _border_col(DoubleLines.V)
 
-                self.screen_grid[y][x] = char
+                self._screen_grid[y][x] = char
 
         # Add actual message content
         for msg_idx, row in enumerate(message_parts):
@@ -309,16 +312,16 @@ class Display(KeyboardHandler):
 
                 def _c(index: int) -> str:
                     return colored(
-                        row[index] if index < len(row) else self.screen_grid[new_y_idx][x],
+                        row[index] if index < len(row) else self._screen_grid[new_y_idx][x],
                         color=_MESSAGE_TEXT_COLOR,
                         bg_color=extract_bg_color_from_string(
-                            self.screen_grid[new_y_idx][x]
+                            self._screen_grid[new_y_idx][x]
                         ).with_intensity(1 - self._message_intensity)
-                        if self.screen_grid[new_y_idx][x] != EMPTY_SPACE
+                        if self._screen_grid[new_y_idx][x] != EMPTY_SPACE
                         else RGB(0, 0, 0, 0),
                     )
 
-                self.screen_grid[new_y_idx][x] = _c(index)
+                self._screen_grid[new_y_idx][x] = _c(index)
 
         return (
             ScreenPos(starting_border_x, starting_border_y),
@@ -399,18 +402,33 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
+
+            # Health bar
             health_ratio = player.health / player._initial_health
-            health_bar = (
-                "["
-                + colored(" " * round(10 * health_ratio), bg_color=RGB(0, 255, 0))
-                # + colored(
-                #     " ",
-                #     bg_color=RGB(0, 255, 0).with_intensity(1 - (health_ratio % 1))
-                #     + RGB(255, 0, 0).with_intensity((health_ratio % 1)),
-                # )
-                + colored(" " * round(10 * (1 - health_ratio)), bg_color=RGB(255, 0, 0))
-                + "]"
+            num_bars = 10
+
+            num_full_bars = math.floor(num_bars * health_ratio)
+            full_bars = colored(" " * num_full_bars, bg_color=_GREEN)
+
+            num_empty_bars = math.floor(num_bars * (1 - health_ratio))
+            empty_bars = colored(" " * num_empty_bars, bg_color=_RED)
+
+            _health_per_bar = player._initial_health / num_bars
+            _middle_bar_color_factor = (
+                _health_per_bar - (player.health % _health_per_bar)
+            ) / _health_per_bar
+
+            middle_bar = (
+                colored(
+                    " ",
+                    bg_color=_GREEN.with_intensity(1 - _middle_bar_color_factor)
+                    + _RED.with_intensity(_middle_bar_color_factor),
+                )
+                if num_bars - num_full_bars - num_empty_bars != 0
+                else ""
             )
+
+            health_bar = "[" + full_bars + middle_bar + empty_bars + "]"
             hud += f"Health: {health_bar}{SEPARATOR}"
 
             # num_particles = (
