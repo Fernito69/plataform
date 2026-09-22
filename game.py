@@ -8,7 +8,7 @@ from physics2d.entities.player_blob import PlayerBlob
 from physics2d.physics2d import Physics2D
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
-from player import PlayerStatus
+from player import Player, PlayerStatus
 from system import on_key_press, stop_mouse_listener
 from three_d_renderer.entities.player3d import Player3D
 from three_d_renderer.line_renderer import LineRenderer
@@ -107,8 +107,8 @@ class Game(Engine, KeyboardHandler):
         self._check_player_status()
 
     def _check_player_status(self) -> None:
-        # TODO: players need a base class?
-        for player in [self.player2d, self.player3d]:
+        players: list[Player] = [self.player2d, self.player3d, self.player_blob]
+        for player in players:
             match player.status:
                 case PlayerStatus.DEAD:
                     return self.quit_game(message="GAME OVER")

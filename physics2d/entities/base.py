@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -74,7 +75,5 @@ class PhysicsEntity(Circunference):
         self.center += vector
         self.position += vector
 
-    # TODO: unify this with get_last_known_direction()
-    def get_aiming_direction(self) -> VectorF:
-        # TODO: Fix typing
-        return self.get_fire_direction()
+    @abstractmethod
+    def get_aiming_direction(self) -> VectorF: ...

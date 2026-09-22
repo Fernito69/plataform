@@ -107,7 +107,6 @@ class PlayerBlob(PhysicsEntity, Player):
 
     def die(self) -> None:
         self.status = PlayerStatus.DEAD
-        raise
 
     def _check_projectile_impacts(self) -> None:
         ...
@@ -166,7 +165,7 @@ class PlayerBlob(PhysicsEntity, Player):
     def get_curr_weapon(self) -> Weapon:
         return self._weapons[self._curr_weapon_index]
 
-    def get_fire_direction(self) -> VectorF:
+    def get_aiming_direction(self) -> VectorF:
         _screen_pos = self._engine.screen_corner
 
         return (
@@ -182,7 +181,7 @@ class PlayerBlob(PhysicsEntity, Player):
         )
 
     def get_weapon_position(self) -> PointF:
-        return self.center + self.radius * self.get_fire_direction()
+        return self.center + self.radius * self.get_aiming_direction()
 
     def _get_max_speed(self) -> float:
         return self.get_curr_thruster().max_speed

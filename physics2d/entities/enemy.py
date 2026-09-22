@@ -106,7 +106,7 @@ class Enemy(PhysicsEntity):
         enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
         self._engine.scenario.enemies = [e for e in self._engine.scenario.enemies if e is not self]
 
-    def get_fire_direction(self) -> VectorF:
+    def get_aiming_direction(self) -> VectorF:
         direction = (self._engine.player.position - self.position).as_vector().unit_vector()
         return (
             direction
