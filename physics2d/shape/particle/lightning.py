@@ -92,7 +92,7 @@ class Lightning(Particle, Line):
         return [info for line in self.segments for info in line.get_render_info()]
 
     def do_your_thing(self) -> None:
-        self._apply_movement()
+        self._handle_life_time()
         return super().do_your_thing()
 
     def _apply_movement(self) -> None:

@@ -87,6 +87,10 @@ class LineParticle(Particle, Line):
             engine=engine,
         )
 
+    def do_your_thing(self) -> None:
+        self._handle_life_time()
+        return super().do_your_thing()
+
     def _handle_life_time(self) -> None:
         if len(self.life_steps) > 0:
             return self._handle_life_steps()

@@ -93,11 +93,6 @@ class Projectile(CircularParticle):
         self.target_projectiles_above_size = target_projectiles_above_size
         self.exploded = False
 
-    def do_your_thing(self) -> None:
-        self._apply_collisions()
-
-        super().do_your_thing()
-
     def _apply_movement(self) -> None:
         from physics2d.entities.enemy import Enemy
 
@@ -139,7 +134,13 @@ class Projectile(CircularParticle):
                 if len(projectiles_nearby) > 0:
                     self.target = projectiles_nearby[0].projectile
 
+        self._apply_collisions()
+        self._generate_trail()
         super()._apply_movement()
+
+    def _generate_trail(self) -> None:
+        if self._trail_generator:
+            self._trail_generator(self._engine, self, self.target)
 
     def _apply_collisions(self) -> None:
         # TODO: fix enemies being pushed back by bullet impacts

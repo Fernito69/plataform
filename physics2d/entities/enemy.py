@@ -114,8 +114,8 @@ class Enemy(PhysicsEntity):
         ).as_vector()
 
     def do_your_thing(self) -> None:
-        super().do_your_thing()
-
+        self._apply_movement()
+        self._apply_gravity()
         self._handle_current_damage()
 
         if self.health <= 0:

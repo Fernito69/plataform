@@ -24,9 +24,12 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     eye_x = source.center.x - source.velocity.x
     eye_y = source.center.y - source.velocity.y
 
+    _vel_factor = 0.2
+    _VELOCITY = (_vel_factor * source.velocity).as_vector()
+
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        initial_velocity=source.velocity,
+        initial_velocity=_VELOCITY,
         size=size * 0.5,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(255, 255, 255, 1),
@@ -37,7 +40,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     )
     core_explosion_2 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        initial_velocity=source.velocity,
+        initial_velocity=_VELOCITY,
         size=size * 0.75,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(255, 255, 80, 1),
@@ -66,7 +69,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
 
     main_explosion = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        initial_velocity=source.velocity,
+        initial_velocity=_VELOCITY,
         size=size,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
@@ -98,7 +101,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
         _factor = size * 1.5
         sec_explosion = CircularParticle(
             origin=PointF(x=eye_x + _factor * random_offset(), y=eye_y + _factor * random_offset()),
-            initial_velocity=source.velocity,
+            initial_velocity=_VELOCITY,
             size=_sec_size,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_sec_explosion_color,
@@ -144,7 +147,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             ),
             engine=engine,
             initial_velocity=(
-                VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
+                VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -_VELOCITY
             ).as_vector(),
             size=0.3,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
@@ -260,8 +263,8 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
     ricochet = CircularParticle(
         origin=source.center,
         initial_velocity=(
-            (-0.25) * source.velocity
-            + VectorF(0, 2 * random_offset()).rotate((-source.velocity).as_vector().get_angle())
+            (-0.1) * source.velocity
+            + VectorF(0, 4 * random_offset()).rotate((-source.velocity).as_vector().get_angle())
         ).as_vector(),
         size=0.5,
         initial_color=RGB(255, 255, 240, 1),  # almost white hot
@@ -409,7 +412,8 @@ def _rocket_explosion(
     with_smoke: bool = True,
 ) -> None:
     _SIZE = damage / 10
-    _VELOCITY = (-0.1 * rocket.velocity).as_vector()
+    # _VELOCITY = (-0.1 * rocket.velocity).as_vector().unit_vector()
+    _VELOCITY = VectorF(0,0)
 
     particles: list[CircularParticle] = []
 

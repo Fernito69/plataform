@@ -59,11 +59,16 @@ class Physics2D(Engine, KeyboardHandler):
         self.curr_scenario_index = curr_scenario_index
         self.init_screen_buffer()
 
-    # TODO: we need to do the same for entities/pieces
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
+        # TODO: thisi is hacky, do properly
+        _curr_weapon_idx = self.player._curr_weapon_index if self.player else 0
+        _curr_thruster_idx = self.player._curr_thruster_index if self.player else 0
+
         self.scenario = scenario or self.scenarios[self.curr_scenario_index](self)
         self.player.set_scenario(self.scenario)
+        self.player._curr_weapon_index = _curr_weapon_idx
+        self.player._curr_thruster_index = _curr_thruster_idx
 
     def init_screen_buffer(self) -> None:
         res = self._display.get_resolution()

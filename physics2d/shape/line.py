@@ -77,7 +77,7 @@ class Line(Shape):
 
     def do_your_thing(self) -> None:
         self._pulsate()
-        return super().do_your_thing()
+        self._apply_movement()
 
     def _move_by(self, vector: VectorF) -> None:
         self.points = (self.points[0] + vector, self.points[1] + vector)

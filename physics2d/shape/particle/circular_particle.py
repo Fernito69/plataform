@@ -76,7 +76,6 @@ class CircularParticle(Particle, PhysicsEntity):
             life_time=life_time,
             size_change_type=size_change_type,
             floating_multi=floating_multi,
-            particle_generator=particle_generator,
         )
         PhysicsEntity.__init__(
             self,
@@ -92,6 +91,7 @@ class CircularParticle(Particle, PhysicsEntity):
             size=size * 2,
             name=name,
             engine=engine,
+            particle_generator=particle_generator,
         )
 
     def _handle_life_time(self) -> None:
@@ -133,7 +133,7 @@ class CircularParticle(Particle, PhysicsEntity):
 
     def do_your_thing(self) -> None:
         self._apply_movement()
-        return super().do_your_thing()
+        self._handle_life_time()
 
     def _apply_movement(self) -> None:
         if self.source:
@@ -141,6 +141,5 @@ class CircularParticle(Particle, PhysicsEntity):
             self.center = self.position
             self.update_center_of_mass()
             return
-        if self._particle_generator:
-            self._particle_generator(self._engine, self)
+
         PhysicsEntity._apply_movement(self)

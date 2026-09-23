@@ -27,7 +27,6 @@ class GetCircunferenceEquationResponse:
 
 # TODO: this shouldn't be hardcoded, should be associated to friction coef
 _DECEL_FACTOR = 0.2
-# TODO: move to common constants place
 
 
 class Circunference(Shape):
@@ -96,15 +95,14 @@ class Circunference(Shape):
             ...
 
     def _apply_movement(self) -> None:
-        self._float_around()
         self._apply_gravity()
-
+        self._float_around()
         self._apply_collisions()
 
         if not any(a != 0 for a in self.velocity):
             return
 
-        self.center += self.velocity
+        self._move_by(self.velocity)
 
         self.update_center_of_mass()
         self._apply_friction()
@@ -153,7 +151,7 @@ class Circunference(Shape):
 
         # TODO: I know this is expensive and dumb, but let's see if it improves it
         # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
-        ranges = [0.8, 1, 1.2]
+        ranges = [0, 0.1]
 
         for value in ranges:
             new_pos = (value * self.velocity) + self.center

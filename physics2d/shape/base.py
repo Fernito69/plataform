@@ -152,6 +152,8 @@ class Shape:
     @abstractmethod
     def _move_by(self, vector: VectorF) -> None: ...
 
+    @abstractmethod
     def do_your_thing(self) -> None:
-        self._apply_gravity(self._engine.scenario.gravity_acceleration)
-        self._apply_movement()
+        ...
+        # self._apply_gravity(self._engine.scenario.gravity_acceleration)
+        # self._apply_movement()

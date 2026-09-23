@@ -72,6 +72,7 @@ class HeavyRocketLauncher(RocketLauncher):
 """PROJECTILE"""
 #################################################################
 
+
 # TODO: refactor these two with get_rocket factory
 def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 250
@@ -81,24 +82,6 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _MAX_BLAST_DAMAGE = 110
     _SIZE = 1.7
 
-    # rocket = Projectile(
-    #     owner=source,
-    #     origin=source.center + random_offset_vector(),
-    #     initial_velocity=(
-    #         (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
-    #     ).as_vector(),
-    #     size=1.2,
-    #     size_change_type=TransitionType.NONE,
-    #     ending_color_fade_type=TransitionType.NONE,
-    #     initial_color=RGB(127, 127, 127, 1),
-    #     # ending_color=RGB(30, 30, 30, 1),
-    #     life_time=_LIFE_TIME,
-    #     damage=_DAMAGE,
-    #     explosion_generator=get_rocket_explosion(_DAMAGE, _BLAST_RADIUS, _MAX_BLAST_DAMAGE),
-    #     trail_generator=rocket_trail,
-    #     density=3,
-    #     explode_on_life_time_over=True,
-    # )
     _rocket = rocket(
         engine=engine,
         source=source,

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import Theme
+from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
@@ -17,6 +18,8 @@ class PhysicsEntity(Circunference):
     extra_shapes: list[Shape]
 
     name: str | None
+
+    _particle_generator: ParticleGenerator | None
 
     def __init__(
         self,
@@ -35,6 +38,7 @@ class PhysicsEntity(Circunference):
         floating_multi: float = 0,
         is_collideable: bool = True,
         extra_shapes: list[Shape] = [],
+        particle_generator: ParticleGenerator | None = None,
     ):
         super().__init__(
             center=position,
@@ -58,6 +62,7 @@ class PhysicsEntity(Circunference):
         self.density = density
         self.name = name
         self.size = size
+        self._particle_generator = particle_generator
 
         # volume depends on the type of entity
 
@@ -68,8 +73,12 @@ class PhysicsEntity(Circunference):
         return info
 
     def _apply_movement(self) -> None:
+        self._generate_particles()
         super()._apply_movement()
-        self.position = self.center
+
+    def _generate_particles(self) -> None:
+        if self._particle_generator:
+            self._particle_generator(self._engine, self)
 
     def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement

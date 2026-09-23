@@ -44,11 +44,11 @@ _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 
 class PlayerBlob(PhysicsEntity, Player):
     _thrusters: list[Thruster]
-    _curr_thruster_index: int
+    _curr_thruster_index: int = 0
     _last_known_direction: VectorF
 
     _weapons: list[Weapon]
-    _curr_weapon_index: int
+    _curr_weapon_index: int = 0
 
     def __init__(
         self,
@@ -99,6 +99,7 @@ class PlayerBlob(PhysicsEntity, Player):
         self._handle_mouse_input()
         self.handle_keyboard_input()
         self._apply_gravity(self._engine.scenario.gravity_acceleration)
+        self._apply_collisions()
         self._apply_movement()
         self._keep_player_in_screen()
         self._handle_current_damage()
@@ -121,7 +122,6 @@ class PlayerBlob(PhysicsEntity, Player):
             self.would_collide_with(piece)
 
     def _apply_movement(self) -> None:
-        self._apply_collisions()
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:
