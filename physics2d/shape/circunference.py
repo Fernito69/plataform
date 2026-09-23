@@ -96,30 +96,15 @@ class Circunference(Shape):
             ...
 
     def _apply_movement(self) -> None:
-        # TODO: I don't like this lazy import
-        from physics2d.entities.base import PhysicsEntity
-        from physics2d.shape.particle.base import Particle
-
         self._float_around()
         self._apply_gravity()
 
         self._apply_collisions()
 
-        # TOOD: why enabling this prevents the player collision from working
-        # for p in scenario .solid_pieces:
-        #     self.would_collide_with(p)
-
         if not any(a != 0 for a in self.velocity):
             return
 
         self.center += self.velocity
-
-        # TODO: every class should take of this on their own!
-        if isinstance(self, PhysicsEntity):
-            self.position = self.center
-
-            if isinstance(self, Particle) and self._particle_generator:
-                self._particle_generator(self._engine, self)
 
         self.update_center_of_mass()
         self._apply_friction()
@@ -273,18 +258,11 @@ class Circunference(Shape):
                 self.center.x - self.radius,
             )
         )
-        # min_y, max_y = sorted(
-        #     (
-        #         self.center.y + self.radius,
-        #         self.center.y - self.radius,
-        #     )
-        # )
 
         eq = self.get_circunference_equations()
         x_range = range(math.floor(min_x - 2), math.ceil(max_x + 1))
 
         for x_index, curr_x in enumerate(x_range):
-            # for x in range(math.floor(min_x - 1), math.ceil(self.center.x)):
             # TODO: these calculations seem to be the ones slowing down big balls' rendering
             y1, y2 = eq.get_ys(curr_x)
             next_y1, next_y2 = (
@@ -298,7 +276,6 @@ class Circunference(Shape):
             local_min_y = min(all_ys)
 
             y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
-            # y_range = range(math.floor(min_y - 1), math.ceil(max_y + 1))
 
             # This is in order to optimize the rendering, since calculating circunference equations is expensive
             _go_full_color_until_next_x: bool = False
@@ -372,12 +349,6 @@ class Circunference(Shape):
                 self.center.x - self.radius,
             )
         )
-        # min_y, max_y = sorted(
-        #     (
-        #         self.center.y + self.radius,
-        #         self.center.y - self.radius,
-        #     )
-        # )
 
         eq = self.get_circunference_equations()
         x_range = range(math.floor(min_x + 1), math.ceil(max_x))
@@ -397,10 +368,6 @@ class Circunference(Shape):
             local_min_y = min(all_ys)
 
             y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
-
-            # _go_full_color_until_next_x: bool = Falseq
-            # _next_x: float | None = None
-            # _distance: float = -1
 
             # This is in order to optimize the rendering, since calculating circunference equations is expensive
             for curr_y in y_range:
@@ -426,53 +393,6 @@ class Circunference(Shape):
                         point=PointF(curr_x, curr_y),
                     )
                 )
-
-            # # This is in order to optimize the rendering, since calculating circunference equations is expensive
-            # _go_full_color_until_next_x: bool = False
-            # _next_x: float | None = None
-            # _distance: float = -1
-
-            # x1: float | None = curr_x
-            # x2: float | None = self.radius + self.center.x - curr_x
-
-            # for curr_y in range(math.floor(min_y - 1), math.ceil(max_y + 1)):
-            #     if not _go_full_color_until_next_x:
-            #         # x1, x2 = eq.get_xs(curr_y)
-
-            #         if x1 is None or x2 is None:
-            #             continue
-
-            #         _distance = min(
-            #             max(
-            #                 0,
-            #                 curr_y - y2,
-            #                 y1 - curr_y,
-            #             ),
-            #             max(
-            #                 0,
-            #                 curr_x - x2,
-            #                 x1 - curr_x,
-            #             ),
-            #         )
-            #         _next_x = x2
-
-            #     if _distance > 1:
-            #         continue
-
-            #     if _distance <= 0 and not _go_full_color_until_next_x:
-            #         _go_full_color_until_next_x = True
-
-            #     piece_info.append(
-            #         RenderInfo(
-            #             distance_to_pixel_center=_distance,
-            #             color=self.theme.color or RGB(255, 255, 255),
-            #             point=PointF(curr_x, curr_y),
-            #         )
-            #     )
-
-            #     if _go_full_color_until_next_x and _next_x is not None and curr_y >= y2 - 1:
-            #         _go_full_color_until_next_x = False
-
         # Add player details and ornaments (TODO: move to player rendering)
         if isinstance(self, PlayerBlob):
             weapon_badge = Circunference(

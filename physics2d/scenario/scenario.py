@@ -143,28 +143,24 @@ class Scenario:
             for p in pieces:
                 self.handle_render_info(p.get_render_info())
 
-        # Foreground gets differentiated treatment
-        _handle_in_front_of_player: list[Shape] = []
+        # Foreground gets differentiated treatment. TODO: this is a hack. Do properly
+        _render_in_front_of_player: list[Shape] = []
         _render_behind_player: list[Shape] = []
         for shape in self.fg_shapes:
             if shape.render_behind_player:
                 _render_behind_player.append(shape)
             else:
-                _handle_in_front_of_player.append(shape)
+                _render_in_front_of_player.append(shape)
 
         _handle(_render_behind_player)
         self.handle_render_info(self.player.get_render_info())
-        _handle(_handle_in_front_of_player)
+        _handle(_render_in_front_of_player)
 
         _handle(self.solid_shapes)
         _handle(self.projectiles)
         _handle(self.enemy_projectiles)
         _handle(self.enemies)
         _handle(self.three_dee_enemies)
-
-        # TODO: do something
-        for e in self.enemies:
-            _ = e.get_render_info()
 
         _handle(self.bg_shapes)
 

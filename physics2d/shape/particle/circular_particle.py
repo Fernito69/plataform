@@ -141,4 +141,6 @@ class CircularParticle(Particle, PhysicsEntity):
             self.center = self.position
             self.update_center_of_mass()
             return
+        if self._particle_generator:
+            self._particle_generator(self._engine, self)
         PhysicsEntity._apply_movement(self)

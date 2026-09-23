@@ -67,6 +67,10 @@ class PhysicsEntity(Circunference):
             info.extend(shape.get_render_info())
         return info
 
+    def _apply_movement(self) -> None:
+        super()._apply_movement()
+        self.position = self.center
+
     def is_same_position(self, shape: "Shape") -> bool:
         # TODO implement
         raise
