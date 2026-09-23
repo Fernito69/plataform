@@ -19,6 +19,8 @@ class Projectile(CircularParticle):
     target_acquire_threshold: float | None
     homing_factor: float
     homing_kick_in_time: float
+    homing_targets_projectiles: bool
+    target_projectiles_above_size: float
     initial_velocity: VectorF
 
     _explosion_generator: "ParticleGenerator"
@@ -26,6 +28,7 @@ class Projectile(CircularParticle):
 
     explode_on_life_time_over: bool
     is_enemy: bool
+    exploded: bool
 
     def __init__(
         self,
@@ -50,7 +53,9 @@ class Projectile(CircularParticle):
         target: "PhysicsEntity | None" = None,
         target_acquire_threshold: float | None = None,
         homing_factor: float = 1,
+        homing_targets_projectiles: bool = True,
         homing_kick_in_time: float = 0,
+        target_projectiles_above_size: float = 0.7,
         offset_from_origin: VectorF = VectorF(0, 0),
     ):
         super().__init__(
@@ -84,22 +89,100 @@ class Projectile(CircularParticle):
         self.initial_velocity = initial_velocity
         self.offset_from_origin = offset_from_origin
         self.is_enemy = is_enemy
+        self.homing_targets_projectiles = homing_targets_projectiles
+        self.target_projectiles_above_size = target_projectiles_above_size
+        self.exploded = False
 
     def do_your_thing(self) -> None:
+        self._apply_collisions()
+
         super().do_your_thing()
 
+    def _apply_movement(self) -> None:
+        from physics2d.entities.enemy import Enemy
+
+        if self.target:
+            if (isinstance(self.target, Enemy) and self.target.health <= 0) or (
+                isinstance(self.target, Projectile)
+                # and self.exploded  # TODO: why does this self.exploded check not work with bullets?
+                and not any(
+                    prj
+                    for prj in self._engine.scenario.projectiles
+                    + self._engine.scenario.enemy_projectiles
+                    if prj is self
+                )
+                # TODO: ^ this check doesn't work either!
+            ):
+                self.target = None
+                return
+            to_target = (
+                self.homing_factor
+                * (self.target.position - self.position).as_vector().unit_vector()
+            )
+            vel_contrib = (1 / self.homing_factor) * self.velocity
+            self.velocity = (vel_contrib + to_target).as_vector()
+        elif (
+            self.target_acquire_threshold is not None
+            and self._original_life_time is not None
+            and self.life_time is not None
+            and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
+        ):
+            # Check for enemies nearby
+            possible_victims = self._engine.scenario.get_enemies_in_range(
+                self.target_acquire_threshold,
+                self,
+                calc_distance_to_border=True,
+            )
+            if len(possible_victims) > 0:
+                self.target = possible_victims[0].enemy
+
+            if not self.target and self.homing_targets_projectiles:
+                projectiles_nearby = self._engine.scenario.get_projectiles_in_range(
+                    self.target_acquire_threshold,
+                    self,
+                    calc_distance_to_border=True,
+                    # TODO: this doesn't work!
+                    size_above=self.target_projectiles_above_size,
+                )
+                if len(projectiles_nearby) > 0:
+                    self.target = projectiles_nearby[0].projectile
+
+        super()._apply_movement()
+
+    def _apply_collisions(self) -> None:
         # TODO: fix enemies being pushed back by bullet impacts
+
         if self.is_enemy:
-            for entity in [self._engine.scenario.player] + self._engine.scenario.projectiles:
-                self.would_collide_with(entity)
+            if self.would_collide_with(self._engine.player):
+                self._engine.player.receive_damage(self.damage)
+                return self.hit()
+
+            for proj in self._engine.scenario.projectiles:
+                if self.would_collide_with(proj):
+                    proj.hit()
+                    return self.hit()
+
         else:
-            for entity in self._engine.scenario.enemies + self._engine.scenario.enemy_projectiles:
-                self.would_collide_with(entity)
+            for enemy in self._engine.scenario.enemies:
+                if self.would_collide_with(enemy):
+                    enemy.receive_damage(self.damage)
+                    return self.hit()
+
+            for proj in self._engine.scenario.enemy_projectiles:
+                if self.would_collide_with(proj):
+                    proj.hit()
+                    return self.hit()
 
     def hit(self) -> None:
         self._explosion_generator(self._engine, self)
 
         if not self.is_enemy:
-            self._engine.scenario.projectiles.remove(self)
+            self._engine.scenario.projectiles = [
+                p for p in self._engine.scenario.projectiles if p is not self
+            ]
         else:
-            self._engine.scenario.enemy_projectiles.remove(self)
+            self._engine.scenario.enemy_projectiles = [
+                p for p in self._engine.scenario.enemy_projectiles if p is not self
+            ]
+
+        self.exploded = True

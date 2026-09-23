@@ -102,6 +102,9 @@ class Shape:
         raise NotImplementedError(f"Shape must have a get_render_info method")
 
     @abstractmethod
+    def _apply_collisions(self) -> None: ...
+
+    @abstractmethod
     def would_collide_with(self, shape: "Shape") -> bool:
         """Determines wheter the current shape would collide with a particular shape, given their location"""
 

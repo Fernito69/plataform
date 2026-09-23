@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB
+from physics2d.entities.equipment.projectile import Projectile
 from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
-from physics2d.entities.equipment.projectile import Projectile
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity

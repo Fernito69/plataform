@@ -131,7 +131,11 @@ class CircularParticle(Particle, PhysicsEntity):
                 b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
             )
 
-    def _act(self) -> None:
+    def do_your_thing(self) -> None:
+        self._apply_movement()
+        return super().do_your_thing()
+
+    def _apply_movement(self) -> None:
         if self.source:
             self.position = self.source.position
             self.center = self.position

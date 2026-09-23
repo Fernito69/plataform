@@ -154,6 +154,3 @@ class LineParticle(Particle, Line):
                         self._thickness_at_start = None
 
                 # TODO: handle theme
-
-    def _act(self) -> None:
-        self._apply_movement()

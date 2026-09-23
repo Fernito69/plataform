@@ -91,17 +91,19 @@ class Circunference(Shape):
         if 0 <= self.velocity.y < _DECEL_FACTOR:
             self.velocity.y = 0
 
+    def _apply_collisions(self) -> None:
+        if self.would_collide_with(self._engine.scenario.player):
+            ...
+
     def _apply_movement(self) -> None:
         # TODO: I don't like this lazy import
         from physics2d.entities.base import PhysicsEntity
-        from physics2d.entities.enemy import Enemy
-        from physics2d.entities.equipment.projectile import Projectile
         from physics2d.shape.particle.base import Particle
 
         self._float_around()
         self._apply_gravity()
 
-        self.would_collide_with(self._engine.scenario.player)
+        self._apply_collisions()
 
         # TOOD: why enabling this prevents the player collision from working
         # for p in scenario .solid_pieces:
@@ -118,31 +120,6 @@ class Circunference(Shape):
 
             if isinstance(self, Particle) and self._particle_generator:
                 self._particle_generator(self._engine, self)
-
-            if isinstance(self, Projectile):
-                if self.target:
-                    if isinstance(self.target, Enemy) and self.target.health <= 0:
-                        self.target = None
-                        return
-                    to_target = (
-                        self.homing_factor
-                        * (self.target.position - self.position).as_vector().unit_vector()
-                    )
-                    vel_contrib = (1 / self.homing_factor) * self.velocity
-                    self.velocity = (vel_contrib + to_target).as_vector()
-                elif (
-                    self.target_acquire_threshold is not None
-                    and self._original_life_time is not None
-                    and self.life_time is not None
-                    and (self._original_life_time - self.life_time) >= self.homing_kick_in_time
-                ):
-                    possible_victims = self._engine.scenario.get_enemies_in_range(
-                        self.target_acquire_threshold,
-                        self,
-                        calc_distance_to_border=True,
-                    )
-                    if len(possible_victims) > 0:
-                        self.target = possible_victims[0].enemy
 
         self.update_center_of_mass()
         self._apply_friction()
@@ -175,7 +152,7 @@ class Circunference(Shape):
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
     # TODO: should should calculate ACTUAL kinetic energy transfer
-    
+
     # TODO: THIS SHOULD ONLY RETURN A BOOLEAN AND EVERY ENTITY SHOULD TAKE CARE OF THE ENTITY-SPECIFIC LOGIC
     def would_collide_with(self, colliding_shape: Shape) -> bool:
         from physics2d.entities.equipment.projectile import Projectile
@@ -191,9 +168,8 @@ class Circunference(Shape):
 
         # TODO: I know this is expensive and dumb, but let's see if it improves it
         # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
-        ranges = [0.8]
+        ranges = [0.8, 1, 1.2]
 
-        
         for value in ranges:
             new_pos = (value * self.velocity) + self.center
 
@@ -201,36 +177,6 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                    if (
-                        isinstance(self, Projectile)
-                        and isinstance(colliding_shape, Projectile)
-                        and self.owner is not colliding_shape.owner
-                    ):
-                        self.hit()
-                        colliding_shape.hit()
-                        return True
-
-                    # TODO: stupid repeated logic. TODO: this logic doesn't go here!!!
-                    if isinstance(self, Projectile):
-                        from physics2d.entities.enemy import Enemy
-                        from physics2d.entities.player_blob import PlayerBlob
-
-                        if (isinstance(colliding_shape, PlayerBlob) and self.is_enemy) or (
-                            isinstance(colliding_shape, Enemy) and not self.is_enemy
-                        ):
-                            colliding_shape.receive_damage(self.damage)
-                            self.hit()
-
-                    if isinstance(colliding_shape, Projectile):
-                        from physics2d.entities.enemy import Enemy
-                        from physics2d.entities.player_blob import PlayerBlob
-
-                        if (isinstance(self, PlayerBlob) and colliding_shape.is_enemy) or (
-                            isinstance(self, Enemy) and not colliding_shape.is_enemy
-                        ):
-                            self.receive_damage(colliding_shape.damage)
-                            colliding_shape.hit()
-
                     # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                     # TODO: Fix the logic of this energy transfer
                     denominator = self.weight + colliding_shape.weight
@@ -344,13 +290,7 @@ class Circunference(Shape):
             next_y1, next_y2 = (
                 eq.get_ys(curr_x + 1) if x_index / len(x_range) < 0.5 else eq.get_ys(curr_x - 1)
             )
-            next_next_y1, next_next_y2 = (
-                eq.get_ys(curr_x + 2) if curr_x + 2 < len(x_range) else eq.get_ys(curr_x - 1)
-            )
-
-            all_ys: list[float] = [
-                v for v in [y1, y2, next_y1, next_y2, next_next_y1, next_next_y2] if v is not None
-            ]
+            all_ys: list[float] = [v for v in [y1, y2, next_y1, next_y2] if v is not None]
             if len(all_ys) == 0:
                 continue
 
@@ -440,12 +380,14 @@ class Circunference(Shape):
         # )
 
         eq = self.get_circunference_equations()
-        x_range = range(math.floor(min_x), math.ceil(max_x))
+        x_range = range(math.floor(min_x + 1), math.ceil(max_x))
 
-        for curr_x in x_range:
+        for x_index, curr_x in enumerate(x_range):
             # Get full range of y for the current x_slice
             y1, y2 = eq.get_ys(curr_x)
-            next_y1, next_y2 = eq.get_ys(curr_x + 1) if curr_x + 1 < len(x_range) else (None, None)
+            next_y1, next_y2 = (
+                eq.get_ys(curr_x + 1) if x_index / len(x_range) < 0.5 else eq.get_ys(curr_x - 1)
+            )
 
             all_ys: list[float] = [v for v in [y1, y2, next_y1, next_y2] if v is not None]
             if len(all_ys) == 0:
@@ -456,7 +398,7 @@ class Circunference(Shape):
 
             y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
 
-            # _go_full_color_until_next_x: bool = False
+            # _go_full_color_until_next_x: bool = Falseq
             # _next_x: float | None = None
             # _distance: float = -1
 

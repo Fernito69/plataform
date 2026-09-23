@@ -106,7 +106,6 @@ class PlayerBlob(PhysicsEntity, Player):
     def die(self) -> None:
         self.status = PlayerStatus.DEAD
 
-
     ##############
     """MOVEMENT"""
     ##############
@@ -115,12 +114,14 @@ class PlayerBlob(PhysicsEntity, Player):
         # we float freely for now
         pass
 
-    def _apply_movement(self) -> None:
+    def _apply_collisions(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
         for piece in self._engine.scenario.solid_shapes + self._engine.scenario.enemies:
             self.would_collide_with(piece)
 
+    def _apply_movement(self) -> None:
+        self._apply_collisions()
         self._move_by(self.velocity)
 
     def _keep_player_in_screen(self) -> None:

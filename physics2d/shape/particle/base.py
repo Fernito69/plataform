@@ -44,7 +44,6 @@ class Particle:
     def do_your_thing(self) -> None:
         from physics2d.entities.equipment.projectile import Projectile
 
-        self._act()
         self._handle_life_time()
 
         # TODO: fix this, should apply for any shape/entity
@@ -52,9 +51,6 @@ class Particle:
             self._particle_generator(self._engine, self)
         if isinstance(self, Projectile) and self._trail_generator:
             self._trail_generator(self._engine, self, self.target)
-
-    @abstractmethod
-    def _act(cls) -> None: ...
 
     @abstractmethod
     def _handle_life_time(cls) -> None: ...

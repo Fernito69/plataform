@@ -304,6 +304,7 @@ def test_scenario(engine: "Physics2D") -> Scenario:
                 mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(-1, 2, 0),
             ),
+            line_thickness=1.5,
             theme=Theme(RGB(66, 220, 255)),
         ),
         ThreeDeeEnemy(

@@ -91,7 +91,12 @@ class Lightning(Particle, Line):
     def get_render_info(self) -> list[RenderInfo]:
         return [info for line in self.segments for info in line.get_render_info()]
 
+    def do_your_thing(self) -> None:
+        self._apply_movement()
+        return super().do_your_thing()
+
     def _apply_movement(self) -> None:
+        self._gen_lightning()
         self._float_around()
         self._rotate()
 
@@ -216,7 +221,3 @@ class Lightning(Particle, Line):
             )
             for idx in range(len(self.segments)):
                 self.segments[idx].theme = self.theme
-
-    def _act(self) -> None:
-        self._gen_lightning()
-        self._apply_movement()

@@ -31,6 +31,12 @@ class GetEnemiesInRangeRes:
     distance: float
 
 
+@dataclass
+class GetProjectilesInRangeRes:
+    projectile: Projectile
+    distance: float
+
+
 type Layer = Literal["fg", "bg", "solid"]
 
 
@@ -121,18 +127,9 @@ class Scenario:
         _remove_dead_particles(self.fg_shapes)
         _remove_dead_particles(self.solid_shapes)
 
-        # TODO: unify these two
-        for p in self.projectiles:
+        for p in self.projectiles + self.enemy_projectiles:
             if p.life_time is not None and p.life_time <= 0:
                 p.hit()
-                if p in self.projectiles:
-                    self.projectiles.remove(p)
-
-        for p in self.enemy_projectiles:
-            if p.life_time is not None and p.life_time <= 0:
-                p.hit()
-                if p in self.enemy_projectiles:
-                    self.enemy_projectiles.remove(p)
 
     def now(self) -> int:
         """Get the current game tick"""
@@ -200,6 +197,32 @@ class Scenario:
                 key=lambda v: v[1],
             )
             if distance < max_range
+            # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
+        ]
+        return possible_victims
+
+    def get_projectiles_in_range(
+        self,
+        max_range: float,
+        subject: "Projectile",
+        calc_distance_to_border: bool = False,
+        size_above: float = 0,
+    ) -> list[GetProjectilesInRangeRes]:
+        center = subject.center if subject else self.player.center
+        possible_victims = [
+            GetProjectilesInRangeRes(proj, distance)
+            # TODO: do we need it sorted?
+            for proj, distance in sorted(
+                [
+                    (
+                        e,
+                        abs((center) - (e.center)) - (e.radius if calc_distance_to_border else 0),
+                    )
+                    for e in (self.projectiles if subject.is_enemy else self.enemy_projectiles)
+                ],
+                key=lambda v: v[1],
+            )
+            if distance < max_range and proj.size > size_above
             # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims
