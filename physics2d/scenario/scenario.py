@@ -217,7 +217,7 @@ class Scenario:
                     )
                     for e in (self.projectiles if subject_is_enemy else self.enemy_projectiles)
                 ],
-                key=lambda v: v[1],
+                key=lambda v: (-v[0].size, v[1]),
             )
             if distance < max_range and proj.size > size_above
             # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?

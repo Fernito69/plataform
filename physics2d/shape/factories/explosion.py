@@ -413,7 +413,7 @@ def _rocket_explosion(
 ) -> None:
     _SIZE = damage / 10
     # _VELOCITY = (-0.1 * rocket.velocity).as_vector().unit_vector()
-    _VELOCITY = VectorF(0,0)
+    _VELOCITY = VectorF(0, 0)
 
     particles: list[CircularParticle] = []
 
@@ -557,19 +557,6 @@ def _rocket_explosion(
                     engine=engine,
                     gravity=0.1,
                 )
-                # CircularParticle(
-                #     origin=(
-                #         rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
-                #     ).as_point(),
-                #     initial_velocity=(10 * random_offset_vector()).as_vector(),
-                #     size=1.5,
-                #     size_change_type=TransitionType.LINEAR_DECREASE,
-                #     initial_color=RGB(200, 255, 200),
-                #     ending_color=RGB(0, 60, 0),
-                #     life_time=35,
-                #     floating_multi=1,
-                #     gravity=-0.01,
-                # )
             )
             particles.append(sparks)
 
@@ -592,7 +579,7 @@ def _rocket_explosion(
 
     # TODO: rename
     _PUSH_FACTOR = 1.2
-    # TODO:
+    # TODO: also projectiles!
     blast_radius_victims = engine.scenario.get_enemies_in_range(
         _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
     )
