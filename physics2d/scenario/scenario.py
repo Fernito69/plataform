@@ -204,7 +204,9 @@ class Scenario:
         calc_distance_to_border: bool = False,
         size_above: float = 0,
     ) -> list[GetProjectilesInRangeRes]:
-        subject_is_enemy = isinstance(subject, Enemy)
+        subject_is_enemy = isinstance(subject, Enemy) or (
+            isinstance(subject, Projectile) and subject.is_enemy
+        )
         center = subject.center if subject else self.player.center
         possible_victims = [
             GetProjectilesInRangeRes(proj, distance)
@@ -219,7 +221,7 @@ class Scenario:
                 ],
                 key=lambda v: (-v[0].size, v[1]),
             )
-            if distance < max_range and proj.size > size_above
+            if distance < max_range and proj is not subject and proj.size > size_above
             # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims

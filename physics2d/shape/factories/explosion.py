@@ -415,7 +415,7 @@ def _rocket_explosion(
     # _VELOCITY = (-0.1 * rocket.velocity).as_vector().unit_vector()
     _VELOCITY = VectorF(0, 0)
 
-    particles: list[CircularParticle] = []
+    explosions: list[CircularParticle] = []
 
     eye_x = rocket.center.x - rocket.velocity.x
     eye_y = rocket.center.y - rocket.velocity.y
@@ -449,8 +449,8 @@ def _rocket_explosion(
         life_time=25,
         gravity=-0.075,
     )
-    particles.append(core_explosion_1)
-    particles.append(core_explosion_2)
+    explosions.append(core_explosion_1)
+    explosions.append(core_explosion_2)
 
     _main_explosion_color = main_color or (
         RGB(
@@ -480,7 +480,7 @@ def _rocket_explosion(
         engine=engine,
         gravity=-0.07,
     )
-    particles.append(main_explosion)
+    explosions.append(main_explosion)
 
     secondary_explosions: list[CircularParticle] = []
     _sec_size = _SIZE**0.5
@@ -558,9 +558,9 @@ def _rocket_explosion(
                     gravity=0.1,
                 )
             )
-            particles.append(sparks)
+            explosions.append(sparks)
 
-    engine.scenario.bg_shapes[0:0] = particles
+    engine.scenario.fg_shapes[0:0] = explosions
 
     # Render shock wave and calc blast damage
     # TODO: I don't like the particle generator taking care of damage (same with Lightning).
@@ -599,6 +599,15 @@ def _rocket_explosion(
             + ((res.enemy.center - rocket.center).as_vector().unit_vector(vector_magnitude))
         ).as_vector()
         res.enemy.receive_damage(damage)
+
+    # TODO: check why this causes a recursion error
+    # projectiles_in_blast_radius = engine.scenario.get_projectiles_in_range(
+    #     _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
+    # )
+    # for res in projectiles_in_blast_radius:
+    #     if res.projectile is rocket or res.projectile.exploded:
+    #         return
+    #     res.projectile.hit()
 
 
 #################################

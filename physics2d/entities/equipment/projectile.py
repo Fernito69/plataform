@@ -167,6 +167,9 @@ class Projectile(CircularParticle):
                     return self.hit()
 
     def hit(self) -> None:
+        if self.exploded:
+            return
+
         self._explosion_generator(self._engine, self)
         self.exploded = True
 
