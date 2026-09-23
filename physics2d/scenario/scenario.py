@@ -204,10 +204,11 @@ class Scenario:
     def get_projectiles_in_range(
         self,
         max_range: float,
-        subject: "Projectile",
+        subject: "PhysicsEntity",
         calc_distance_to_border: bool = False,
         size_above: float = 0,
     ) -> list[GetProjectilesInRangeRes]:
+        subject_is_enemy = isinstance(subject, Enemy)
         center = subject.center if subject else self.player.center
         possible_victims = [
             GetProjectilesInRangeRes(proj, distance)
@@ -218,7 +219,7 @@ class Scenario:
                         e,
                         abs((center) - (e.center)) - (e.radius if calc_distance_to_border else 0),
                     )
-                    for e in (self.projectiles if subject.is_enemy else self.enemy_projectiles)
+                    for e in (self.projectiles if subject_is_enemy else self.enemy_projectiles)
                 ],
                 key=lambda v: v[1],
             )

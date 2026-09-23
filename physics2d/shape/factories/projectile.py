@@ -33,6 +33,7 @@ def get_lightning_bolts(
     life_time: int = 4,
     num_segments: int = 12,
     render_on_top: bool = True,
+    target_projectiles: bool = True,
 ) -> "ParticleGenerator":
     def _lightning(engine: "Physics2D", source: "PhysicsEntity") -> None:
         if is_out_of_sight(engine, source):
@@ -50,6 +51,7 @@ def get_lightning_bolts(
             life_time=life_time,
             num_segments=num_segments,
             render_on_top=render_on_top,
+            target_projectiles=target_projectiles,
         )
 
     return _lightning
@@ -67,9 +69,10 @@ def _lightning_bolts(
     life_time: int = 4,
     num_segments: int = 12,
     render_on_top: bool = True,
+    target_projectiles: bool = True,
 ) -> None:
     pieces: list[Line] = []
-    possible_victims: list["Enemy"] = []
+    possible_victims: list["Enemy | Projectile"] = []
 
     if damage:
         possible_victims = [
@@ -80,6 +83,15 @@ def _lightning_bolts(
                 calc_distance_to_border=True,
             )
         ]
+        if target_projectiles:
+            possible_victims += [
+                r.projectile
+                for r in engine.scenario.get_projectiles_in_range(
+                    max_range=damage_range,
+                    subject=source,
+                    calc_distance_to_border=True,
+                )
+            ]
 
     # Otherwise too messy!
     num_tendrils = min(num_tendrils, len(possible_victims) or 1) if damage else num_tendrils
@@ -108,8 +120,15 @@ def _lightning_bolts(
         pieces.append(l1)
 
         if damage and len(possible_victims) > index:
+            from physics2d.entities.enemy import Enemy
+
             # TODO: is it right that the particle gen takes care of this?
-            possible_victims[index].receive_damage(damage)
+            victim = possible_victims[index]
+            if isinstance(victim, Enemy):
+                victim.receive_damage(damage)
+            else:
+                victim.hit()
+
             lightning_impact(
                 engine,
                 possible_victims[index],

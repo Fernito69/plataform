@@ -103,15 +103,7 @@ class Projectile(CircularParticle):
 
         if self.target:
             if (isinstance(self.target, Enemy) and self.target.health <= 0) or (
-                isinstance(self.target, Projectile)
-                # and self.exploded  # TODO: why does this self.exploded check not work with bullets?
-                and not any(
-                    prj
-                    for prj in self._engine.scenario.projectiles
-                    + self._engine.scenario.enemy_projectiles
-                    if prj is self
-                )
-                # TODO: ^ this check doesn't work either!
+                isinstance(self.target, Projectile) and self.target.exploded
             ):
                 self.target = None
                 return
@@ -138,8 +130,8 @@ class Projectile(CircularParticle):
 
             if not self.target and self.homing_targets_projectiles:
                 projectiles_nearby = self._engine.scenario.get_projectiles_in_range(
-                    self.target_acquire_threshold,
-                    self,
+                    max_range=self.target_acquire_threshold,
+                    subject=self,
                     calc_distance_to_border=True,
                     # TODO: this doesn't work!
                     size_above=self.target_projectiles_above_size,
@@ -175,6 +167,7 @@ class Projectile(CircularParticle):
 
     def hit(self) -> None:
         self._explosion_generator(self._engine, self)
+        self.exploded = True
 
         if not self.is_enemy:
             self._engine.scenario.projectiles = [
@@ -184,5 +177,3 @@ class Projectile(CircularParticle):
             self._engine.scenario.enemy_projectiles = [
                 p for p in self._engine.scenario.enemy_projectiles if p is not self
             ]
-
-        self.exploded = True
