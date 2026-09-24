@@ -139,7 +139,7 @@ class CircularParticle(Particle, PhysicsEntity):
         if self.source:
             self.position = self.source.position
             self.center = self.position
-            self.update_center_of_mass()
+            self._update_center_of_mass()
             return
 
         PhysicsEntity._apply_movement(self)

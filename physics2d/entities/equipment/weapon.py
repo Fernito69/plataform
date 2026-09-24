@@ -52,10 +52,7 @@ class Weapon:
         self._recoil = recoil
 
     def fire(self) -> None:
-        if not self.can_shoot() or (
-            self._engine.scenario.player.get_last_known_direction().x == 0
-            and self._engine.scenario.player.get_last_known_direction().y == 0
-        ):
+        if not self.can_shoot():
             return
 
         self._fire_particle_generator(self._engine, self._engine.scenario.player)

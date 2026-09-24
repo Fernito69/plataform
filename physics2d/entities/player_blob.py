@@ -6,6 +6,7 @@ from model.base import PointF, VectorF
 from model.keyboard import ActionKeys, CheatKeys, MovementKeys
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
+from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.entities.equipment.thrusters.basic_thruster import BasicThruster
 from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruster
@@ -118,8 +119,14 @@ class PlayerBlob(PhysicsEntity, Player):
     def _apply_collisions(self) -> None:
         # only solid pieces can interact with the player
         # TODO: we should filter by those that are visible on ecreen
-        for piece in self._engine.scenario.solid_shapes + self._engine.scenario.enemies:
+        for piece in self._engine.scenario.solid_shapes:
             self.would_collide_with(piece)
+
+        for enemy in self._engine.scenario.enemies:
+            self.would_collide_with(enemy)
+            for e in enemy.extra_shapes:
+                if isinstance(e, Enemy):
+                    self.would_collide_with(e)
 
     def _apply_movement(self) -> None:
         self._move_by(self.velocity)

@@ -50,7 +50,7 @@ class Circunference(Shape):
     ):
         self.center = center
         self.radius = radius
-        self.update_center_of_mass()
+        self._update_center_of_mass()
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
@@ -93,6 +93,9 @@ class Circunference(Shape):
         if self.would_collide_with(self._engine.scenario.player):
             ...
 
+    def _move_by(self, vector: VectorF) -> None:
+        self.center += vector
+
     def _apply_movement(self) -> None:
         self._apply_gravity()
         self._float_around()
@@ -103,10 +106,10 @@ class Circunference(Shape):
 
         self._move_by(self.velocity)
 
-        self.update_center_of_mass()
+        self._update_center_of_mass()
         self._apply_friction()
 
-    def update_center_of_mass(self) -> None:
+    def _update_center_of_mass(self) -> None:
         self.center_of_mass = self.center
 
     def get_circunference_equations(self) -> GetCircunferenceEquationResponse:

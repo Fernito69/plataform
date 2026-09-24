@@ -54,7 +54,7 @@ class Line(Shape):
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
 
-        self.update_center_of_mass()
+        self._update_center_of_mass()
         super().__init__(
             engine=engine,
             theme=theme,
@@ -71,7 +71,7 @@ class Line(Shape):
             density=density,
         )
 
-    def update_center_of_mass(self) -> None:
+    def _update_center_of_mass(self) -> None:
         self.center_of_mass = PointF(
             (self.points[0].x + self.points[1].x) / 2,
             (self.points[0].y + self.points[1].y) / 2,
@@ -233,4 +233,4 @@ class Line(Shape):
             (self.points[0] + self.velocity),
             (self.points[1] + self.velocity),
         )
-        self.update_center_of_mass()
+        self._update_center_of_mass()

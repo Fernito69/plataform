@@ -5,6 +5,7 @@ from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemies.shooting_enemies.machinegun_enemy import MachineGunEnemy
 from physics2d.entities.enemies.shooting_enemies.rocket_enemy import RocketEnemy
+from physics2d.entities.enemies.shooting_enemies.super_rocket_enemy import SuperRocketEnemy
 from physics2d.entities.enemy import Enemy
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
@@ -15,40 +16,40 @@ if TYPE_CHECKING:
 
 def first_level(engine: "Physics2D") -> Scenario:
     enemies: list[Enemy] = [
-        MachineGunEnemy(
-            size=10,
-            health=100,
-            position=PointF(50, 50),
-            theme=Theme(color=RGB(255, 0, 0)),
-            engine=engine,
-        ),
-        MachineGunEnemy(
-            size=10,
-            health=100,
-            position=PointF(150, 150),
-            theme=Theme(color=RGB(255, 250, 0)),
-            engine=engine,
-        ),
-        MachineGunEnemy(
-            size=10,
-            health=100,
-            position=PointF(150, 200),
-            theme=Theme(color=RGB(255, 0, 255)),
-            engine=engine,
-        ),
-        MachineGunEnemy(
-            size=30,
-            health=1000,
-            position=PointF(300, 300),
-            theme=Theme(color=RGB(0,255,90)),
-            engine=engine,
-            aggressivity=0.1,
-            max_velocity=1,
-        ),
-        RocketEnemy(
+        # MachineGunEnemy(
+        #     size=10,
+        #     health=100,
+        #     position=PointF(50, 50),
+        #     theme=Theme(color=RGB(255, 0, 0)),
+        #     engine=engine,
+        # ),
+        # MachineGunEnemy(
+        #     size=10,
+        #     health=100,
+        #     position=PointF(150, 150),
+        #     theme=Theme(color=RGB(255, 250, 0)),
+        #     engine=engine,
+        # ),
+        # MachineGunEnemy(
+        #     size=10,
+        #     health=100,
+        #     position=PointF(150, 200),
+        #     theme=Theme(color=RGB(255, 0, 255)),
+        #     engine=engine,
+        # ),
+        # MachineGunEnemy(
+        #     size=30,
+        #     health=1000,
+        #     position=PointF(300, 300),
+        #     theme=Theme(color=RGB(0,255,90)),
+        #     engine=engine,
+        #     aggressivity=0.1,
+        #     max_velocity=1,
+        # ),
+        SuperRocketEnemy(
             size=15,
-            health=200,
-            position=PointF(200, 200),
+            health=1000,
+            position=PointF(50, 50),
             theme=Theme(color=RGB(120, 120, 120)),
             engine=engine,
         ),

@@ -124,7 +124,7 @@ class Lightning(Particle, Line):
         for idx, _ in enumerate(self.segments):
             self.segments[idx]._apply_movement()
 
-        self.update_center_of_mass()
+        self._update_center_of_mass()
 
     # TODO: create recursive random branching
     def _gen_lightning(self) -> None:

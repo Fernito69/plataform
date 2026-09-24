@@ -5,21 +5,22 @@ from model.base import PointF
 from model.theme import Theme
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.model.shared import ParticleGenerator
-from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-class ShootingEnemy(Enemy):
-    _projectile_generator: ParticleGenerator
+class StalkingEnemy(Enemy):
+    """Always tries to keep the same distance from the player"""
+
+    _projectile_generator: ParticleGenerator | None
     _max_velocity: float
     _min_distance_from_player: float
     _min_distance_from_other_enemies: float
 
     def __init__(
         self,
-        projectile_generator: ParticleGenerator,
+        projectile_generator: ParticleGenerator | None,
         engine: "Physics2D",
         size: float,
         health: float,
@@ -85,11 +86,6 @@ class ShootingEnemy(Enemy):
 
         # enemy AI
         self._approach_player()
-        self._attack_player()
-
-    def _attack_player(self) -> None:
-        if 0.5 - self._aggressivity < random_offset():
-            self._projectile_generator(self._engine, self)
 
     def _approach_player(self) -> None:
         player = self._engine.player

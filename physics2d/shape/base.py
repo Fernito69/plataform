@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
@@ -78,17 +79,9 @@ class Shape:
         self.render_behind_player = render_behind_player
         self._engine = engine
 
-    def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
-        if not self._affected_by_gravity and not self._own_gravity_accel:
-            return
-        self.velocity = VectorF(
-            self.velocity.x,
-            self.velocity.y - (self._own_gravity_accel or gravity_accel),
-        )
-
     def set_last_known_direction(self) -> None:
         # HACK, let's see if helps
-        if abs(self.velocity.x) < 0.1 and abs(self.velocity.y) < 0.1:
+        if abs(self.velocity.x) < ALMOST_ZERO and abs(self.velocity.y) < ALMOST_ZERO:
             return
         self._last_known_direction = self.velocity.unit_vector()
 
@@ -97,41 +90,50 @@ class Shape:
         return (scale * raw).as_vector() if scale != 1 else raw
 
     @abstractmethod
+    def do_your_thing(self) -> None:
+        ...
+        # Each entity should do its thing
+        # raise NotImplementedError(f"{self.name or 'Shape'} must have a do_your_thing method")
+
+    @abstractmethod
+    def would_collide_with(self, shape: "Shape") -> bool:
+        """Determines whether the current shape would collide with a particular shape, given their location"""
+
+        # Each shape should do its thing
+        raise NotImplementedError(f"Shape must have a would_collide_with method")
+
+    @abstractmethod
     def get_render_info(cls) -> list[RenderInfo]:
         # Each shape should do its thing
         raise NotImplementedError(f"Shape must have a get_render_info method")
 
-    @abstractmethod
-    def _apply_collisions(self) -> None: ...
-
-    @abstractmethod
-    def would_collide_with(self, shape: "Shape") -> bool:
-        """Determines wheter the current shape would collide with a particular shape, given their location"""
-
-        # Each shape should do its thing
-        raise NotImplementedError(f"Shape must have a would_collide method")
-
-    @abstractmethod
-    def apply_angular_momentum(self, momentum: VectorF) -> None:
-        # TODO: implement
-        pass
-
-    @abstractmethod
-    def update_center_of_mass(cls) -> None:
-        # Each entity should do its thing
-        raise NotImplementedError(
-            f"{cls.name or 'UnknownPiece'} must have a calc_center_of_mass method"
+    def _apply_gravity(self, gravity_accel: float = DEFAULT_GRAVITY_ACCELERATION) -> None:
+        if not self._affected_by_gravity and not self._own_gravity_accel:
+            return
+        self.velocity = VectorF(
+            self.velocity.x,
+            self.velocity.y - (self._own_gravity_accel or gravity_accel),
         )
+
+    @abstractmethod
+    def _apply_collisions(self) -> None:
+        # Each shape should do its thing
+        raise NotImplementedError(f"Shape must have an _apply_collisions method")
+
+    @abstractmethod
+    def _update_center_of_mass(cls) -> None:
+        # Each entity should do its thing
+        raise NotImplementedError(f"{cls.name or 'Shape'} must have a _calc_center_of_mass method")
 
     @abstractmethod
     def _rotate(cls) -> None:
         # Each entity should do its thing
-        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a rotate method")
+        raise NotImplementedError(f"{cls.name or 'Shape'} must have a _rotate method")
 
     @abstractmethod
     def _get_color(cls, x: int | None = None, y: int | None = None) -> RGB:
         # Each entity should do its thing
-        raise NotImplementedError(f"{cls.name or 'UnknownPiece'} must have a _get_color method")
+        raise NotImplementedError(f"{cls.name or 'Shape'} must have a _get_color method")
 
     def _float_around(self) -> None:
         if self.floating_multi == 0:
@@ -145,15 +147,14 @@ class Shape:
     @abstractmethod
     def _apply_movement(cls) -> None:
         # Each entity should do its thing
-        raise NotImplementedError(
-            f"{cls.name or 'UnknownPiece'} must have an apply_movement method"
-        )
+        raise NotImplementedError(f"{cls.name or 'Shape'} must have an _apply_movement method")
 
     @abstractmethod
-    def _move_by(self, vector: VectorF) -> None: ...
+    def _move_by(self, vector: VectorF) -> None:
+        # Each entity should do its thing
+        raise NotImplementedError(f"{self.name or 'Shape'} must have a _move_by method")
 
     @abstractmethod
-    def do_your_thing(self) -> None:
+    def _apply_angular_momentum(self, momentum: VectorF) -> None:
+        # TODO: implement
         ...
-        # self._apply_gravity(self._engine.scenario.gravity_acceleration)
-        # self._apply_movement()

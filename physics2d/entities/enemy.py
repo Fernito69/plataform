@@ -6,7 +6,6 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
-from physics2d.shape.base import Shape
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
@@ -18,9 +17,9 @@ if TYPE_CHECKING:
 
 class Enemy(PhysicsEntity):
     _engine: "Physics2D"
-    health: float
+    health: float | None
 
-    _initial_health: float
+    _initial_health: float | None
     _initial_theme: Theme
 
     _projectile_generator: ParticleGenerator | None
@@ -33,7 +32,7 @@ class Enemy(PhysicsEntity):
         self,
         engine: "Physics2D",
         size: float,
-        health: float,
+        health: float | None,
         density: float = 1,
         name: str = "Enemy",
         position: PointF = PointF(0, 0),
@@ -45,8 +44,9 @@ class Enemy(PhysicsEntity):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
-        extra_shapes: list[Shape] = [],
+        extra_shapes: list[PhysicsEntity] = [],
         projectile_generator: ParticleGenerator | None = None,
+        particle_generator: ParticleGenerator | None = None,
         precision: float = 0,
         aggressivity: float = 0,
     ):
@@ -66,6 +66,7 @@ class Enemy(PhysicsEntity):
             is_collideable=True,
             extra_shapes=extra_shapes,
             engine=engine,
+            particle_generator=particle_generator,
         )
         self._engine = engine
         self.health = health
@@ -76,8 +77,12 @@ class Enemy(PhysicsEntity):
         self._projectile_generator = projectile_generator
         self._precision = precision
         self._aggressivity = aggressivity
+        self._last_known_direction = initial_velocity
 
     def receive_damage(self, amount: float) -> None:
+        if self.health is None:
+            return
+
         self.health -= amount
 
         if not self._initial_theme.color:
@@ -100,11 +105,25 @@ class Enemy(PhysicsEntity):
         self.theme.color = _new_color
 
     def get_health_ratio(self) -> float:
-        return self.health / self._initial_health
+        return (
+            (self.health / self._initial_health)
+            if self.health is not None and self._initial_health is not None
+            else 1
+        )
 
     def die(self, _death_explosion_size: int | None = None) -> None:
-        enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
+        self._explode(_death_explosion_size)
+
+        # kill "satellites"
+        for satellites in self.extra_shapes:
+            if not isinstance(satellites, Enemy):
+                return
+            satellites.die()
+
         self._engine.scenario.enemies = [e for e in self._engine.scenario.enemies if e is not self]
+
+    def _explode(self, _death_explosion_size: int | None = None) -> None:
+        enemy_explosion(self._engine, self, _death_explosion_size or self.radius * 2)
 
     def get_aiming_direction(self) -> VectorF:
         direction = (self._engine.player.position - self.position).as_vector().unit_vector()
@@ -113,14 +132,33 @@ class Enemy(PhysicsEntity):
             + VectorF.random_offset_vector(0, self._precision).rotate(direction.get_angle())
         ).as_vector()
 
+    def _apply_collisions(self) -> None:
+        ...
+        # TODO: figure this out
+        # _pushback_factor = 1
+
+        # if self.would_collide_with(self._engine.player):
+        #     self.velocity = (_pushback_factor * self.velocity).as_vector()
+
+        # for enemy in self._engine.scenario.enemies:
+        #     if self.would_collide_with(enemy):
+        #         self.velocity = (_pushback_factor * self.velocity).as_vector()
+        #         enemy.velocity = (enemy.velocity + _pushback_factor * self.velocity).as_vector()
+
     def do_your_thing(self) -> None:
         self._apply_movement()
         self._apply_gravity()
         self._handle_current_damage()
+        self._attack_player()
+        self._generate_particles()
 
-        if self.health <= 0:
+        if self.health is not None and self.health <= 0:
             # die :(
             self.die()
+
+    def _attack_player(self) -> None:
+        if self._projectile_generator and 0.5 - self._aggressivity < random_offset():
+            self._projectile_generator(self._engine, self)
 
     def _handle_current_damage(self) -> None:
         _factor = self.get_health_ratio()

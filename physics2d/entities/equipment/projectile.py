@@ -96,10 +96,13 @@ class Projectile(CircularParticle):
     def _apply_movement(self) -> None:
         from physics2d.entities.enemy import Enemy
 
+        # Homing logic
         if self.target:
-            if (isinstance(self.target, Enemy) and self.target.health <= 0) or (
-                isinstance(self.target, Projectile) and self.target.exploded
-            ):
+            if (
+                isinstance(self.target, Enemy)
+                and self.target.health is not None
+                and self.target.health <= 0
+            ) or (isinstance(self.target, Projectile) and self.target.exploded):
                 self.target = None
                 return
             to_target = (
@@ -160,6 +163,13 @@ class Projectile(CircularParticle):
                 if self.would_collide_with(enemy):
                     enemy.receive_damage(self.damage)
                     return self.hit()
+                for e in enemy.extra_shapes:
+                    from physics2d.entities.enemy import Enemy
+
+                    if isinstance(e, Enemy):
+                        if self.would_collide_with(e):
+                            e.receive_damage(self.damage)
+                            return self.hit()
 
             for proj in self._engine.scenario.enemy_projectiles:
                 if self.would_collide_with(proj):

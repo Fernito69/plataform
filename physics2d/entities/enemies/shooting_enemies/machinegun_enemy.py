@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from model.theme import RGB, Theme
-from physics2d.entities.enemies.shooting_enemy import ShootingEnemy
+from physics2d.entities.enemies.stalking_enemy import StalkingEnemy
 from physics2d.shape.factories.projectile import get_bullet
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ _BULLET_COLOR = RGB(255, 150, 150)
 _BULLET_SPEED = 6
 
 
-class MachineGunEnemy(ShootingEnemy):
+class MachineGunEnemy(StalkingEnemy):
     def __init__(
         self,
         engine: "Physics2D",
