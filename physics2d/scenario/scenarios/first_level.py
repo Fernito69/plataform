@@ -3,10 +3,13 @@ from typing import TYPE_CHECKING
 from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
-from physics2d.entities.enemies.shooting_enemies.machinegun_enemy import MachineGunEnemy
-from physics2d.entities.enemies.shooting_enemies.rocket_enemy import RocketEnemy
-from physics2d.entities.enemies.shooting_enemies.super_rocket_enemy import SuperRocketEnemy
+from physics2d.entities.enemies.stalking_enemies.machinegun_enemy import MachineGunEnemy
+from physics2d.entities.enemies.stalking_enemies.rocket_enemy import RocketEnemy
+from physics2d.entities.enemies.stalking_enemies.super_rocket_enemy import SuperRocketEnemy
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.model.spawner import Spawn
+from physics2d.entities.spawner import Spawner
+from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -57,7 +60,20 @@ def first_level(engine: "Physics2D") -> Scenario:
 
     fg_pieces: list[Shape] = []
 
-    solid_pieces: list[Shape] = []
+    solid_pieces: list[Shape] = [
+        Spawner(
+            engine=engine,
+            size=10,
+            spawn_interval=100,
+            total_num_spawns=5,
+            position=PointF(75, 75),
+            enemy_spawn=Spawn(
+                spawn_interval=500,
+                entity_factory=super_rocket_enemy_spawner,
+                total_num_spawns=5,
+            ),
+        )
+    ]
 
     bg_pieces: list[Shape] = []
 
