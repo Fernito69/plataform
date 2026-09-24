@@ -3,14 +3,16 @@ from typing import TYPE_CHECKING
 
 from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import White
-from model.base import PointF, VectorF
+from model.base import PointF, Slope, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from utils import (
     GetLineEquationResponse,
     distance_from_line_to_point,
+    get_angle_from_slope,
     get_line_equations,
+    get_slope,
 )
 
 if TYPE_CHECKING:
@@ -118,9 +120,7 @@ class Line(Shape):
             )
 
             for y in y_range:
-                distance = distance_from_line_to_point(
-                    self.points, PointF(x + HALF_PIXEL, y + HALF_PIXEL)
-                ).distance
+                distance = self.get_distance_to_point(PointF(x + HALF_PIXEL, y + HALF_PIXEL))
 
                 if distance > self.thickness:
                     continue
@@ -134,6 +134,9 @@ class Line(Shape):
                 )
 
         return piece_info
+
+    def get_distance_to_point(self, point: PointF) -> float:
+        return distance_from_line_to_point(self.points, point).distance
 
     def _rotate(self) -> None:
         new_angle = 0
@@ -153,6 +156,12 @@ class Line(Shape):
             self.points[1].rotate(new_angle, self.center_of_mass),
         )
         self.angle = new_angle
+
+    def get_slope(self) -> Slope:
+        return get_slope(*self.points)
+
+    def get_angle(self) -> float:
+        return get_angle_from_slope(self.get_slope())
 
     def is_in_hitbox_area(self, point: PointF, offset: float = 0) -> bool:
         p1, p2 = self.points

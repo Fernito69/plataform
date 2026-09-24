@@ -6,6 +6,50 @@ from typing import Literal
 EMPTY_SPACE = " "
 UPPER_PIXEL_CHAR = "▀"
 LOWER_PIXEL_CHAR = "▄"
+
+"""
+TODO: we have all these options, maybe we can improve the renderer in the future
+   ▘ ▝ ▀
+ ▖ ▌ ▞ ▛
+ ▗ ▚ ▐ ▜
+ ▄ ▙ ▟ █
+ 
+ | Character | Code point | Filled area              |
+| :-------: | ---------- | ------------------------ |
+|    `▀`    | U+2580     | Upper half               |
+|    `▁`    | U+2581     | Lower ⅛                  |
+|    `▂`    | U+2582     | Lower ¼                  |
+|    `▃`    | U+2583     | Lower ⅜                  |
+|    `▄`    | U+2584     | Lower half               |
+|    `▅`    | U+2585     | Lower ⅝                  |
+|    `▆`    | U+2586     | Lower ¾                  |
+|    `▇`    | U+2587     | Lower ⅞                  |
+|    `█`    | U+2588     | Full block               |
+|    `▉`    | U+2589     | Left ⅞                   |
+|    `▊`    | U+258A     | Left ¾                   |
+|    `▋`    | U+258B     | Left ⅝                   |
+|    `▌`    | U+258C     | Left half                |
+|    `▍`    | U+258D     | Left ⅜                   |
+|    `▎`    | U+258E     | Left ¼                   |
+|    `▏`    | U+258F     | Left ⅛                   |
+|    `▐`    | U+2590     | Right half               |
+|    `░`    | U+2591     | Light shading            |
+|    `▒`    | U+2592     | Medium shading           |
+|    `▓`    | U+2593     | Dark shading             |
+|    `▔`    | U+2594     | Upper ⅛                  |
+|    `▕`    | U+2595     | Right ⅛                  |
+|    `▖`    | U+2596     | Lower-left quadrant      |
+|    `▗`    | U+2597     | Lower-right quadrant     |
+|    `▘`    | U+2598     | Upper-left quadrant      |
+|    `▙`    | U+2599     | All except upper-right   |
+|    `▚`    | U+259A     | Upper-left + lower-right |
+|    `▛`    | U+259B     | All except lower-right   |
+|    `▜`    | U+259C     | All except lower-left    |
+|    `▝`    | U+259D     | Upper-right quadrant     |
+|    `▞`    | U+259E     | Upper-right + lower-left |
+|    `▟`    | U+259F     | All except upper-left    |
+
+"""
 BR = "\n"
 
 

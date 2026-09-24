@@ -98,8 +98,7 @@ def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
 ##################################
 
 
-# Instead of diameter, pass an Entity3D and call an internal get diameter function
-# I think distance_to_border doesn't work because the size is not the diameter in the current way we are creating the entities
+# Deprecate in favor of abs(VectorF)
 def distance_between_points(
     p1: PointF,
     p2: PointF,
@@ -223,7 +222,6 @@ def get_angle_from_slope(slope: Slope) -> float:
     )
 
 
-# TODO: build-in in Line
 def get_line_angle(point1: PointF, point2: PointF) -> float:
     return get_angle_from_slope(get_slope(point1, point2))
 

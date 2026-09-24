@@ -9,7 +9,6 @@ from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
 from utils import (
-    distance_from_line_to_point,
     get_angle_from_slope,
     get_line_angle,
     get_perpendicular_slope,
@@ -201,7 +200,7 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Line):
                 if (
                     colliding_shape.is_in_hitbox_area(self.center, self.radius)
-                    and distance_from_line_to_point(colliding_shape.points, self.center).distance
+                    and colliding_shape.get_distance_to_point(self.center)
                     < self.radius + colliding_shape.thickness
                 ):
                     # TODO!!!!! Should be minus/plus double the difference between the normal and itself
