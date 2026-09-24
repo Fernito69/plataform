@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import TYPE_CHECKING
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.model.shared import ParticleGenerator
@@ -32,6 +32,7 @@ class StalkingEnemy(Enemy):
         max_velocity: float = 4,
         min_distance_from_player: float = 60,
         min_distance_from_other_enemies: float = 20,
+        stretch_vector: VectorF = VectorF(1, 1),
     ):
         super().__init__(
             health=health,
@@ -43,6 +44,7 @@ class StalkingEnemy(Enemy):
             projectile_generator=projectile_generator,
             precision=precision,
             aggressivity=aggressivity,
+            stretch_vector=stretch_vector,
         )
         self._last_known_direction = self.velocity
         self._max_velocity = max_velocity

@@ -32,6 +32,8 @@ class Circunference(Shape):
     center: PointF
     radius: float
 
+    stretch_vector: VectorF
+
     def __init__(
         self,
         center: PointF,
@@ -47,6 +49,7 @@ class Circunference(Shape):
         floating_multi: float = 0,
         density: float = 1,
         is_collideable: bool = False,
+        stretch_vector: VectorF = VectorF(1, 1),
     ):
         self.center = center
         self.radius = radius
@@ -54,6 +57,7 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
+        self.stretch_vector = stretch_vector
 
         super().__init__(
             theme=theme,
@@ -113,18 +117,20 @@ class Circunference(Shape):
         self.center_of_mass = self.center
 
     def get_circunference_equations(self) -> GetCircunferenceEquationResponse:
+        x_factor, y_factor, _ = self.stretch_vector
+
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
             root_arg = self.radius**2 - (x - self.center.x) ** 2
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5
+            root = root_arg**0.5 * y_factor
             return (self.center.y - root, self.center.y + root)
 
         def get_xs(y: float) -> tuple[float, float] | tuple[None, None]:
             root_arg = self.radius**2 - (y - self.center.y) ** 2
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5
+            root = root_arg**0.5 * x_factor
             return (self.center.x - root, self.center.x + root)
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
@@ -161,6 +167,8 @@ class Circunference(Shape):
             # CASE: Ball x Ball
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
+                # TODO: this changes for ellipses, i.e., where self.stretch_vector is not (1,1)
+                # For now we don't handle it
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
                     # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                     # TODO: Fix the logic of this energy transfer
@@ -254,8 +262,8 @@ class Circunference(Shape):
 
         min_x, max_x = sorted(
             (
-                self.center.x + self.radius,
-                self.center.x - self.radius,
+                self.center.x + (self.radius * self.stretch_vector.x),
+                self.center.x - (self.radius * self.stretch_vector.x),
             )
         )
 
@@ -345,8 +353,8 @@ class Circunference(Shape):
 
         min_x, max_x = sorted(
             (
-                self.center.x + self.radius,
-                self.center.x - self.radius,
+                self.center.x + (self.radius * self.stretch_vector.x),
+                self.center.x - (self.radius * self.stretch_vector.x),
             )
         )
 

@@ -49,6 +49,7 @@ class Enemy(PhysicsEntity):
         particle_generator: ParticleGenerator | None = None,
         precision: float = 0,
         aggressivity: float = 0,
+        stretch_vector: VectorF = VectorF(1, 1),
     ):
         super().__init__(
             density=density,
@@ -67,6 +68,7 @@ class Enemy(PhysicsEntity):
             extra_shapes=extra_shapes,
             engine=engine,
             particle_generator=particle_generator,
+            stretch_vector=stretch_vector,
         )
         self._engine = engine
         self.health = health

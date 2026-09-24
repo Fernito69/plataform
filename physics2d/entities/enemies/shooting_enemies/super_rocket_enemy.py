@@ -49,6 +49,7 @@ class SuperRocketEnemy(StalkingEnemy):
         precision: float = _PRECISSION,
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
+        stretch_vector: VectorF = VectorF(1, 1),
     ):
         super().__init__(
             health=health,
@@ -63,6 +64,7 @@ class SuperRocketEnemy(StalkingEnemy):
             precision=precision,
             aggressivity=aggressivity,
             projectile_generator=None,
+            stretch_vector=stretch_vector,
         )
         self._last_known_direction = self.velocity
 
@@ -75,11 +77,11 @@ class SuperRocketEnemy(StalkingEnemy):
             max_blast_damage=max_blast_damage,
             size=_SIZE,
         )
-        self._particle_generator = main_thruster
+        # self._particle_generator = main_thruster
 
         satellites: list[Enemy | PhysicsEntity] = [
             Enemy(
-                projectile_generator=_rocket_launcher,
+                # projectile_generator=_rocket_launcher,
                 engine=engine,
                 position=PointF(
                     position.x + size + _ROCKET_LAUNCHER_SATELLITE_RADIUS,
@@ -91,7 +93,8 @@ class SuperRocketEnemy(StalkingEnemy):
                 health=None,
                 precision=precision,
                 aggressivity=aggressivity,
-                particle_generator=satellite_thrusters,
+                # particle_generator=satellite_thrusters,
+                particle_generator=None,
             )
             for num in range(_NUM_SATELLITES)
         ]

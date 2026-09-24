@@ -41,6 +41,7 @@ class PhysicsEntity(Circunference):
         is_collideable: bool = True,
         extra_shapes: list["PhysicsEntity"] = [],
         particle_generator: ParticleGenerator | None = None,
+        stretch_vector: VectorF = VectorF(1, 1),
     ):
         super().__init__(
             center=position,
@@ -56,6 +57,7 @@ class PhysicsEntity(Circunference):
             initial_velocity=initial_velocity,
             is_collideable=is_collideable,
             engine=engine,
+            stretch_vector=stretch_vector,
         )
         self._engine = engine
         self.position = position

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from factories.theme import Theme
-from model.base import PointF
+from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.enemies.shooting_enemies.machinegun_enemy import MachineGunEnemy
 from physics2d.entities.enemies.shooting_enemies.rocket_enemy import RocketEnemy
@@ -52,6 +52,7 @@ def first_level(engine: "Physics2D") -> Scenario:
             position=PointF(50, 50),
             theme=Theme(color=RGB(120, 120, 120)),
             engine=engine,
+            stretch_vector=VectorF(2, 1),
         ),
     ]
 
