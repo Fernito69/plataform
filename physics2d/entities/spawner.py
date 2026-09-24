@@ -6,16 +6,13 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawn
-from physics2d.shape.factories.explosion import get_rocket_explosion
+from physics2d.shape.factories.explosion import rocket_explosion
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
 class Spawner(PhysicsEntity):
-    _spawn_interval: int
-    _total_num_spawns: int | None
-
     _enemy_spawn: Spawn[Enemy] | None
     # TODO: coming soon!
     _item_spawn: Spawn | None
@@ -65,23 +62,30 @@ class Spawner(PhysicsEntity):
         self._spawn_interval = spawn_interval
 
     def do_your_thing(self) -> None:
-        if self._enemy_spawn:
-            if self._life_time % self._enemy_spawn.spawn_interval == 0 and (
-                not self._enemy_spawn.total_num_spawns
-                or (
-                    self._enemy_spawn.total_num_spawns
-                    and self._enemy_spawn.curr_num_spawns < self._enemy_spawn.total_num_spawns
-                )
+        es = self._enemy_spawn
+
+        if es:
+            if self._life_time % es.spawn_interval == 0 and (
+                not es.total_num_spawns
+                or (es.total_num_spawns and es.curr_num_spawns < es.total_num_spawns)
             ):
                 self._spawn_effect()
-                self._enemy_spawn.entity_factory(self._engine, self)
+                es.curr_num_spawns += 1
+                es.entity_factory(self._engine, self)
+            elif es.total_num_spawns and es.curr_num_spawns >= es.total_num_spawns:
+                self._die()
 
         # TODO: do items
 
         self._life_time += 1
 
+    def _die(self) -> None:
+        self._spawn_effect()
+        # For now we assume it's always in solid_shapes
+        self._engine.scenario.solid_shapes.remove(self)
+
     def _spawn_effect(self) -> None:
-        _size = 15
+        _size = 25
 
         _COLOR = RGB(127, 255, 127, 1)
         _COLOR_2 = RGB(180, 255, 90, 1)
@@ -89,8 +93,11 @@ class Spawner(PhysicsEntity):
         _mini_effect_color = RGB(220, 255, 127, 1)
 
         # TODO: it needs its own effect
-        get_rocket_explosion(
-            damage=0,
+        rocket_explosion(
+            engine=self._engine,
+            # TOOD: fix
+            rocket=self,
+            damage=100,
             blast_radius=_size,
             blast_damage_at_ground_zero=0,
             main_color=_COLOR,
@@ -100,4 +107,4 @@ class Spawner(PhysicsEntity):
             with_smoke=False,
             throw_sparks=True,
             bfg_sparks=True,
-        )(self._engine, self)
+        )

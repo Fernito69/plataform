@@ -34,7 +34,7 @@ def first_level(engine: "Physics2D") -> Scenario:
         #     engine=engine,
         # ),
         # MachineGunEnemy(
-        #     size=10,
+        #     size=10,sawds
         #     health=100,
         #     position=PointF(150, 200),
         #     theme=Theme(color=RGB(255, 0, 255)),
@@ -43,23 +43,23 @@ def first_level(engine: "Physics2D") -> Scenario:
         # MachineGunEnemy(
         #     size=30,
         #     health=1000,
-        #     position=PointF(300, 300),
-        #     theme=Theme(color=RGB(0,255,90)),
+        #     position=PointF(300, 300),dsaw
         #     engine=engine,
         #     aggressivity=0.1,
         #     max_velocity=1,
         # ),
-        SuperRocketEnemy(
-            size=15,
-            health=1000,
-            position=PointF(50, 50),
-            theme=Theme(color=RGB(120, 120, 120)),
-            engine=engine,
-        ),
+        # SuperRocketEnemy(
+        #     size=15,
+        #     health=1000,
+        #     position=PointF(50, 50),
+        #     theme=Theme(color=RGB(120, 120, 120)),
+        #     engine=engine,
+        # ),
     ]
 
     fg_pieces: list[Shape] = []
 
+    # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = [
         Spawner(
             engine=engine,
@@ -68,7 +68,7 @@ def first_level(engine: "Physics2D") -> Scenario:
             total_num_spawns=5,
             position=PointF(75, 75),
             enemy_spawn=Spawn(
-                spawn_interval=500,
+                spawn_interval=200,
                 entity_factory=super_rocket_enemy_spawner,
                 total_num_spawns=5,
             ),

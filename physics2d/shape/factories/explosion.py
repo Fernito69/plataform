@@ -83,7 +83,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     secondary_explosions: list[CircularParticle] = []
     _sec_size = size**0.5
 
-    for _ in range(round(size)):
+    for _ in range(round(size / 3)):
         _sec_explosion_color = (
             RGB(
                 255,
@@ -379,7 +379,7 @@ def get_rocket_explosion(
         if not isinstance(source, Projectile):
             return
 
-        return _rocket_explosion(
+        return rocket_explosion(
             engine=engine,
             rocket=source,
             damage=damage,
@@ -397,7 +397,7 @@ def get_rocket_explosion(
     return _explosion
 
 
-def _rocket_explosion(
+def rocket_explosion(
     engine: "Physics2D",
     rocket: "Projectile",
     damage: float,
@@ -485,7 +485,7 @@ def _rocket_explosion(
     secondary_explosions: list[CircularParticle] = []
     _sec_size = _SIZE**0.5
 
-    for _ in range(round(_SIZE)):
+    for _ in range(round(_SIZE / 3)):
         _sec_explosion_color = little_explosions_color or (
             RGB(
                 255,
@@ -617,6 +617,7 @@ def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity
     if is_out_of_sight(engine, source):
         return
 
+    _LIFE_TIME = 10
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -672,32 +673,32 @@ def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             initial_color=_meteor_color,
             ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
-            life_time=15,
+            life_time=_LIFE_TIME,
             gravity=-0.07,
             floating_multi=0.1,
             particle_generator=_smoke,
         )
         pieces.append(thrust_fire)
 
-    if engine.scenario.now() % 7 == 0:
-        sparks = CircularParticle(
-            origin=PointF(
-                x=eye_x + random_offset() * source.radius * 2,
-                y=eye_y + random_offset() * source.radius * 2,
-            ),
-            initial_velocity=VectorF(0, 0)
-            if vel_magnitude == 0
-            else (
-                VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
-            ).as_vector(),
-            size=0.3,
-            initial_color=RGB(255, 255, 200, 1),  # almost white hot
-            ending_color=RGB(40, 5, 0, 1),  # dark orange
-            life_time=70,
-            gravity=0.1,
-            engine=engine,
-        )
-        pieces.append(sparks)
+    # if engine.scenario.now() % 7 == 0:
+    #     sparks = CircularParticle(
+    #         origin=PointF(
+    #             x=eye_x + random_offset() * source.radius * 2,
+    #             y=eye_y + random_offset() * source.radius * 2,
+    #         ),
+    #         initial_velocity=VectorF(0, 0)
+    #         if vel_magnitude == 0
+    #         else (
+    #             VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
+    #         ).as_vector(),
+    #         size=0.3,
+    #         initial_color=RGB(255, 255, 200, 1),  # almost white hot
+    #         ending_color=RGB(40, 5, 0, 1),  # dark orange
+    #         life_time=70,
+    #         gravity=0.1,
+    #         engine=engine,
+    #     )
+    #     pieces.append(sparks)
 
     pieces = sorted(pieces, key=random_offset)
 
@@ -713,6 +714,7 @@ def homing_missile_trail(
     if is_out_of_sight(engine, source):
         return
 
+    _LIFE_TIME = 10
     pieces: list[CircularParticle] = []
 
     if target:
@@ -774,7 +776,7 @@ def homing_missile_trail(
                 ending_color_fade_type=TransitionType.LINEAR_DECREASE,
                 initial_color=_meteor_color,
                 ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
-                life_time=15,
+                life_time=_LIFE_TIME,
                 gravity=-0.07,
                 engine=engine,
                 floating_multi=0.1,
@@ -782,25 +784,25 @@ def homing_missile_trail(
             )
             pieces.append(thrust_fire)
 
-        if engine.scenario.now() % 7 == 0:
-            sparks = CircularParticle(
-                origin=PointF(
-                    x=eye_x + random_offset() * source.radius * 2,
-                    y=eye_y + random_offset() * source.radius * 2,
-                ),
-                initial_velocity=VectorF(0, 0)
-                if vel_magnitude == 0
-                else (
-                    VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
-                ).as_vector(),
-                size=0.3,
-                initial_color=RGB(255, 255, 200, 1),  # almost white hot
-                ending_color=RGB(40, 5, 0, 1),  # dark orange
-                life_time=70,
-                gravity=0.1,
-                engine=engine,
-            )
-            pieces.append(sparks)
+        # if engine.scenario.now() % 7 == 0:
+        #     sparks = CircularParticle(
+        #         origin=PointF(
+        #             x=eye_x + random_offset() * source.radius * 2,
+        #             y=eye_y + random_offset() * source.radius * 2,
+        #         ),
+        #         initial_velocity=VectorF(0, 0)
+        #         if vel_magnitude == 0
+        #         else (
+        #             VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -source.velocity
+        #         ).as_vector(),
+        #         size=0.3,
+        #         initial_color=RGB(255, 255, 200, 1),  # almost white hot
+        #         ending_color=RGB(40, 5, 0, 1),  # dark orange
+        #         life_time=70,
+        #         gravity=0.1,
+        #         engine=engine,
+        #     )
+        #     pieces.append(sparks)
 
         pieces = sorted(pieces, key=random_offset)
 

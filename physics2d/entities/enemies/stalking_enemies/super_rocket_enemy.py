@@ -113,10 +113,13 @@ class SuperRocketEnemy(StalkingEnemy):
             enemy.position = enemy.center
 
 
+####
+
+
 def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces = []
 
-    _particle_density = 3
+    _particle_density = 1
     for i in range(_particle_density):
         # little particles doing particle stuff
         _particle = CircularParticle(
@@ -147,7 +150,7 @@ def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
 def main_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces = []
 
-    _particle_density = 3
+    _particle_density = 1
     for i in range(_particle_density):
         # little particles doing particle stuff
         _particle = CircularParticle(
