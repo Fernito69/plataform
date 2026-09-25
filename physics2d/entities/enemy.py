@@ -6,6 +6,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
+from physics2d.entities.model.spawner import Spawner
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
@@ -28,6 +29,8 @@ class Enemy(PhysicsEntity):
     # from 0 to 1
     _aggressivity: float
 
+    _spawner_on_death: Spawner | None
+
     def __init__(
         self,
         engine: "Physics2D",
@@ -49,6 +52,7 @@ class Enemy(PhysicsEntity):
         particle_generator: ParticleGenerator | None = None,
         precision: float = 0,
         aggressivity: float = 0,
+        spawner_on_death: Spawner | None = None,
     ):
         super().__init__(
             density=density,
@@ -78,6 +82,7 @@ class Enemy(PhysicsEntity):
         self._precision = precision
         self._aggressivity = aggressivity
         self._last_known_direction = initial_velocity
+        self._spawner_on_death = spawner_on_death
 
     def receive_damage(self, amount: float) -> None:
         if self.health is None:
@@ -88,12 +93,7 @@ class Enemy(PhysicsEntity):
         if not self._initial_theme.color:
             return
 
-        # _blinking_freq = 5
-        _damage_color = (
-            RGB(80, 0, 0, 1)
-            # if math.floor(self.engine.scenario.now() / _blinking_freq) % 2 == 0
-            # else RGB(180, 100, 100, 1)
-        )
+        _damage_color = RGB(80, 0, 0, 1)
 
         _factor = self.get_health_ratio()
         _new_color = self._initial_theme.color.with_intensity(_factor) + (
@@ -111,8 +111,13 @@ class Enemy(PhysicsEntity):
             else 1
         )
 
+    def _spawn_on_death(self) -> None:
+        if self._spawner_on_death:
+            self._spawner_on_death(self._engine, self)
+
     def die(self, _death_explosion_size: int | None = None) -> None:
         self._explode(_death_explosion_size)
+        self._spawn_on_death()
 
         # kill "satellites"
         for satellites in self.extra_shapes:

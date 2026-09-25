@@ -7,8 +7,8 @@ from physics2d.entities.enemies.stalking_enemies.machinegun_enemy import Machine
 from physics2d.entities.enemies.stalking_enemies.rocket_enemy import RocketEnemy
 from physics2d.entities.enemies.stalking_enemies.super_rocket_enemy import SuperRocketEnemy
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.model.spawner import Spawn
-from physics2d.entities.spawner import Spawner
+from physics2d.entities.model.spawner import Spawner
+from physics2d.entities.spawner_entity import SpawnerEntity
 from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
@@ -61,17 +61,13 @@ def first_level(engine: "Physics2D") -> Scenario:
 
     # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = [
-        Spawner(
+        SpawnerEntity(
             engine=engine,
             size=10,
             spawn_interval=100,
             total_num_spawns=5,
             position=PointF(75, 75),
-            enemy_spawn=Spawn(
-                spawn_interval=200,
-                entity_factory=super_rocket_enemy_spawner,
-                total_num_spawns=5,
-            ),
+            spawner=super_rocket_enemy_spawner,
         )
     ]
 

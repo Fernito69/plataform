@@ -3,30 +3,28 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.entities.enemy import Enemy
 from physics2d.entities.model.shared import ParticleGenerator
-from physics2d.entities.model.spawner import Spawn
+from physics2d.entities.model.spawner import Spawner
 from physics2d.shape.factories.explosion import rocket_explosion
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-class Spawner(PhysicsEntity):
-    _enemy_spawn: Spawn[Enemy] | None
-    # TODO: coming soon!
-    _item_spawn: Spawn | None
-
-    _life_time: int
+class SpawnerEntity(PhysicsEntity):
+    _spawner: Spawner
+    _spawn_interval: int
+    _total_num_spawns: int | None
+    _curr_num_spawns: int = 0
 
     def __init__(
         self,
         size: float,
         engine: "Physics2D",
-        enemy_spawn: Spawn[Enemy],
+        spawner: Spawner,
         spawn_interval: int,
         total_num_spawns: int | None = None,
-        name: str = "Spawner",
+        name: str = "SpawnerEntity",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
         affected_by_gravity: bool = False,
@@ -57,32 +55,22 @@ class Spawner(PhysicsEntity):
             particle_generator=particle_generator,
         )
         self._life_time = 0
-        self._enemy_spawn = enemy_spawn
         self._total_num_spawns = total_num_spawns
         self._spawn_interval = spawn_interval
+        self._spawner = spawner
 
     def do_your_thing(self) -> None:
-        es = self._enemy_spawn
-
-        if es:
-            if self._life_time % es.spawn_interval == 0 and (
-                not es.total_num_spawns
-                or (es.total_num_spawns and es.curr_num_spawns < es.total_num_spawns)
-            ):
-                self._spawn_effect()
-                es.curr_num_spawns += 1
-                es.entity_factory(self._engine, self)
-            elif es.total_num_spawns and es.curr_num_spawns >= es.total_num_spawns:
-                self._die()
-
-        # TODO: do items
+        if self._life_time % self._spawn_interval == 0 and (
+            not self._total_num_spawns
+            or (self._total_num_spawns and self._curr_num_spawns < self._total_num_spawns)
+        ):
+            self._spawn_effect()
+            self._curr_num_spawns += 1
+            self._spawner(self._engine, self)
+        elif self._total_num_spawns and self._curr_num_spawns >= self._total_num_spawns:
+            self._die()
 
         self._life_time += 1
-
-    def _die(self) -> None:
-        self._spawn_effect()
-        # For now we assume it's always in solid_shapes
-        self._engine.scenario.solid_shapes.remove(self)
 
     def _spawn_effect(self) -> None:
         _size = 25
@@ -92,10 +80,9 @@ class Spawner(PhysicsEntity):
         _COLOR_3 = RGB(200, 255, 60, 1)
         _mini_effect_color = RGB(220, 255, 127, 1)
 
-        # TODO: it needs its own effect
+        # TODO: it needs its own effect, this is not a rocket!
         rocket_explosion(
             engine=self._engine,
-            # TOOD: fix
             rocket=self,
             damage=100,
             blast_radius=_size,
@@ -108,3 +95,12 @@ class Spawner(PhysicsEntity):
             throw_sparks=True,
             bfg_sparks=True,
         )
+
+    def _die_effect(self) -> None:
+        # TODO: do its own thing
+        self._spawn_effect()
+
+    def _die(self) -> None:
+        self._die_effect()
+        # For now we assume it's always in solid_shapes
+        self._engine.scenario.solid_shapes.remove(self)
