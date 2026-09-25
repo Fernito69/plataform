@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from model.base import VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemies.stalking_enemies.super_rocket_enemy import SuperRocketEnemy
@@ -12,7 +11,6 @@ if TYPE_CHECKING:
 def super_rocket_enemy_spawner(
     engine: "Physics2D",
     source: PhysicsEntity,
-    _: VectorF | None = None,
 ) -> None:
     enemy = SuperRocketEnemy(
         size=15,
