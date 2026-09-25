@@ -1,3 +1,4 @@
+import math
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -21,11 +22,13 @@ class ThreeDeeEnemy(Enemy):
     _line_thickness: float
     visibility_threshold: float
 
+    _color_cycling_factor: float
+
     def __init__(
         self,
         engine: "Physics2D",
         polyhedron: Entity3D,
-        health: float,
+        health: float | None,
         density: float = 1,
         name: str = "3DEnemy",
         position: PointF = PointF(0, 0),
@@ -40,12 +43,14 @@ class ThreeDeeEnemy(Enemy):
         extra_shapes: list[Shape] = [],
         visibility_threshold: float = 0.007,
         line_thickness: float = 1,
+        color_cycling_factor: float = 57,
     ):
         self._engine = engine
         self.polyhedron = polyhedron
         self.visibility_threshold = visibility_threshold
         self.theme = theme
         self._line_thickness = line_thickness
+        self._color_cycling_factor = color_cycling_factor
 
         super().__init__(
             size=polyhedron.get_diameter(),
@@ -73,7 +78,23 @@ class ThreeDeeEnemy(Enemy):
     def do_your_thing(self) -> None:
         self.polyhedron.calc_legacy_voxels()
         self.polyhedron.movement()
+        self._cycle_color()
         super().do_your_thing()
+
+    def _cycle_color(self) -> None:
+        if not self._initial_theme.color or not self.secondary_theme:
+            return
+
+        _color_1 = self._initial_theme.color
+        _color_2 = self.secondary_theme.color or RGB()
+        if _color_1 == _color_2:
+            return
+
+        color = _color_1.get_gradient(
+            _color_2,
+            math.sin(self._engine.scenario.now() / self._color_cycling_factor),
+        )
+        self.theme.color = color
 
     #################################################################
     """ RENDERING """
@@ -223,10 +244,10 @@ class ThreeDeeEnemy(Enemy):
                     points=(projected_point_1, projected_point_2),
                     engine=self._engine,
                     theme=Theme(
-                        color=color.with_intensity(intensity_2),
+                        color=color.with_intensity(intensity_1),
                     ),
                     secondary_theme=Theme(
-                        color=color.with_intensity(intensity_1),
+                        color=color.with_intensity(intensity_2),
                     ),
                     thickness=self._line_thickness,
                 )

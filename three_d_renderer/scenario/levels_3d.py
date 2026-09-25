@@ -1,6 +1,6 @@
 import random
 
-from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Violet, White, Yellow
+from factories.theme import Blue, Cyan, Green, Magenta, Orange, Red, Theme, Violet, White, Yellow
 from model.base import PointF, VectorF
 from three_d_renderer.entities.base3d import Entity3D
 from three_d_renderer.entities.polyhedra import Cube, Dodeca, Ico, Tetra
@@ -18,7 +18,7 @@ def build_level_3d_1() -> Level3D:
         mov_vector=VectorF(0, 0, 0),
         # rot_vector=(0, 0, 0)
         rot_vector=VectorF(1, 0, 0),
-        color=colors[1](),
+        theme=Theme(colors[1]()),
     )
     dode = Dodeca(
         position=PointF(0, 100, 20),

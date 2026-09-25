@@ -295,32 +295,35 @@ def test_scenario(engine: "Physics2D") -> Scenario:
     three_dee_enemies: list[ThreeDeeEnemy] = [
         ThreeDeeEnemy(
             engine=engine,
-            health=100,
+            health=None,
             position=PointF(100, 0),
             polyhedron=Dodeca(
-                position=PointF(10, 70, 0),
-                size=16,
+                position=PointF(10, 90, 0),
+                size=19,
                 angle=VectorF(0, 30, 0),
                 mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(-1, 2, 0),
             ),
             line_thickness=1.5,
-            theme=Theme(RGB(66, 220, 255)),
+            theme=Theme(RGB(21, 220, 255)),
+            secondary_theme=Theme(RGB(255, 0, 255)),
+            color_cycling_factor=17,
         ),
         ThreeDeeEnemy(
             engine=engine,
             health=100,
             position=PointF(100, 0),
             polyhedron=Ico(
-                color=RGB(90, 255, 255),
                 position=PointF(60, 80, 0),
-                size=12,
+                size=14,
                 angle=VectorF(0, 30, 0),
                 mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(1.2, 0.2, 0.5),
             ),
             theme=Theme(RGB(0, 255, 0)),
+            secondary_theme=Theme(RGB(255, 127, 20)),
             line_thickness=1.5,
+            color_cycling_factor=20,
         ),
     ]
 

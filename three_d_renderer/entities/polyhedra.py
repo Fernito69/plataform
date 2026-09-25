@@ -1,6 +1,6 @@
 from constants import I_PHI, PHI, R2_2
 from model.base import PointF, VectorF
-from model.theme import RGB
+from model.theme import RGB, Theme
 from three_d_renderer.entities.base3d import Entity3D
 
 
@@ -213,10 +213,10 @@ class Ico(Entity3D):
         position: PointF,
         size: float,
         angle: VectorF,
-        color: RGB,
         mov_vector: VectorF = VectorF(0, 0, 0),
         rot_vector: VectorF = VectorF(0, 0, 0),
         vertices: list[PointF] = [],
+        theme: Theme = Theme(),
     ):
         Entity3D.__init__(
             self,
@@ -225,7 +225,6 @@ class Ico(Entity3D):
             angle=angle,
             mov_vector=mov_vector,
             rot_vector=rot_vector,
-            color=color,
             vertices=vertices,
         )
         self.position = position
@@ -235,6 +234,7 @@ class Ico(Entity3D):
         self.rot_vector = rot_vector
         self.name = "Icosahedron"
         self.vertices = vertices
+        self.theme = theme
 
     def get_diameter(self) -> float:
         # let's say 2*phi?
