@@ -78,8 +78,8 @@ class RGB:
     g: int
     b: int
 
-    # TODO: intensity is actually transparency, we should rename it
     intensity: float
+    opacity: float
 
     def __init__(
         self,
@@ -87,11 +87,13 @@ class RGB:
         g: float = 127,
         b: float = 127,
         intensity: float = 1,
+        opacity: float = 1,
     ):
         self.r = min(255, max(0, round(r)))
         self.g = min(255, max(0, round(g)))
         self.b = min(255, max(0, round(b)))
         self.intensity = min(1, max(0, intensity))
+        self.opacity = min(1, max(0, opacity))
 
     def __str__(self):
         return f"rgb({self.r}, {self.g}, {self.b})"
@@ -105,6 +107,7 @@ class RGB:
             int(self.r * self.intensity),
             int(self.g * self.intensity),
             int(self.b * self.intensity),
+            opacity=self.opacity,
         )
 
     def with_intensity_v2(self, intensity: float | None = None) -> "RGB":
@@ -116,6 +119,7 @@ class RGB:
             int(self.g * self.intensity),
             int(self.b * self.intensity),
             intensity=self.intensity,
+            opacity=self.opacity,
         )
 
     # TODO: decommission this, doesn't work!
@@ -142,6 +146,7 @@ class RGB:
         _factor = curr_ratio / total
         return self.with_intensity(1 - _factor) + target_color.with_intensity(_factor)
 
+    # TODO: what to do with opacity with these two methods?
     def __add__(self, other: "RGB") -> "RGB":
         return RGB(
             r=self.r + other.r,
@@ -170,6 +175,7 @@ class RGB:
             and self.g == other.g
             and self.b == other.b
             and self.intensity == other.intensity
+            and self.opacity == other.opacity
         )
 
 
