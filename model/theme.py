@@ -118,6 +118,7 @@ class RGB:
             intensity=self.intensity,
         )
 
+    # TODO: decommission this, doesn't work!
     def mix_with(self, colors: RGB | list[RGB]) -> RGB:
         colors = [self, *colors] if isinstance(colors, list) else [self, colors]
 
@@ -131,6 +132,15 @@ class RGB:
             g=round(weighted_sum_g),
             b=round(weighted_sum_b),
         )
+
+    def get_gradient(
+        self,
+        target_color: RGB,
+        curr_ratio: float = 0.5,  # default value gives 50/50 mix
+        total: float = 1,  # assumes "curr_ratio" it's given in %
+    ) -> RGB:
+        _factor = curr_ratio / total
+        return self.with_intensity(1 - _factor) + target_color.with_intensity(_factor)
 
     def __add__(self, other: "RGB") -> "RGB":
         return RGB(

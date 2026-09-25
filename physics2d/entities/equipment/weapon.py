@@ -78,9 +78,9 @@ class Weapon:
             # charging up
             _factor = self.get_life_time_ellapsed_ratio()
             _target_color = self._original_color.with_intensity(0.7)
-            self.color = self._original_color.with_intensity(0.2).with_intensity(
-                _factor
-            ) + _target_color.with_intensity(1 - _factor)
+            self.color = self._original_color.with_intensity(0.2).get_gradient(
+                _target_color, _factor
+            )
         else:
             self.color = self._original_color.with_intensity(1)
 

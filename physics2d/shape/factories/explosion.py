@@ -579,7 +579,25 @@ def rocket_explosion(
 
     # TODO: rename
     _PUSH_FACTOR = 1.2
-    # TODO: also projectiles!
+
+    # TODO: Check why this doesn't work!
+    # if rocket.is_enemy:
+    #     distance = engine.scenario.get_distance_to_player(rocket, calc_distance_to_border=True)
+
+    #     if distance < _PUSH_FACTOR * blast_radius:
+    #         damage_factor = 1 - (max(0, distance) / blast_radius)
+    #         push_factor = 1 - (max(0, distance) / (_PUSH_FACTOR * blast_radius))
+    #         damage = damage_factor * blast_damage_at_ground_zero
+    #         vector_magnitude = push_factor * blast_damage_at_ground_zero / engine.player.weight
+
+    #         # Semd player flying away
+    #         engine.player.velocity = (
+    #             engine.player.velocity
+    #             + ((engine.player.center - rocket.center).as_vector().unit_vector(vector_magnitude))
+    #         ).as_vector()
+    #         engine.player.receive_damage(damage)
+
+    # else:
     blast_radius_victims = engine.scenario.get_enemies_in_range(
         _PUSH_FACTOR * blast_radius, rocket, calc_distance_to_border=True
     )

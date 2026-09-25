@@ -14,6 +14,7 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.shape.base import Shape
 
 
 class Enemy(PhysicsEntity):
@@ -47,7 +48,7 @@ class Enemy(PhysicsEntity):
         own_gravity: float | None = None,
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
-        extra_shapes: list[PhysicsEntity] = [],
+        extra_shapes: list["PhysicsEntity | Shape"] = [],
         projectile_generator: ParticleGenerator | None = None,
         particle_generator: ParticleGenerator | None = None,
         precision: float = 0,
@@ -96,11 +97,14 @@ class Enemy(PhysicsEntity):
         _damage_color = RGB(80, 0, 0, 1)
 
         _factor = self.get_health_ratio()
-        _new_color = self._initial_theme.color.with_intensity(_factor) + (
+        _new_color = (
             self.secondary_theme.color
             if self.secondary_theme and self.secondary_theme.color
             else _damage_color
-        ).with_intensity(1 - _factor)
+        ).get_gradient(
+            self._initial_theme.color,
+            _factor,
+        )
 
         self.theme.color = _new_color
 
@@ -175,12 +179,14 @@ class Enemy(PhysicsEntity):
                 255 - random() * (40 * _factor),
                 255 - random() * 220 * (1 - _factor),
                 (1 - random()) * 20,
-            ).with_intensity(1 - _factor - _offset / 2) + RGB(
-                140,
-                140,
-                140,
-            ).with_intensity(_factor + _offset / 2)
-
+            ).get_gradient(
+                RGB(
+                    140,
+                    140,
+                    140,
+                ),
+                _factor + _offset / 2,
+            )
             _explosion_size = (2.5 - random()) * ((math.log((1 + self.volume / 1500), 2)) + 0.5)
             _fire = CircularParticle(
                 origin=self.center + VectorF.random_offset_vector(self.radius * 1.8),

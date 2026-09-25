@@ -116,10 +116,8 @@ class Rectangle(Line):
             else 0
         )
 
-        color: RGB = (
-            (self.theme.color or White())
-            .with_intensity(color_ratio)
-            .mix_with((self.secondary_theme.color or White()).with_intensity(1 - color_ratio))
+        color: RGB = (self.theme.color or White()).get_gradient(
+            self.secondary_theme.color or White(), color_ratio
         )
 
         return color

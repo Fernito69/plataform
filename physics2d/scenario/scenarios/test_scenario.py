@@ -211,8 +211,8 @@ def test_scenario(engine: "Physics2D") -> Scenario:
             PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
             PointF(X_RESOLUTION_PHYSICS / 2 + 4, Y_RESOLUTION_PHYSICS / 2 + 9),
         ),
-        theme=Theme(color=MakeColor(1, (244, 250, 22))),
-        secondary_theme=Theme(color=MakeColor(1, (255, 0, 56))),
+        secondary_theme=Theme(color=MakeColor(1, (244, 250, 22))),
+        theme=Theme(color=MakeColor(1, (255, 0, 56))),
         engine=engine,
         floating_multi=0.005,
     )

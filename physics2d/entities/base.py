@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class PhysicsEntity(Circunference):
     position: PointF
     velocity: VectorF
-    extra_shapes: list["PhysicsEntity | Enemy"]
+    extra_shapes: list["PhysicsEntity | Enemy | Shape"]
 
     name: str | None
 
@@ -39,7 +39,7 @@ class PhysicsEntity(Circunference):
         secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         is_collideable: bool = True,
-        extra_shapes: list["PhysicsEntity"] = [],
+        extra_shapes: list["PhysicsEntity | Shape"] = [],
         particle_generator: ParticleGenerator | None = None,
     ):
         super().__init__(

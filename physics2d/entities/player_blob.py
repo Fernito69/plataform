@@ -269,11 +269,14 @@ class PlayerBlob(PhysicsEntity, Player):
                 255 - random() * (40 * _factor),
                 255 - random() * 220 * (1 - _factor),
                 (1 - random()) * 20,
-            ).with_intensity(1 - _factor - _offset / 2) + RGB(
-                140,
-                140,
-                140,
-            ).with_intensity(_factor + _offset / 2)
+            ).get_gradient(
+                RGB(
+                    140,
+                    140,
+                    140,
+                ),
+                _factor + _offset / 2,
+            )
 
             _explosion_size = (2.5 - random()) * ((math.log((1 + self.volume / 1500), 2)) + 0.5)
             _fire = CircularParticle(

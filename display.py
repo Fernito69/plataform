@@ -259,9 +259,9 @@ class Display(KeyboardHandler):
                 def _border_col(ch: str) -> str:
                     return colored(
                         ch,
-                        color=_MESSAGE_UPPER_BORDER_COLOR.with_intensity(_border_intensity)
-                        .mix_with(_MESSAGE_LOWER_BORDER_COLOR.with_intensity(1 - _border_intensity))
-                        .with_intensity(self._message_intensity),
+                        color=_MESSAGE_LOWER_BORDER_COLOR.get_gradient(
+                            _MESSAGE_UPPER_BORDER_COLOR, _border_intensity
+                        ).with_intensity(self._message_intensity),
                         bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
                             (1 - self._message_intensity)
                         ),
@@ -323,6 +323,7 @@ class Display(KeyboardHandler):
 
                 self._screen_grid[new_y_idx][x] = _c(index)
 
+        # We return the coords (needed in the printing step)
         return (
             ScreenPos(starting_border_x, starting_border_y),
             ScreenPos(ending_border_y, ending_border_y),
@@ -414,15 +415,15 @@ class Display(KeyboardHandler):
             empty_bars = colored(" " * num_empty_bars, bg_color=_RED)
 
             _health_per_bar = player._initial_health / num_bars
-            _middle_bar_color_factor = (
-                _health_per_bar - (player.health % _health_per_bar)
-            ) / _health_per_bar
 
             middle_bar = (
                 colored(
                     " ",
-                    bg_color=_GREEN.with_intensity(1 - _middle_bar_color_factor)
-                    + _RED.with_intensity(_middle_bar_color_factor),
+                    bg_color=_GREEN.get_gradient(
+                        _RED,
+                        _health_per_bar - (player.health % _health_per_bar),
+                        _health_per_bar,
+                    ),
                 )
                 if num_bars - num_full_bars - num_empty_bars != 0
                 else ""

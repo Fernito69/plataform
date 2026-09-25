@@ -172,6 +172,15 @@ class Scenario:
         for info in self.crosshair.get_render_info():
             self.engine.add_pixel_info_to_buffer(info, absolute_positioning=True)
 
+    def get_distance_to_player(
+        self,
+        subject: "PhysicsEntity",
+        calc_distance_to_border: bool = True,
+    ) -> float:
+        return abs(self.player.position - subject.position) - (
+            self.player.radius + subject.radius if calc_distance_to_border else 0
+        )
+
     def get_enemies_in_range(
         self,
         max_range: float,
