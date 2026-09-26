@@ -109,13 +109,20 @@ class RGB:
             opacity=self.opacity,
         )
 
-    def copy(self) -> RGB:
+    def copy(
+        self,
+        r: float | None = None,
+        g: float | None = None,
+        b: float | None = None,
+        intensity: float | None = None,
+        opacity: float | None = None,
+    ) -> RGB:
         return RGB(
-            r=self.r,
-            g=self.g,
-            b=self.b,
-            intensity=self.intensity,
-            opacity=self.opacity,
+            r=r if r is not None else self.r,
+            g=g if g is not None else self.g,
+            b=b if b is not None else self.b,
+            intensity=intensity if intensity is not None else self.intensity,
+            opacity=opacity if opacity is not None else self.opacity,
         )
 
     def with_intensity_v2(self, intensity: float | None = None) -> "RGB":

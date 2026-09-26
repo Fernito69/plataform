@@ -58,13 +58,15 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             255,
             160 * random(),
             50 * random(),
-        ).with_intensity(1)
+            opacity=0.9,
+        )
         if random_offset() > 0
         else RGB(
             255,
             255 - 30 * random(),
             1 * random(),
-        ).with_intensity(1)
+            opacity=0.9,
+        )
     )
 
     main_explosion = CircularParticle(
@@ -73,7 +75,12 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
         size=size,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
-        ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+        ending_color=RGB(
+            120,
+            120,
+            120,
+            opacity=0.4,
+        ),  # smokelike
         life_time=30,
         gravity=-0.07,
         engine=engine,
@@ -89,13 +96,15 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
                 255,
                 90 * random(),
                 50 * random(),
-            ).with_intensity(1)
+                opacity=1,
+            )
             if random_offset() > 0
             else RGB(
                 255,
                 255 - 30 * random(),
                 1 * random(),
-            ).with_intensity(1)
+                opacity=1,
+            )
         )
 
         _factor = size * 1.5
@@ -105,7 +114,12 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             size=_sec_size,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_sec_explosion_color,
-            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+            ending_color=RGB(
+                150,
+                150,
+                150,
+                opacity=0.3,
+            ),  # smokelike
             life_time=20,
             gravity=-0.08,
             floating_multi=0.1,
@@ -151,11 +165,22 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             ).as_vector(),
             size=0.3,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
-            ending_color=RGB(40, 5, 0, 1),  # dark orange
+            ending_color=RGB(
+                180,
+                100,
+                0,
+                1,
+                opacity=0.4,
+            ),  # dark orange
             life_time=70,
             gravity=0.1,
         )
-        particles.append(sparks)
+        # TODO: test the method below and delete
+        # if random_offset() > 0:
+        #     engine.scenario.fg_shapes.append(sparks)
+        # else:
+        #     engine.scenario.bg_shapes.append(sparks)
+        engine.scenario.add_to_fg_or_bg_randomly(sparks)
 
     engine.scenario.bg_shapes[0:0] = particles
 
@@ -235,13 +260,13 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             150 + 100 * random(),
             150 * random(),
-        ).with_intensity(1)
+        )
         if random_offset() > 0
         else RGB(
             255,
             255 - 30 * random(),
             100 * random(),
-        ).with_intensity(1)
+        )
     )
 
     explosion = CircularParticle(
@@ -251,8 +276,8 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
         size=2,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
-        ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
-        life_time=15,
+        ending_color=RGB(120, 120, 120, opacity=0.1),  # smokelike
+        life_time=18,
         gravity=-0.02,
     )
     engine.scenario.fg_shapes.append(explosion)
@@ -421,7 +446,7 @@ def rocket_explosion(
     eye_y = rocket.center.y - rocket.velocity.y
 
     color_2 = secondary_color or RGB(255, 255, 255, 1)
-    end_color_2 = secondary_color.with_intensity(0.2) if secondary_color else RGB(180, 180, 120, 1)
+    end_color_2 = secondary_color.copy(opacity=0.2) if secondary_color else RGB(180, 180, 120, 1)
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
         initial_velocity=_VELOCITY,
@@ -436,7 +461,7 @@ def rocket_explosion(
 
     color_3 = tertiary_color or RGB(255, 255, 80, 1)
     end_color_3 = (
-        tertiary_color.with_intensity(0.2) if tertiary_color else RGB(140, 140, 30, intensity=1)
+        tertiary_color.copy(opacity=0.2) if tertiary_color else RGB(140, 140, 30, intensity=1)
     )
     core_explosion_2 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -457,16 +482,16 @@ def rocket_explosion(
             255,
             160 * random(),
             50 * random(),
-        ).with_intensity(1)
+        )
         if random_offset() > 0
         else RGB(
             255,
             255 - 30 * random(),
             1 * random(),
-        ).with_intensity(1)
+        )
     )
     _main_explosion_ending = (
-        main_color.with_intensity(0.2) if main_color else RGB(30, 30, 30, intensity=1)
+        main_color.copy(opacity=0.2) if main_color else RGB(30, 30, 30, intensity=1)
     )
 
     main_explosion = CircularParticle(
@@ -491,16 +516,16 @@ def rocket_explosion(
                 255,
                 90 * random(),
                 50 * random(),
-            ).with_intensity(1)
+            )
             if random_offset() > 0
             else RGB(
                 255,
                 255 - 30 * random(),
                 1 * random(),
-            ).with_intensity(1)
+            )
         )
         _ending_color_4 = (
-            little_explosions_color.with_intensity(0.2)
+            little_explosions_color.copy(opacity=0.2)
             if little_explosions_color
             else RGB(30, 30, 30, intensity=1)
         )
@@ -535,7 +560,7 @@ def rocket_explosion(
                     size=1.5,
                     size_change_type=TransitionType.LINEAR_DECREASE,
                     initial_color=RGB(200, 255, 200),
-                    ending_color=RGB(0, 60, 0),
+                    ending_color=RGB(0, 160, 0, opacity=0.4),
                     life_time=35,
                     engine=engine,
                     floating_multi=1,
@@ -552,13 +577,13 @@ def rocket_explosion(
                     ).as_vector(),
                     size=0.5,
                     initial_color=RGB(255, 255, 200, 1),  # almost white hot
-                    ending_color=RGB(40, 5, 0, 1),  # dark orange
+                    ending_color=RGB(80, 40, 0, 1, opacity=0.5),  # dark orange
                     life_time=70,
                     engine=engine,
                     gravity=0.1,
                 )
             )
-            explosions.append(sparks)
+            engine.scenario.add_to_fg_or_bg_randomly(sparks)
 
     engine.scenario.fg_shapes[0:0] = explosions
 
@@ -749,7 +774,6 @@ def homing_missile_trail(
             _randomness_multi = random() * 2
             _radius_factor = random() * 1.2
 
-            # METEOR KINDA TRAIL
             _meteor_color = (
                 RGB(
                     255,
@@ -829,9 +853,18 @@ def homing_missile_trail(
     frequency = 7 if target else 12
 
     if engine.scenario.now() % frequency == 0:
-        _initial_color = RGB(255, 120, 120, 1) if target else RGB(255, 255, 255, 1)
-        _ending_color = RGB(255, 0, 0, 1) if target else RGB(80, 80, 80, 1)
-        _lift_time = 3 if target else 6
+        _initial_color = (
+            RGB(255, 20, 20)
+            if target
+            else RGB(
+                255,
+                255,
+                255,
+            )
+        )
+        _ending_color = _initial_color.copy(opacity=0.3)
+
+        _lift_time = 5 if target else 6
         _final_radius = 10 if target else 15
 
         light = CircularParticle(

@@ -232,7 +232,7 @@ class Enemy(PhysicsEntity):
                 size=_explosion_size,
                 size_change_type=TransitionType.EXPONENTIAL_DECREASE,
                 initial_color=_fire_color,
-                ending_color=RGB(30, 30, 30),  # smokelike
+                ending_color=RGB(150, 150, 150, opacity=0.3),  # smokelike
                 life_time=15,
                 gravity=-0.07,
                 particle_generator=get_smoke_generator(

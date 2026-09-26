@@ -10,6 +10,7 @@ from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -234,3 +235,9 @@ class Scenario:
             # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims
+
+    def add_to_fg_or_bg_randomly(self, entity: "PhysicsEntity") -> None:
+        if random_offset() > 0:
+            self.fg_shapes.append(entity)
+        else:
+            self.bg_shapes.append(entity)

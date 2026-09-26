@@ -53,13 +53,13 @@ def ln2_vapor(engine: "Physics2D", source: "PhysicsEntity") -> None:
                 127,
                 223 - (i - 1) * 14,
                 255 - (i - 1) * 5,
-            ).with_intensity(1)
+            )
             if is_odd
             else RGB(
                 127,
                 220 - (i - 1) * 10,
                 255 - (i - 1) * 14,
-            ).with_intensity(1)
+            )
         )
 
         _VAPOR_SPAWN_RANDOMNESS_FACTOR = 2
@@ -84,7 +84,7 @@ def ln2_vapor(engine: "Physics2D", source: "PhysicsEntity") -> None:
             size=i * _radius_factor,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_ln2_color,
-            ending_color=RGB(177, 255, 255),  # N2 like
+            ending_color=RGB(177, 255, 255, opacity=0.1),  # N2 like
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=50,
             gravity=0.02,
