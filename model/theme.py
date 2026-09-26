@@ -99,6 +99,7 @@ class RGB:
         return f"rgb({self.r}, {self.g}, {self.b})"
 
     # TODO: unify these two
+    # TODO: should with_intensity also consider opacity?
     def with_intensity(self, intensity: float | None = None) -> "RGB":
         if intensity is not None:
             self.intensity = max(0, min(1, intensity))

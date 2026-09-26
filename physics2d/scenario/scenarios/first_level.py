@@ -1,15 +1,10 @@
+from random import random
 from typing import TYPE_CHECKING
 
 from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
-from physics2d.entities.enemies.stalking_enemies.machinegun_enemy import MachineGunEnemy
-from physics2d.entities.enemies.stalking_enemies.rocket_enemy import RocketEnemy
-from physics2d.entities.enemies.stalking_enemies.super_rocket_enemy import SuperRocketEnemy
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.model.spawner import Spawner
-from physics2d.entities.spawner_entity import SpawnerEntity
-from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner, machine_gun_enemy_spawner
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -17,8 +12,43 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
+def _random_color():
+    floor = 80
+
+    def _val() -> float:
+        return floor + (255 - floor) * random()
+
+    return RGB(_val(), _val(), _val())
+
+
 def first_level(engine: "Physics2D") -> Scenario:
     enemies: list[Enemy] = [
+        Enemy(
+            engine=engine,
+            size=20,
+            health=400,
+            name="MidEnemy",
+            position=PointF(100, 0),
+            theme=Theme(RGB(255, 50, 50, opacity=0.6)),
+        ),
+        Enemy(
+            engine=engine,
+            size=20,
+            health=400,
+            name="MidEnemy",
+            position=PointF(110, 0),
+            theme=Theme(
+                RGB(50, 255, 50, opacity=0.5),
+            ),
+        ),
+        Enemy(
+            engine=engine,
+            size=20,
+            health=400,
+            name="MidEnemy",
+            position=PointF(120, 0),
+            theme=Theme(RGB(50, 50, 255, opacity=0.6)),
+        ),
         # MachineGunEnemy(
         #     size=10,
         #     health=100,
@@ -61,23 +91,23 @@ def first_level(engine: "Physics2D") -> Scenario:
 
     # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = [
-        SpawnerEntity(
-            engine=engine,
-            size=10,
-            spawn_interval=200,
-            total_num_spawns=5,
-            position=PointF(75, 75),
-            spawner=super_rocket_enemy_spawner,
-            initial_delay=150,
-        ),
-        SpawnerEntity(
-            engine=engine,
-            size=10,
-            spawn_interval=80,
-            total_num_spawns=5,
-            position=PointF(100, 100),
-            spawner=machine_gun_enemy_spawner,
-        ),
+        # SpawnerEntity(
+        #     engine=engine,
+        #     size=10,
+        #     spawn_interval=200,
+        #     total_num_spawns=5,
+        #     position=PointF(75, 75),
+        #     spawner=super_rocket_enemy_spawner,
+        #     initial_delay=150,
+        # ),
+        # SpawnerEntity(
+        #     engine=engine,
+        #     size=10,
+        #     spawn_interval=80,
+        #     total_num_spawns=5,
+        #     position=PointF(100, 100),
+        #     spawner=machine_gun_enemy_spawner,
+        # ),
     ]
 
     bg_pieces: list[Shape] = []

@@ -1,4 +1,3 @@
-import math
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -21,8 +20,6 @@ class ThreeDeeEnemy(Enemy):
     polyhedron: Entity3D
     _line_thickness: float
     visibility_threshold: float
-
-    _color_cycling_factor: float
 
     def __init__(
         self,
@@ -68,6 +65,7 @@ class ThreeDeeEnemy(Enemy):
             floating_multi=floating_multi,
             extra_shapes=extra_shapes,
             engine=engine,
+            color_cycling_factor=color_cycling_factor,
         )
         self.health = health
         self._initial_health = health
@@ -80,21 +78,6 @@ class ThreeDeeEnemy(Enemy):
         self.polyhedron.movement()
         self._cycle_color()
         super().do_your_thing()
-
-    def _cycle_color(self) -> None:
-        if not self._initial_theme.color or not self.secondary_theme:
-            return
-
-        _color_1 = self._initial_theme.color
-        _color_2 = self.secondary_theme.color or RGB()
-        if _color_1 == _color_2:
-            return
-
-        color = _color_1.get_gradient(
-            _color_2,
-            math.sin(self._engine.scenario.now() / self._color_cycling_factor),
-        )
-        self.theme.color = color
 
     #################################################################
     """ RENDERING """

@@ -21,9 +21,6 @@ if TYPE_CHECKING:
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
 
-# Determines at what level of RGB intensity the antiScenarioGeneratoraliasing effect starts to kick in
-INTENSITY_BLEND_THRESHOLD = 1
-
 
 class Physics2D(Engine, KeyboardHandler):
     _display: Display
@@ -208,15 +205,54 @@ class Physics2D(Engine, KeyboardHandler):
                 )
             )
 
-        curr_color = _get_color(info_list, curr_index)
+        _curr = _get_color(info_list, curr_index)
+        curr_color = _curr.with_intensity(_curr.opacity)
         curr_index += 1
 
-        while curr_index < len(info_list) and curr_color.intensity < INTENSITY_BLEND_THRESHOLD:
-            next_object_color = _get_color(info_list, curr_index).with_intensity(
-                (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
+        while curr_index < len(info_list):
+            # if curr_color.opacity < 1:
+            #     next_object_color = _get_color(info_list, curr_index).with_intensity(
+            #         (1 - curr_color.opacity)
+            #     )
+            #     curr_color = (
+            #         curr_color.with_intensity(curr_color.opacity * curr_color.intensity)
+            #         + next_object_color
+            #     )
+
+            _next = _get_color(info_list, curr_index)
+            next_object_color = _next.with_intensity((1 - curr_color.opacity))
+            curr_color = (
+                curr_color.with_intensity(curr_color.opacity * (curr_color.intensity))
+                + next_object_color
             )
-            # TODO: check if this works as intended
-            curr_color += next_object_color
+
             curr_index += 1
 
         return curr_color
+
+    # def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
+    #     curr_index = 0
+
+    #     def _get_color(il: list[RenderInfo], idx: int):
+    #         if len(il) <= idx:
+    #             return RGB(0, 0, 0)
+
+    #         return il[idx].color.with_intensity_v2(
+    #             max(
+    #                 0,
+    #                 1 - (il[idx]).distance_to_pixel_center,
+    #             )
+    #         )
+
+    #     curr_color = _get_color(info_list, curr_index)
+    #     curr_index += 1
+
+    #     while curr_index < len(info_list) and curr_color.intensity < INTENSITY_BLEND_THRESHOLD:
+    #         next_object_color = _get_color(info_list, curr_index).with_intensity(
+    #             (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
+    #         )
+    #         # TODO: check if this works as intended
+    #         curr_color += next_object_color
+    #         curr_index += 1
+
+    #     return curr_color

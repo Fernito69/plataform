@@ -32,6 +32,8 @@ class Enemy(PhysicsEntity):
 
     _spawner_on_death: Spawner | None
 
+    _color_cycling_factor: float
+
     def __init__(
         self,
         engine: "Physics2D",
@@ -54,6 +56,7 @@ class Enemy(PhysicsEntity):
         precision: float = 0,
         aggressivity: float = 0,
         spawner_on_death: Spawner | None = None,
+        color_cycling_factor: float = 57,
     ):
         super().__init__(
             density=density,
@@ -84,6 +87,7 @@ class Enemy(PhysicsEntity):
         self._aggressivity = aggressivity
         self._last_known_direction = initial_velocity
         self._spawner_on_death = spawner_on_death
+        self._color_cycling_factor = color_cycling_factor
 
     def receive_damage(self, amount: float) -> None:
         if self.health is None:
@@ -113,6 +117,34 @@ class Enemy(PhysicsEntity):
             (self.health / self._initial_health)
             if self.health is not None and self._initial_health is not None
             else 1
+        )
+
+    def _cycle_color(self) -> None:
+        if not self._initial_theme.color or not self.secondary_theme:
+            return
+
+        _color_1 = self._initial_theme.color
+        _color_2 = self.secondary_theme.color or RGB()
+        if _color_1 == _color_2:
+            return
+
+        color = _color_1.get_gradient(
+            _color_2,
+            math.sin(self._engine.scenario.now() / self._color_cycling_factor),
+        )
+        self.theme.color = color
+
+    def _cycle_opacity(self) -> None:
+        if not self.theme.color:
+            return
+
+        self.theme.color = RGB(
+            self.theme.color.r,
+            self.theme.color.g,
+            self.theme.color.b,
+            opacity=abs(
+                math.sin(self._engine.scenario.now() / 20),
+            ),
         )
 
     def _spawn_on_death(self) -> None:
@@ -160,6 +192,7 @@ class Enemy(PhysicsEntity):
         self._handle_current_damage()
         self._attack_player()
         self._generate_particles()
+        self._cycle_opacity()
 
         if self.health is not None and self.health <= 0:
             # die :(
