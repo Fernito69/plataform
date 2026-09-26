@@ -194,7 +194,6 @@ class Physics2D(Engine, KeyboardHandler):
 
     @staticmethod
     def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
-
         curr_index = 0
 
         def _get_color(il: list[RenderInfo], idx: int):
@@ -234,12 +233,18 @@ class Physics2D(Engine, KeyboardHandler):
             # case 2:
             elif covers_everything and is_transparent:
                 next_color = _next_raw_color.with_intensity()
-                curr_color = curr_color.with_intensity(curr_color.opacity) + next_color
+                curr_color = (
+                    curr_color.with_intensity_v2().with_intensity_v2(curr_color.opacity)
+                    + next_color
+                )
 
             # case 3:
             elif not covers_everything and is_transparent:
-                next_color = _next_raw_color.with_intensity()
-                curr_color = curr_color.with_intensity(curr_color.opacity) + next_color
+                next_color = _next_raw_color.with_intensity_v2()
+                curr_color = (
+                    curr_color.with_intensity_v2().with_intensity_v2(curr_color.opacity)
+                    + next_color
+                )
 
             # TODO: monitor this optimization, not sure if we could be missing some contributions like this
             if curr_color == _prev_color:
@@ -249,33 +254,6 @@ class Physics2D(Engine, KeyboardHandler):
 
         # if it's the last in the list and it's transparent, check againstbackground
         if len(info_list) > 0 and info_list[-1].color.opacity < 1:
-            curr_color = curr_color.with_intensity(curr_color.opacity)
+            curr_color = curr_color.with_intensity_v2(curr_color.opacity)
 
         return curr_color
-
-    # def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
-    #     curr_index = 0
-
-    #     def _get_color(il: list[RenderInfo], idx: int):
-    #         if len(il) <= idx:
-    #             return RGB(0, 0, 0)
-
-    #         return il[idx].color.with_intensity_v2(
-    #             max(
-    #                 0,
-    #                 1 - (il[idx]).distance_to_pixel_center,
-    #             )
-    #         )
-
-    #     curr_color = _get_color(info_list, curr_index)
-    #     curr_index += 1
-
-    #     while curr_index < len(info_list) and curr_color.intensity < INTENSITY_BLEND_THRESHOLD:
-    #         next_object_color = _get_color(info_list, curr_index).with_intensity(
-    #             (INTENSITY_BLEND_THRESHOLD - curr_color.intensity) / INTENSITY_BLEND_THRESHOLD
-    #         )
-    #         # TODO: check if this works as intended
-    #         curr_color += next_object_color
-    #         curr_index += 1
-
-    #     return curr_color

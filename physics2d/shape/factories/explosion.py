@@ -212,8 +212,8 @@ def _smoke_generator(
         initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
         size=source.radius * size_factor,
         size_change_type=TransitionType.LINEAR_DECREASE,
-        initial_color=RGB(110, 90, 90, 1),
-        ending_color=RGB(30, 30, 30, 1),  # smokelike
+        initial_color=RGB(110, 90, 90, 1, opacity=0.6),
+        ending_color=RGB(30, 30, 30, 1, opacity=0.7),  # smokelike
         life_time=life_time,
         gravity=gravity,
         floating_multi=floating_multi,
@@ -571,11 +571,12 @@ def rocket_explosion(
         engine=engine,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
-        initial_color=RGB(255, 255, 255, 1),
-        ending_color=RGB(0, 0, 0, intensity=1),
+        initial_color=RGB(255, 255, 255, 1, opacity=1),
+        # ending_color=RGB(0, 0, 0, intensity=1),
+        ending_color=RGB(255, 255, 255, 1, opacity=0),
         life_time=15,
     )
-    engine.scenario.bg_shapes.append(shock_wave)
+    engine.scenario.fg_shapes.append(shock_wave)
 
     # TODO: rename
     _PUSH_FACTOR = 1.2

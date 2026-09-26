@@ -129,6 +129,10 @@ class CircularParticle(Particle, PhysicsEntity):
                 r=self.initial_color.r * factor + self.ending_color.r * ending_factor,
                 g=self.initial_color.g * factor + self.ending_color.g * ending_factor,
                 b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
+                intensity=self.initial_color.intensity * factor
+                + self.ending_color.intensity * ending_factor,
+                opacity=self.initial_color.opacity * factor
+                + self.ending_color.opacity * ending_factor,
             )
 
     def do_your_thing(self) -> None:
