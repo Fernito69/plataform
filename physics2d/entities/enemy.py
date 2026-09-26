@@ -135,7 +135,9 @@ class Enemy(PhysicsEntity):
         self.theme.color = color
 
     def _cycle_opacity(self) -> None:
-        if not self.theme.color:
+        if not self.theme.color or (
+            self._initial_theme.color and self._initial_theme.color.opacity == 1
+        ):
             return
 
         self.theme.color = RGB(
@@ -143,7 +145,7 @@ class Enemy(PhysicsEntity):
             self.theme.color.g,
             self.theme.color.b,
             opacity=abs(
-                math.sin(self._engine.scenario.now() / 20),
+                math.sin(self._engine.scenario.now() / 50),
             ),
         )
 

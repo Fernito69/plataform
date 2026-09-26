@@ -125,7 +125,6 @@ class Physics2D(Engine, KeyboardHandler):
         #         pass
 
         # TODO: for now, we assume y-res is always evenaaaaaaaq
-
         # Note the step is 2 here <─────────────────┐
         for y in range(0, self._screen_buffer_y_res, 2):
             new_y = int(y / 2)
@@ -192,12 +191,28 @@ class Physics2D(Engine, KeyboardHandler):
 
     @staticmethod
     def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
+        # HACK: this is horrible, make better! This is to simulate the black background
+        info_list.append(
+            RenderInfo(
+                color=RGB(0, 0, 0, 1, 0),
+                distance_to_pixel_center=0,
+                point=PointF(0, 0),
+            )
+        )
+
         curr_index = 0
 
         def _get_color(il: list[RenderInfo], idx: int):
+            # TODO: do we need this safeguard?
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
+            # return il[idx].color.with_intensity_v2(
+            #     max(
+            #         0,
+            #         1 - (il[idx]).distance_to_pixel_center,
+            #     )
+            # )
             return il[idx].color.with_intensity_v2(
                 max(
                     0,
@@ -205,26 +220,53 @@ class Physics2D(Engine, KeyboardHandler):
                 )
             )
 
-        _curr = _get_color(info_list, curr_index)
-        curr_color = _curr.with_intensity(_curr.opacity)
+        curr_color = _get_color(info_list, curr_index)
+        # curr_color = _curr.with_intensity(_curr.opacity)
         curr_index += 1
 
         while curr_index < len(info_list):
-            # if curr_color.opacity < 1:
-            #     next_object_color = _get_color(info_list, curr_index).with_intensity(
-            #         (1 - curr_color.opacity)
-            #     )
-            #     curr_color = (
-            #         curr_color.with_intensity(curr_color.opacity * curr_color.intensity)
-            #         + next_object_color
-            #     )
+            # If the color is opaque and covers everything in the subpixel (indicated by intensity), we just omit this
+            covers_everything = curr_color.intensity >= 1
+            is_opaque = curr_color.opacity >= 1
 
-            _next = _get_color(info_list, curr_index)
-            next_object_color = _next.with_intensity((1 - curr_color.opacity))
-            curr_color = (
-                curr_color.with_intensity(curr_color.opacity * (curr_color.intensity))
-                + next_object_color
-            )
+            if covers_everything and is_opaque:
+                break
+
+            _next_raw_color = _get_color(info_list, curr_index)
+            _prev_color = curr_color.copy()
+
+            # TODO: I'm sure you can generalize, but let's play it safe first
+            # case 1:
+            if not covers_everything and is_opaque:
+                # NOT ENTERING HERE
+                next_color = _next_raw_color.with_intensity(1 - curr_color.intensity)
+                curr_color += next_color
+
+            # case 2:
+            elif covers_everything and not is_opaque:
+                # TODO: are we missing the next_color's opacity? maybe not, because it will be applied in the next iteration
+                next_color = _next_raw_color.with_intensity((1 - curr_color.opacity))
+                curr_color = curr_color.with_intensity(
+                    curr_color.opacity * curr_color.intensity
+                ) + next_color.with_intensity(next_color.opacity)
+
+            # case 3:
+            elif not covers_everything and not is_opaque:
+                # curr_color = RGB(255, 255, 255)
+                # next_color = _next_raw_color.with_intensity((1 - curr_color.opacity) ** 2)
+                # curr_color = (
+                #     curr_color.with_intensity(curr_color.opacity * curr_color.intensity)
+                #     + next_color
+                # )
+                # TODO: is this it??=???
+                next_color = _next_raw_color.with_intensity(
+                    2 - curr_color.intensity - curr_color.opacity
+                )
+                curr_color = curr_color.with_intensity(curr_color.opacity) + next_color
+
+            # TODO: monitor this optimization, not sure if we could be missing some contributions like this
+            if curr_color == _prev_color:
+                break
 
             curr_index += 1
 

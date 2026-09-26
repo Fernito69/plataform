@@ -95,9 +95,6 @@ class RGB:
         self.intensity = min(1, max(0, intensity))
         self.opacity = min(1, max(0, opacity))
 
-    def __str__(self):
-        return f"rgb({self.r}, {self.g}, {self.b})"
-
     # TODO: unify these two
     # TODO: should with_intensity also consider opacity?
     def with_intensity(self, intensity: float | None = None) -> "RGB":
@@ -108,6 +105,16 @@ class RGB:
             int(self.r * self.intensity),
             int(self.g * self.intensity),
             int(self.b * self.intensity),
+            intensity=1,
+            opacity=self.opacity,
+        )
+
+    def copy(self) -> RGB:
+        return RGB(
+            r=self.r,
+            g=self.g,
+            b=self.b,
+            intensity=self.intensity,
             opacity=self.opacity,
         )
 
@@ -147,12 +154,16 @@ class RGB:
         _factor = curr_ratio / total
         return self.with_intensity(1 - _factor) + target_color.with_intensity(_factor)
 
+    def __str__(self):
+        return f"rgb({self.r}, {self.g}, {self.b})"
+
     # TODO: what to do with opacity with these two methods?
     def __add__(self, other: "RGB") -> "RGB":
         return RGB(
             r=self.r + other.r,
             g=self.g + other.g,
             b=self.b + other.b,
+            opacity=(self.opacity + other.opacity) / 2,
         )
 
     def __sub__(self, other: "RGB") -> "RGB":
@@ -160,6 +171,7 @@ class RGB:
             r=self.r - other.r,
             g=self.g - other.g,
             b=self.b - other.b,
+            opacity=(self.opacity + other.opacity) / 2,
         )
 
     def __iter__(self):
