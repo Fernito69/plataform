@@ -80,6 +80,8 @@ class Enemy(PhysicsEntity):
         self.health = health
         self._initial_health = health
         self._initial_theme = Theme(color=theme.color)
+        self.secondary_theme = secondary_theme
+        self.theme = theme
         self.name = name
         self.extra_shapes = extra_shapes
         self._projectile_generator = projectile_generator
@@ -130,7 +132,7 @@ class Enemy(PhysicsEntity):
 
         color = _color_1.get_gradient(
             _color_2,
-            math.sin(self._engine.scenario.now() / self._color_cycling_factor),
+            abs(math.sin(self._engine.scenario.now() / self._color_cycling_factor)),
         )
         self.theme.color = color
 
@@ -195,6 +197,7 @@ class Enemy(PhysicsEntity):
         self._attack_player()
         self._generate_particles()
         self._cycle_opacity()
+        self._cycle_color()
 
         if self.health is not None and self.health <= 0:
             # die :(

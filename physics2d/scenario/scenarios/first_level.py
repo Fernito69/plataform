@@ -52,10 +52,10 @@ def first_level(engine: "Physics2D") -> Scenario:
         ###
         Enemy(
             engine=engine,
-            size=12,
+            size=16,
             health=400,
             name="MidEnemy",
-            position=PointF(120, 30),
+            position=PointF(132, 30),
             theme=Theme(RGB(255, 50, 50, opacity=0.6)),
         ),
         Enemy(
@@ -65,13 +65,15 @@ def first_level(engine: "Physics2D") -> Scenario:
             name="MidEnemy",
             position=PointF(120, 30),
             theme=Theme(RGB(0, 0, 255, opacity=1)),
+            secondary_theme=Theme(RGB(0, 255, 0, opacity=1)),
+            color_cycling_factor=10,
         ),
         Enemy(
             engine=engine,
-            size=12,
+            size=16,
             health=400,
             name="MidEnemy",
-            position=PointF(140, 30),
+            position=PointF(144, 30),
             theme=Theme(
                 RGB(50, 255, 50, opacity=0.5),
             ),
@@ -83,6 +85,39 @@ def first_level(engine: "Physics2D") -> Scenario:
             name="MidEnemy",
             position=PointF(160, 30),
             theme=Theme(RGB(50, 50, 255, opacity=0.6)),
+        ),
+        ###
+        Enemy(
+            engine=engine,
+            size=24,
+            health=400,
+            name="MidEnemy",
+            position=PointF(100, 60),
+            theme=Theme(RGB(255, 50, 50, opacity=1)),
+            secondary_theme=Theme(RGB(127, 50, 255, opacity=1)),
+            color_cycling_factor=10,
+        ),
+        Enemy(
+            engine=engine,
+            size=24,
+            health=400,
+            name="MidEnemy",
+            position=PointF(110, 60),
+            theme=Theme(
+                RGB(50, 255, 50, opacity=1),
+            ),
+            secondary_theme=Theme(RGB(255, 127, 50, opacity=1)),
+            color_cycling_factor=9,
+        ),
+        Enemy(
+            engine=engine,
+            size=24,
+            health=400,
+            name="MidEnemy",
+            position=PointF(120, 60),
+            theme=Theme(RGB(50, 50, 255, opacity=1)),
+            secondary_theme=Theme(RGB(0, 255, 127, opacity=1)),
+            color_cycling_factor=8,
         ),
         # MachineGunEnemy(
         #     size=10,

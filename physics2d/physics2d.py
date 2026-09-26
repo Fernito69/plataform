@@ -146,9 +146,12 @@ class Physics2D(Engine, KeyboardHandler):
                 upper_color = Physics2D._compute_subpixel_color(upper_pixel_info)
                 lower_color = Physics2D._compute_subpixel_color(lower_pixel_info)
 
+                # TODO: use a special algorithm to detect when to use special chars, e.g., ▞, `▛`, `▜`
+                char = LOWER_PIXEL_CHAR
+
                 new_screen_grid[new_y].append(
                     colored(
-                        LOWER_PIXEL_CHAR,
+                        char,
                         color=upper_color,
                         bg_color=lower_color,
                     )
@@ -191,14 +194,6 @@ class Physics2D(Engine, KeyboardHandler):
 
     @staticmethod
     def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
-        # HACK: this is horrible, make better! This is to simulate the black background
-        info_list.append(
-            RenderInfo(
-                color=RGB(0, 0, 0, 1, 0),
-                distance_to_pixel_center=0,
-                point=PointF(0, 0),
-            )
-        )
 
         curr_index = 0
 
@@ -207,12 +202,6 @@ class Physics2D(Engine, KeyboardHandler):
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
-            # return il[idx].color.with_intensity_v2(
-            #     max(
-            #         0,
-            #         1 - (il[idx]).distance_to_pixel_center,
-            #     )
-            # )
             return il[idx].color.with_intensity_v2(
                 max(
                     0,
@@ -221,47 +210,35 @@ class Physics2D(Engine, KeyboardHandler):
             )
 
         curr_color = _get_color(info_list, curr_index)
-        # curr_color = _curr.with_intensity(_curr.opacity)
         curr_index += 1
 
         while curr_index < len(info_list):
             # If the color is opaque and covers everything in the subpixel (indicated by intensity), we just omit this
             covers_everything = curr_color.intensity >= 1
-            is_opaque = curr_color.opacity >= 1
+            is_transparent = curr_color.opacity < 1
 
-            if covers_everything and is_opaque:
+            if covers_everything and not is_transparent:
                 break
 
             _next_raw_color = _get_color(info_list, curr_index)
             _prev_color = curr_color.copy()
 
-            # TODO: I'm sure you can generalize, but let's play it safe first
+            # TODO: I'm sure you can generalize, but let's play it safe first with cases
             # case 1:
-            if not covers_everything and is_opaque:
-                # NOT ENTERING HERE
+            if not covers_everything and not is_transparent:
                 next_color = _next_raw_color.with_intensity(1 - curr_color.intensity)
                 curr_color += next_color
 
+            # TODO: case 3 works well, except when more than 1 transparent tile stacked together, then the opacities kinda stack up as intensities
+
             # case 2:
-            elif covers_everything and not is_opaque:
-                # TODO: are we missing the next_color's opacity? maybe not, because it will be applied in the next iteration
-                next_color = _next_raw_color.with_intensity((1 - curr_color.opacity))
-                curr_color = curr_color.with_intensity(
-                    curr_color.opacity * curr_color.intensity
-                ) + next_color.with_intensity(next_color.opacity)
+            elif covers_everything and is_transparent:
+                next_color = _next_raw_color.with_intensity()
+                curr_color = curr_color.with_intensity(curr_color.opacity) + next_color
 
             # case 3:
-            elif not covers_everything and not is_opaque:
-                # curr_color = RGB(255, 255, 255)
-                # next_color = _next_raw_color.with_intensity((1 - curr_color.opacity) ** 2)
-                # curr_color = (
-                #     curr_color.with_intensity(curr_color.opacity * curr_color.intensity)
-                #     + next_color
-                # )
-                # TODO: is this it??=???
-                next_color = _next_raw_color.with_intensity(
-                    2 - curr_color.intensity - curr_color.opacity
-                )
+            elif not covers_everything and is_transparent:
+                next_color = _next_raw_color.with_intensity()
                 curr_color = curr_color.with_intensity(curr_color.opacity) + next_color
 
             # TODO: monitor this optimization, not sure if we could be missing some contributions like this
@@ -269,6 +246,10 @@ class Physics2D(Engine, KeyboardHandler):
                 break
 
             curr_index += 1
+
+        # if it's the last in the list and it's transparent, check againstbackground
+        if len(info_list) > 0 and info_list[-1].color.opacity < 1:
+            curr_color = curr_color.with_intensity(curr_color.opacity)
 
         return curr_color
 
