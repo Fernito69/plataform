@@ -11,7 +11,7 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
-    from physics2d.entities.model.shared import ParticleGenerator
+    from physics2d.entities.model.shared import ParticleGenerator, ParticleGeneratorWithTarget
     from physics2d.physics2d import Physics2D
 
 
@@ -657,7 +657,30 @@ def rocket_explosion(
 #################################
 
 
-def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity | None") -> None:
+def rocket_trail(
+    trail_color_1: RGB | None = None,
+    trail_color_2: RGB | None = None,
+    no_smoke: bool = False,
+) -> "ParticleGeneratorWithTarget":
+    def _r(engine: "Physics2D", source: "PhysicsEntity", _):
+        return _rocket_trail(
+            engine,
+            source,
+            trail_color_1=trail_color_1,
+            trail_color_2=trail_color_2,
+            no_smoke=no_smoke,
+        )
+
+    return _r
+
+
+def _rocket_trail(
+    engine: "Physics2D",
+    source: "PhysicsEntity",
+    trail_color_1: RGB | None = None,
+    trail_color_2: RGB | None = None,
+    no_smoke: bool = False,
+) -> None:
     if is_out_of_sight(engine, source):
         return
 
@@ -677,24 +700,31 @@ def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity
         _radius_factor = random() * 1.2
 
         # METEOR KINDA TRAIL
-        _meteor_color = (
-            RGB(
-                255,
-                190 - (i * 10),
-                50,
-            ).with_intensity(1)
-            if is_odd
-            else RGB(
-                255,
-                255 - (i - 1) * 12,
-                (i - 1) * 1,
-            ).with_intensity(1)
+        _thrust_color = (
+            trail_color_1
+            if trail_color_1 is not None
+            else (
+                RGB(
+                    255,
+                    190 - (i * 10),
+                    50,
+                )
+                if is_odd
+                else RGB(
+                    255,
+                    255 - (i - 1) * 12,
+                    (i - 1) * 1,
+                )
+            )
         )
+        _ending_color = trail_color_2 or RGB(150, 150, 150, opacity=0.3)
 
         _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
 
         def _smoke(engine: "Physics2D", source) -> None:
-            return _smoke_generator(engine, source, life_time=5, floating_multi=0.1)
+            if no_smoke:
+                return
+            _smoke_generator(engine, source, life_time=5, floating_multi=0.1)
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -715,8 +745,8 @@ def rocket_trail(engine: "Physics2D", source: "PhysicsEntity", _: "PhysicsEntity
             size=i * _radius_factor * (1 + vel_magnitude / 5),
             size_change_type=TransitionType.LINEAR_DECREASE,
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            initial_color=_meteor_color,
-            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+            initial_color=_thrust_color,
+            ending_color=_ending_color,  # smokelike
             life_time=_LIFE_TIME,
             gravity=-0.07,
             floating_multi=0.1,

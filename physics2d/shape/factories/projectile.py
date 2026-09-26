@@ -185,6 +185,8 @@ def rocket(
     max_blast_damage: float,
     size: float,
     color: RGB = RGB(127, 127, 127, 1),
+    trail_color_1: RGB | None = None,
+    trail_color_2: RGB | None = None,
     is_enemy: bool = False,
 ):
     return Projectile(
@@ -201,7 +203,11 @@ def rocket(
         life_time=life_time,
         damage=damage,
         explosion_generator=get_rocket_explosion(damage, blast_radius, max_blast_damage),
-        trail_generator=rocket_trail,
+        trail_generator=rocket_trail(
+            trail_color_1=trail_color_1,
+            trail_color_2=trail_color_2,
+            no_smoke=True,
+        ),
         density=3,
         explode_on_life_time_over=True,
         is_enemy=is_enemy,
@@ -216,6 +222,8 @@ def get_rocket(
     max_blast_damage: float,
     size: float,
     color: RGB = RGB(127, 127, 127, 1),
+    trail_color_1: RGB | None = None,
+    trail_color_2: RGB | None = None,
     is_enemy: bool = False,
 ) -> "ParticleGenerator":
     def _get_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
@@ -229,6 +237,8 @@ def get_rocket(
             max_blast_damage=max_blast_damage,
             size=size,
             color=color,
+            trail_color_1=trail_color_1,
+            trail_color_2=trail_color_2,
             is_enemy=is_enemy,
         )
         if is_enemy:

@@ -5,6 +5,8 @@ from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.spawner_entity import SpawnerEntity
+from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -161,15 +163,15 @@ def first_level(engine: "Physics2D") -> Scenario:
 
     # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = [
-        # SpawnerEntity(
-        #     engine=engine,
-        #     size=10,
-        #     spawn_interval=200,
-        #     total_num_spawns=5,
-        #     position=PointF(75, 75),
-        #     spawner=super_rocket_enemy_spawner,
-        #     initial_delay=150,
-        # ),
+        SpawnerEntity(
+            engine=engine,
+            size=10,
+            spawn_interval=200,
+            total_num_spawns=2,
+            position=PointF(75, 75),
+            spawner=super_rocket_enemy_spawner,
+            initial_delay=150,
+        ),
         # SpawnerEntity(
         #     engine=engine,
         #     size=10,

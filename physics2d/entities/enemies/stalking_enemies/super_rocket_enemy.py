@@ -14,6 +14,7 @@ from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.shape.base import Shape
 
 _IDEAL_DISTANCE_FROM_PLAYER = 60
 _IDEAL_DISTANCE_FROM_ENEMIES = 20
@@ -74,10 +75,13 @@ class SuperRocketEnemy(StalkingEnemy):
             blast_radius=blast_radius,
             max_blast_damage=max_blast_damage,
             size=_SIZE,
+            color=RGB(127, 0, 255),
+            trail_color_1=RGB(255, 255, 0),
+            trail_color_2=RGB(0, 0, 255, opacity=0.4),
         )
         self._particle_generator = main_thruster
 
-        satellites: list[Enemy | PhysicsEntity] = [
+        satellites: list["Enemy | PhysicsEntity | Shape"] = [
             Enemy(
                 projectile_generator=_rocket_launcher,
                 engine=engine,
@@ -87,11 +91,13 @@ class SuperRocketEnemy(StalkingEnemy):
                 ).rotate(((num / _NUM_SATELLITES) * (2 * PI)), position),
                 size=_ROCKET_LAUNCHER_SATELLITE_RADIUS,
                 theme=Theme(color=theme.color.with_intensity(0.7) if theme.color else None),
+                secondary_theme=Theme(color=RGB(255, 20, 255)),
                 density=1,
                 health=None,
                 precision=precision,
                 aggressivity=aggressivity,
                 particle_generator=satellite_thrusters,
+                color_cycling_factor=15,
             )
             for num in range(_NUM_SATELLITES)
         ]
@@ -108,6 +114,7 @@ class SuperRocketEnemy(StalkingEnemy):
             enemy._move_by(self.velocity)
             enemy._generate_particles()
             enemy._attack_player()
+            self._cycle_color()
             enemy._apply_collisions()
             enemy.center = enemy.center.rotate(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
             enemy.position = enemy.center
@@ -119,7 +126,7 @@ class SuperRocketEnemy(StalkingEnemy):
 def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces = []
 
-    _particle_density = 1
+    _particle_density = 2
     for i in range(_particle_density):
         # little particles doing particle stuff
         _particle = CircularParticle(
@@ -135,11 +142,11 @@ def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
             size=0.7 + random_offset(),
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(255, 0, 255),
-            ending_color=RGB(0, 0, 80, 1),
+            ending_color=RGB(0, 0, 255, opacity=0.1),
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=15,
             gravity=-0.07,
-            floating_multi=0.01,
+            floating_multi=0.1,
             engine=engine,
         )
         pieces.append(_particle)
@@ -150,8 +157,8 @@ def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
 def main_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
     pieces = []
 
-    _particle_density = 1
-    for i in range(_particle_density):
+    _particle_density = 2
+    for _ in range(_particle_density):
         # little particles doing particle stuff
         _particle = CircularParticle(
             origin=(source.center) + source.size * VectorF.random_offset_vector(),
@@ -159,7 +166,7 @@ def main_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
             size=2,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(255, 0, 255),
-            ending_color=RGB(0, 0, 80, 1),
+            ending_color=RGB(0, 0, 255, opacity=0.1),
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             life_time=15,
             gravity=-0.07,
