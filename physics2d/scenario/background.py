@@ -61,7 +61,10 @@ class Background:
         for layer in self._layers:
             _distance_factor = 1 / layer.depth
 
-            min_x, min_y, max_x, max_y = self._get_screen_borders()
+            # min_x, min_y, max_x, max_y = self._get_screen_borders()
+            # diff_x = max_x - min_x
+            # diff_y = max_y - min_y
+            X_RES, Y_RES = self._engine.get_resolution()
 
             for shape in layer.shapes:
                 # TODO: this shouldn't happen here
@@ -75,21 +78,24 @@ class Background:
                 _vector = _distance_factor * (
                     self._previous_screen_corner - self._engine.screen_corner
                 )
+
                 shape.center += _vector
 
                 # TODO: stupid, do better... mayvbe with modulo?
-                # TODO: WHY DOES THIS NOT WORK?=?=?
-                # if shape.center.x >= max_x:
-                #     shape.center.x = min_x
+                # WHYYYYY THIS DOESN'T WORKKK??
+                _safety_factor = 0.5
+                x_safety = X_RES * _safety_factor
+                y_safety = Y_RES * _safety_factor
 
-                # if shape.center.y >= max_y:
-                #     shape.center.y = min_y
+                if shape.center.x < -x_safety:
+                    shape.center.x = X_RES + x_safety - 1
+                elif shape.center.x > X_RES + x_safety:
+                    shape.center.x = 1 - x_safety
 
-                # if shape.center.x < min_x:
-                #     shape.center.x = max_x
-
-                # if shape.center.y < min_y:
-                #     shape.center.y = max_y
+                if shape.center.y < -y_safety:
+                    shape.center.y = Y_RES + y_safety - 1
+                elif shape.center.y > Y_RES + y_safety:
+                    shape.center.y = 1 - y_safety
 
                 render_info.extend(shape.get_render_info())
 

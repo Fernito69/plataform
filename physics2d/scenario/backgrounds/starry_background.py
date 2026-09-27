@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 _NUM_LAYERS = 9
 _STAR_DENSITY = 10
 _STAR_COLOR = RGB(200, 210, 255)
-_STAR_RADIUS = 1
-_DEPTH_PER_LAYER = 5
+_STAR_RADIUS = 0.8
+_DEPTH_PER_LAYER = 10
 _DIMMING_RATIO = 0.6
 
 
@@ -31,7 +31,7 @@ class StarryBackground(Background):
     def _init_layers(self) -> list[BgLayer]:
         layers: list[BgLayer] = []
 
-        min_x, min_y, max_x, max_y = self._get_screen_borders()
+        X_RES, Y_RES = self._engine.get_resolution()
 
         for layer_num in range(1, _NUM_LAYERS + 1):
             shapes: list["Shape | PhysicsEntity"] = []
@@ -42,10 +42,10 @@ class StarryBackground(Background):
                     # TODO: I'll do it with little circles for now, but this should be Dot
                     Circunference(
                         engine=self._engine,
-                        radius=_STAR_RADIUS * (_factor),
+                        radius=(_STAR_RADIUS + 0.2 * random_offset()) * (_factor),
                         center=PointF(
-                            x=min_x + (max_x - min_x) * random(),
-                            y=min_y + (max_y - min_y) * random(),
+                            x=(X_RES) * random(),
+                            y=+(Y_RES) * random(),
                         ),
                         theme=Theme(
                             _STAR_COLOR.with_intensity(_factor)
@@ -62,5 +62,20 @@ class StarryBackground(Background):
                     shapes=shapes,
                 )
             )
+
+        # Add big star in bg
+        layers[_NUM_LAYERS - 1].shapes.append(
+            Circunference(
+                engine=self._engine,
+                radius=4,
+                center=PointF(
+                    x=50,
+                    y=50,
+                ),
+                theme=Theme(RGB(255, 255, 220)),
+                secondary_theme=Theme(RGB(255, 255, 180)),
+                color_cycling_factor=(3 + random_offset()) / 2,
+            )
+        )
 
         return layers
