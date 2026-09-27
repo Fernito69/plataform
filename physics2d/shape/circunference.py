@@ -154,8 +154,7 @@ class Circunference(Shape):
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
-        # this only makes sense if we implement textured circunferences
-
+    # this only makes sense if we implement textured circunferences
     def _rotate(self) -> None:
         pass
 

@@ -42,10 +42,10 @@ class StarryBackground(Background):
                     # TODO: I'll do it with little circles for now, but this should be Dot
                     Circunference(
                         engine=self._engine,
-                        radius=_STAR_RADIUS * (_factor**0.5),
+                        radius=_STAR_RADIUS * (_factor),
                         center=PointF(
-                            x=min_x + max_x * random(),
-                            y=min_y + max_y * random(),
+                            x=min_x + (max_x - min_x) * random(),
+                            y=min_y + (max_y - min_y) * random(),
                         ),
                         theme=Theme(
                             _STAR_COLOR.with_intensity(_factor)

@@ -101,6 +101,22 @@ class PointF:
         """Gets magnitude"""
         return (self.x**2 + self.y**2 + self.z**2) ** 0.5
 
+        # TODO: benchmark this vs the above
+        # 1. Obtener valores absolutos
+        # x = abs(self.x)
+        # y = abs(self.y)
+
+        # # 2. Identificar el máximo y el mínimo
+        # if x > y:
+        #     max_cateto = x
+        #     min_cateto = y
+        # else:
+        #     max_cateto = y
+        #     min_cateto = x
+
+        # # 3. Aplicar la aproximación (min >> 2 equivale a min / 4)
+        # return max_cateto + (min_cateto / 4)
+
 
 @dataclass
 class VectorF(PointF):
