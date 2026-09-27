@@ -5,6 +5,8 @@ from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.spawner_entity import SpawnerEntity
+from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -119,7 +121,7 @@ def first_level(engine: "Physics2D") -> Scenario:
             secondary_theme=Theme(RGB(0, 127, 255, opacity=1)),
             color_cycling_factor=8,
         ),
-        ###
+        ############################################################
         Enemy(
             engine=engine,
             size=18,
@@ -145,6 +147,58 @@ def first_level(engine: "Physics2D") -> Scenario:
             name="MidEnemy",
             position=PointF(120, -30),
             theme=Theme(RGB(50, 50, 255, opacity=0)),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(100, -64),
+            theme=Theme(RGB(50, 50, 255, opacity=0.1)),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(110, -62),
+            theme=Theme(
+                RGB(255, 50, 50, opacity=1),
+            ),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(120, -60),
+            theme=Theme(RGB(50, 255, 0, opacity=0)),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(100, -94),
+            theme=Theme(RGB(50, 255, 50, opacity=0.1)),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(110, -92),
+            theme=Theme(
+                RGB(50, 50, 255, opacity=1),
+            ),
+        ),
+        Enemy(
+            engine=engine,
+            size=18,
+            health=400,
+            name="MidEnemy",
+            position=PointF(120, -90),
+            theme=Theme(RGB(255, 50, 50, opacity=0)),
         ),
         # MachineGunEnemy(
         #     size=10,
@@ -188,15 +242,15 @@ def first_level(engine: "Physics2D") -> Scenario:
 
     # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = [
-        # SpawnerEntity(
-        #     engine=engine,
-        #     size=10,
-        #     spawn_interval=200,
-        #     total_num_spawns=2,
-        #     position=PointF(75, 75),
-        #     spawner=super_rocket_enemy_spawner,
-        #     initial_delay=150,
-        # ),
+        SpawnerEntity(
+            engine=engine,
+            size=10,
+            spawn_interval=200,
+            total_num_spawns=2,
+            position=PointF(75, 75),
+            spawner=super_rocket_enemy_spawner,
+            initial_delay=150,
+        ),
         # SpawnerEntity(
         #     engine=engine,
         #     size=10,

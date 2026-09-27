@@ -75,10 +75,15 @@ class SuperRocketEnemy(StalkingEnemy):
             blast_radius=blast_radius,
             max_blast_damage=max_blast_damage,
             size=_SIZE,
-            color=RGB(127, 0, 255),
-            trail_color_1=RGB(255, 255, 0),
+            color=RGB(100, 0, 255),
+            trail_color_1=RGB(0, 127, 255),
             trail_color_2=RGB(0, 0, 255, opacity=0.4),
+            explosion_color_3=RGB(127, 0, 255, opacity=1),
+            explosion_color_2=RGB(80, 0, 255, opacity=1),
+            explosion_color_1=RGB(30, 0, 255, opacity=1),
+            explosion_color_4=RGB(0, 0, 180, opacity=1),
         )
+
         self._particle_generator = main_thruster
 
         satellites: list["Enemy | PhysicsEntity | Shape"] = [
