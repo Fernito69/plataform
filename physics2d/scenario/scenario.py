@@ -8,6 +8,8 @@ from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import RenderInfo
+from physics2d.scenario.background import Background
+from physics2d.scenario.backgrounds.starry_background import StarryBackground
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
 from utils import random_offset
@@ -44,6 +46,8 @@ type Layer = Literal["fg", "bg", "solid"]
 class Scenario:
     name: str
 
+    background: Background
+
     fg_shapes: list[Shape]
     bg_shapes: list[Shape]
     solid_shapes: list[Shape]
@@ -74,6 +78,7 @@ class Scenario:
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
+        background: Background | None = None,
     ):
         self.name = name
         self.engine = engine
@@ -94,6 +99,8 @@ class Scenario:
 
         self.projectiles = []
         self.enemy_projectiles = []
+
+        self.background = background or StarryBackground(engine)
 
     def act(self) -> None:
         self.player.do_your_thing()
@@ -137,7 +144,10 @@ class Scenario:
         return self._game_tick
 
     def render(self) -> None:
-        self._render_crosshair()
+        self.handle_render_info(
+            self.crosshair.get_render_info(),
+            absolute_positioning=True,
+        )
 
         # TODO: unify, we need a common class
         def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy]):
@@ -165,13 +175,22 @@ class Scenario:
 
         _handle(self.bg_shapes)
 
-    def handle_render_info(self, render_info: list[RenderInfo]) -> None:
-        for info in render_info:
-            self.engine.add_pixel_info_to_buffer(info)
+        self.handle_render_info(
+            self.background.get_render_info(),
+            absolute_positioning=True,
+        )
 
-    def _render_crosshair(self) -> None:
-        for info in self.crosshair.get_render_info():
-            self.engine.add_pixel_info_to_buffer(info, absolute_positioning=True)
+    def handle_render_info(
+        self,
+        render_info: list[RenderInfo],
+        absolute_positioning=False,
+    ) -> None:
+        for info in render_info:
+            self.engine.add_pixel_info_to_buffer(info, absolute_positioning)
+
+    # def _render_crosshair(self) -> None:
+    #     for info in self.crosshair.get_render_info():
+    #         self.engine.add_pixel_info_to_buffer(info, absolute_positioning=True)
 
     def get_distance_to_player(
         self,

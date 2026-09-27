@@ -82,6 +82,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
+        self.scenario.background.set_previous_screen_corner(self.screen_corner)
         self.handle_keyboard_input()
         self.scenario.act()
         self.scenario.render()
@@ -223,15 +224,6 @@ class Physics2D(Engine, KeyboardHandler):
 
             if covers_everything and not is_transparent:
                 return curr_color
-
-            # # IS THIS THE GENERAZLIED VEWRSION?
-            # _factor = curr_color.opacity * curr_color.intensity
-            # curr_color = curr_color.with_intensity(_factor) + _next_raw_color.with_intensity(
-            #     1 - _factor
-            # )
-            # # curr_color = _factor * curr_color + (1 - _factor) * _next_raw_color
-            # if curr_color == _prev_color:
-            #     break
 
             curr_index += 1
 

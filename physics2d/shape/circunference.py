@@ -32,6 +32,10 @@ class Circunference(Shape):
     center: PointF
     radius: float
 
+    # TODO: remove from Enemy class
+    _initial_theme: Theme
+    _color_cycling_factor: float
+
     def __init__(
         self,
         center: PointF,
@@ -47,6 +51,7 @@ class Circunference(Shape):
         floating_multi: float = 0,
         density: float = 1,
         is_collideable: bool = False,
+        color_cycling_factor: float = 57,
     ):
         self.center = center
         self.radius = radius
@@ -54,6 +59,8 @@ class Circunference(Shape):
         self.density = density
         self.volume = PI * (self.radius**2)
         self.weight = self.volume * self.density
+        self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
+        self._color_cycling_factor = color_cycling_factor
 
         super().__init__(
             theme=theme,
@@ -71,6 +78,9 @@ class Circunference(Shape):
             is_collideable=is_collideable,
             engine=engine,
         )
+
+    def do_your_thing(self) -> None:
+        self._cycle_color()
 
     # TODO: unify with PlayerBlob
     def _apply_friction(self) -> None:
@@ -92,6 +102,21 @@ class Circunference(Shape):
     def _apply_collisions(self) -> None:
         if self.would_collide_with(self._engine.scenario.player):
             ...
+
+    def _cycle_color(self) -> None:
+        if not self._initial_theme.color or not self.secondary_theme:
+            return
+
+        _color_1 = self._initial_theme.color
+        _color_2 = self.secondary_theme.color or RGB()
+        if _color_1 == _color_2:
+            return
+
+        color = _color_1.get_gradient(
+            _color_2,
+            abs(math.sin(self._engine.scenario.now() / self._color_cycling_factor)),
+        )
+        self.theme.color = color
 
     def _move_by(self, vector: VectorF) -> None:
         self.center += vector

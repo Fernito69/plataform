@@ -32,6 +32,7 @@ class Enemy(PhysicsEntity):
 
     _spawner_on_death: Spawner | None
 
+    # TODO: move to Circunference with _initial_theme
     _color_cycling_factor: float
 
     def __init__(

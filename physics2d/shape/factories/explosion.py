@@ -596,6 +596,7 @@ def rocket_explosion(
     # TODO: rename
     _PUSH_FACTOR = 1.2
 
+    # TODO: this deals WAY too much damage to the player, check what's wrong
     if rocket.is_enemy:
         distance = engine.scenario.get_distance_to_player(rocket, calc_distance_to_border=True)
 
