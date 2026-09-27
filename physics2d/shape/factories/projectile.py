@@ -191,6 +191,9 @@ def rocket(
     explosion_color_2: RGB | None = None,
     explosion_color_3: RGB | None = None,
     explosion_color_4: RGB | None = None,
+    explosion_spark_color: RGB | None = None,
+    trail_floating_multi: float = 0.1,
+    trail_life_time: int = 10,
     is_enemy: bool = False,
 ):
     return Projectile(
@@ -214,11 +217,14 @@ def rocket(
             secondary_color=explosion_color_2,
             tertiary_color=explosion_color_3,
             little_explosions_color=explosion_color_4,
+            spark_color=explosion_spark_color,
         ),
         trail_generator=rocket_trail(
             trail_color_1=trail_color_1,
             trail_color_2=trail_color_2,
             no_smoke=True,
+            trail_floating_multi=trail_floating_multi,
+            trail_life_time=trail_life_time,
         ),
         density=3,
         explode_on_life_time_over=True,
@@ -240,6 +246,9 @@ def get_rocket(
     explosion_color_2: RGB | None = None,
     explosion_color_3: RGB | None = None,
     explosion_color_4: RGB | None = None,
+    explosion_spark_color: RGB | None = None,
+    trail_floating_multi: float = 0,
+    trail_life_time: int = 10,
     is_enemy: bool = False,
 ) -> "ParticleGenerator":
     def _get_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
@@ -260,6 +269,9 @@ def get_rocket(
             explosion_color_3=explosion_color_3,
             explosion_color_4=explosion_color_4,
             is_enemy=is_enemy,
+            trail_life_time=trail_life_time,
+            trail_floating_multi=trail_floating_multi,
+            explosion_spark_color=explosion_spark_color,
         )
         if is_enemy:
             engine.scenario.enemy_projectiles.append(_rocket)

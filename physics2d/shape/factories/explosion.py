@@ -55,7 +55,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     # METEOR KINDA TRAIL
     _main_explosion_color = RGB(
         255,
-        160 * random(),
+        90 * random(),
         0,
         opacity=1,
     )
@@ -381,6 +381,7 @@ def get_rocket_explosion(
     secondary_color: RGB | None = None,
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
+    spark_color: RGB | None = None,
 ) -> "ParticleGenerator":
     def _explosion(engine: "Physics2D", source: "PhysicsEntity") -> None:
         if not isinstance(source, Projectile):
@@ -399,6 +400,7 @@ def get_rocket_explosion(
             little_explosions_color=little_explosions_color,
             bfg_sparks=bfg_sparks,
             with_smoke=with_smoke,
+            spark_color=spark_color,
         )
 
     return _explosion
@@ -415,6 +417,7 @@ def rocket_explosion(
     secondary_color: RGB | None = None,
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
+    spark_color: RGB | None = None,
     bfg_sparks: bool = False,
     with_smoke: bool = True,
 ) -> None:
@@ -543,8 +546,10 @@ def rocket_explosion(
                     initial_velocity=(10 * VectorF.random_offset_vector()).as_vector(),
                     size=1.5,
                     size_change_type=TransitionType.LINEAR_DECREASE,
-                    initial_color=RGB(200, 255, 200),
-                    ending_color=RGB(0, 160, 0, opacity=0.4),
+                    initial_color=spark_color or RGB(200, 255, 200),
+                    ending_color=spark_color.copy(opacity=0.3)
+                    if spark_color
+                    else RGB(0, 160, 0, opacity=0.4),
                     life_time=35,
                     engine=engine,
                     floating_multi=1,
@@ -560,8 +565,10 @@ def rocket_explosion(
                         VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
                     ).as_vector(),
                     size=0.5,
-                    initial_color=RGB(255, 255, 200, 1),  # almost white hot
-                    ending_color=RGB(80, 40, 0, 1, opacity=0.5),  # dark orange
+                    initial_color=spark_color or RGB(255, 255, 200, 1),  # almost white hot
+                    ending_color=spark_color.copy(opacity=0.3)
+                    if spark_color
+                    else RGB(80, 40, 0, 1, opacity=0.5),  # dark orange
                     life_time=70,
                     engine=engine,
                     gravity=0.1,
@@ -576,7 +583,7 @@ def rocket_explosion(
     # Needs to be refactored
     shock_wave = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        size=blast_radius / 3,
+        size=blast_radius / 2,
         engine=engine,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
@@ -643,6 +650,8 @@ def rocket_explosion(
 def rocket_trail(
     trail_color_1: RGB | None = None,
     trail_color_2: RGB | None = None,
+    trail_life_time: int = 10,
+    trail_floating_multi: float = 0.1,
     no_smoke: bool = False,
 ) -> "ParticleGeneratorWithTarget":
     def _r(engine: "Physics2D", source: "PhysicsEntity", _):
@@ -652,6 +661,8 @@ def rocket_trail(
             trail_color_1=trail_color_1,
             trail_color_2=trail_color_2,
             no_smoke=no_smoke,
+            trail_floating_multi=trail_floating_multi,
+            trail_life_time=trail_life_time,
         )
 
     return _r
@@ -662,12 +673,13 @@ def _rocket_trail(
     source: "PhysicsEntity",
     trail_color_1: RGB | None = None,
     trail_color_2: RGB | None = None,
+    trail_floating_multi: float = 0.1,
+    trail_life_time: int = 10,
     no_smoke: bool = False,
 ) -> None:
     if is_out_of_sight(engine, source):
         return
 
-    _LIFE_TIME = 10
     pieces: list[CircularParticle] = []
 
     vel_magnitude = abs(source.velocity)
@@ -707,7 +719,7 @@ def _rocket_trail(
         def _smoke(engine: "Physics2D", source) -> None:
             if no_smoke:
                 return
-            _smoke_generator(engine, source, life_time=5, floating_multi=0.1)
+            _smoke_generator(engine, source, life_time=5, floating_multi=trail_floating_multi)
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -730,9 +742,9 @@ def _rocket_trail(
             ending_color_fade_type=TransitionType.LINEAR_DECREASE,
             initial_color=_thrust_color,
             ending_color=_ending_color,  # smokelike
-            life_time=_LIFE_TIME,
+            life_time=trail_life_time,
             gravity=-0.07,
-            floating_multi=0.1,
+            floating_multi=trail_floating_multi,
             particle_generator=_smoke,
         )
         pieces.append(thrust_fire)

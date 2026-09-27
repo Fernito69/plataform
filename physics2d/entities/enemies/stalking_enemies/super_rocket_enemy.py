@@ -82,6 +82,9 @@ class SuperRocketEnemy(StalkingEnemy):
             explosion_color_2=RGB(80, 0, 255, opacity=1),
             explosion_color_1=RGB(30, 0, 255, opacity=1),
             explosion_color_4=RGB(0, 0, 180, opacity=1),
+            explosion_spark_color=RGB(0, 60, 255, opacity=1),
+            trail_floating_multi=1,
+            trail_life_time=10,
         )
 
         self._particle_generator = main_thruster
