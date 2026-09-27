@@ -173,6 +173,18 @@ class RGB:
             opacity=(self.opacity + other.opacity) / 2,
         )
 
+    def __mul__(self, scalar: float) -> "RGB":
+        return RGB(
+            r=self.r * scalar,
+            g=self.g * scalar,
+            b=self.b * scalar,
+            intensity=self.intensity,
+            opacity=self.opacity,
+        )
+
+    def __rmul__(self, scalar: float) -> "RGB":
+        return self * scalar
+
     def __sub__(self, other: "RGB") -> "RGB":
         return RGB(
             r=self.r - other.r,

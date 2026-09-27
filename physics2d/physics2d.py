@@ -211,39 +211,54 @@ class Physics2D(Engine, KeyboardHandler):
         curr_color = _get_color(info_list, curr_index)
         curr_index += 1
 
+        covers_everything = curr_color.intensity >= 1
+        is_transparent = curr_color.opacity < 1
+
         while curr_index < len(info_list):
-            # If the color is opaque and covers everything in the subpixel (indicated by intensity), we just omit this
+            _next_raw_color = _get_color(info_list, curr_index)
+            _prev_color = curr_color.copy()
+
             covers_everything = curr_color.intensity >= 1
             is_transparent = curr_color.opacity < 1
 
             if covers_everything and not is_transparent:
-                break
+                return curr_color
 
-            _next_raw_color = _get_color(info_list, curr_index)
-            _prev_color = curr_color.copy()
+            # # IS THIS THE GENERAZLIED VEWRSION?
+            # _factor = curr_color.opacity * curr_color.intensity
+            # curr_color = curr_color.with_intensity(_factor) + _next_raw_color.with_intensity(
+            #     1 - _factor
+            # )
+            # # curr_color = _factor * curr_color + (1 - _factor) * _next_raw_color
+            # if curr_color == _prev_color:
+            #     break
+
+            curr_index += 1
 
             # TODO: I'm sure you can generalize, but let's play it safe first with cases
             # case 1:
             if not covers_everything and not is_transparent:
-                next_color = _next_raw_color.with_intensity(1 - curr_color.intensity)
-                curr_color += next_color
+                curr_color = curr_color + _next_raw_color.with_intensity_v2(
+                    (1 - curr_color.intensity) * _next_raw_color.opacity
+                )
 
             # TODO: case 3 works well, except when more than 1 transparent tile stacked together, then the opacities kinda stack up as intensities
 
             # case 2:
             elif covers_everything and is_transparent:
-                next_color = _next_raw_color.with_intensity()
-                curr_color = (
-                    curr_color.with_intensity_v2().with_intensity_v2(curr_color.opacity)
-                    + next_color
+                curr_color = curr_color.with_intensity_v2(
+                    curr_color.opacity
+                ) + _next_raw_color.with_intensity_v2(
+                    (1 - curr_color.opacity) * _next_raw_color.opacity
                 )
 
             # case 3:
             elif not covers_everything and is_transparent:
-                next_color = _next_raw_color.with_intensity_v2()
+                # This is not perfect, but good enough it seems
+                _factor = curr_color.opacity * curr_color.intensity
                 curr_color = (
-                    curr_color.with_intensity_v2().with_intensity_v2(curr_color.opacity)
-                    + next_color
+                    curr_color.with_intensity_v2(_factor)
+                    + _next_raw_color.with_intensity_v2(1 - _factor) * _next_raw_color.opacity
                 )
 
             # TODO: monitor this optimization, not sure if we could be missing some contributions like this

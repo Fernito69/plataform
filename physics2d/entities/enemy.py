@@ -79,7 +79,7 @@ class Enemy(PhysicsEntity):
         self._engine = engine
         self.health = health
         self._initial_health = health
-        self._initial_theme = Theme(color=theme.color)
+        self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
         self.secondary_theme = secondary_theme
         self.theme = theme
         self.name = name
@@ -142,13 +142,15 @@ class Enemy(PhysicsEntity):
         ):
             return
 
+        _opacity = self._initial_theme.color.opacity if self._initial_theme.color else 1
         self.theme.color = RGB(
             self.theme.color.r,
             self.theme.color.g,
             self.theme.color.b,
-            opacity=abs(
-                math.sin(self._engine.scenario.now() / 50),
-            ),
+            # opacity=abs(
+            #     math.sin(self._engine.scenario.now() / 30),
+            # ),
+            opacity=1 - 1.2 * ((1 - _opacity) * abs(math.sin(self._engine.scenario.now() / 30))),
         )
 
     def _spawn_on_death(self) -> None:
