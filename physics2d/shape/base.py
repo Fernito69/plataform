@@ -113,6 +113,7 @@ class Shape:
         self.velocity = VectorF(
             self.velocity.x,
             self.velocity.y - (self._own_gravity_accel or gravity_accel),
+            self.velocity.z,
         )
 
     @abstractmethod

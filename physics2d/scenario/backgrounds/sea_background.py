@@ -30,7 +30,7 @@ class SeaBackground(Background):
     def _init_layers(self) -> list[BgLayer]:
         layers: list[BgLayer] = []
 
-        X_RES, Y_RES = self._engine.get_resolution()
+        X_RES, _ = self._engine.get_resolution()
         safety_margin_x = 50
         safety_margin_y = 50
 

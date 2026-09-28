@@ -83,6 +83,7 @@ class Line(Shape):
 
     def _move_by(self, vector: VectorF) -> None:
         self.points = (self.points[0] + vector, self.points[1] + vector)
+        self._update_center_of_mass()
 
     def would_collide_with(self, colliding_shape: Shape):
         if not self.is_collideable or not colliding_shape.is_collideable:

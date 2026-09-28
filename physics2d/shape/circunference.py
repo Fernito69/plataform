@@ -51,7 +51,7 @@ class Circunference(Shape):
         floating_multi: float = 0,
         density: float = 1,
         is_collideable: bool = False,
-        color_cycling_factor: float = 57,
+        color_cycling_factor: float = 0,
     ):
         self.center = center
         self.radius = radius
@@ -105,7 +105,11 @@ class Circunference(Shape):
             ...
 
     def _cycle_color(self) -> None:
-        if not self._initial_theme.color or not self.secondary_theme:
+        if (
+            not self._initial_theme.color
+            or not self.secondary_theme
+            or not self._color_cycling_factor
+        ):
             return
 
         _color_1 = self._initial_theme.color
@@ -274,6 +278,7 @@ class Circunference(Shape):
 
     def _get_render_info_v1(self) -> list[RenderInfo]:
         from physics2d.entities.player_blob import PlayerBlob
+        from physics2d.shape.particle.base import Particle
 
         piece_info: list[RenderInfo] = []
 
@@ -310,7 +315,7 @@ class Circunference(Shape):
             x1: float | None = curr_x
             x2: float | None = self.radius + self.center.x - curr_x
 
-            for curr_y in y_range:
+            for index_y, curr_y in enumerate(y_range):
                 if not _go_full_color_until_next_x:
                     x1, x2 = eq.get_xs(curr_y)
 
@@ -334,10 +339,25 @@ class Circunference(Shape):
                 if _distance <= 0 and not _go_full_color_until_next_x:
                     _go_full_color_until_next_x = True
 
+                # Theme gradient (apply vertically)
+                _gradient_factor: float = (index_y + 1) / len(y_range)
+                color = (
+                    _gradient_factor * self._initial_theme.color
+                    + (1 - _gradient_factor) * self.secondary_theme.color
+                    if (
+                        self._initial_theme.color is not None
+                        and self.secondary_theme is not None
+                        and self.secondary_theme.color is not None
+                        and not self._color_cycling_factor
+                        and not (isinstance(self, Particle) and self.life_time is not None)
+                    )
+                    else self.theme.color or RGB()
+                )
+
                 piece_info.append(
                     RenderInfo(
                         distance_to_pixel_center=_distance,
-                        color=self.theme.color or RGB(255, 255, 255),
+                        color=color,
                         point=PointF(curr_x, curr_y),
                     )
                 )

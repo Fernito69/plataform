@@ -14,11 +14,11 @@ if TYPE_CHECKING:
 _NUM_LAYERS = 10
 _ASTEROID_DENSITY = 30
 _ASTEROID_RADIUS = 2
-_DEPTH_PER_LAYER = 5
+_DEPTH_PER_LAYER = 4
 
 
 class SaturnRings(Background):
-    """"""
+    """The beloved planet"""
 
     def __init__(self, engine: "Physics2D") -> None:
         self._engine = engine
@@ -63,11 +63,13 @@ class SaturnRings(Background):
                 # Random at depths, for more realistic effect
                 z = 1 + (((layer_num) * _DEPTH_PER_LAYER) + random_offset() * _DEPTH_PER_LAYER) / 8
 
+                color_gradient_factor = _factor**0.9
+
                 shapes.append(
                     Circunference(
                         engine=self._engine,
-                        initial_velocity=VectorF(0.1, 0),
-                        radius=(_ASTEROID_RADIUS + random_offset()) * (_factor),
+                        initial_velocity=VectorF(0.1 + 0.02 * random_offset(), 0),
+                        radius=(_ASTEROID_RADIUS + random_offset()) * _factor,
                         center=PointF(
                             x=x,
                             y=y,
@@ -78,7 +80,15 @@ class SaturnRings(Background):
                                 200 + 20 * random_offset(),
                                 170 + 40 * random_offset(),
                                 60,
-                            ).with_intensity(_factor**0.9)
+                            ).with_intensity(color_gradient_factor)
+                        ),
+                        secondary_theme=Theme(
+                            0.6
+                            * RGB(
+                                200 + 20 * random_offset(),
+                                170 + 40 * random_offset(),
+                                60,
+                            ).with_intensity(color_gradient_factor)
                         ),
                     )
                 )
@@ -100,6 +110,7 @@ class SaturnRings(Background):
                     y=Y_RES / 2,
                 ),
                 theme=Theme(RGB(200, 100, 20)),
+                secondary_theme=Theme(RGB(0, 0, 255)),
             )
         )
 

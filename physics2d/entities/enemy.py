@@ -57,7 +57,7 @@ class Enemy(PhysicsEntity):
         precision: float = 0,
         aggressivity: float = 0,
         spawner_on_death: Spawner | None = None,
-        color_cycling_factor: float = 57,
+        color_cycling_factor: float = 0,
     ):
         super().__init__(
             density=density,
