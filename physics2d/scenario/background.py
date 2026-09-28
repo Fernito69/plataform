@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from physics2d.model.shared import RenderInfo
 from physics2d.shape.circunference import Circunference
 
@@ -25,10 +25,25 @@ class Background:
     _layers: list[BgLayer]
     _previous_screen_corner: PointF
 
-    def __init__(self, engine: "Physics2D", layers: list[BgLayer]) -> None:
+    _scroll_vertically: bool
+    _scroll_horizontally: bool
+
+    _additional_backgrounds: list["Background"]
+
+    def __init__(
+        self,
+        engine: "Physics2D",
+        layers: list[BgLayer],
+        scroll_vertically: bool = True,
+        scroll_horizontally: bool = True,
+        additional_backgrounds: list["Background"] = [],
+    ) -> None:
         self._engine = engine
         self._layers = layers
         self._previous_screen_corner = engine.screen_corner
+        self._scroll_horizontally = scroll_horizontally
+        self._scroll_vertically = scroll_vertically
+        self._additional_backgrounds = additional_backgrounds
 
     def set_previous_screen_corner(self, screen_corner: PointF) -> None:
         self._previous_screen_corner = PointF(
@@ -64,7 +79,7 @@ class Background:
             # min_x, min_y, max_x, max_y = self._get_screen_borders()
             # diff_x = max_x - min_x
             # diff_y = max_y - min_y
-            # X_RES, Y_RES = self._engine.get_resolution()
+            X_RES, Y_RES = self._engine.get_resolution()
 
             for shape in layer.shapes:
                 shape.do_your_thing()
@@ -73,6 +88,8 @@ class Background:
                 if isinstance(shape, Circunference) and shape.center.z:
                     _distance_factor = 1 / shape.center.z
 
+                center = shape.center if isinstance(shape, Circunference) else shape.center_of_mass
+
                 # Correct shape position:
                 _vector = (
                     _distance_factor * (self._previous_screen_corner - self._engine.screen_corner)
@@ -80,22 +97,31 @@ class Background:
 
                 shape._move_by(_vector)
 
-                # #TODO: WHYYYYY THIS DOESN'T WORKKK??
-                # _safety_factor = 0.5
-                # x_safety = X_RES * _safety_factor
-                # y_safety = Y_RES * _safety_factor
+                # TODO: fine-tune this
+                _scrolling_safety_factor = 0.1
 
-                # if shape.center.x < -x_safety:
-                #     shape.center.x = X_RES + x_safety - 1
-                # elif shape.center.x > X_RES + x_safety:
-                #     shape.center.x = 1 - x_safety
+                if self._scroll_horizontally:
+                    x_safety_margin = X_RES * _scrolling_safety_factor
+                    x_loop = X_RES + 2 * x_safety_margin
 
-                # if shape.center.y < -y_safety:
-                #     shape.center.y = Y_RES + y_safety - 1
-                # elif shape.center.y > Y_RES + y_safety:
-                #     shape.center.y = 1 - y_safety
+                    if center.x < -x_safety_margin:
+                        shape._move_by(VectorF(x_loop, 0))
+                    elif center.x > X_RES + x_safety_margin:
+                        shape._move_by(VectorF(-x_loop, 0))
+
+                if self._scroll_vertically:
+                    y_safety_margin = Y_RES * _scrolling_safety_factor
+                    y_loop = Y_RES + 2 * y_safety_margin
+
+                    if center.y < -y_safety_margin:
+                        shape._move_by(VectorF(0, y_loop))
+                    elif center.y > Y_RES + y_safety_margin:
+                        shape._move_by(VectorF(0, -y_loop))
 
                 render_info.extend(shape.get_render_info())
+
+        for bg in self._additional_backgrounds:
+            render_info.extend(bg.get_render_info())
 
         return render_info
 

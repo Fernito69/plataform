@@ -119,7 +119,8 @@ class Line(Shape):
                 math.floor(local_min_y - self.thickness), math.ceil(local_max_y + self.thickness)
             )
 
-            for y in y_range:
+            # TODO: fix rendering of line borders
+            for y_index, y in enumerate(y_range):
                 distance = self.get_distance_to_point(PointF(x + HALF_PIXEL, y + HALF_PIXEL))
 
                 if distance > self.thickness:

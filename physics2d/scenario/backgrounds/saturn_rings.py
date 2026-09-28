@@ -23,7 +23,11 @@ class SaturnRings(Background):
     def __init__(self, engine: "Physics2D") -> None:
         self._engine = engine
         layers = self._init_layers()
-        super().__init__(engine, layers)
+        super().__init__(
+            engine,
+            layers,
+            scroll_vertically=False,
+        )
 
     def _init_layers(self) -> list[BgLayer]:
         layers: list[BgLayer] = []
@@ -48,29 +52,33 @@ class SaturnRings(Background):
                 _factor = 1 / layer_num
                 _safety_factor_x = 1
 
+                # Spread all along horizontally
+                x = (
+                    -_safety_factor_x * X_RES
+                    + (2 * _safety_factor_x * X_RES) * asteroid_num / num_asteroids_in_layer
+                    + 6 * random_offset()
+                )
+                # All at the same height, like proper planet rings
+                y = Y_RES / 2 + 12 * random_offset()
+                # Random at depths, for more realistic effect
+                z = 1 + (((layer_num) * _DEPTH_PER_LAYER) + random_offset() * _DEPTH_PER_LAYER) / 8
+
                 shapes.append(
                     Circunference(
                         engine=self._engine,
                         initial_velocity=VectorF(0.1, 0),
-                        radius=(_ASTEROID_RADIUS + 0.5 * random_offset()) * (_factor),
+                        radius=(_ASTEROID_RADIUS + random_offset()) * (_factor),
                         center=PointF(
-                            x=-_safety_factor_x * X_RES
-                            + (2 * _safety_factor_x * X_RES) * asteroid_num / num_asteroids_in_layer
-                            + 5 * random_offset(),
-                            y=Y_RES / 2 + 5 * random_offset(),
-                            z=0.5
-                            + (
-                                ((layer_num + 1) * _DEPTH_PER_LAYER)
-                                + random_offset() * _DEPTH_PER_LAYER
-                            )
-                            / 8,
+                            x=x,
+                            y=y,
+                            z=z,
                         ),
                         theme=Theme(
                             RGB(
-                                160 + 100 * random_offset(),
-                                160 + 100 * random_offset(),
-                                160 + 100 * random_offset(),
-                            ).with_intensity(_factor)
+                                200 + 20 * random_offset(),
+                                170 + 40 * random_offset(),
+                                60,
+                            ).with_intensity(_factor**0.9)
                         ),
                     )
                 )

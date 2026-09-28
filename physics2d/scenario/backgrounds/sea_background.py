@@ -21,7 +21,11 @@ class SeaBackground(Background):
     def __init__(self, engine: "Physics2D") -> None:
         self._engine = engine
         layers = self._init_layers()
-        super().__init__(engine, layers)
+        super().__init__(
+            engine,
+            layers,
+            scroll_vertically=False,
+        )
 
     def _init_layers(self) -> list[BgLayer]:
         layers: list[BgLayer] = []
