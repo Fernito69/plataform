@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.thruster import Thruster
+from physics2d.shape.factories.explosion import get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
@@ -49,21 +50,11 @@ def meteor_trail(engine: "Physics2D", source: "PhysicsEntity") -> None:
         _radius_factor = random() * 1.2
 
         # METEOR KINDA TRAIL
-        _meteor_color = (
-            RGB(
-                255,
-                (i - 1) * 90,
-                (i - 1) * 50,
-            ).with_intensity(1)
-            if is_odd
-            else RGB(
-                255,
-                255 - (i - 1) * 30,
-                (i - 1) * 1,
-            ).with_intensity(1)
-        )
+        _meteor_color = RGB(255 - 50 * random(), 255 * random(), 0, opacity=1)
 
         _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2
+
+        size = i * _radius_factor * (1 + vel_magnitude / 5)
 
         thrust_fire = CircularParticle(
             origin=PointF(
@@ -80,13 +71,22 @@ def meteor_trail(engine: "Physics2D", source: "PhysicsEntity") -> None:
                 y=source.velocity.y * _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR * _randomness_multi * 0.1
                 + random_offset() * 0.5,
             ),
-            size=i * _radius_factor * (1 + vel_magnitude / 5),
+            size=size,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=_meteor_color,
-            ending_color=RGB(30, 30, 30, intensity=1),  # smokelike
+            ending_color=RGB(80, 80, 80, opacity=0.2),  # smokelike
             life_time=15,
             gravity=-0.07,
             engine=engine,
+            particle_generator=get_smoke_generator(
+                random_offset_factor=size * 2,
+                floating_multi=0.2,
+                gravity=-0.04,
+                life_time=6,
+                initial_velocity=VectorF(random_offset() * 0.15, 0),
+                size_factor=0.2,
+                only_fg=True,
+            ),
         )
         pieces.append(thrust_fire)
 

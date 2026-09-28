@@ -178,6 +178,7 @@ def get_smoke_generator(
     only_fg: bool = False,
     gravity: float = 0.05,
     size_factor: float = 0.5,
+    random_offset_factor: float = 0,
 ) -> "ParticleGenerator":
     def _gen(engine: "Physics2D", source: "PhysicsEntity") -> None:
         if is_out_of_sight(engine, source):
@@ -193,6 +194,7 @@ def get_smoke_generator(
             only_fg=only_fg,
             gravity=gravity,
             size_factor=size_factor,
+            random_offset_factor=random_offset_factor,
         )
 
     return _gen
@@ -208,29 +210,28 @@ def _smoke_generator(
     only_fg: bool = False,
     gravity: float = 0.05,
     size_factor: float = 0.5,
+    random_offset_factor: float = 0,
 ) -> None:
     if random_offset() < random_offset_threshold:
         return
 
-    smokes: list[CircularParticle] = []
-    main_smoke = CircularParticle(
-        origin=source.center,
+    smoke = CircularParticle(
+        origin=source.center + VectorF.random_offset_vector(random_offset_factor),
         engine=engine,
         initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
         size=source.radius * size_factor,
         size_change_type=TransitionType.LINEAR_DECREASE,
-        initial_color=RGB(150, 110, 90, 1, opacity=0.9),
+        initial_color=RGB(130, 110, 90, 1, opacity=0.9),
         ending_color=RGB(30, 30, 30, 1, opacity=0.3),  # smokelike
         life_time=life_time,
         gravity=gravity,
         floating_multi=floating_multi,
     )
-    smokes.append(main_smoke)
 
-    if random_offset() > 0 or only_fg:
-        engine.scenario.fg_shapes[0:0] = smokes
+    if only_fg:
+        engine.scenario.fg_shapes.append(smoke)
     else:
-        engine.scenario.bg_shapes[0:0] = smokes
+        engine.scenario.add_to_fg_or_bg_randomly(smoke)
 
 
 #################################################################
