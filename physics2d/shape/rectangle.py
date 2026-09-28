@@ -82,6 +82,9 @@ class Rectangle(Line):
         )
         self.center_of_mass = self.center_of_mass + self.velocity
 
+    def _move_by(self, vector: VectorF) -> None:
+        self.vertices = (self.vertices[0] + vector, self.vertices[1] + vector)
+
     def _rotate(self) -> None:
         pass
 

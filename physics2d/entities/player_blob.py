@@ -331,25 +331,21 @@ class PlayerBlob(PhysicsEntity, Player):
     def _shoot(self) -> None:
         self.get_curr_weapon().fire()
 
+    # TODO: I think this should happen in the crosshair class? Or be rendered in a layer with absolute positioning
     @on_mouse_press(act_once_per_press=True)
     def _add_indicator_on_target_point(self) -> None:
 
-        # if any(p for p in self.engine.scenario.bg_pieces if p.name == _CROSSHAIR_PARTICLE_NAME):
-        #     return
         _light = CircularParticle(
             name=_CROSSHAIR_PARTICLE_NAME,
             origin=self._engine.scenario.crosshair.center + self._engine.screen_corner,
             size=0.1,
             final_radius=8,
             life_time=10,
-            initial_color=RGB(255, 100, 100),
-            ending_color=RGB(60, 0, 0),
+            initial_color=RGB(255, 100, 100, opacity=1),
+            ending_color=RGB(255, 0, 0, opacity=0),
             size_change_type=TransitionType.LINEAR_INCREASE,
             engine=self._engine,
         )
-        # self.engine.scenario.bg_pieces = [
-        #     p for p in self.engine.scenario.bg_pieces if p.name != _CROSSHAIR_PARTICLE_NAME
-        # ]
         self._engine.scenario.bg_shapes[0:0] = [_light]
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)

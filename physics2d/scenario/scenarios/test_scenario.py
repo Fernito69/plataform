@@ -7,6 +7,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
@@ -19,7 +20,10 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-def test_scenario(engine: "Physics2D") -> Scenario:
+def test_scenario(
+    engine: "Physics2D",
+    background_gen: BackgroundGenerator,
+) -> Scenario:
     # TODO: make factories
     def _random_color():
         floor = 80
@@ -336,4 +340,5 @@ def test_scenario(engine: "Physics2D") -> Scenario:
         solid_shapes=solid_pieces,
         engine=engine,
         player=engine.player,
+        background_gen=background_gen,
     )

@@ -3,12 +3,15 @@ from typing import TYPE_CHECKING
 from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
 from model.base import PointF, ScreenPos
-from model.keyboard import MovementKeys, PhysicsKey
+from model.game import GameMode
+from model.keyboard import MenuKeys, MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
-from physics2d.entities.model.shared import ScenarioGenerator
+from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
+from physics2d.scenario.backgrounds.sea_background import get_sea_background
+from physics2d.scenario.backgrounds.starry_background import get_starry_background
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios.first_level import first_level
 from physics2d.scenario.scenarios.test_scenario import test_scenario
@@ -38,6 +41,12 @@ class Physics2D(Engine, KeyboardHandler):
     ]
     curr_scenario_index: int
 
+    backgrounds: list[BackgroundGenerator] = [
+        get_starry_background,
+        get_sea_background,
+    ]
+    curr_bg_index: int
+
     screen_corner: PointF
 
     # For better performance
@@ -48,12 +57,14 @@ class Physics2D(Engine, KeyboardHandler):
         game: "Game",
         initial_screen_corner: PointF = INITIAL_CORNER,
         curr_scenario_index: int = 1,
+        curr_bg_index: int = 0,
     ):
         self.game = game
         self.screen_corner = initial_screen_corner
         self._display = self.game.display
         self.low_quality_mode = False
         self.curr_scenario_index = curr_scenario_index
+        self.curr_bg_index = curr_bg_index
         self.init_screen_buffer()
 
     def init_player(self, scenario: Scenario | None = None) -> None:
@@ -62,7 +73,10 @@ class Physics2D(Engine, KeyboardHandler):
         _curr_weapon_idx = self.player._curr_weapon_index if self.player else 0
         _curr_thruster_idx = self.player._curr_thruster_index if self.player else 0
 
-        self.scenario = scenario or self.scenarios[self.curr_scenario_index](self)
+        self.scenario = scenario or self.scenarios[self.curr_scenario_index](
+            self,
+            self.backgrounds[self.curr_bg_index],
+        )
         self.player.set_scenario(self.scenario)
         self.player._curr_weapon_index = _curr_weapon_idx
         self.player._curr_thruster_index = _curr_thruster_idx
@@ -71,7 +85,7 @@ class Physics2D(Engine, KeyboardHandler):
         res = self._display.get_resolution()
         self._screen_buffer_x_res = res.x
         # Since we vertically stack 2 "sub-pixels" per terminal character ("▀" and "▄"),
-        # our screen buffer is actually twice the y-resolution
+        # our screen buffer is actually twice the terminal's y-resolution
         self._screen_buffer_y_res = res.y * 2
 
         self._screen_buffer: list[list[list[RenderInfo]]] = []
@@ -168,6 +182,8 @@ class Physics2D(Engine, KeyboardHandler):
         self._move_screen_left()
         self._move_screen_right()
         self._reset_camera()
+        self._cycle_scenario_background()
+        self._cycle_scenario()
 
     @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
     def _reset_scenario(self):
@@ -192,6 +208,28 @@ class Physics2D(Engine, KeyboardHandler):
     @on_key_press(PhysicsKey.RESET_CAMERA)
     def _reset_camera(self):
         self.screen_corner = PointF(0, 0)
+
+    @on_key_press(MenuKeys.CYCLE_LEVELS, act_once_per_press=True)
+    def _cycle_scenario(self) -> None:
+        if self.game.mode != GameMode.PHYSICS_2D:
+            return
+
+        next_idx = (self.curr_scenario_index + 1) % len(self.scenarios)
+        self.curr_scenario_index = next_idx
+        self.scenario = self.scenarios[next_idx](
+            self,
+            self.backgrounds[self.curr_bg_index],
+        )
+        self.init_player()
+
+    @on_key_press(MenuKeys.CYCLE_BACKGROUND, act_once_per_press=True)
+    def _cycle_scenario_background(self) -> None:
+        if self.game.mode != GameMode.PHYSICS_2D:
+            return
+
+        next_idx = (self.curr_bg_index + 1) % len(self.backgrounds)
+        self.curr_bg_index = next_idx
+        self.scenario.background = self.backgrounds[next_idx](self)
 
     @staticmethod
     def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:

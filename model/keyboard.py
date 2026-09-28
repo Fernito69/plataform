@@ -28,6 +28,7 @@ class MenuKeys(StrEnum):
     TOGGLE_ROTATION = auto()
     TOGGLE_GRAPHICS_QUALITY = auto()
     CYCLE_LEVELS = auto()
+    CYCLE_BACKGROUND = auto()
 
 
 class MovementKeys(StrEnum):

@@ -5,6 +5,7 @@ from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.spawner_entity import SpawnerEntity
 from physics2d.entities.spawners.enemy import super_rocket_enemy_spawner
 from physics2d.scenario.scenario import Scenario
@@ -23,7 +24,10 @@ def _random_color():
     return RGB(_val(), _val(), _val())
 
 
-def first_level(engine: "Physics2D") -> Scenario:
+def first_level(
+    engine: "Physics2D",
+    background_gen: BackgroundGenerator,
+) -> Scenario:
     enemies: list[Enemy] = [
         Enemy(
             engine=engine,
@@ -272,4 +276,5 @@ def first_level(engine: "Physics2D") -> Scenario:
         solid_shapes=solid_pieces,
         engine=engine,
         player=engine.player,
+        background_gen=background_gen,
     )

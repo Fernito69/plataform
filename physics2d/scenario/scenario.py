@@ -5,11 +5,11 @@ from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
+from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import RenderInfo
 from physics2d.scenario.background import Background
-from physics2d.scenario.backgrounds.starry_background import StarryBackground
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
 from utils import random_offset
@@ -71,6 +71,7 @@ class Scenario:
     def __init__(
         self,
         name: str,
+        background_gen: BackgroundGenerator,
         enemies: list[Enemy],
         engine: "Physics2D",
         player: PlayerBlob,
@@ -78,7 +79,6 @@ class Scenario:
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
-        background: Background | None = None,
     ):
         self.name = name
         self.engine = engine
@@ -100,7 +100,7 @@ class Scenario:
         self.projectiles = []
         self.enemy_projectiles = []
 
-        self.background = background or StarryBackground(engine)
+        self.background = background_gen(engine)
 
     def act(self) -> None:
         self.player.do_your_thing()

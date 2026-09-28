@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from physics2d.model.shared import RenderInfo
-from physics2d.shape.circunference import Circunference
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -67,35 +66,29 @@ class Background:
             X_RES, Y_RES = self._engine.get_resolution()
 
             for shape in layer.shapes:
-                # TODO: this shouldn't happen here
                 shape.do_your_thing()
 
-                # TODO: do others
-                if not isinstance(shape, Circunference):
-                    continue
-
                 # Correct shape position:
-                _vector = _distance_factor * (
-                    self._previous_screen_corner - self._engine.screen_corner
-                )
+                _vector = (
+                    _distance_factor * (self._previous_screen_corner - self._engine.screen_corner)
+                ).as_vector()
 
-                shape.center += _vector
+                shape._move_by(_vector)
 
-                # TODO: stupid, do better... mayvbe with modulo?
-                # WHYYYYY THIS DOESN'T WORKKK??
-                _safety_factor = 0.5
-                x_safety = X_RES * _safety_factor
-                y_safety = Y_RES * _safety_factor
+                # #TODO: WHYYYYY THIS DOESN'T WORKKK??
+                # _safety_factor = 0.5
+                # x_safety = X_RES * _safety_factor
+                # y_safety = Y_RES * _safety_factor
 
-                if shape.center.x < -x_safety:
-                    shape.center.x = X_RES + x_safety - 1
-                elif shape.center.x > X_RES + x_safety:
-                    shape.center.x = 1 - x_safety
+                # if shape.center.x < -x_safety:
+                #     shape.center.x = X_RES + x_safety - 1
+                # elif shape.center.x > X_RES + x_safety:
+                #     shape.center.x = 1 - x_safety
 
-                if shape.center.y < -y_safety:
-                    shape.center.y = Y_RES + y_safety - 1
-                elif shape.center.y > Y_RES + y_safety:
-                    shape.center.y = 1 - y_safety
+                # if shape.center.y < -y_safety:
+                #     shape.center.y = Y_RES + y_safety - 1
+                # elif shape.center.y > Y_RES + y_safety:
+                #     shape.center.y = 1 - y_safety
 
                 render_info.extend(shape.get_render_info())
 

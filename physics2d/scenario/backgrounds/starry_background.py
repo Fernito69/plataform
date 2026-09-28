@@ -79,3 +79,7 @@ class StarryBackground(Background):
         )
 
         return layers
+
+
+def get_starry_background(engine: "Physics2D") -> StarryBackground:
+    return StarryBackground(engine)
