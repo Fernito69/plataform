@@ -70,7 +70,7 @@ class SaturnRings(Background):
                 shapes.append(
                     Circunference(
                         engine=self._engine,
-                        initial_velocity=VectorF(0.1 + 0.02 * random_offset(), 0),
+                        initial_velocity=VectorF(0.1 + 0.1 * random_offset(), 0),
                         radius=(_ASTEROID_RADIUS + random_offset()) * _factor,
                         center=PointF(
                             x=x,

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 _NUM_LAYERS = 9
 _STAR_DENSITY = 6
 _STAR_COLOR = RGB(215, 210, 255)
-_STAR_RADIUS = 0.8
+_STAR_RADIUS = 0.6
 _DEPTH_PER_LAYER = 10
 _DIMMING_RATIO = 0.8
 
@@ -41,10 +41,9 @@ class StarrySpace(Background):
                 for _ in range(_STAR_DENSITY * layer_num):
                     _factor = 1 / layer_num
                     shapes.append(
-                        # TODO: I'll do it with little circles for now, but this should be Dot
                         Circunference(
                             engine=self._engine,
-                            radius=(_STAR_RADIUS + 0.2 * random_offset()) * (_factor),
+                            radius=(_STAR_RADIUS + 0.4 * random_offset()) * (_factor),
                             center=PointF(
                                 x=(X_RES) * random(),
                                 y=+(Y_RES) * random(),
@@ -145,7 +144,7 @@ class StarrySpace(Background):
                 shapes = []
                 layers.append(
                     BgLayer(
-                        depth=0.5 * _DEPTH_PER_LAYER,
+                        depth=depth_per_layer * (layer_num + 1),
                         shapes=shapes,
                     )
                 )
