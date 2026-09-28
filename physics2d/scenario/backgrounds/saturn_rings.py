@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.scenario.background import Background, BgLayer
+from physics2d.scenario.backgrounds.starry_space import get_starry_space
 from physics2d.shape.circunference import Circunference
 from utils import random_offset
 
@@ -22,7 +23,8 @@ class SaturnRings(Background):
 
     def __init__(self, engine: "Physics2D") -> None:
         self._engine = engine
-        layers = self._init_layers()
+        # Borrow stars from starry space
+        layers = self._init_layers() + get_starry_space(engine)._init_layers(depth_per_layer=20)[4:]
         super().__init__(
             engine,
             layers,
@@ -101,17 +103,19 @@ class SaturnRings(Background):
             )
 
         # Add "Saturn"
-        layers[_NUM_LAYERS - 1].shapes.append(
-            Circunference(
-                engine=self._engine,
-                radius=25,
-                center=PointF(
-                    x=50,
-                    y=Y_RES / 2,
+        layers[_NUM_LAYERS - 1].shapes.extend(
+            [
+                Circunference(
+                    engine=self._engine,
+                    radius=25,
+                    center=PointF(
+                        x=50,
+                        y=Y_RES / 2,
+                    ),
+                    theme=Theme(RGB(200, 100, 20)),
+                    secondary_theme=Theme(RGB(0, 0, 255)),
                 ),
-                theme=Theme(RGB(200, 100, 20)),
-                secondary_theme=Theme(RGB(0, 0, 255)),
-            )
+            ]
         )
 
         return layers

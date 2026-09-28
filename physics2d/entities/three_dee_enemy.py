@@ -83,6 +83,11 @@ class ThreeDeeEnemy(Enemy):
     """ RENDERING """
     #################################################################
 
+    def _move_by(self, vector: VectorF) -> None:
+        ...
+        # self.polyhedron.move_by(vector)
+        # return super()._move_by(vector)
+
     def get_render_info(self) -> list[RenderInfo]:
         return (
             self._get_render_info_v1()
@@ -207,18 +212,19 @@ class ThreeDeeEnemy(Enemy):
             y_max = y_min + Y_RES
 
             # TODO: the logic should not that dumb, we need at least one of them to be in the screen
-            if (
-                projected_point_1.x < x_max
-                and projected_point_1.y < y_max
-                and projected_point_1.x > x_min
-                and projected_point_1.y > y_min
-            ) or (
-                projected_point_2.x < x_max
-                and projected_point_2.y < y_max
-                and projected_point_2.x > x_min
-                and projected_point_2.y > y_min
-            ):
-                # TODO: make self.visibility_threshold not a float
+            # TODO; enabled always for background testing
+            # if (
+            #     projected_point_1.x < x_max
+            #     and projected_point_1.y < y_max
+            #     and projected_point_1.x > x_min
+            #     and projected_point_1.y > y_min
+            # ) or (
+            #     projected_point_2.x < x_max
+            #     and projected_point_2.y < y_max
+            #     and projected_point_2.x > x_min
+            #     and projected_point_2.y > y_min
+            # ):
+            if True:
                 _factor = 1 / self.visibility_threshold
                 intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
                 intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)

@@ -29,7 +29,7 @@ class StarrySpace(Background):
         layers = self._init_layers()
         super().__init__(engine, layers)
 
-    def _init_layers(self) -> list[BgLayer]:
+    def _init_layers(self, depth_per_layer: float = _DEPTH_PER_LAYER) -> list[BgLayer]:
         layers: list[BgLayer] = []
 
         X_RES, Y_RES = self._engine.get_resolution()
@@ -62,7 +62,7 @@ class StarrySpace(Background):
 
                 layers.append(
                     BgLayer(
-                        depth=layer_num * _DEPTH_PER_LAYER,
+                        depth=layer_num * depth_per_layer,
                         shapes=shapes,
                     )
                 )
@@ -141,6 +141,8 @@ class StarrySpace(Background):
                         secondary_theme=Theme(0.5 * RGB(160, 120, 80)),
                     ),
                 ]
+                # TODO: planet looks dumb! make better
+                shapes = []
                 layers.append(
                     BgLayer(
                         depth=0.5 * _DEPTH_PER_LAYER,
@@ -151,5 +153,5 @@ class StarrySpace(Background):
         return layers
 
 
-def get_starry_background(engine: "Physics2D") -> StarrySpace:
+def get_starry_space(engine: "Physics2D") -> StarrySpace:
     return StarrySpace(engine)
