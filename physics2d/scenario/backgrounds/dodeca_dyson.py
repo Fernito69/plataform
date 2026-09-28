@@ -37,17 +37,16 @@ class DodecaDyson(Background):
                         health=None,
                         position=PointF(150, 0),
                         polyhedron=Dodeca(
-                            position=PointF(35, 95, 0),
+                            position=PointF(35, 92, 0),
                             size=18,
-                            angle=VectorF(0, 30, 0),
-                            mov_vector=VectorF(0, 0, 0),
                             rot_vector=VectorF(-0.1, 0.2, 0.05),
+                            # mov_vector=VectorF(-0.005, 0, -0.005),
                         ),
                         line_thickness=1.5,
-                        theme=Theme(RGB(21, 220, 255)),
-                        secondary_theme=Theme(RGB(255, 0, 255)),
-                        color_cycling_factor=17,
-                    )
+                        theme=Theme(RGB(255, 0, 80)),
+                        secondary_theme=Theme(RGB(0, 80, 255)),
+                        color_cycling_factor=200,
+                    ),
                 ],
             )
         )

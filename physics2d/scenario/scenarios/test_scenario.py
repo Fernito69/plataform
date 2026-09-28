@@ -304,8 +304,6 @@ def test_scenario(
             polyhedron=Dodeca(
                 position=PointF(10, 90, 0),
                 size=19,
-                angle=VectorF(0, 30, 0),
-                mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(-1, 2, 0),
             ),
             line_thickness=1.5,
@@ -320,8 +318,6 @@ def test_scenario(
             polyhedron=Ico(
                 position=PointF(60, 80, 0),
                 size=14,
-                angle=VectorF(0, 30, 0),
-                mov_vector=VectorF(0, 0, 0),
                 rot_vector=VectorF(1.2, 0.2, 0.5),
             ),
             theme=Theme(RGB(0, 255, 0)),
