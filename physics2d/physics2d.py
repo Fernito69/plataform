@@ -10,6 +10,7 @@ from model.theme import LOWER_PIXEL_CHAR
 from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
+from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
 from physics2d.scenario.backgrounds.sea_background import get_sea_background
 from physics2d.scenario.backgrounds.starry_background import get_starry_background
 from physics2d.scenario.scenario import Scenario
@@ -43,6 +44,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     backgrounds: list[BackgroundGenerator] = [
         get_starry_background,
+        get_saturn_rings,
         get_sea_background,
     ]
     curr_bg_index: int

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from physics2d.model.shared import RenderInfo
+from physics2d.shape.circunference import Circunference
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -63,10 +64,14 @@ class Background:
             # min_x, min_y, max_x, max_y = self._get_screen_borders()
             # diff_x = max_x - min_x
             # diff_y = max_y - min_y
-            X_RES, Y_RES = self._engine.get_resolution()
+            # X_RES, Y_RES = self._engine.get_resolution()
 
             for shape in layer.shapes:
                 shape.do_your_thing()
+
+                # We can override the layer set depth with a z-coord
+                if isinstance(shape, Circunference) and shape.center.z:
+                    _distance_factor = 1 / shape.center.z
 
                 # Correct shape position:
                 _vector = (

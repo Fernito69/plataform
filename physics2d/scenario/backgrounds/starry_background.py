@@ -13,11 +13,11 @@ if TYPE_CHECKING:
     from physics2d.shape.base import Shape
 
 _NUM_LAYERS = 9
-_STAR_DENSITY = 10
+_STAR_DENSITY = 6
 _STAR_COLOR = RGB(200, 210, 255)
 _STAR_RADIUS = 0.8
 _DEPTH_PER_LAYER = 10
-_DIMMING_RATIO = 0.6
+_DIMMING_RATIO = 0.8
 
 
 class StarryBackground(Background):
@@ -48,7 +48,7 @@ class StarryBackground(Background):
                             y=+(Y_RES) * random(),
                         ),
                         theme=Theme(
-                            _STAR_COLOR.with_intensity(_factor)
+                            _STAR_COLOR.with_intensity(_factor**0.8)
                             + RGB(random() * 4 * layer_num, 0, 0)
                         ),
                         secondary_theme=Theme(_STAR_COLOR.with_intensity(_factor * _DIMMING_RATIO)),

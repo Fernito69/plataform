@@ -16,7 +16,7 @@ _DEPTH_PER_LAYER = 2
 
 
 class SeaBackground(Background):
-    """Equidistant layers of stars"""
+    """Performance is utter shit"""
 
     def __init__(self, engine: "Physics2D") -> None:
         self._engine = engine

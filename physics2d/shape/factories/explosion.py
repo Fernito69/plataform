@@ -43,8 +43,8 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
         initial_velocity=_VELOCITY,
         size=size * 0.75,
         size_change_type=TransitionType.LINEAR_DECREASE,
-        initial_color=RGB(255, 150, 40),
-        ending_color=RGB(255, 0, 0, opacity=0.3),
+        initial_color=RGB(255, 190, 40),
+        ending_color=RGB(255, 100, 0, opacity=0.3),
         life_time=25,
         gravity=-0.075,
         engine=engine,
@@ -55,7 +55,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     # METEOR KINDA TRAIL
     _main_explosion_color = RGB(
         255,
-        90 * random(),
+        110 * random(),
         0,
         opacity=1,
     )
@@ -84,7 +84,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     for _ in range(round(size / 4)):
         _sec_explosion_color = RGB(
             255,
-            90 * random(),
+            255 * random(),
             0,
             opacity=1,
         )

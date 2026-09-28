@@ -81,6 +81,7 @@ class Circunference(Shape):
 
     def do_your_thing(self) -> None:
         self._cycle_color()
+        self._apply_movement()
 
     # TODO: unify with PlayerBlob
     def _apply_friction(self) -> None:
