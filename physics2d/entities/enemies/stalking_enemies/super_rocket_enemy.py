@@ -43,6 +43,10 @@ class SuperRocketEnemy(StalkingEnemy):
         name: str = "RocketEnemy",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
+        secondary_theme: Theme = Theme(),
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         rocket_speed: float = _ROCKET_SPEED,
         life_time: int = _LIFE_TIME,
         blast_radius: float = _BLAST_RADIUS,
@@ -57,6 +61,10 @@ class SuperRocketEnemy(StalkingEnemy):
             name=name,
             position=position,
             theme=theme,
+            secondary_theme=secondary_theme,
+            color_gradient_exponent=color_gradient_exponent,
+            color_gradient_exponent_end=color_gradient_exponent_end,
+            color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
             engine=engine,
             min_distance_from_player=_IDEAL_DISTANCE_FROM_PLAYER,
             min_distance_from_other_enemies=_IDEAL_DISTANCE_FROM_ENEMIES,
@@ -100,12 +108,14 @@ class SuperRocketEnemy(StalkingEnemy):
                 size=_ROCKET_LAUNCHER_SATELLITE_RADIUS,
                 theme=Theme(color=theme.color.with_intensity(0.7) if theme.color else None),
                 secondary_theme=Theme(color=RGB(255, 20, 255)),
-                density=1,
+                color_gradient_exponent=0.3,
+                color_gradient_exponent_end=1,
+                color_gradient_exponent_cycling_factor=4,
                 health=None,
                 precision=precision,
                 aggressivity=aggressivity,
                 particle_generator=satellite_thrusters,
-                color_cycling_factor=15,
+                # color_cycling_factor=15,
             )
             for num in range(_NUM_SATELLITES)
         ]
@@ -124,7 +134,9 @@ class SuperRocketEnemy(StalkingEnemy):
             enemy._attack_player()
             self._cycle_color()
             enemy._apply_collisions()
-            enemy.center = enemy.center.rotate_2d(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
+            enemy.center = enemy.center.rotate_2d(
+                math.radians(_SATELLITE_ANGULAR_SPEED), self.center
+            )
             enemy.position = enemy.center
 
 

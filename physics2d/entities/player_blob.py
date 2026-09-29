@@ -22,6 +22,8 @@ from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, Ma
 from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.entities.equipment.weapons.zapper import Zapper
+from physics2d.model.shared import RenderInfo
+from physics2d.shape.circunference import Circunference
 from physics2d.shape.factories.explosion import get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
@@ -29,18 +31,20 @@ from player import Player, PlayerStatus
 from system import consume_mouse_scroll, on_key_press, on_mouse_press
 from utils import random_offset
 
-_INITIAL_HEALTH = 500
-
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.scenario.scenario import Scenario
 
+_INITIAL_HEALTH = 500
 _PLAYER_RADIUS = 4
+_WEAPON_RADIUS = 1.2
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
-_CROSSHAIR_PARTICLE_NAME = "CrosshairParticle"
+
+_SECONDARY_THEME_INTENSITY = 0.1
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
+_GRADIENT_EXPONENT = 0.7
 
 
 class PlayerBlob(PhysicsEntity, Player):
@@ -62,6 +66,11 @@ class PlayerBlob(PhysicsEntity, Player):
         points: int = 0,
         health: float = _INITIAL_HEALTH,
     ):
+        _secondary_theme = Theme(
+            color=_PLAYER_THEME.color.copy(intensity=_SECONDARY_THEME_INTENSITY)
+            if _PLAYER_THEME.color
+            else RGB()
+        )
         PhysicsEntity.__init__(
             self,
             name="PlayerBlob",
@@ -71,6 +80,8 @@ class PlayerBlob(PhysicsEntity, Player):
             density=density,
             size=_PLAYER_RADIUS,
             theme=_PLAYER_THEME,
+            secondary_theme=_secondary_theme,
+            color_gradient_exponent=_GRADIENT_EXPONENT,
         )
         Player.__init__(
             self,
@@ -84,10 +95,12 @@ class PlayerBlob(PhysicsEntity, Player):
         self.position = position
         self.radius = _PLAYER_RADIUS
         self.theme = _PLAYER_THEME
+        self.secondary_theme = _secondary_theme
         self.velocity = velocity
         self.is_collideable = True
         self._last_known_direction = velocity
         self.name = "PlayerBlob"
+        self._color_gradient_exponent = _GRADIENT_EXPONENT
 
     def do_your_thing(self) -> None:
         if self.health <= 0:
@@ -161,7 +174,7 @@ class PlayerBlob(PhysicsEntity, Player):
             BFG(self._engine),
         ]
         self._curr_weapon_index = 0
-        self.theme = self.get_curr_thruster().player_theme
+        self._set_thruster_theme()
 
     def receive_damage(self, amount: float) -> None:
         self.health -= amount
@@ -169,6 +182,17 @@ class PlayerBlob(PhysicsEntity, Player):
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
         self.init_player()
+
+    def get_render_info(self) -> list[RenderInfo]:
+        body_parts = super().get_render_info()
+        weapon_parts = Circunference(
+            engine=self._engine,
+            center=self.get_weapon_position(),
+            radius=_WEAPON_RADIUS,
+            theme=Theme(color=self.get_curr_weapon().color),
+        ).get_render_info()
+
+        return weapon_parts + body_parts
 
     def _cycle_weapon(self, direction: int) -> None:
         self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
@@ -211,7 +235,6 @@ class PlayerBlob(PhysicsEntity, Player):
             ).as_vector()
 
     def _handle_current_damage(self) -> None:
-        # TODO: unify this with Enemy's
         _factor = self.health / self._initial_health
         _offset = 0.25
 
@@ -299,6 +322,17 @@ class PlayerBlob(PhysicsEntity, Player):
                 round(player_y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - y_res),
             )
 
+    def _set_thruster_theme(self) -> None:
+        thruster_theme = self.get_curr_thruster().player_theme.copy()
+        self.theme = thruster_theme
+        self._initial_theme = thruster_theme
+        self.secondary_theme = thruster_theme.copy(
+            color_intensity=_SECONDARY_THEME_INTENSITY,
+        )
+        # raise NotImplementedError(
+        #     f"COLOR1: {self.theme.color}, color2: {self.secondary_theme.color}"
+        # )
+
     ###############
     """  INPUT  """
     ###############
@@ -343,7 +377,7 @@ class PlayerBlob(PhysicsEntity, Player):
             if len(self._thrusters) > self._curr_thruster_index + 1
             else 0
         )
-        self.theme = self.get_curr_thruster().player_theme
+        self._set_thruster_theme()
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:

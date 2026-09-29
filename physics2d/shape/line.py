@@ -29,10 +29,11 @@ class Line(Shape):
     def __init__(
         self,
         points: tuple[PointF, PointF],
-        theme: Theme,
         engine: "Physics2D",
-        thickness: float = 1,
+        theme: Theme,
         secondary_theme: Theme | None = None,
+        color_gradient_exponent: float = 1,
+        thickness: float = 1,
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
@@ -69,6 +70,7 @@ class Line(Shape):
             name=name,
             volume=self.volume,
             density=density,
+            color_gradient_exponent=color_gradient_exponent,
         )
 
     def _update_center_of_mass(self) -> None:
@@ -210,7 +212,7 @@ class Line(Shape):
             else abs(vertex_1.y - y) / height
             if y is not None
             else 0
-        )
+        ) ** self._color_gradient_exponent
 
         color: RGB = (self.theme.color or White()).get_gradient(
             self.secondary_theme.color or White(), color_ratio

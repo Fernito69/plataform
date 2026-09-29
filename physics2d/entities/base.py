@@ -31,12 +31,15 @@ class PhysicsEntity(Circunference):
         name: str = "PhysicsEntity",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
+        secondary_theme: Theme | None = None,
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
-        secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         is_collideable: bool = True,
         extra_shapes: list["PhysicsEntity | Shape"] = [],
@@ -56,6 +59,9 @@ class PhysicsEntity(Circunference):
             initial_velocity=initial_velocity,
             is_collideable=is_collideable,
             engine=engine,
+            color_gradient_exponent=color_gradient_exponent,
+            color_gradient_exponent_end=color_gradient_exponent_end,
+            color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
         )
         self._engine = engine
         self.position = position

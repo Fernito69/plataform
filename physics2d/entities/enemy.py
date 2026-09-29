@@ -40,12 +40,15 @@ class Enemy(PhysicsEntity):
         name: str = "Enemy",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
+        secondary_theme: Theme | None = None,
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
-        secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         extra_shapes: list["PhysicsEntity | Shape"] = [],
         projectile_generator: ParticleGenerator | None = None,
@@ -72,11 +75,14 @@ class Enemy(PhysicsEntity):
             extra_shapes=extra_shapes,
             engine=engine,
             particle_generator=particle_generator,
+            color_gradient_exponent=color_gradient_exponent,
+            color_gradient_exponent_end=color_gradient_exponent_end,
+            color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
         )
         self._engine = engine
         self.health = health
         self._initial_health = health
-        self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
+        self._initial_theme = theme.copy()
         self.secondary_theme = secondary_theme
         self.theme = theme
         self.name = name
@@ -119,7 +125,11 @@ class Enemy(PhysicsEntity):
         )
 
     def _cycle_color(self) -> None:
-        if not self._initial_theme.color or not self.secondary_theme:
+        if (
+            not self._initial_theme.color
+            or not self.secondary_theme
+            or not self._color_cycling_factor
+        ):
             return
 
         _color_1 = self._initial_theme.color
@@ -197,6 +207,7 @@ class Enemy(PhysicsEntity):
         self._generate_particles()
         self._cycle_opacity()
         self._cycle_color()
+        self._cycle_color_gradient_exponent()
 
         if self.health is not None and self.health <= 0:
             # die :(

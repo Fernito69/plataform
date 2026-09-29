@@ -30,12 +30,13 @@ class SpawnerEntity(PhysicsEntity):
         total_num_spawns: int | None = None,
         name: str = "SpawnerEntity",
         position: PointF = PointF(0, 0),
-        theme: Theme = Theme(),
+        theme: Theme = Theme(color=RGB(200, 180, 200)),
+        secondary_theme: Theme = Theme(color=RGB(0, 200, 0)),
+        color_gradient_exponent: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
-        secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         extra_shapes: list["PhysicsEntity | Shape"] = [],
         particle_generator: ParticleGenerator | None = None,
@@ -57,6 +58,7 @@ class SpawnerEntity(PhysicsEntity):
             is_collideable=False,
             extra_shapes=extra_shapes,
             particle_generator=particle_generator,
+            color_gradient_exponent=color_gradient_exponent,
         )
         self._total_num_spawns = total_num_spawns
         self._spawn_interval = spawn_interval
@@ -65,6 +67,9 @@ class SpawnerEntity(PhysicsEntity):
 
     def do_your_thing(self) -> None:
         elapsed = self._life_time_elapsed - self._initial_delay
+
+        self._handle_color(elapsed)
+
         if (
             elapsed >= 0
             and elapsed % self._spawn_interval == 0
@@ -80,6 +85,12 @@ class SpawnerEntity(PhysicsEntity):
             self._die()
 
         self._life_time_elapsed += 1
+
+    def _handle_color(self, elapsed: int) -> None:
+        _elapsed: float = (
+            elapsed if elapsed >= 0 else (self._life_time_elapsed / self._initial_delay)
+        ) * 2
+        self._color_gradient_exponent = _elapsed / self._spawn_interval
 
     def _die(self) -> None:
         self._die_effect()

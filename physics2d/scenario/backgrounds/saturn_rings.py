@@ -42,7 +42,6 @@ class SaturnRings(Background):
             if layer_num == _NUM_LAYERS:
                 layers.append(
                     BgLayer(
-                        # TODO: the player should look way more far away
                         depth=layer_num * 2 * _DEPTH_PER_LAYER,
                         shapes=[],
                     )
@@ -114,6 +113,9 @@ class SaturnRings(Background):
                     ),
                     theme=Theme(RGB(200, 100, 20)),
                     secondary_theme=Theme(RGB(0, 0, 255)),
+                    color_gradient_exponent=0.5,
+                    # color_gradient_exponent_end=0.35,
+                    # color_gradient_exponent_cycling_factor=1,
                 ),
             ]
         )

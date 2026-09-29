@@ -17,8 +17,12 @@ def super_rocket_enemy_spawner(
         size=15,
         health=1000,
         position=source.position,
-        theme=Theme(color=RGB(120, 120, 120)),
+        theme=Theme(color=RGB(90, 90, 100)),
         engine=engine,
+        color_gradient_exponent=0.1,
+        color_gradient_exponent_end=0.5,
+        color_gradient_exponent_cycling_factor=4,
+        secondary_theme=Theme(color=RGB(255, 20, 255)),
     )
     engine.scenario.enemies.append(enemy)
 

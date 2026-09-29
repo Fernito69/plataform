@@ -16,9 +16,13 @@ class Shape:
     _engine: "Physics2D"
 
     name: str
+
     theme: Theme
     secondary_theme: Theme | None
-    # TODO: do right and make it mandatory!
+    _color_gradient_exponent: float
+    _initial_color_gradient_exponent: float
+    _color_gradient_exponent_end: float | None
+    _color_gradient_exponent_cycling_factor: float
 
     # in radians
     angle: float
@@ -50,12 +54,15 @@ class Shape:
         volume: float,
         engine: "Physics2D",
         theme: Theme = Theme(),
+        secondary_theme: Theme | None = None,
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
-        secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         is_collideable: bool = False,
         affected_by_friction: bool = False,
@@ -78,6 +85,10 @@ class Shape:
         self.affected_by_friction = affected_by_friction
         self.render_behind_player = render_behind_player
         self._engine = engine
+        self._color_gradient_exponent = color_gradient_exponent
+        self._initial_color_gradient_exponent = color_gradient_exponent
+        self._color_gradient_exponent_end = color_gradient_exponent_end
+        self._color_gradient_exponent_cycling_factor = color_gradient_exponent_cycling_factor
 
     def set_last_known_direction(self) -> None:
         # HACK, let's see if helps

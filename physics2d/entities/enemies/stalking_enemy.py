@@ -29,6 +29,10 @@ class StalkingEnemy(Enemy):
         name: str = "ShootingEnemy",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
+        secondary_theme: Theme = Theme(),
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         max_velocity: float = 4,
         min_distance_from_player: float = 60,
         min_distance_from_other_enemies: float = 20,
@@ -40,9 +44,13 @@ class StalkingEnemy(Enemy):
             position=position,
             theme=theme,
             engine=engine,
+            secondary_theme=secondary_theme,
             projectile_generator=projectile_generator,
             precision=precision,
             aggressivity=aggressivity,
+            color_gradient_exponent=color_gradient_exponent,
+            color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
+            color_gradient_exponent_end=color_gradient_exponent_end,
         )
         self._last_known_direction = self.velocity
         self._max_velocity = max_velocity

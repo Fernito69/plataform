@@ -40,14 +40,17 @@ class Circunference(Shape):
         self,
         center: PointF,
         radius: float,
-        theme: Theme,
         engine: "Physics2D",
+        theme: Theme,
+        secondary_theme: Theme | None = None,
+        color_gradient_exponent: float = 1,
+        color_gradient_exponent_end: float | None = None,
+        color_gradient_exponent_cycling_factor: float = 5,
         angle: float = 0,
         affected_by_gravity: bool = False,
         initial_velocity: VectorF = VectorF(0, 0),
         initial_angular_velocity: float = 0,
         own_gravity: float | None = None,
-        secondary_theme: Theme | None = None,
         floating_multi: float = 0,
         density: float = 1,
         is_collideable: bool = False,
@@ -77,10 +80,14 @@ class Circunference(Shape):
             density=self.density,
             is_collideable=is_collideable,
             engine=engine,
+            color_gradient_exponent=color_gradient_exponent,
+            color_gradient_exponent_end=color_gradient_exponent_end,
+            color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
         )
 
     def do_your_thing(self) -> None:
         self._cycle_color()
+        self._cycle_color_gradient_exponent()
         self._apply_movement()
 
     # TODO: unify with PlayerBlob
@@ -122,6 +129,21 @@ class Circunference(Shape):
             abs(math.sin(self._engine.scenario.now() / self._color_cycling_factor)),
         )
         self.theme.color = color
+
+    def _cycle_color_gradient_exponent(self) -> None:
+        if (
+            not self._color_gradient_exponent_end
+            or self._initial_color_gradient_exponent == self._color_gradient_exponent_end
+        ):
+            return
+
+        new_exponent = self._initial_color_gradient_exponent - (
+            self._initial_color_gradient_exponent - self._color_gradient_exponent_end
+        ) * abs(
+            math.sin(self._engine.scenario.now() / self._color_gradient_exponent_cycling_factor)
+        )
+
+        self._color_gradient_exponent = new_exponent
 
     def _move_by(self, vector: VectorF) -> None:
         self.center += vector
@@ -277,9 +299,6 @@ class Circunference(Shape):
         )
 
     def _get_render_info_v1(self) -> list[RenderInfo]:
-        from physics2d.entities.player_blob import PlayerBlob
-        from physics2d.shape.particle.base import Particle
-
         piece_info: list[RenderInfo] = []
 
         min_x, max_x = sorted(
@@ -339,25 +358,10 @@ class Circunference(Shape):
                 if _distance <= 0 and not _go_full_color_until_next_x:
                     _go_full_color_until_next_x = True
 
-                # Theme gradient (apply vertically)
-                _gradient_factor: float = (index_y + 1) / len(y_range)
-                color = (
-                    _gradient_factor * self._initial_theme.color
-                    + (1 - _gradient_factor) * self.secondary_theme.color
-                    if (
-                        self._initial_theme.color is not None
-                        and self.secondary_theme is not None
-                        and self.secondary_theme.color is not None
-                        and not self._color_cycling_factor
-                        and not (isinstance(self, Particle) and self.life_time is not None)
-                    )
-                    else self.theme.color or RGB()
-                )
-
                 piece_info.append(
                     RenderInfo(
                         distance_to_pixel_center=_distance,
-                        color=color,
+                        color=self._get_color(index_y, total=len(y_range)),
                         point=PointF(curr_x, curr_y),
                     )
                 )
@@ -370,22 +374,31 @@ class Circunference(Shape):
                 ):
                     _go_full_color_until_next_x = False
 
-        # Add player details and ornaments (TODO: move to player rendering)
-        if isinstance(self, PlayerBlob):
-            weapon_badge = Circunference(
-                engine=self._engine,
-                center=self.get_weapon_position(),
-                radius=1.2,
-                theme=Theme(color=self.get_curr_weapon().color),
-            )
-            piece_info[0:0] = weapon_badge.get_render_info()
-
         return piece_info
+
+    def _get_color(self, curr_idx: int, total: int) -> RGB:
+        from physics2d.shape.particle.base import Particle
+
+        # Theme gradient (apply vertically)
+        _gradient_factor: float = (
+            (curr_idx + 1) / max(1, total - 1)
+        ) ** self._color_gradient_exponent
+
+        return (
+            _gradient_factor * self._initial_theme.color
+            + (1 - _gradient_factor) * self.secondary_theme.color
+            if (
+                self._initial_theme.color is not None
+                and self.secondary_theme is not None
+                and self.secondary_theme.color is not None
+                and not self._color_cycling_factor
+                and not (isinstance(self, Particle) and self.life_time is not None)
+            )
+            else self.theme.color or RGB()
+        )
 
     # TODO: experimenting with a cheaper renderer
     def _get_render_info_cheap(self) -> list[RenderInfo]:
-        from physics2d.entities.player_blob import PlayerBlob
-
         piece_info: list[RenderInfo] = []
 
         min_x, max_x = sorted(
@@ -438,14 +451,5 @@ class Circunference(Shape):
                         point=PointF(curr_x, curr_y),
                     )
                 )
-        # Add player details and ornaments (TODO: move to player rendering)
-        if isinstance(self, PlayerBlob):
-            weapon_badge = Circunference(
-                engine=self._engine,
-                center=self.get_weapon_position(),
-                radius=1.2,
-                theme=Theme(color=self.get_curr_weapon().color),
-            )
-            piece_info[0:0] = weapon_badge.get_render_info()
 
         return piece_info
