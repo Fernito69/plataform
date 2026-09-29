@@ -8,7 +8,9 @@ from model.theme import RGB, Theme
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.base import PhysicsEntity
 from physics2d.shape.line import Line
-from system import consume_mouse_movement
+from physics2d.shape.model.shared import TransitionType
+from physics2d.shape.particle.circular_particle import CircularParticle
+from system import consume_mouse_movement, on_mouse_press
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -18,11 +20,13 @@ _CROSSHAIR_THEME = Theme(
     color=RGB(120, 255, 255),
 )
 _CROSSHAIR_SHOOTING_THEME = Theme(color=RGB(255, 0, 0))
+_CROSSHAIR_PARTICLE_NAME = "CrosshairParticle"
 
 _DOT_SIZE = 1
 _HAIR_SIZE = 1
 _HAIR_OFFSET = 4
 
+# TODO: parametrize this
 _MOUSE_SENSITIVITY = 0.2
 
 
@@ -80,16 +84,6 @@ class Crosshair(PhysicsEntity, MouseHandler):
         self._handle_mouse_input()
         self._handle_color()
 
-        dx, dy = consume_mouse_movement()
-
-        if dx != 0 or dy != 0:
-            self._move_by(
-                VectorF(
-                    dx * _MOUSE_SENSITIVITY,
-                    -dy * _MOUSE_SENSITIVITY,
-                )
-            )
-
     def _handle_color(self) -> None:
         curr_weapon = self._engine.scenario.player.get_curr_weapon()
         _is_pressing_trigger = self._is_mouse_pressed(mouse.Button.left)
@@ -145,3 +139,33 @@ class Crosshair(PhysicsEntity, MouseHandler):
             if not isinstance(p, Line):
                 continue
             p._move_by(final_vector)
+
+    def _handle_mouse_input(self) -> None:
+        dx, dy = consume_mouse_movement()
+
+        if dx != 0 or dy != 0:
+            self._move_by(
+                VectorF(
+                    dx * _MOUSE_SENSITIVITY,
+                    -dy * _MOUSE_SENSITIVITY,
+                )
+            )
+
+        self._add_indicator_on_target_point()
+
+    @on_mouse_press(act_once_per_press=True)
+    def _add_indicator_on_target_point(self) -> None:
+        _light = CircularParticle(
+            name=_CROSSHAIR_PARTICLE_NAME,
+            origin=self._engine.scenario.crosshair.center,
+            size=0.1,
+            final_radius=8,
+            life_time=10,
+            initial_color=RGB(255, 100, 100, opacity=1),
+            ending_color=RGB(255, 0, 0, opacity=0),
+            size_change_type=TransitionType.LINEAR_INCREASE,
+            engine=self._engine,
+        )
+        self._engine.scenario.overlay_shapes = [
+            s for s in self._engine.scenario.overlay_shapes if s.name != _CROSSHAIR_PARTICLE_NAME
+        ] + [_light]

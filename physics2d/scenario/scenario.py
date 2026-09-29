@@ -51,19 +51,21 @@ class Scenario:
     fg_shapes: list[Shape]
     bg_shapes: list[Shape]
     solid_shapes: list[Shape]
-
-    # TODO: project them in the screen! abstract the projecting logic into a function in utils and use it both in 3d renderer and here
-    three_dee_enemies: list[ThreeDeeEnemy]
+    # absolutely positioned:
+    overlay_shapes: list[Shape]
 
     projectiles: list[Projectile]
     enemy_projectiles: list[Projectile]
 
     # TODO: add _debug_pieces, for angle lines, etc
 
-    enemies: list[Enemy]
-    gravity_acceleration: float
     player: PlayerBlob
     crosshair: Crosshair
+
+    enemies: list[Enemy]
+    three_dee_enemies: list[ThreeDeeEnemy]
+
+    gravity_acceleration: float
 
     # Global scenario counter
     _game_tick: int
@@ -78,6 +80,7 @@ class Scenario:
         fg_shapes: list[Shape] = [],
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
+        overlay_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
     ):
         self.name = name
@@ -87,6 +90,7 @@ class Scenario:
         self.bg_shapes = bg_shapes
         self.solid_shapes = solid_shapes
         self.three_dee_enemies = three_dee_enemies
+        self.overlay_shapes = overlay_shapes
 
         for p in self.solid_shapes:
             p.is_collideable = True
@@ -110,6 +114,7 @@ class Scenario:
             self.fg_shapes
             + self.bg_shapes
             + self.solid_shapes
+            + self.overlay_shapes
             + self.projectiles
             + self.enemy_projectiles
             + self.enemies
@@ -134,6 +139,7 @@ class Scenario:
         _remove_dead_particles(self.bg_shapes)
         _remove_dead_particles(self.fg_shapes)
         _remove_dead_particles(self.solid_shapes)
+        _remove_dead_particles(self.overlay_shapes)
 
         for p in self.projectiles + self.enemy_projectiles:
             if p.life_time is not None and p.life_time <= 0:
@@ -150,13 +156,19 @@ class Scenario:
         )
 
         # TODO: unify, we need a common class
-        def _handle(pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy]):
+        def _handle(
+            pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy],
+            absolute_positioning: bool = False,
+        ):
             for p in pieces:
-                self.handle_render_info(p.get_render_info())
+                self.handle_render_info(p.get_render_info(), absolute_positioning)
+
+        _handle(self.overlay_shapes, absolute_positioning=True)
 
         # Foreground gets differentiated treatment. TODO: this is a hack. Do properly
         _render_in_front_of_player: list[Shape] = []
         _render_behind_player: list[Shape] = []
+
         for shape in self.fg_shapes:
             if shape.render_behind_player:
                 _render_behind_player.append(shape)

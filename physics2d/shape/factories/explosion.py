@@ -272,7 +272,7 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
         origin=source.center,
         initial_velocity=(
             (-0.1) * source.velocity
-            + VectorF(0, 4 * random_offset()).rotate((-source.velocity).as_vector().get_angle())
+            + VectorF(0, 4 * random_offset()).rotate_2d((-source.velocity).as_vector().get_angle())
         ).as_vector(),
         size=0.5,
         initial_color=RGB(255, 255, 240, 1),  # almost white hot

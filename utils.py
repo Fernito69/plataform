@@ -284,7 +284,7 @@ def normalize_vertex_according_to_another(
     """takes an absolutely-positioned vertex and transforms it according to another's position and angle"""
     # Normalize by angle: for now only x-axis, since we have only one degree of freedom for rotation
     angle = math.radians(-reference_vertex_angle.x) if in_degrees else -reference_vertex_angle.x
-    rotated_point = vertex.rotate(angle, reference_vertex)
+    rotated_point = vertex.rotate_2d(angle, reference_vertex)
     rotated_vertex = PointF(
         x=rotated_point.x,
         y=rotated_point.y,

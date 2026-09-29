@@ -98,7 +98,7 @@ def gatling_bullets(
             life_time=50,
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
-            offset_from_origin=VectorF(factor, random_offset() * 4).rotate(angle).as_vector(),
+            offset_from_origin=VectorF(factor, random_offset() * 4).rotate_2d(angle).as_vector(),
             engine=engine,
         )
         bullets.append(bullet)
@@ -182,7 +182,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             origin=source.center + (_offset) * (direction + VectorF.random_offset_vector()),
             initial_velocity=(
                 source.velocity
-                + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
+                + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
             ).as_vector(),
             size=0.5,
             size_change_type=TransitionType.NONE,
@@ -284,7 +284,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         origin=source.center + (_offset) * (direction + VectorF.random_offset_vector()),
         initial_velocity=(
             source.velocity
-            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,

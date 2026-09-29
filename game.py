@@ -31,8 +31,6 @@ _WELCOME_TEXT: str = str.join(
 
 
 class Game(Engine, KeyboardHandler):
-    display: Display
-
     status: GameStatus
     mode: GameMode
 
@@ -58,7 +56,7 @@ class Game(Engine, KeyboardHandler):
         self.status = GameStatus.RUNNING
         self.mode = mode
 
-        self.display = Display(self)
+        self._display = Display(self)
 
         self.player2d = Player2D(1)
         self.platformer_v1 = PlatformerV1(self)
@@ -80,7 +78,7 @@ class Game(Engine, KeyboardHandler):
             self._handle_welcome_message()
 
             self.handle_keyboard_input()
-            self.display.handle_keyboard_input()
+            self._display.handle_keyboard_input()
 
             match self.mode:
                 case GameMode.PHYSICS_2D:
@@ -95,11 +93,11 @@ class Game(Engine, KeyboardHandler):
                 case GameMode.PLATFORMER_V1:
                     return self.platformer_v1.main_loop()
 
-        self.display.fps_throttle(_main_loop)
+        self._display.fps_throttle(_main_loop)
 
     def quit_game(self, message: str = f"BYE BYE!{BR}Thanks for playing :)") -> None:
-        self.display.set_message(message)
-        self.display.print_curr_screen()
+        self._display.set_message(message)
+        self._display.print_curr_screen()
         stop_mouse_listener()
         self.status = GameStatus.QUIT
 
@@ -127,10 +125,10 @@ class Game(Engine, KeyboardHandler):
         elif self._welcome_message_timer >= 0:
             _text = _WELCOME_TEXT
             intensity = 1 - ((_WELCOME_TIMER - self._welcome_message_timer) / _WELCOME_TIMER)
-            self.display.set_message(_text, intensity=intensity)
+            self._display.set_message(_text, intensity=intensity)
             self._welcome_message_timer -= 1
-        elif self.display.has_message():
-            self.display.set_message(None)
+        elif self._display.has_message():
+            self._display.set_message(None)
             self._welcome_message_timer = _WELCOME_MESSAGE_SHOWN
 
     ##############
@@ -164,23 +162,23 @@ class Game(Engine, KeyboardHandler):
     @on_key_press(MenuKeys.SWITCH_PHYSICS_2D_MODE, act_once_per_press=True)
     def _switch_physics2d_mode(self):
         self.mode = GameMode.PHYSICS_2D
-        self.display.switch_mode_by_game_mode()
+        self._display.switch_mode_by_game_mode()
 
     @on_key_press(MenuKeys.SWITCH_2D_MODE, act_once_per_press=True)
     def _switch_2d_mode(self):
         self.mode = GameMode.PLATFORMER_V1
-        self.display.switch_mode_by_game_mode()
+        self._display.switch_mode_by_game_mode()
 
     @on_key_press(MenuKeys.SWITCH_3D_MODE, act_once_per_press=True)
     def _switch_3d_mode(self):
         self.mode = GameMode.VOXELS_3D
-        self.display.switch_mode_by_game_mode()
+        self._display.switch_mode_by_game_mode()
         self.voxel_renderer.reset_screen_buffer()
 
     @on_key_press(DisplayKeys.SWITCH_RENDERING_MODE, act_once_per_press=True)
     def _switch_3d_rendering_mode(self):
         self.mode = GameMode.VOXELS_3D if self.mode == GameMode.LINES_3D else GameMode.LINES_3D
-        self.display.switch_mode_by_game_mode()
+        self._display.switch_mode_by_game_mode()
 
         if self.mode == GameMode.VOXELS_3D:
             self.voxel_renderer.reset_screen_buffer()
@@ -191,7 +189,7 @@ class Game(Engine, KeyboardHandler):
     # TODO: deprecate this?
     @on_key_press(DisplayKeys.SWITCH_ANTIALIASING, act_once_per_press=True)
     def _switch_antialiasing(self):
-        self.display._antialiasing = not self.display._antialiasing
+        self._display._antialiasing = not self._display._antialiasing
 
     @on_key_press(DisplayKeys.INCREASE_VISIBILITY)
     def _increase_visibility(self):

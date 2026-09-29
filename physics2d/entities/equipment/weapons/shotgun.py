@@ -62,7 +62,7 @@ def buckshot(engine: "Physics2D", source: "PhysicsEntity") -> None:
             offset_from_origin=VectorF.random_offset_vector(),
             initial_velocity=(
                 ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction())
-                + VectorF(0, _SPREAD * random_offset()).rotate(
+                + VectorF(0, _SPREAD * random_offset()).rotate_2d(
                     (-source.get_aiming_direction()).as_vector().get_angle()
                 )
             ).as_vector(),
@@ -157,7 +157,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine=engine,
         initial_velocity=(
             source.velocity
-            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,

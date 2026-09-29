@@ -154,8 +154,8 @@ class Line(Shape):
         new_angle = math.radians(new_angle)
 
         self.points = (
-            self.points[0].rotate(new_angle, self.center_of_mass),
-            self.points[1].rotate(new_angle, self.center_of_mass),
+            self.points[0].rotate_2d(new_angle, self.center_of_mass),
+            self.points[1].rotate_2d(new_angle, self.center_of_mass),
         )
         self.angle = new_angle
 

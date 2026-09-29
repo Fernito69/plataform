@@ -80,7 +80,7 @@ class BFG(Weapon):
 
         # Particles, come to me!
         for angle in range(0, 360, 30):
-            offset = VectorF(2 * _radius, 0).rotate(math.radians(angle), PointF(0, 0))
+            offset = VectorF(2 * _radius, 0).rotate_2d(math.radians(angle), PointF(0, 0))
 
             def _particle(engine: "Physics2D", c) -> None:
                 particle = CircularParticle(

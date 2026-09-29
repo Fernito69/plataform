@@ -1,7 +1,6 @@
 import math
 from typing import TYPE_CHECKING
 
-from display import Display
 from model.base import PointF
 from model.shared import Engine
 from model.theme import EMPTY_SPACE
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
 class PlatformerV1(Engine):
     _levels_2d: list[Level2D]
     _current_level_index: int
-    _display: Display
     _player2d: Player2D
 
     _screen_buffer: list[list[str]] = []
@@ -29,7 +27,7 @@ class PlatformerV1(Engine):
     ):
         self.game = game
         self._current_level_index = current_level_index
-        self._display = self.game.display
+        self._display = self.game._display
 
         self._player2d = self.game.player2d
         self._levels_2d = build_2d_levels()

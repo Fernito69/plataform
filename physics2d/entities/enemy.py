@@ -19,10 +19,9 @@ if TYPE_CHECKING:
 
 class Enemy(PhysicsEntity):
     _engine: "Physics2D"
-    health: float | None
 
+    health: float | None
     _initial_health: float | None
-    _initial_theme: Theme
 
     _projectile_generator: ParticleGenerator | None
     # The closer to 0, the more precise
@@ -31,9 +30,6 @@ class Enemy(PhysicsEntity):
     _aggressivity: float
 
     _spawner_on_death: Spawner | None
-
-    # TODO: move to Circunference with _initial_theme
-    _color_cycling_factor: float
 
     def __init__(
         self,
@@ -177,7 +173,7 @@ class Enemy(PhysicsEntity):
         direction = (self._engine.player.position - self.position).as_vector().unit_vector()
         return (
             direction
-            + VectorF.random_offset_vector(0, self._precision).rotate(direction.get_angle())
+            + VectorF.random_offset_vector(0, self._precision).rotate_2d(direction.get_angle())
         ).as_vector()
 
     def _apply_collisions(self) -> None:

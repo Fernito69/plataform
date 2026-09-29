@@ -1,9 +1,13 @@
 from abc import abstractmethod
+from typing import TYPE_CHECKING
 
 from pynput import mouse as _pynput_mouse
 
 from model.keyboard import KeyboardKeys
 from system import is_mouse_pressed, is_pressed
+
+if TYPE_CHECKING:
+    from display import Display
 
 
 class KeyboardHandler:
@@ -16,7 +20,6 @@ class KeyboardHandler:
 
     def _is_pressed(self, key: KeyboardKeys) -> bool:
         return is_pressed(key)
-        # return self._pressed_key_map.get(key) or False
 
     @abstractmethod
     def handle_keyboard_input(cls) -> None:
@@ -33,7 +36,6 @@ class MouseHandler:
 
     def _is_mouse_pressed(self, button: _pynput_mouse.Button) -> bool:
         return is_mouse_pressed(button)
-        # return self._pressed_key_map.get(key) or False
 
     @abstractmethod
     def _handle_mouse_input(cls) -> None:
@@ -41,7 +43,8 @@ class MouseHandler:
 
 
 class Engine:
-    # TODO: what else goes here? e.g. Display?
+    _display: "Display"
+
     @abstractmethod
     def main_loop(cls) -> None:
         pass

@@ -25,7 +25,6 @@ from three_d_renderer.entities.base3d import Entity3D
 from utils import normalize_vertex_according_to_another, project_3d_into_2d
 
 if TYPE_CHECKING:
-    from display import Display
     from game import Game
 
 # TODO: this is a temporary hack
@@ -34,7 +33,6 @@ random.shuffle(colors)
 
 
 class ThreeDeeRenderer(Engine):
-    _display: "Display"
     _screen_buffer: list[list[str]] = []
 
     # physics params
@@ -47,7 +45,7 @@ class ThreeDeeRenderer(Engine):
 
     def __init__(self, game: "Game"):
         self.game = game
-        self._display = self.game.display
+        self._display = self.game._display
         self.fov = DEFAULT_DISTANCE_TO_SPEC
         self.visibility_threshold = DEFAULT_VISIBILITY_THRESHOLD
         # TODO: this doesn't go here

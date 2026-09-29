@@ -112,53 +112,6 @@ class PlayerBlob(PhysicsEntity, Player):
     """MOVEMENT"""
     ##############
 
-    def _apply_gravity(self, gravity_accel: float) -> None:
-        # we float freely for now
-        pass
-
-    def _apply_collisions(self) -> None:
-        # only solid pieces can interact with the player
-        # TODO: we should filter by those that are visible on ecreen
-        for piece in self._engine.scenario.solid_shapes:
-            self.would_collide_with(piece)
-
-        for enemy in self._engine.scenario.enemies:
-            self.would_collide_with(enemy)
-            for e in enemy.extra_shapes:
-                if isinstance(e, Enemy):
-                    self.would_collide_with(e)
-
-    def _apply_movement(self) -> None:
-        self._move_by(self.velocity)
-
-    def _keep_player_in_screen(self) -> None:
-        """Adjusts the screen position in order to keep the player always visible"""
-        x_res, y_res = self._engine.get_resolution()
-        player_x, player_y, _ = self.position
-
-        if player_x < self._engine.screen_corner.x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self._engine.screen_corner = PointF(
-                round(player_x - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
-                self._engine.screen_corner.y,
-            )
-        if player_x > self._engine.screen_corner.x + (
-            x_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER
-        ):
-            self._engine.screen_corner = PointF(
-                round(player_x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - x_res),
-                self._engine.screen_corner.y,
-            )
-        if player_y < self._engine.screen_corner.y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self._engine.screen_corner = PointF(
-                self._engine.screen_corner.x,
-                round(player_y - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
-            )
-        if player_y > self._engine.screen_corner.y + y_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
-            self._engine.screen_corner = PointF(
-                self._engine.screen_corner.x,
-                round(player_y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - y_res),
-            )
-
     def get_curr_thruster(self) -> Thruster:
         return self._thrusters[self._curr_thruster_index]
 
@@ -182,15 +135,6 @@ class PlayerBlob(PhysicsEntity, Player):
 
     def get_weapon_position(self) -> PointF:
         return self.center + self.radius * self.get_aiming_direction()
-
-    def _get_max_speed(self) -> float:
-        return self.get_curr_thruster().max_speed
-
-    def _get_accel(self) -> float:
-        return self.get_curr_thruster().accel
-
-    def _get_decel(self) -> float:
-        return self.get_curr_thruster().decel
 
     def init_player(self) -> None:
         if not self._engine:
@@ -222,13 +166,21 @@ class PlayerBlob(PhysicsEntity, Player):
     def receive_damage(self, amount: float) -> None:
         self.health -= amount
 
-    # TODO: deprecate this
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
         self.init_player()
 
     def _cycle_weapon(self, direction: int) -> None:
         self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
+
+    def _get_max_speed(self) -> float:
+        return self.get_curr_thruster().max_speed
+
+    def _get_accel(self) -> float:
+        return self.get_curr_thruster().accel
+
+    def _get_decel(self) -> float:
+        return self.get_curr_thruster().decel
 
     def _decelerate_if_not_pressing(self) -> None:
         _decel_amount = self._get_decel()
@@ -300,6 +252,53 @@ class PlayerBlob(PhysicsEntity, Player):
             )
             self._engine.scenario.fg_shapes[0:0] = [_fire]
 
+    def _apply_gravity(self, gravity_accel: float) -> None:
+        # we float freely for now
+        pass
+
+    def _apply_collisions(self) -> None:
+        # only solid pieces can interact with the player
+        # TODO: we should filter by those that are visible on ecreen
+        for piece in self._engine.scenario.solid_shapes:
+            self.would_collide_with(piece)
+
+        for enemy in self._engine.scenario.enemies:
+            self.would_collide_with(enemy)
+            for e in enemy.extra_shapes:
+                if isinstance(e, Enemy):
+                    self.would_collide_with(e)
+
+    def _apply_movement(self) -> None:
+        self._move_by(self.velocity)
+
+    def _keep_player_in_screen(self) -> None:
+        """Adjusts the screen position in order to keep the player always visible"""
+        x_res, y_res = self._engine.get_resolution()
+        player_x, player_y, _ = self.position
+
+        if player_x < self._engine.screen_corner.x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
+                round(player_x - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
+                self._engine.screen_corner.y,
+            )
+        if player_x > self._engine.screen_corner.x + (
+            x_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER
+        ):
+            self._engine.screen_corner = PointF(
+                round(player_x + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - x_res),
+                self._engine.screen_corner.y,
+            )
+        if player_y < self._engine.screen_corner.y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
+                self._engine.screen_corner.x,
+                round(player_y - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER),
+            )
+        if player_y > self._engine.screen_corner.y + y_res - _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER:
+            self._engine.screen_corner = PointF(
+                self._engine.screen_corner.x,
+                round(player_y + _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER - y_res),
+            )
+
     ###############
     """  INPUT  """
     ###############
@@ -319,34 +318,15 @@ class PlayerBlob(PhysicsEntity, Player):
 
     def _handle_mouse_input(self) -> None:
         self._shoot()
-        self._add_indicator_on_target_point()
 
         steps = consume_mouse_scroll()
 
         if steps:
-            # Up → next weapon; down → previous weapon.
             self._cycle_weapon(steps)
 
     @on_mouse_press()
     def _shoot(self) -> None:
         self.get_curr_weapon().fire()
-
-    # TODO: I think this should happen in the crosshair class? Or be rendered in a layer with absolute positioning
-    @on_mouse_press(act_once_per_press=True)
-    def _add_indicator_on_target_point(self) -> None:
-
-        _light = CircularParticle(
-            name=_CROSSHAIR_PARTICLE_NAME,
-            origin=self._engine.scenario.crosshair.center + self._engine.screen_corner,
-            size=0.1,
-            final_radius=8,
-            life_time=10,
-            initial_color=RGB(255, 100, 100, opacity=1),
-            ending_color=RGB(255, 0, 0, opacity=0),
-            size_change_type=TransitionType.LINEAR_INCREASE,
-            engine=self._engine,
-        )
-        self._engine.scenario.bg_shapes[0:0] = [_light]
 
     @on_key_press(ActionKeys.NEXT_WEAPON, act_once_per_press=True)
     def _next_weapon(self) -> None:
@@ -399,8 +379,8 @@ class PlayerBlob(PhysicsEntity, Player):
 
     ################
     """ CHEATS!! """
-
     ################
+
     @on_key_press(CheatKeys.KILL_MONSTERS)
     def _kill_all_monsters(self) -> None:
         for e in self._engine.scenario.enemies:

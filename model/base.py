@@ -8,10 +8,6 @@ from typing import Literal
 
 from constants import ALMOST_ZERO, PI
 
-# TODO: remove if unused
-type Tuple2[T: int | float] = tuple[T, T]
-type Tuple3[T: int | float] = tuple[T, T, T]
-
 
 @dataclass
 class DistCoordBase:
@@ -42,10 +38,10 @@ class PointF:
             return "+Inf" if self.y >= point2.y else "-Inf"
         return (point2.y - self.y) / (point2.x - self.x)
 
-    def rotate(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
+    def rotate_2d(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
         rotation_axis = rotation_axis or (PointF(0, 0) if isinstance(self, VectorF) else self)
         if angle_in_radians == 0:
-            return self.as_vector()
+            return self
         new_x = (
             (self.x - rotation_axis.x) * math.cos(angle_in_radians)
             - (self.y - rotation_axis.y) * math.sin(angle_in_radians)
@@ -56,7 +52,7 @@ class PointF:
             + (self.y - rotation_axis.y) * math.cos(angle_in_radians)
             + rotation_axis.y
         )
-        return PointF(new_x, new_y)
+        return PointF(new_x, new_y, self.z)
 
     def __str__(self) -> str:
         DECIMALS = 1

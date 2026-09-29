@@ -224,3 +224,12 @@ class Theme:
     custom_line_chars: list[str] | None = None
     # only relevant if custom_line_chars is not None
     custom_line_type: SequencingType = "random"
+
+    def copy(self) -> Theme:
+        return Theme(
+            color=self.color.copy() if self.color else self.color,
+            bg_color=self.bg_color.copy() if self.bg_color else self.bg_color,
+            line_type=self.line_type,
+            custom_line_chars=self.custom_line_chars,
+            custom_line_type=self.custom_line_type,
+        )

@@ -98,6 +98,6 @@ class RocketEnemy(StalkingEnemy):
             if not isinstance(enemy, Enemy):
                 return
             enemy._move_by(self.velocity)
-            enemy.center = enemy.center.rotate(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
+            enemy.center = enemy.center.rotate_2d(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
             enemy.position = enemy.center
             enemy._attack_player()

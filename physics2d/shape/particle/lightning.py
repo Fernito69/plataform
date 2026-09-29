@@ -207,17 +207,12 @@ class Lightning(Particle, Line):
             and self.theme.color
             and self.ending_color_fade_type != TransitionType.NONE
         ):
-            factor = (
+            factor = 1 - (
                 self.life_time / self._original_life_time
                 if self.ending_color_fade_type == TransitionType.LINEAR_DECREASE
                 else 1 - self.life_time / self._original_life_time
             )
-            # ending_factor = 1 - factor
-            ending_factor = 1
-            self.theme.color = RGB(
-                r=self.initial_color.r * factor + self.ending_color.r * ending_factor,
-                g=self.initial_color.g * factor + self.ending_color.g * ending_factor,
-                b=self.initial_color.b * factor + self.ending_color.b * ending_factor,
-            )
+            self.theme.color = self.initial_color.get_gradient(self.ending_color, factor)
+
             for idx in range(len(self.segments)):
                 self.segments[idx].theme = self.theme

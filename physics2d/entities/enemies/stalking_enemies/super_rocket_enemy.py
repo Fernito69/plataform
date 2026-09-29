@@ -96,7 +96,7 @@ class SuperRocketEnemy(StalkingEnemy):
                 position=PointF(
                     position.x + size + _ROCKET_LAUNCHER_SATELLITE_RADIUS,
                     position.y,
-                ).rotate(((num / _NUM_SATELLITES) * (2 * PI)), position),
+                ).rotate_2d(((num / _NUM_SATELLITES) * (2 * PI)), position),
                 size=_ROCKET_LAUNCHER_SATELLITE_RADIUS,
                 theme=Theme(color=theme.color.with_intensity(0.7) if theme.color else None),
                 secondary_theme=Theme(color=RGB(255, 20, 255)),
@@ -124,7 +124,7 @@ class SuperRocketEnemy(StalkingEnemy):
             enemy._attack_player()
             self._cycle_color()
             enemy._apply_collisions()
-            enemy.center = enemy.center.rotate(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
+            enemy.center = enemy.center.rotate_2d(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
             enemy.position = enemy.center
 
 

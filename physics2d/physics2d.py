@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from display import Display
 from factories.theme import DEFAULT_CHAR, RGB
 from model.base import PointF, ScreenPos
 from model.game import GameMode
@@ -27,7 +26,6 @@ CAMERA_MOVEMENT_SPEED = 2
 
 
 class Physics2D(Engine, KeyboardHandler):
-    _display: Display
     _screen_buffer: list[list[list[RenderInfo]]]
 
     _screen_buffer_x_res: int
@@ -46,7 +44,6 @@ class Physics2D(Engine, KeyboardHandler):
         get_starry_space,
         get_saturn_rings,
         get_dodeca_dyson,
-        # get_sea_background,
     ]
     curr_bg_index: int
 
@@ -64,7 +61,7 @@ class Physics2D(Engine, KeyboardHandler):
     ):
         self.game = game
         self.screen_corner = initial_screen_corner
-        self._display = self.game.display
+        self._display = self.game._display
         self.low_quality_mode = False
         self.curr_scenario_index = curr_scenario_index
         self.curr_bg_index = curr_bg_index
@@ -72,7 +69,6 @@ class Physics2D(Engine, KeyboardHandler):
 
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
-        # TODO: thisi is hacky, do properly
         _curr_weapon_idx = self.player._curr_weapon_index if self.player else 0
         _curr_thruster_idx = self.player._curr_thruster_index if self.player else 0
 
@@ -239,7 +235,6 @@ class Physics2D(Engine, KeyboardHandler):
         curr_index = 0
 
         def _get_color(il: list[RenderInfo], idx: int):
-            # TODO: do we need this safeguard?
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 

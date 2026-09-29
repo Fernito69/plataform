@@ -199,7 +199,7 @@ def rocket_launcher_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None
         origin=source.center + 6 * (direction + VectorF.random_offset_vector()),
         initial_velocity=(
             source.velocity
-            + 5 * (direction + VectorF(0, random_offset() * 2).rotate(direction.get_angle()))
+            + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
         ).as_vector(),
         size=0.5,
         size_change_type=TransitionType.NONE,
