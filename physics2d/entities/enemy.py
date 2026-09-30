@@ -162,7 +162,12 @@ class Enemy(PhysicsEntity):
             if y - _safety_margin_y > _safety_margin_y
             else y + _safety_margin_y
         )
-        health_bar_list = get_health_bar_as_list(self, _health_bar_length - 2)
+        health_bar_list = get_health_bar_as_list(
+            self,
+            _health_bar_length - 2,
+            with_special_chars=True,
+            special_charset_index=0,
+        )
 
         for x_idx, x in enumerate(range(initial_x, initial_x + _health_bar_length)):
             data[health_bar_y][x] = health_bar_list[x_idx]

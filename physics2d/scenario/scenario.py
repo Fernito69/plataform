@@ -200,10 +200,6 @@ class Scenario:
         for info in render_info:
             self.engine.add_pixel_info_to_buffer(info, absolute_positioning)
 
-    # def _render_crosshair(self) -> None:
-    #     for info in self.crosshair.get_render_info():
-    #         self.engine.add_pixel_info_to_buffer(info, absolute_positioning=True)
-
     def get_distance_to_player(
         self,
         subject: "PhysicsEntity",
