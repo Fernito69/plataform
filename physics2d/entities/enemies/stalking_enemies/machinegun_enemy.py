@@ -16,6 +16,7 @@ _AGGRESSIVITY = 0.05
 
 _BULLET_COLOR = RGB(255, 150, 150)
 _BULLET_SPEED = 6
+_HEALTH = 150
 
 
 class MachineGunEnemy(StalkingEnemy):
@@ -23,13 +24,14 @@ class MachineGunEnemy(StalkingEnemy):
         self,
         engine: "Physics2D",
         size: float,
-        health: float,
+        health: float = _HEALTH,
         name: str = "SmallEnemy",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),
         precision: float = _PRECISSION,
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
+        show_health: bool = True,
     ):
         _machine_gun = get_bullet(
             is_enemy=True,
@@ -50,4 +52,5 @@ class MachineGunEnemy(StalkingEnemy):
             min_distance_from_other_enemies=_IDEAL_DISTANCE_FROM_ENEMIES,
             max_velocity=max_velocity,
             projectile_generator=_machine_gun,
+            show_health=show_health,
         )

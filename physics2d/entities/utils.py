@@ -85,8 +85,8 @@ def get_health_bar_as_list(
         if num_bars - num_full_bars - num_empty_bars != 0
         else ""
     )
-
-    health_bar_list.append(middle_bar)
+    if middle_bar:
+        health_bar_list.append(middle_bar)
 
     for _ in range(num_empty_bars):
         health_bar_list.append(colored(EMPTY_SPACE, bg_color=_RED))

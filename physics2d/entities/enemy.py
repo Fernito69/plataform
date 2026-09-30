@@ -129,9 +129,19 @@ class Enemy(PhysicsEntity):
             else 1
         )
 
+    ###########
+    _health_bar_length: int = 0
+
     def add_health_bar_data(self, data: list[list[str]]) -> None:
+        if not self._initial_health:
+            return
+
+        if not self._health_bar_length:
+            self._health_bar_length = round(2 + math.log(self._initial_health))
+
         _safety_margin_x = 2
-        _health_bar_length = 12
+        _health_bar_length = round(2 + (self._initial_health / 50))
+
         X_RES, Y_RES = self._engine.get_resolution()
 
         # remember now we are dealing with raw screen data

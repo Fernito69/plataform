@@ -28,6 +28,7 @@ _LIFE_TIME = 100
 _BLAST_RADIUS = 20
 _MAX_BLAST_DAMAGE = 20
 _SIZE = 1.2
+_HEALTH = 1000
 
 _NUM_SATELLITES = 3
 _ROCKET_LAUNCHER_SATELLITE_RADIUS = 4
@@ -39,7 +40,7 @@ class SuperRocketEnemy(StalkingEnemy):
         self,
         engine: "Physics2D",
         size: float,
-        health: float,
+        health: float = _HEALTH,
         name: str = "RocketEnemy",
         position: PointF = PointF(0, 0),
         theme: Theme = Theme(),

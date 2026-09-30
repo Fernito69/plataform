@@ -15,7 +15,6 @@ def super_rocket_enemy_spawner(
 ) -> None:
     enemy = SuperRocketEnemy(
         size=15,
-        health=1000,
         position=source.position,
         theme=Theme(color=RGB(90, 90, 100)),
         engine=engine,
