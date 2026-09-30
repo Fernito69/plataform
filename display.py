@@ -1,5 +1,4 @@
 import datetime
-import math
 import time
 from typing import TYPE_CHECKING, Callable
 
@@ -13,6 +12,7 @@ from model.shared import KeyboardHandler
 from model.theme import BR, EMPTY_SPACE, LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.player_blob import PlayerBlob
+from physics2d.entities.utils import get_health_bar
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
 from system import clear_screen, on_key_press, print_and_reset_cursor
@@ -36,10 +36,6 @@ _MESSAGE_LOWER_BORDER_COLOR = RGB(170, 80, 255)
 _MESSAGE_TEXT_COLOR = Yellow()
 
 _MAX_DEBUG_LOGS = 15
-
-
-_GREEN = RGB(0, 255, 0)
-_RED = RGB(255, 0, 0)
 
 
 class Display(KeyboardHandler):
@@ -403,34 +399,7 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
-
-            # Health bar
-            health_ratio = player.health / player._initial_health
-            num_bars = 10
-
-            num_full_bars = math.floor(num_bars * health_ratio)
-            full_bars = colored(" " * num_full_bars, bg_color=_GREEN)
-
-            num_empty_bars = math.floor(num_bars * (1 - health_ratio))
-            empty_bars = colored(" " * num_empty_bars, bg_color=_RED)
-
-            _health_per_bar = player._initial_health / num_bars
-
-            middle_bar = (
-                colored(
-                    " ",
-                    bg_color=_GREEN.get_gradient(
-                        _RED,
-                        _health_per_bar - (player.health % _health_per_bar),
-                        _health_per_bar,
-                    ),
-                )
-                if num_bars - num_full_bars - num_empty_bars != 0
-                else ""
-            )
-
-            health_bar = "[" + full_bars + middle_bar + empty_bars + "]"
-            hud += f"Health: {health_bar}{SEPARATOR}"
+            hud += f"Health: {get_health_bar(player)}{SEPARATOR}"
 
             # num_particles = (
             #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)

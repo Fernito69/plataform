@@ -41,6 +41,7 @@ class ThreeDeeEnemy(Enemy):
         visibility_threshold: float = 0.007,
         line_thickness: float = 1,
         color_cycling_factor: float = 57,
+        show_health: bool = False,
     ):
         self._engine = engine
         self.polyhedron = polyhedron
@@ -66,6 +67,7 @@ class ThreeDeeEnemy(Enemy):
             extra_shapes=extra_shapes,
             engine=engine,
             color_cycling_factor=color_cycling_factor,
+            show_health=show_health,
         )
         self.health = health
         self._initial_health = health

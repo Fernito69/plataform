@@ -7,6 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
+from physics2d.entities.utils import get_health_bar_as_list
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
@@ -24,12 +25,14 @@ class Enemy(PhysicsEntity):
     _initial_health: float | None
 
     _projectile_generator: ParticleGenerator | None
-    # The closer to 0, the more precise
+    # The closer to 0, the better the aim
     _precision: float
-    # from 0 to 1
+    # from 0 to 1, 0 meaning it never attacks, 1 meaning it attacks every single game tick
     _aggressivity: float
 
     _spawner_on_death: Spawner | None
+
+    show_health: bool
 
     def __init__(
         self,
@@ -57,6 +60,7 @@ class Enemy(PhysicsEntity):
         aggressivity: float = 0,
         spawner_on_death: Spawner | None = None,
         color_cycling_factor: float = 0,
+        show_health: bool = False,
     ):
         super().__init__(
             density=density,
@@ -93,6 +97,7 @@ class Enemy(PhysicsEntity):
         self._last_known_direction = initial_velocity
         self._spawner_on_death = spawner_on_death
         self._color_cycling_factor = color_cycling_factor
+        self.show_health = show_health
 
     def receive_damage(self, amount: float) -> None:
         if self.health is None:
@@ -123,6 +128,34 @@ class Enemy(PhysicsEntity):
             if self.health is not None and self._initial_health is not None
             else 1
         )
+
+    def add_health_bar_data(self, data: list[list[str]]) -> None:
+        _safety_margin_x = 2
+        _health_bar_length = 12
+        X_RES, Y_RES = self._engine.get_resolution()
+
+        # remember now we are dealing with raw screen data
+        Y_RES = round(Y_RES / 2)
+        # get position in the screen
+
+        x, y, _ = self.position
+        x = round(x - self._engine.screen_corner.x)
+        y -= self._engine.screen_corner.y
+
+        # same as above, y resolution should be halved
+        y = round(y / 2)
+        limit_x = X_RES - _safety_margin_x - _health_bar_length
+        initial_x = round(x - self.radius if x - self.radius <= limit_x else limit_x - self.radius)
+        _safety_margin_y = 2 + round(self.radius / 2)
+        health_bar_y = Y_RES - (
+            y - _safety_margin_y
+            if y - _safety_margin_y > _safety_margin_y
+            else y + _safety_margin_y
+        )
+        health_bar_list = get_health_bar_as_list(self, _health_bar_length - 2)
+
+        for x_idx, x in enumerate(range(initial_x, initial_x + _health_bar_length)):
+            data[health_bar_y][x] = health_bar_list[x_idx]
 
     def _cycle_color(self) -> None:
         if (

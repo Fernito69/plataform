@@ -36,6 +36,7 @@ class StalkingEnemy(Enemy):
         max_velocity: float = 4,
         min_distance_from_player: float = 60,
         min_distance_from_other_enemies: float = 20,
+        show_health: bool = False,
     ):
         super().__init__(
             health=health,
@@ -51,6 +52,7 @@ class StalkingEnemy(Enemy):
             color_gradient_exponent=color_gradient_exponent,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
             color_gradient_exponent_end=color_gradient_exponent_end,
+            show_health=show_health,
         )
         self._last_known_direction = self.velocity
         self._max_velocity = max_velocity

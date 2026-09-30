@@ -6,6 +6,7 @@ from model.theme import Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemies.stalking_enemy import StalkingEnemy
 from physics2d.entities.enemy import Enemy
+from physics2d.shape.base import Shape
 from physics2d.shape.factories.projectile import get_rocket
 
 if TYPE_CHECKING:
@@ -24,7 +25,6 @@ _BLAST_RADIUS = 20
 _MAX_BLAST_DAMAGE = 80
 _SIZE = 1.2
 
-_NUM_SATELLITES = 3
 _ROCKET_LAUNCHER_SATELLITE_RADIUS = 4
 _SATELLITE_ANGULAR_SPEED = 2
 
@@ -45,6 +45,7 @@ class RocketEnemy(StalkingEnemy):
         precision: float = _PRECISSION,
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
+        show_health: bool = False,
     ):
         super().__init__(
             health=health,
@@ -59,6 +60,7 @@ class RocketEnemy(StalkingEnemy):
             precision=precision,
             aggressivity=aggressivity,
             projectile_generator=None,
+            show_health=show_health,
         )
         self._last_known_direction = self.velocity
 
@@ -72,7 +74,7 @@ class RocketEnemy(StalkingEnemy):
             size=_SIZE,
         )
 
-        extra_shapes: list[Enemy | PhysicsEntity] = [
+        extra_shapes: list[Enemy | PhysicsEntity | Shape] = [
             Enemy(
                 projectile_generator=_rocket_launcher,
                 engine=engine,
@@ -98,6 +100,8 @@ class RocketEnemy(StalkingEnemy):
             if not isinstance(enemy, Enemy):
                 return
             enemy._move_by(self.velocity)
-            enemy.center = enemy.center.rotate_2d(math.radians(_SATELLITE_ANGULAR_SPEED), self.center)
+            enemy.center = enemy.center.rotate_2d(
+                math.radians(_SATELLITE_ANGULAR_SPEED), self.center
+            )
             enemy.position = enemy.center
             enemy._attack_player()

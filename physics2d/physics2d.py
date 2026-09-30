@@ -99,7 +99,33 @@ class Physics2D(Engine, KeyboardHandler):
         self.handle_keyboard_input()
         self.scenario.act()
         self.scenario.render()
-        self.convert_screen_buffer_to_display_data()
+        new_data = self._convert_screen_buffer_to_display_data()
+        new_data = self._add_health_bars(new_data)
+        self._send_data_to_display(new_data)
+
+    def is_in_screen(self, point: PointF) -> bool:
+        X_RES, Y_RES = self.get_resolution()
+        return (
+            point.x >= self.screen_corner.x
+            and point.x < self.screen_corner.x + X_RES
+            and point.y >= self.screen_corner.y
+            and point.y < self.screen_corner.y + Y_RES
+        )
+
+    def _add_health_bars(self, data: list[list[str]]) -> list[list[str]]:
+        _safety_margin_x = 2
+        _health_bar_length = 12
+        X_RES, Y_RES = self.get_resolution()
+        # remember now we are dealing with raw screen data
+        Y_RES = round(Y_RES / 2)
+
+        # since health bars are a pre-constructed string, we add them after rendering the scenario data
+        for enemy in [
+            en for en in self.scenario.enemies if en.show_health and self.is_in_screen(en.position)
+        ]:
+            enemy.add_health_bar_data(data)
+
+        return data
 
     def get_resolution(self) -> ScreenPos:
         return ScreenPos(self._screen_buffer_x_res, self._screen_buffer_y_res)
@@ -131,7 +157,7 @@ class Physics2D(Engine, KeyboardHandler):
         if self.is_visible(PointF(new_x, new_y)):
             self._screen_buffer[new_y][new_x].append(render_info)
 
-    def convert_screen_buffer_to_display_data(self) -> None:
+    def _convert_screen_buffer_to_display_data(self) -> list[list[str]]:
         new_screen_grid: list[list[str]] = []
         # for p in self.scenario.pieces:
         #     if p.name == "LINEA MIA":
@@ -171,6 +197,9 @@ class Physics2D(Engine, KeyboardHandler):
                     )
                 )
 
+        return new_screen_grid
+
+    def _send_data_to_display(self, new_screen_grid: list[list[str]]) -> None:
         self._display.put_screen_content(new_screen_grid)
         self._display.print_curr_screen(self.player)
 

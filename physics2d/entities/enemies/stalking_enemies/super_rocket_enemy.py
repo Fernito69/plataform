@@ -54,6 +54,7 @@ class SuperRocketEnemy(StalkingEnemy):
         precision: float = _PRECISSION,
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
+        show_health: bool = True,
     ):
         super().__init__(
             health=health,
@@ -72,6 +73,7 @@ class SuperRocketEnemy(StalkingEnemy):
             precision=precision,
             aggressivity=aggressivity,
             projectile_generator=None,
+            show_health=show_health,
         )
         self._last_known_direction = self.velocity
 

@@ -107,3 +107,6 @@ class PhysicsEntity(Circunference):
 
     @abstractmethod
     def get_aiming_direction(self) -> VectorF: ...
+
+    @abstractmethod
+    def add_health_bar_data(self, data: list[list[str]]) -> list[str]: ...
