@@ -139,6 +139,10 @@ class CircularParticle(Particle, PhysicsEntity):
         self._apply_movement()
         self._handle_life_time()
 
+    def _get_color(self, curr_idx: int, total: int) -> RGB:
+        # No gradient handling for particle (for now?)
+        return self.theme.color or RGB()
+
     def _apply_movement(self) -> None:
         if self.source:
             self.position = self.source.position

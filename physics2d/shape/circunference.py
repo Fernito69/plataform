@@ -377,8 +377,6 @@ class Circunference(Shape):
         return piece_info
 
     def _get_color(self, curr_idx: int, total: int) -> RGB:
-        from physics2d.shape.particle.base import Particle
-
         # Theme gradient (apply vertically)
         _gradient_factor: float = (
             (curr_idx + 1) / max(1, total - 1)
@@ -392,7 +390,6 @@ class Circunference(Shape):
                 and self.secondary_theme is not None
                 and self.secondary_theme.color is not None
                 and not self._color_cycling_factor
-                and not (isinstance(self, Particle) and self.life_time is not None)
             )
             else self.theme.color or RGB()
         )
@@ -431,18 +428,10 @@ class Circunference(Shape):
             for curr_y in y_range:
                 # Omit these roots for faster output!
                 # x1, x2 = eq.get_xs(curr_y)
-                _distance = min(
-                    max(
-                        0,
-                        (curr_y - y2) if y2 is not None else -1000,
-                        (y1 - curr_y) if y1 is not None else -1000,
-                    ),
-                    10000000,
-                    # max(
-                    #     0,
-                    #     (curr_x - x2) if x2 is not None else -1000,
-                    #     (x1 - curr_x) if x1 is not None else -1000,
-                    # ),
+                _distance = max(
+                    0,
+                    (curr_y - y2) if y2 is not None else -1000,
+                    (y1 - curr_y) if y1 is not None else -1000,
                 )
                 piece_info.append(
                     RenderInfo(
