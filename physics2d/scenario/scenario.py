@@ -106,7 +106,7 @@ class Scenario:
 
         self.background = background_gen(engine)
 
-    def act(self) -> None:
+    def do_your_thing(self) -> None:
         self.player.do_your_thing()
         self.crosshair.do_your_thing()
 
@@ -230,7 +230,6 @@ class Scenario:
                 key=lambda v: v[1],
             )
             if distance < max_range
-            # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims
 
@@ -259,7 +258,6 @@ class Scenario:
                 key=lambda v: (-v[0].size, v[1]),
             )
             if distance < max_range and proj is not subject and proj.size > size_above
-            # / 2  # TODO: this /2 is a hack, investigate why radius is treated as diameter¿?¿?¿?¿?
         ]
         return possible_victims
 

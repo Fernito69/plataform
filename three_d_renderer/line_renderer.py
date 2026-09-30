@@ -119,6 +119,15 @@ class LineRenderer(ThreeDeeRenderer):
         self._compute_world()
         self.render()
 
+    def is_in_screen(self, point: PointF, border_thickness: int = 1) -> bool:
+        X_RES, Y_RES = self._display.get_resolution()
+        return (
+            point.x >= border_thickness
+            and point.x < X_RES - border_thickness
+            and point.y >= border_thickness
+            and point.y < Y_RES - border_thickness
+        )
+
     def render(self):
         world_data: list[WorldData] = self._get_world_data()
 
@@ -142,9 +151,9 @@ class LineRenderer(ThreeDeeRenderer):
                     continue
 
                 # TODO: Wait, this doesn't necessarily mean the line it generates is not visible! This needs to be fixed
-                if not self._display.is_in_screen(
-                    curr_pixel_pos
-                ) and not self._display.is_in_screen(connecting_pixel_pos):
+                if not self.is_in_screen(curr_pixel_pos) and not self.is_in_screen(
+                    connecting_pixel_pos
+                ):
                     continue
 
                 self._compute_pixel_contributions(data, (curr_pixel_pos, connecting_pixel_pos))
@@ -210,7 +219,7 @@ class LineRenderer(ThreeDeeRenderer):
 
         for x in range(range_x_min, range_x_max):
             for y in range(range_y_min, range_y_max):
-                if not self._display.is_in_screen(PointF(x, y)):
+                if not self.is_in_screen(PointF(x, y)):
                     continue
 
                 calculated_y = eq.get_y(x)

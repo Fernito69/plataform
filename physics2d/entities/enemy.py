@@ -139,24 +139,30 @@ class Enemy(PhysicsEntity):
         if not self._health_bar_length:
             self._health_bar_length = round(2 + math.log(self._initial_health))
 
-        _safety_margin_x = 2
-        _health_bar_length = round(2 + (self._initial_health / 50))
-
         X_RES, Y_RES = self._engine.get_resolution()
 
-        # remember now we are dealing with raw screen data
+        # remember now we are dealing with raw screen data, so this needs to be corrected
         Y_RES = round(Y_RES / 2)
-        # get position in the screen
 
         x, y, _ = self.position
         x = round(x - self._engine.screen_corner.x)
-        y -= self._engine.screen_corner.y
-
         # same as above, y resolution should be halved
-        y = round(y / 2)
-        limit_x = X_RES - _safety_margin_x - _health_bar_length
-        initial_x = round(x - self.radius if x - self.radius <= limit_x else limit_x - self.radius)
+        y = round((y - self._engine.screen_corner.y) / 2)
+
+        # 2 for the brackets and scaled down by an arbitrary factor
+        _scale_down_power = 2
+        _health_bar_length = round(
+            2 + (self._initial_health ** (1 / _scale_down_power)) / _scale_down_power
+        )
+
+        _safety_margin_x = 2
+        _corrected_x = x - _health_bar_length / 2
+        _limit_x = X_RES - _safety_margin_x - _health_bar_length
+        _initial_x = math.floor(
+            _corrected_x if _corrected_x <= _limit_x else _limit_x - self.radius
+        )
         _safety_margin_y = 2 + round(self.radius / 2)
+
         health_bar_y = Y_RES - (
             y - _safety_margin_y
             if y - _safety_margin_y > _safety_margin_y
@@ -169,7 +175,7 @@ class Enemy(PhysicsEntity):
             special_charset_index=0,
         )
 
-        for x_idx, x in enumerate(range(initial_x, initial_x + _health_bar_length)):
+        for x_idx, x in enumerate(range(_initial_x, _initial_x + _health_bar_length)):
             data[health_bar_y][x] = health_bar_list[x_idx]
 
     def _cycle_color(self) -> None:

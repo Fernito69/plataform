@@ -45,7 +45,7 @@ class Background:
         self._scroll_vertically = scroll_vertically
         self._additional_backgrounds = additional_backgrounds
 
-    def set_previous_screen_corner(self, screen_corner: PointF) -> None:
+    def update_previous_screen_corner(self, screen_corner: PointF) -> None:
         self._previous_screen_corner = PointF(
             x=screen_corner.x,
             y=screen_corner.y,

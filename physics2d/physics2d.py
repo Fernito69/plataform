@@ -95,9 +95,10 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
-        self.scenario.background.set_previous_screen_corner(self.screen_corner)
+        # TODO: I don't like this being done here, move
+        self.scenario.background.update_previous_screen_corner(self.screen_corner)
         self.handle_keyboard_input()
-        self.scenario.act()
+        self.scenario.do_your_thing()
         self.scenario.render()
         new_data = self._convert_screen_buffer_to_display_data()
         new_data = self._add_health_bars(new_data)
@@ -113,13 +114,14 @@ class Physics2D(Engine, KeyboardHandler):
         )
 
     def _add_health_bars(self, data: list[list[str]]) -> list[list[str]]:
-        _safety_margin_x = 2
-        _health_bar_length = 12
-        X_RES, Y_RES = self.get_resolution()
-        # remember now we are dealing with raw screen data
+        """since health bars are a pre-constructed string, we add them after rendering the scenario data"""
+
+        _, Y_RES = self.get_resolution()
+
+        # remember now we are dealing with raw screen data, so we need to correct
+        # (see: self.init_screen_buffer and self._convert_screen_buffer_to_display_data)
         Y_RES = round(Y_RES / 2)
 
-        # since health bars are a pre-constructed string, we add them after rendering the scenario data
         for enemy in [
             en for en in self.scenario.enemies if en.show_health and self.is_in_screen(en.position)
         ]:

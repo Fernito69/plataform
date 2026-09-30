@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable
 from constants import ALMOST_ZERO
 from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
 from mappings.keyboard import default_keyboard_mapping
-from model.base import PointF, ScreenPos, ScreenVector
+from model.base import ScreenPos, ScreenVector
 from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
@@ -101,16 +101,6 @@ class Display(KeyboardHandler):
 
     def has_message(self) -> bool:
         return self._message is not None
-
-    # TODO: border thickness should not be passed here
-    def is_in_screen(self, point: PointF, border_thickness: int = 1) -> bool:
-        X_RES, Y_RES = self.get_resolution()
-        return (
-            point.x >= border_thickness
-            and point.x < X_RES - border_thickness
-            and point.y >= border_thickness
-            and point.y < Y_RES - border_thickness
-        )
 
     def get_resolution(self) -> ScreenPos:
         return ScreenPos(self._curr_x_resolution, self._curr_y_resolution)
