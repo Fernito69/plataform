@@ -115,18 +115,24 @@ def _get_middle_bar(
     _middle_bar_portion = _health_per_bar - (entity.health % _health_per_bar)
     _health_bar_steps = _HEALTH_BAR_STEPS[special_charset_index]
 
+    step_index = math.floor(_middle_bar_portion / (_health_per_bar / len(_health_bar_steps)))
+
+    _char = (
+        _health_bar_steps[step_index]
+        if with_special_chars and step_index < len(_health_bar_steps)
+        else EMPTY_SPACE
+    )
+
     middle_bar = (
         (
             colored(
-                _health_bar_steps[
-                    math.floor(_middle_bar_portion / (_health_per_bar / len(_health_bar_steps)))
-                ],
+                _char,
                 color=_GREEN,
                 bg_color=_RED,
             )
             if with_special_chars
             else colored(
-                EMPTY_SPACE,
+                _char,
                 bg_color=_GREEN.get_gradient(
                     _RED,
                     _middle_bar_portion,

@@ -35,6 +35,7 @@ def machine_gun_enemy_spawner(
         health=150,
         position=source.position,
         theme=Theme(color=RGB(190, 90, 100)),
+        secondary_theme=Theme(color=RGB(90, 0, 0)),
         engine=engine,
     )
     engine.scenario.enemies.append(enemy)
