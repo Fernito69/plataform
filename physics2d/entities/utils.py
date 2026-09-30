@@ -111,16 +111,15 @@ def _get_middle_bar(
     if entity.health is None or not entity._initial_health:
         return ""
 
-    health_per_bar = entity._initial_health / num_bars
-    _middle_bar_portion = health_per_bar - (entity.health % health_per_bar)
+    _health_per_bar = entity._initial_health / num_bars
+    _middle_bar_portion = _health_per_bar - (entity.health % _health_per_bar)
+    _health_bar_steps = _HEALTH_BAR_STEPS[special_charset_index]
+
     middle_bar = (
         (
             colored(
-                _HEALTH_BAR_STEPS[special_charset_index][
-                    math.floor(
-                        _middle_bar_portion
-                        / (health_per_bar / len(_HEALTH_BAR_STEPS[special_charset_index]))
-                    )
+                _health_bar_steps[
+                    math.floor(_middle_bar_portion / (_health_per_bar / len(_health_bar_steps)))
                 ],
                 color=_GREEN,
                 bg_color=_RED,
@@ -131,7 +130,7 @@ def _get_middle_bar(
                 bg_color=_GREEN.get_gradient(
                     _RED,
                     _middle_bar_portion,
-                    health_per_bar,
+                    _health_per_bar,
                 ),
             )
         )
