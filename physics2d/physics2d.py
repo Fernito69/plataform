@@ -13,6 +13,7 @@ from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
 from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
 from physics2d.scenario.backgrounds.starry_space import get_starry_space
 from physics2d.scenario.scenario import Scenario
+from physics2d.scenario.scenarios.color_test import color_test
 from physics2d.scenario.scenarios.first_level import first_level
 from physics2d.scenario.scenarios.test_scenario import test_scenario
 from system import on_key_press
@@ -37,6 +38,7 @@ class Physics2D(Engine, KeyboardHandler):
     scenarios: list[ScenarioGenerator] = [
         test_scenario,
         first_level,
+        color_test,
     ]
     curr_scenario_index: int
 

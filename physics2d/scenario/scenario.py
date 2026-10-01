@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
+from model.base import PointF
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
@@ -77,6 +78,7 @@ class Scenario:
         enemies: list[Enemy],
         engine: "Physics2D",
         player: PlayerBlob,
+        player_initial_position: PointF,
         fg_shapes: list[Shape] = [],
         bg_shapes: list[Shape] = [],
         solid_shapes: list[Shape] = [],
@@ -96,8 +98,8 @@ class Scenario:
             p.is_collideable = True
 
         self.gravity_acceleration = DEFAULT_GRAVITY_ACCELERATION
-        self.player = player
-        self._game_tick = 0
+
+        self._init_player(player, player_initial_position)
 
         self.crosshair = Crosshair(engine)
 
@@ -124,6 +126,17 @@ class Scenario:
 
         self._particle_lifetime_cleanup()
         self._game_tick += 1
+
+    def _init_player(
+        self,
+        player: PlayerBlob,
+        player_initial_position: PointF,
+    ) -> None:
+        self.player = player
+        _delta = (player_initial_position - self.player.position).as_vector()
+        self.player._move_by(_delta)
+        self.engine.screen_corner += _delta
+        self._game_tick = 0
 
     def _particle_lifetime_cleanup(self) -> None:
         def _remove_dead_particles(arr: list[Shape]) -> list[Shape] | None:

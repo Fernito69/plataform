@@ -19,6 +19,8 @@ from three_d_renderer.entities.polyhedra import Dodeca, Ico
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
+_STARTING_POSITION = PointF(280, 225)
+
 
 def test_scenario(
     engine: "Physics2D",
@@ -337,4 +339,5 @@ def test_scenario(
         engine=engine,
         player=engine.player,
         background_gen=background_gen,
+        player_initial_position=_STARTING_POSITION,
     )

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from physics2d.shape.base import Shape
 
 
+# TODO: this should inherit from Enemy?
 class SpawnerEntity(PhysicsEntity):
     _spawner: Spawner
     _spawn_interval: int

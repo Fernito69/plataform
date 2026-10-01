@@ -389,7 +389,7 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
-            hud += f"Health: {get_hp_bar_str(player, special_charset_index=1)}{SEPARATOR}"
+            hud += f"Health: {get_hp_bar_str(player, special_charset_index=0)}{SEPARATOR}"
 
             # num_particles = (
             #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)
