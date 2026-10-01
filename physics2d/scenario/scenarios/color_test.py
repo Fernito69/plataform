@@ -194,49 +194,10 @@ def color_test(
             position=PointF(120, -90),
             theme=Theme(RGB(255, 50, 50, opacity=0)),
         ),
-        # MachineGunEnemy(
-        #     size=10,
-        #     health=100,
-        #     position=PointF(50, 50),
-        #     theme=Theme(color=RGB(255, 0, 0)),
-        #     engine=engine,
-        # ),
-        # MachineGunEnemy(
-        #     size=10,
-        #     health=100,
-        #     position=PointF(150, 150),
-        #     theme=Theme(color=RGB(255, 250, 0)),
-        #     engine=engine,
-        # ),
-        # MachineGunEnemy(
-        #     size=10,sawds
-        #     health=100,
-        #     position=PointF(150, 200),
-        #     theme=Theme(color=RGB(255, 0, 255)),
-        #     engine=engine,
-        # ),
-        # MachineGunEnemy(
-        #     size=30,
-        #     health=1000,
-        #     position=PointF(300, 300),dsaw
-        #     engine=engine,
-        #     aggressivity=0.1,
-        #     max_velocity=1,
-        # ),
-        # SuperRocketEnemy(
-        #     size=15,
-        #     health=1000,
-        #     position=PointF(50, 50),
-        #     theme=Theme(color=RGB(120, 120, 120)),
-        #     engine=engine,
-        # ),
     ]
 
     fg_pieces: list[Shape] = []
-
-    # TODO: we are adding it to solid pieces, but maybe it needs its own layer
     solid_pieces: list[Shape] = []
-
     bg_pieces: list[Shape] = []
 
     return Scenario(

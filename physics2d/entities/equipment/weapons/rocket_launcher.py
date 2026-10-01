@@ -79,7 +79,7 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _ROCKET_SPEED = 5
     _LIFE_TIME = 120
     _BLAST_RADIUS = 60
-    _MAX_BLAST_DAMAGE = 110
+    _MAX_BLAST_DAMAGE = 250
     _SIZE = 1.7
 
     _rocket = rocket(
@@ -92,6 +92,7 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
         max_blast_damage=_MAX_BLAST_DAMAGE,
         size=_SIZE,
         color=RGB(255, 100, 100),
+        secondary_color=RGB(200, 0, 0),
     )
     engine.scenario.projectiles.append(_rocket)
 

@@ -43,7 +43,7 @@ class HomingMissileLauncher(Weapon):
 
 
 def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
-    _DAMAGE = 70
+    _DAMAGE = 50
     _ROCKET_SPEED = 3
     _TRIGGER_DISTANCE = 80
     _HOMING_FACTOR = 1.2

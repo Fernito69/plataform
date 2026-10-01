@@ -22,8 +22,8 @@ def first_level(
 
     fg_pieces: list[Shape] = []
 
-    # TODO: we are adding it to solid pieces, but maybe SpawnerEntity should be Enemy
-    solid_pieces: list[Shape] = [
+    # TODO: we are adding it as shapes, but maybe SpawnerEntity should be Enemy
+    bg_pieces: list[Shape] = [
         SpawnerEntity(
             engine=engine,
             spawn_interval=200,
@@ -41,7 +41,7 @@ def first_level(
         ),
     ]
 
-    bg_pieces: list[Shape] = []
+    solid_pieces: list[Shape] = []
 
     return Scenario(
         name="First level",

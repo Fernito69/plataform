@@ -6,6 +6,7 @@ from model.game import GameMode
 from model.keyboard import MenuKeys, MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_PIXEL_CHAR
+from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.shared import RenderInfo
@@ -106,13 +107,32 @@ class Physics2D(Engine, KeyboardHandler):
         new_data = self._add_health_bars(new_data)
         self._send_data_to_display(new_data)
 
-    def is_in_screen(self, point: PointF) -> bool:
+    def is_in_screen(
+        self,
+        point_or_entity: PointF | PhysicsEntity,
+        grace_margin: int = 0,
+    ) -> bool:
         X_RES, Y_RES = self.get_resolution()
+
+        # curr visible rectangle
+        x_min = self.screen_corner.x - grace_margin
+        x_max = self.screen_corner.x + X_RES + grace_margin
+        y_min = self.screen_corner.y - grace_margin
+        y_max = self.screen_corner.y + Y_RES + grace_margin
+
+        if isinstance(point_or_entity, PhysicsEntity):
+            return (
+                point_or_entity.position.x + point_or_entity.radius >= x_min
+                or point_or_entity.position.x - point_or_entity.radius < x_max
+                or point_or_entity.position.y + point_or_entity.radius >= y_min
+                or point_or_entity.position.y - point_or_entity.radius < y_max
+            )
+
         return (
-            point.x >= self.screen_corner.x
-            and point.x < self.screen_corner.x + X_RES
-            and point.y >= self.screen_corner.y
-            and point.y < self.screen_corner.y + Y_RES
+            point_or_entity.x >= x_min
+            and point_or_entity.x < x_max
+            and point_or_entity.y >= y_min
+            and point_or_entity.y < y_max
         )
 
     def _add_health_bars(self, data: list[list[str]]) -> list[list[str]]:

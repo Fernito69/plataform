@@ -14,8 +14,10 @@ _MAX_VELOCITY = 4
 _PRECISSION = 0.3
 _AGGRESSIVITY = 0.05
 
-_BULLET_COLOR = RGB(255, 150, 150)
+_BULLET_COLOR = RGB(255, 240, 150)
+_BULLET_EDNING_COLOR = RGB(60, 50, 3)
 _BULLET_SPEED = 6
+_BULLET_SIZE = 1.1
 _HEALTH = 150
 
 
@@ -40,7 +42,9 @@ class MachineGunEnemy(StalkingEnemy):
         _machine_gun = get_bullet(
             is_enemy=True,
             initial_color=_BULLET_COLOR,
+            ending_color=_BULLET_EDNING_COLOR,
             speed=_BULLET_SPEED,
+            size=_BULLET_SIZE,
         )
 
         super().__init__(

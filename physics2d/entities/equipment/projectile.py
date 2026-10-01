@@ -146,6 +146,7 @@ class Projectile(CircularParticle):
             self._trail_generator(self._engine, self, self.target)
 
     def _apply_collisions(self) -> None:
+        from physics2d.entities.enemy import Enemy
         # TODO: fix enemies being pushed back by bullet impacts
 
         if self.is_enemy:
@@ -163,13 +164,10 @@ class Projectile(CircularParticle):
                 if self.would_collide_with(enemy):
                     enemy.receive_damage(self.damage)
                     return self.hit()
-                for e in enemy.extra_shapes:
-                    from physics2d.entities.enemy import Enemy
-
-                    if isinstance(e, Enemy):
-                        if self.would_collide_with(e):
-                            e.receive_damage(self.damage)
-                            return self.hit()
+                for e in Enemy.filter_from(enemy.extra_shapes):
+                    if self.would_collide_with(e):
+                        e.receive_damage(self.damage)
+                        return self.hit()
 
             for proj in self._engine.scenario.enemy_projectiles:
                 if self.would_collide_with(proj):

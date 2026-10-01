@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
-from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
@@ -14,9 +13,14 @@ if TYPE_CHECKING:
     from physics2d.entities.model.shared import ParticleGenerator, ParticleGeneratorWithTarget
     from physics2d.physics2d import Physics2D
 
+_GRACE_MARGIN = 20
+
 
 def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -> None:
-    if is_out_of_sight(engine, source):
+    if not engine.is_in_screen(
+        source,
+        grace_margin=_GRACE_MARGIN,
+    ):
         return
 
     particles: list[CircularParticle] = []
@@ -181,7 +185,10 @@ def get_smoke_generator(
     random_offset_factor: float = 0,
 ) -> "ParticleGenerator":
     def _gen(engine: "Physics2D", source: "PhysicsEntity") -> None:
-        if is_out_of_sight(engine, source):
+        if not engine.is_in_screen(
+            source,
+            grace_margin=_GRACE_MARGIN,
+        ):
             return
 
         _smoke_generator(
@@ -679,7 +686,10 @@ def _rocket_trail(
     trail_life_time: int = 10,
     no_smoke: bool = False,
 ) -> None:
-    if is_out_of_sight(engine, source):
+    if not engine.is_in_screen(
+        source,
+        grace_margin=_GRACE_MARGIN,
+    ):
         return
 
     pieces: list[CircularParticle] = []
@@ -782,7 +792,10 @@ def _rocket_trail(
 def homing_missile_trail(
     engine: "Physics2D", source: "PhysicsEntity", target: "PhysicsEntity | None"
 ) -> None:
-    if is_out_of_sight(engine, source):
+    if not engine.is_in_screen(
+        source,
+        grace_margin=_GRACE_MARGIN,
+    ):
         return
 
     _LIFE_TIME = 10

@@ -98,8 +98,8 @@ class SpawnerEntity(PhysicsEntity):
 
     def _die(self) -> None:
         self._die_effect()
-        # For now we assume it's always in solid_shapes
-        self._engine.scenario.solid_shapes.remove(self)
+        # For now we assume it's always in bg_shapes
+        self._engine.scenario.bg_shapes.remove(self)
 
     def _spawn_effect(self) -> None:
         _size = 25

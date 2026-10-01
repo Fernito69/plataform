@@ -192,7 +192,7 @@ class Enemy(PhysicsEntity):
                 _health_bar_color = extract_bg_color_from_string(_new_pixel)
                 _color = extract_color_from_string(data[health_bar_y][x])
                 _bg_color = extract_bg_color_from_string(data[health_bar_y][x])
-                _hp_bar_intensity = 0.5
+                _hp_bar_intensity = 0.4
 
                 _new_pixel = colored(
                     LOWER_PIXEL_CHAR,
@@ -334,3 +334,7 @@ class Enemy(PhysicsEntity):
                 engine=self._engine,
             )
             self._engine.scenario.fg_shapes.append(_fire)
+
+    @staticmethod
+    def filter_from(_list: list) -> list["Enemy"]:
+        return [a for a in _list if isinstance(a, Enemy)]

@@ -10,7 +10,6 @@ from physics2d.shape.factories.explosion import (
     lightning_impact,
     rocket_trail,
 )
-from physics2d.shape.factories.utils import is_out_of_sight
 from physics2d.shape.line import Line
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.lightning import Lightning
@@ -21,6 +20,8 @@ if TYPE_CHECKING:
     from physics2d.entities.enemy import Enemy
     from physics2d.entities.model.shared import ParticleGenerator
     from physics2d.physics2d import Physics2D
+
+_GRACE_MARGIN = 20
 
 
 def get_lightning_bolts(
@@ -36,7 +37,10 @@ def get_lightning_bolts(
     target_projectiles: bool = True,
 ) -> "ParticleGenerator":
     def _lightning(engine: "Physics2D", source: "PhysicsEntity") -> None:
-        if is_out_of_sight(engine, source):
+        if not engine.is_in_screen(
+            source,
+            grace_margin=_GRACE_MARGIN,
+        ):
             return
 
         return _lightning_bolts(
@@ -185,6 +189,7 @@ def rocket(
     max_blast_damage: float,
     size: float,
     color: RGB = RGB(127, 127, 127, 1),
+    secondary_color: RGB = RGB(127, 127, 127, 1),
     trail_color_1: RGB | None = None,
     trail_color_2: RGB | None = None,
     explosion_color_1: RGB | None = None,
@@ -207,6 +212,8 @@ def rocket(
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.NONE,
         initial_color=color,
+        # TODO: IMPLEMENT THIS, so we can have gradient effects in particles
+        # secondary_color=secondary_color
         life_time=life_time,
         damage=damage,
         explosion_generator=get_rocket_explosion(
