@@ -1,7 +1,8 @@
 import math
 
-from model.theme import EMPTY_SPACE, RGB
-from utils import colored
+from model.theme import EMPTY_SPACE, LOWER_PIXEL_CHAR, RGB
+from physics2d.model.frame import HealthBarSnapshot
+from utils import colored, extract_bg_color_from_string, extract_color_from_string
 
 _GREEN = RGB(0, 255, 0)
 _RED = RGB(255, 0, 0)
@@ -142,3 +143,32 @@ def _get_middle_bar(
         else ""
     )
     return middle_bar
+
+
+def apply_hp_bar_to_screen(data: list[list[str]], health_bar: HealthBarSnapshot) -> None:
+    """Draw an already-resolved health bar on top of rendered screen data.
+
+    Render-stage only: it needs the pixels underneath to blend against, but it
+    touches no live entity, which is why the bar is snapshotted beforehand.
+    """
+
+    for x_idx, x in enumerate(
+        range(health_bar.x_start, health_bar.x_start + len(health_bar.pixels))
+    ):
+        _new_pixel = health_bar.pixels[x_idx]
+
+        if not health_bar.with_special_chars:
+            _health_bar_color = extract_bg_color_from_string(_new_pixel)
+            _color = extract_color_from_string(data[health_bar.y][x])
+            _bg_color = extract_bg_color_from_string(data[health_bar.y][x])
+            _hp_bar_intensity = 0.4
+
+            _new_pixel = colored(
+                LOWER_PIXEL_CHAR,
+                color=(_hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _color),
+                bg_color=(
+                    _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _bg_color
+                ),
+            )
+
+        data[health_bar.y][x] = _new_pixel

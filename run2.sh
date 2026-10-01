@@ -1,5 +1,4 @@
 #!/bin/sh
 cd "$(dirname "$0")"
 source .venv/bin/activate
-python main.py
-
+python main.py "$@"

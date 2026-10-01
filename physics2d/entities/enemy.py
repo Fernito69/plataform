@@ -3,20 +3,16 @@ from random import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.theme import LOWER_PIXEL_CHAR, RGB, Theme
+from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
-from physics2d.entities.utils import get_health_bar_as_list
+from physics2d.entities.utils import apply_hp_bar_to_screen, get_health_bar_as_list
+from physics2d.model.frame import HealthBarSnapshot
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import (
-    colored,
-    extract_bg_color_from_string,
-    extract_color_from_string,
-    random_offset,
-)
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -142,8 +138,19 @@ class Enemy(PhysicsEntity):
         data: list[list[str]],
         with_special_chars: bool = False,
     ) -> None:
+        snapshot = self.get_hp_bar_snapshot(with_special_chars)
+
+        if snapshot:
+            apply_hp_bar_to_screen(data, snapshot)
+
+    def get_hp_bar_snapshot(
+        self,
+        with_special_chars: bool = False,
+    ) -> HealthBarSnapshot | None:
+        """Resolve the bar against live state, so it can be drawn later without it."""
+
         if not self._initial_health:
-            return
+            return None
 
         if not self._health_bar_length:
             self._health_bar_length = round(2 + math.log(self._initial_health))
@@ -184,26 +191,12 @@ class Enemy(PhysicsEntity):
             special_charset_index=0,
         )
 
-        for x_idx, x in enumerate(range(_initial_x, _initial_x + _health_bar_length)):
-            _new_pixel = health_bar_list[x_idx]
-
-            if not with_special_chars:
-                _health_bar_color = extract_bg_color_from_string(_new_pixel)
-                _color = extract_color_from_string(data[health_bar_y][x])
-                _bg_color = extract_bg_color_from_string(data[health_bar_y][x])
-                _hp_bar_intensity = 0.4
-
-                _new_pixel = colored(
-                    LOWER_PIXEL_CHAR,
-                    color=(
-                        _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _color
-                    ),
-                    bg_color=(
-                        _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _bg_color
-                    ),
-                )
-
-            data[health_bar_y][x] = _new_pixel
+        return HealthBarSnapshot(
+            y=health_bar_y,
+            x_start=_initial_x,
+            pixels=health_bar_list[:_health_bar_length],
+            with_special_chars=with_special_chars,
+        )
 
     def _cycle_color(self) -> None:
         if (
