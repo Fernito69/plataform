@@ -26,7 +26,6 @@ def first_level(
     solid_pieces: list[Shape] = [
         SpawnerEntity(
             engine=engine,
-            size=10,
             spawn_interval=200,
             total_num_spawns=2,
             position=PointF(75, 75),
@@ -35,7 +34,6 @@ def first_level(
         ),
         SpawnerEntity(
             engine=engine,
-            size=10,
             spawn_interval=80,
             total_num_spawns=5,
             position=PointF(100, 100),

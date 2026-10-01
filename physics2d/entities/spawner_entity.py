@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 
 # TODO: this should inherit from Enemy?
+# TODO: implement pulsate method for circunference (like line) and make spawner entity pulsate!
 class SpawnerEntity(PhysicsEntity):
     _spawner: Spawner
     _spawn_interval: int
@@ -23,15 +24,15 @@ class SpawnerEntity(PhysicsEntity):
 
     def __init__(
         self,
-        size: float,
         engine: "Physics2D",
         spawner: Spawner,
         spawn_interval: int,
+        position: PointF,
         initial_delay: int = 0,
         total_num_spawns: int | None = None,
         name: str = "SpawnerEntity",
-        position: PointF = PointF(0, 0),
-        theme: Theme = Theme(color=RGB(200, 180, 200)),
+        size: float = 5,
+        theme: Theme = Theme(color=RGB(255, 0, 0)),
         secondary_theme: Theme = Theme(color=RGB(0, 200, 0)),
         color_gradient_exponent: float = 0,
         affected_by_gravity: bool = False,
@@ -89,9 +90,11 @@ class SpawnerEntity(PhysicsEntity):
 
     def _handle_color(self, elapsed: int) -> None:
         _elapsed: float = (
-            elapsed if elapsed >= 0 else (self._life_time_elapsed / self._initial_delay)
-        ) * 2
-        self._color_gradient_exponent = _elapsed / self._spawn_interval
+            elapsed % self._spawn_interval
+            if elapsed >= 0
+            else (self._life_time_elapsed / self._initial_delay)
+        )
+        self._color_gradient_exponent = (_elapsed / (self._spawn_interval)) * 2
 
     def _die(self) -> None:
         self._die_effect()
