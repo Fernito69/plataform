@@ -26,10 +26,10 @@ _RIGHT_BRACKET = colored(
 )
 
 
-def get_health_bar(
+def get_hp_bar_str(
     entity: "Enemy | PlayerBlob",
     num_bars=_DEFAULT_NUM_HEALTH_BARS,
-    with_special_chars: bool = False,
+    with_special_chars: bool = True,
     special_charset_index: int = 0,
 ) -> str:
     if entity.health is None or not entity._initial_health:

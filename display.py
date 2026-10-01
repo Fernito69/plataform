@@ -12,7 +12,7 @@ from model.shared import KeyboardHandler
 from model.theme import BR, EMPTY_SPACE, LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.player_blob import PlayerBlob
-from physics2d.entities.utils import get_health_bar
+from physics2d.entities.utils import get_hp_bar_str
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
 from system import clear_screen, on_key_press, print_and_reset_cursor
@@ -389,7 +389,7 @@ class Display(KeyboardHandler):
             hud += (
                 f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
             )
-            hud += f"Health: {get_health_bar(player)}{SEPARATOR}"
+            hud += f"Health: {get_hp_bar_str(player, special_charset_index=1)}{SEPARATOR}"
 
             # num_particles = (
             #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)

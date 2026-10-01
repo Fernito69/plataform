@@ -125,7 +125,10 @@ class Physics2D(Engine, KeyboardHandler):
         for enemy in [
             en for en in self.scenario.enemies if en.show_health and self.is_in_screen(en.position)
         ]:
-            enemy.add_health_bar_data(data)
+            enemy.add_hp_bar_to_screen(
+                data,
+                with_special_chars=False,
+            )
 
         return data
 

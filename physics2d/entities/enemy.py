@@ -3,7 +3,7 @@ from random import random
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.theme import RGB, Theme
+from model.theme import LOWER_PIXEL_CHAR, RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
@@ -11,7 +11,12 @@ from physics2d.entities.utils import get_health_bar_as_list
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import random_offset
+from utils import (
+    colored,
+    extract_bg_color_from_string,
+    extract_color_from_string,
+    random_offset,
+)
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -132,7 +137,11 @@ class Enemy(PhysicsEntity):
     ###########
     _health_bar_length: int = 0
 
-    def add_health_bar_data(self, data: list[list[str]]) -> None:
+    def add_hp_bar_to_screen(
+        self,
+        data: list[list[str]],
+        with_special_chars: bool = False,
+    ) -> None:
         if not self._initial_health:
             return
 
@@ -142,6 +151,7 @@ class Enemy(PhysicsEntity):
         X_RES, Y_RES = self._engine.get_resolution()
 
         # remember now we are dealing with raw screen data, so this needs to be corrected
+        # (see: self.init_screen_buffer and self._convert_screen_buffer_to_display_data)
         Y_RES = round(Y_RES / 2)
 
         x, y, _ = self.position
@@ -149,10 +159,10 @@ class Enemy(PhysicsEntity):
         # same as above, y resolution should be halved
         y = round((y - self._engine.screen_corner.y) / 2)
 
-        # 2 for the brackets and scaled down by an arbitrary factor
         _scale_down_power = 2
-        _health_bar_length = round(
-            2 + (self._initial_health ** (1 / _scale_down_power)) / _scale_down_power
+        # the 2 is for the brackets
+        _health_bar_length = 2 + round(
+            (self._initial_health ** (1 / _scale_down_power)) / _scale_down_power
         )
 
         _safety_margin_x = 2
@@ -170,13 +180,31 @@ class Enemy(PhysicsEntity):
         )
         health_bar_list = get_health_bar_as_list(
             self,
-            _health_bar_length - 2,
-            with_special_chars=True,
+            num_bars=_health_bar_length - 2,
+            with_special_chars=with_special_chars,
             special_charset_index=0,
         )
 
         for x_idx, x in enumerate(range(_initial_x, _initial_x + _health_bar_length)):
-            data[health_bar_y][x] = health_bar_list[x_idx]
+            _new_pixel = health_bar_list[x_idx]
+
+            if not with_special_chars and x_idx > 0 and x_idx < _health_bar_length - 1:
+                _health_bar_color = extract_bg_color_from_string(_new_pixel)
+                _color = extract_color_from_string(data[health_bar_y][x])
+                _bg_color = extract_bg_color_from_string(data[health_bar_y][x])
+                _hp_bar_intensity = 0.5
+
+                _new_pixel = colored(
+                    LOWER_PIXEL_CHAR,
+                    color=(
+                        _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _color
+                    ),
+                    bg_color=(
+                        _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _bg_color
+                    ),
+                )
+
+            data[health_bar_y][x] = _new_pixel
 
     def _cycle_color(self) -> None:
         if (
@@ -208,9 +236,6 @@ class Enemy(PhysicsEntity):
             self.theme.color.r,
             self.theme.color.g,
             self.theme.color.b,
-            # opacity=abs(
-            #     math.sin(self._engine.scenario.now() / 30),
-            # ),
             opacity=1 - 1.2 * ((1 - _opacity) * abs(math.sin(self._engine.scenario.now() / 30))),
         )
 
