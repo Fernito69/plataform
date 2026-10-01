@@ -4,7 +4,7 @@ from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.line import Line
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.base import Particle
@@ -87,6 +87,19 @@ class Lightning(Particle, Line):
         )
         self.segments = []
         self._gen_lightning()
+
+    def get_bounding_box(self) -> BoundingBox | None:
+        # The bolt jags away from the straight line between our two points, so
+        # the inherited Line box would be too tight -- use the segments instead.
+        box: BoundingBox | None = None
+        for line in self.segments:
+            segment_box = line.get_bounding_box()
+            if segment_box is None:
+                return None
+
+            box = segment_box if box is None else box.union(segment_box)
+
+        return box
 
     def get_render_info(self) -> list[RenderInfo]:
         return [info for line in self.segments for info in line.get_render_info()]

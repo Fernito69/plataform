@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable
 from constants import PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
 from utils import (
@@ -290,6 +290,14 @@ class Circunference(Shape):
 
         # TODO: add the other shapes
         return False
+
+    def get_bounding_box(self) -> BoundingBox:
+        return BoundingBox(
+            min_x=self.center.x - self.radius,
+            min_y=self.center.y - self.radius,
+            max_x=self.center.x + self.radius,
+            max_y=self.center.y + self.radius,
+        )
 
     def get_render_info(self) -> list[RenderInfo]:
         return (

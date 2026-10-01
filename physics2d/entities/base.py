@@ -5,7 +5,7 @@ from model.base import PointF, VectorF
 from model.theme import Theme
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.model.shared import ParticleGenerator
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
 
@@ -73,6 +73,18 @@ class PhysicsEntity(Circunference):
         self._particle_generator = particle_generator
 
         # volume depends on the type of entity
+
+    def get_bounding_box(self) -> BoundingBox | None:
+        # extra_shapes are drawn too, and can stick out past our own radius.
+        box = super().get_bounding_box()
+        for shape in self.extra_shapes:
+            extra_box = shape.get_bounding_box()
+            if extra_box is None:
+                return None
+
+            box = box.union(extra_box)
+
+        return box
 
     def get_render_info(self) -> list[RenderInfo]:
         info = super().get_render_info()
