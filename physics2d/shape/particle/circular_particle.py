@@ -106,6 +106,7 @@ class CircularParticle(Particle, PhysicsEntity):
                 self.radius -= self.radius / (self.life_time + 1)
             case TransitionType.EXPONENTIAL_DECREASE:
                 self.radius *= self.life_time / self._original_life_time
+                # TODO: decomission this, starting and final size should decide this
             case TransitionType.LINEAR_INCREASE:
                 _factor = self.life_time / self._original_life_time
                 self.radius = (_factor * self.radius) + ((1 - _factor) * self._final_radius)

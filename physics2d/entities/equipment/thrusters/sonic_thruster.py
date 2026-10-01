@@ -36,10 +36,6 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     vel_magnitude = abs(source.velocity)
 
-    # _initial_color = RGB(
-    #     0 + (vel_magnitude * random()) * 80, 255 - (vel_magnitude * random()) * 10, 200, 1
-    # )
-
     _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     sonic_boom_vacuum = CircularParticle(
@@ -117,28 +113,5 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
             engine=engine,
         )
         pieces.append(sonic_challa)
-
-    # if scenario.now() % 4 == 0:
-    #     normal_1, normal_2 = get_normal_vectors(source.velocity)
-
-    #     def _get_parallel_boom(normal: VectorF) -> Particle:
-    #         return Particle(
-    #             origin=(source.center - source.velocity),
-    #             initial_velocity=(normal + source.velocity).as_vector(),
-    #             size=vel_magnitude / 1.5,
-    #             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-    #             initial_color=RGB(255, 255, 255, 1),
-    #             ending_color=RGB(255, 255, 255),
-    #             ending_color_fade_type=TransitionType.NONE,
-    #             life_time=15,
-    #             floating_multi=0,
-    #         )
-
-    #     paralel_boom_1 = _get_parallel_boom(normal_1)
-    #     paralel_boom_2 = _get_parallel_boom(normal_2)
-    #     pieces.extend([paralel_boom_1, paralel_boom_2])
-
-    # TOOD: y esto?
-    _initial_color = RGB(255 - ((8 - vel_magnitude) * random()), 255, 255, 1)
 
     engine.scenario.bg_shapes[0:0] = pieces

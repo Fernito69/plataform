@@ -31,11 +31,13 @@ def first_level(
             position=PointF(75, 75),
             spawner=super_rocket_enemy_spawner,
             initial_delay=150,
+            spawn_effect_size=15,
         ),
         SpawnerEntity(
             engine=engine,
             spawn_interval=80,
             total_num_spawns=5,
+            spawn_effect_size=10,
             position=PointF(100, 100),
             spawner=machine_gun_enemy_spawner,
         ),

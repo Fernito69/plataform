@@ -100,14 +100,8 @@ class Physics2D(Engine, KeyboardHandler):
 
     def main_loop(self) -> None:
         self.init_screen_buffer()
-        # TODO: I don't like this being done here, move
-        self.scenario.background.update_previous_screen_corner(self.screen_corner)
-        self.handle_keyboard_input()
-        self.scenario.do_your_thing()
-        self.scenario.render()
-        new_data = self._convert_screen_buffer_to_display_data()
-        new_data = self._add_health_bars(new_data)
-        self._send_data_to_display(new_data)
+        self._calc_physics_and_compute_render_info()
+        self._render()
 
     def is_in_screen(
         self,
@@ -137,6 +131,17 @@ class Physics2D(Engine, KeyboardHandler):
             and point_or_entity.y < y_max
         )
 
+    def _calc_physics_and_compute_render_info(self) -> None:
+        self.scenario.background.update_previous_screen_corner(self.screen_corner)
+        self.handle_keyboard_input()
+        self.scenario.do_your_thing()
+        self.scenario.compute_render_info()
+
+    def _render(self) -> None:
+        new_data = self._convert_screen_buffer_to_display_data()
+        new_data = self._add_health_bars(new_data)
+        self._send_data_to_display(new_data)
+
     def _add_health_bars(self, data: list[list[str]]) -> list[list[str]]:
         """since health bars are a pre-constructed string, we add them after rendering the scenario data"""
 
@@ -159,14 +164,6 @@ class Physics2D(Engine, KeyboardHandler):
     def get_resolution(self) -> ScreenPos:
         return ScreenPos(self._screen_buffer_x_res, self._screen_buffer_y_res)
 
-    def is_visible(self, point: PointF) -> bool:
-        return (
-            point.x >= 0
-            and point.x < self._screen_buffer_x_res
-            and point.y >= 0
-            and point.y < self._screen_buffer_y_res
-        )
-
     def add_pixel_info_to_buffer(
         self,
         render_info: RenderInfo,
@@ -183,17 +180,18 @@ class Physics2D(Engine, KeyboardHandler):
             else round(render_info.point.y - self.screen_corner.y)
         )
 
-        if self.is_visible(PointF(new_x, new_y)):
+        if (
+            new_x >= 0
+            and new_x < self._screen_buffer_x_res
+            and new_y >= 0
+            and new_y < self._screen_buffer_y_res
+        ):
             self._screen_buffer[new_y][new_x].append(render_info)
 
     def _convert_screen_buffer_to_display_data(self) -> list[list[str]]:
         new_screen_grid: list[list[str]] = []
-        # for p in self.scenario.pieces:
-        #     if p.name == "LINEA MIA":
-        #         self.display.debug_log(f"angle: PI*{p.angle} radians, {p.angular_velocity}")
-        #         pass
 
-        # TODO: for now, we assume y-res is always evenaaaaaaaq
+        # TODO: for now, we assume y-res is always even
         # Note the step is 2 here <─────────────────┐
         for y in range(0, self._screen_buffer_y_res, 2):
             new_y = int(y / 2)

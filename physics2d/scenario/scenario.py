@@ -162,7 +162,7 @@ class Scenario:
         """Get the current game tick"""
         return self._game_tick
 
-    def render(self) -> None:
+    def compute_render_info(self) -> None:
         self.handle_render_info(
             self.crosshair.get_render_info(),
             absolute_positioning=True,

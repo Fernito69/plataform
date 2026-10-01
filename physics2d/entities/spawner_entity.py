@@ -5,6 +5,9 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
+from physics2d.shape.model.shared import TransitionType
+from physics2d.shape.particle.circular_particle import CircularParticle
+from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -21,6 +24,8 @@ class SpawnerEntity(PhysicsEntity):
 
     _curr_num_spawns: int = 0
     _life_time_elapsed: int = 0
+
+    _spawn_effect_size: float
 
     def __init__(
         self,
@@ -42,6 +47,7 @@ class SpawnerEntity(PhysicsEntity):
         floating_multi: float = 0,
         extra_shapes: list["PhysicsEntity | Shape"] = [],
         particle_generator: ParticleGenerator | None = None,
+        spawn_effect_size: float = 10,
     ):
         super().__init__(
             density=1,
@@ -66,6 +72,7 @@ class SpawnerEntity(PhysicsEntity):
         self._spawn_interval = spawn_interval
         self._spawner = spawner
         self._initial_delay = initial_delay
+        self._spawn_effect_size = spawn_effect_size
 
     def do_your_thing(self) -> None:
         elapsed = self._life_time_elapsed - self._initial_delay
@@ -102,29 +109,74 @@ class SpawnerEntity(PhysicsEntity):
         self._engine.scenario.bg_shapes.remove(self)
 
     def _spawn_effect(self) -> None:
-        _size = 25
-
-        _COLOR = RGB(127, 255, 127, 1)
-        _COLOR_2 = RGB(180, 255, 90, 1)
-        _COLOR_3 = RGB(200, 255, 60, 1)
-        _mini_effect_color = RGB(220, 255, 127, 1)
-
-        # TODO: it needs its own effect, this is not a rocket!
-        # rocket_explosion(
-        #     engine=self._engine,
-        #     rocket=self,
-        #     damage=100,
-        #     blast_radius=_size,
-        #     blast_damage_at_ground_zero=0,
-        #     main_color=_COLOR,
-        #     secondary_color=_COLOR_2,
-        #     tertiary_color=_COLOR_3,
-        #     little_explosions_color=_mini_effect_color,
-        #     with_smoke=False,
-        #     throw_sparks=True,
-        #     bfg_sparks=True,
-        # )
+        teleport_in_particles(
+            self._engine,
+            self,
+            self._spawn_effect_size,
+        )
 
     def _die_effect(self) -> None:
         # TODO: do its own thing
         self._spawn_effect()
+
+
+#####################################################################################################################################
+
+
+def teleport_in_particles(
+    engine: "Physics2D",
+    source: "PhysicsEntity",
+    size: float = 10,
+) -> None:
+    pieces: list[Shape] = []
+
+    _initial_color = RGB(80, 255, 80)
+
+    shockwave = CircularParticle(
+        engine=engine,
+        origin=source.center,
+        size=size,
+        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+        initial_color=_initial_color,
+        ending_color=_initial_color.copy(opacity=0),
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+        life_time=15,
+    )
+    pieces.append(shockwave)
+
+    shockwave = CircularParticle(
+        engine=engine,
+        origin=source.center,
+        size=0,
+        final_radius=size,
+        size_change_type=TransitionType.LINEAR_INCREASE,
+        initial_color=RGB(255, 255, 255),
+        ending_color=RGB(255, 255, 255, opacity=0),
+        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+        life_time=15,
+    )
+    pieces.append(shockwave)
+
+    for _ in range(15):
+        # little particles doing particle stuff
+        sonic_challa = CircularParticle(
+            origin=(source.center - source.velocity)
+            - VectorF(x=random_offset(), y=random_offset()),
+            initial_velocity=(
+                -0.4
+                * VectorF(
+                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
+                )
+            ).as_vector(),
+            size=4,
+            size_change_type=TransitionType.EXPONENTIAL_DECREASE,
+            initial_color=_initial_color,
+            ending_color=_initial_color.copy(opacity=0),
+            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
+            life_time=25,
+            floating_multi=5,
+            engine=engine,
+        )
+        pieces.append(sonic_challa)
+
+    engine.scenario.bg_shapes[0:0] = pieces
