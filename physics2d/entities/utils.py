@@ -13,17 +13,17 @@ if TYPE_CHECKING:
     from physics2d.entities.enemy import Enemy
     from physics2d.entities.player_blob import PlayerBlob
 
-_LEFT_BRACKET = colored(
-    "[",
-    color=RGB(255, 255, 255),
-    bg_color=RGB(0, 0, 0),
-)
+# _LEFT_BRACKET = colored(
+#     "[",
+#     color=RGB(255, 255, 255),
+#     bg_color=RGB(0, 0, 0),
+# )
 
-_RIGHT_BRACKET = colored(
-    "]",
-    color=RGB(255, 255, 255),
-    bg_color=RGB(0, 0, 0),
-)
+# _RIGHT_BRACKET = colored(
+#     "]",
+#     color=RGB(255, 255, 255),
+#     bg_color=RGB(0, 0, 0),
+# )
 
 
 def get_hp_bar_str(
@@ -52,7 +52,7 @@ def get_hp_bar_str(
         with_special_chars=with_special_chars,
     )
 
-    return _LEFT_BRACKET + full_bars + middle_bar + empty_bars + _RIGHT_BRACKET
+    return full_bars + middle_bar + empty_bars
 
 
 def get_health_bar_as_list(
@@ -65,7 +65,7 @@ def get_health_bar_as_list(
         return []
 
     health_ratio = entity.health / entity._initial_health
-    health_bar_list = [_LEFT_BRACKET]
+    health_bar_list = []
 
     num_full_bars = math.floor(num_bars * health_ratio)
     num_empty_bars = math.floor(num_bars * (1 - health_ratio))
@@ -87,8 +87,6 @@ def get_health_bar_as_list(
 
     for _ in range(num_empty_bars):
         health_bar_list.append(colored(EMPTY_SPACE, bg_color=_RED))
-
-    health_bar_list.append(_RIGHT_BRACKET)
 
     return health_bar_list
 

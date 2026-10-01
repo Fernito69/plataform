@@ -160,8 +160,7 @@ class Enemy(PhysicsEntity):
         y = round((y - self._engine.screen_corner.y) / 2)
 
         _scale_down_power = 2
-        # the 2 is for the brackets
-        _health_bar_length = 2 + round(
+        _health_bar_length = round(
             (self._initial_health ** (1 / _scale_down_power)) / _scale_down_power
         )
 
@@ -180,7 +179,7 @@ class Enemy(PhysicsEntity):
         )
         health_bar_list = get_health_bar_as_list(
             self,
-            num_bars=_health_bar_length - 2,
+            num_bars=_health_bar_length,
             with_special_chars=with_special_chars,
             special_charset_index=0,
         )
@@ -188,7 +187,7 @@ class Enemy(PhysicsEntity):
         for x_idx, x in enumerate(range(_initial_x, _initial_x + _health_bar_length)):
             _new_pixel = health_bar_list[x_idx]
 
-            if not with_special_chars and x_idx > 0 and x_idx < _health_bar_length - 1:
+            if not with_special_chars:
                 _health_bar_color = extract_bg_color_from_string(_new_pixel)
                 _color = extract_color_from_string(data[health_bar_y][x])
                 _bg_color = extract_bg_color_from_string(data[health_bar_y][x])
