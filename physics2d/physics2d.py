@@ -13,6 +13,7 @@ from physics2d.model.shared import RenderInfo
 from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
 from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
 from physics2d.scenario.backgrounds.starry_space import get_starry_space
+from physics2d.scenario.backgrounds.void_space import get_void_space
 from physics2d.scenario.scenario import Scenario
 from physics2d.scenario.scenarios.color_test import color_test
 from physics2d.scenario.scenarios.first_level import first_level
@@ -47,6 +48,7 @@ class Physics2D(Engine, KeyboardHandler):
         get_starry_space,
         get_saturn_rings,
         get_dodeca_dyson,
+        get_void_space,
     ]
     curr_bg_index: int
 
