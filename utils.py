@@ -72,7 +72,7 @@ def extract_bg_color_from_string(text: str) -> RGB:
 def colored(text: str, color: RGB | None = None, bg_color: RGB | None = None) -> str:
     fg_code = f"{_FG_CODE}{_encode_rgb(color)}m" if color else ""
     bg_code = f"{_BG_CODE}{_encode_rgb(bg_color)}m" if bg_color else ""
-    reset_code = _RESET if (color or bg_color) and _RESET not in text else ""
+    reset_code = _RESET if color is not None or bg_color is not None else ""
 
     return f"{fg_code}{bg_code}{text}{reset_code}"
 
