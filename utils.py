@@ -82,7 +82,7 @@ def get_raw_string(s: str) -> str:
 
 
 def has_color(text: str) -> bool:
-    return _FG_CODE in text or _BG_CODE in text
+    return _FG_CODE in text
 
 
 def has_bg_color(text: str, black_is_not_condidered_bg: bool = True) -> bool:
