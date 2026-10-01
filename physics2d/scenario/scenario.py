@@ -163,27 +163,34 @@ class Scenario:
         return self._game_tick
 
     def compute_render_info(self) -> None:
+        jobs = self._get_render_jobs()
+
+        # Stage A: resolve every entity's pixels. Each entity only looks at
+        # itself, so this is the part that can be spread over several threads.
+        all_render_info = self.engine.compute_render_info_batch([entity for entity, _ in jobs])
+
+        # Stage B: scatter them into the buffer, strictly in job order. The
+        # buffer stacks pixels front-to-back per cell and _compute_subpixel_color
+        # walks them in that order, so this half has to stay serial.
+        for (_, absolute_positioning), render_info in zip(jobs, all_render_info):
+            self.handle_render_info(render_info, absolute_positioning)
+
+        # The background moves its own shapes around while it renders, so it is
+        # not just a read of entity state -- it stays out of stage A.
         self.handle_render_info(
-            self.crosshair.get_render_info(),
+            self.background.get_render_info(),
             absolute_positioning=True,
         )
 
-        viewport = self.engine.get_viewport()
+    # TODO: unify, we need a common class
+    def _get_render_jobs(
+        self,
+    ) -> list[tuple[Shape | Projectile | Enemy | ThreeDeeEnemy, bool]]:
+        """What to render this frame, paired with its positioning, in draw order.
 
-        # TODO: unify, we need a common class
-        def _handle(
-            pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy],
-            absolute_positioning: bool = False,
-        ):
-            for p in pieces:
-                # Skip anything the camera can't see. Absolutely-positioned
-                # pieces are already in screen coords, so the test doesn't apply.
-                if not absolute_positioning and not self.engine.is_worth_rendering(p, viewport):
-                    continue
-
-                self.handle_render_info(p.get_render_info(), absolute_positioning)
-
-        _handle(self.overlay_shapes, absolute_positioning=True)
+        Anything the camera can't see is dropped here, so it never reaches the
+        pool in stage A.
+        """
 
         # Foreground gets differentiated treatment. TODO: this is a hack. Do properly
         _render_in_front_of_player: list[Shape] = []
@@ -195,22 +202,31 @@ class Scenario:
             else:
                 _render_in_front_of_player.append(shape)
 
-        _handle(_render_behind_player)
-        self.handle_render_info(self.player.get_render_info())
-        _handle(_render_in_front_of_player)
+        absolutely_positioned = [self.crosshair, *self.overlay_shapes]
+        relatively_positioned = [
+            *_render_behind_player,
+            self.player,
+            *_render_in_front_of_player,
+            *self.solid_shapes,
+            *self.projectiles,
+            *self.enemy_projectiles,
+            *self.enemies,
+            *self.three_dee_enemies,
+            *self.bg_shapes,
+        ]
 
-        _handle(self.solid_shapes)
-        _handle(self.projectiles)
-        _handle(self.enemy_projectiles)
-        _handle(self.enemies)
-        _handle(self.three_dee_enemies)
+        # Absolutely-positioned pieces are already in screen coords, so the
+        # viewport test doesn't apply to them.
+        viewport = self.engine.get_viewport()
 
-        _handle(self.bg_shapes)
-
-        self.handle_render_info(
-            self.background.get_render_info(),
-            absolute_positioning=True,
-        )
+        return [
+            *[(entity, True) for entity in absolutely_positioned],
+            *[
+                (entity, False)
+                for entity in relatively_positioned
+                if self.engine.is_worth_rendering(entity, viewport)
+            ],
+        ]
 
     def handle_render_info(
         self,

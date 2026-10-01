@@ -144,7 +144,10 @@ class Display(KeyboardHandler):
         self,
         player: Player2D | Player3D | PlayerBlob | None = None,
         clear_screen: bool = False,
+        hud: str | None = None,
     ):
+        """`hud` lets the caller hand over an already-built HUD string, so that
+        printing a frame never has to reach back into live player state."""
         message_container_coords: tuple[ScreenPos, ScreenPos] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
@@ -179,11 +182,15 @@ class Display(KeyboardHandler):
             if y < self._curr_y_resolution - 1:
                 screen_content += BR
 
-        if player:
-            screen_content += BR + self._get_hud_content(player)
+        hud_content = hud if hud is not None else (self.get_hud_content(player) if player else None)
+
+        if hud_content:
+            screen_content += BR + hud_content
 
         if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
+            _sep = (
+                SEPARATOR if isinstance(player, Player2D) else "" if hud_content is not None else BR
+            )
             _fps_factor = self._measured_fps / self._curr_fps
             _fps_color = Green(min(1, _fps_factor)).mix_with(Red(max(0, 1 - _fps_factor)))
             screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
@@ -344,7 +351,7 @@ class Display(KeyboardHandler):
         self._curr_x_resolution = resolution.x
         self._curr_y_resolution = resolution.y
 
-    def _get_hud_content(self, player: Player2D | Player3D | PlayerBlob) -> str:
+    def get_hud_content(self, player: Player2D | Player3D | PlayerBlob) -> str:
         hud = ""
 
         # Horrible branching
