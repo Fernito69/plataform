@@ -109,7 +109,7 @@ class SuperRocketEnemy(StalkingEnemy):
                     position.y,
                 ).rotate_2d(((num / _NUM_SATELLITES) * (2 * PI)), position),
                 size=_ROCKET_LAUNCHER_SATELLITE_RADIUS,
-                theme=Theme(color=theme.color.with_intensity(0.7) if theme.color else None),
+                theme=Theme(color=0.7 * theme.color if theme.color else None),
                 secondary_theme=Theme(color=RGB(255, 20, 255)),
                 color_gradient_exponent=0.3,
                 color_gradient_exponent_end=1,

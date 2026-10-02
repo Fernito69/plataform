@@ -182,17 +182,13 @@ class LineRenderer(ThreeDeeRenderer):
 
                 color = mix_colors(
                     [
-                        (c.upper_subpixel.color or White()).with_intensity(
-                            _get_intensity(c.upper_subpixel)
-                        )
+                        _get_intensity(c.upper_subpixel) * (c.upper_subpixel.color or White())
                         for c in data
                     ]
                 )
                 bg_color = mix_colors(
                     [
-                        (c.lower_subpixel.color or White()).with_intensity(
-                            _get_intensity(c.lower_subpixel)
-                        )
+                        _get_intensity(c.lower_subpixel) * (c.lower_subpixel.color or White())
                         for c in data
                     ]
                 )

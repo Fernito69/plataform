@@ -144,7 +144,10 @@ class Display(KeyboardHandler):
         self,
         player: Player2D | Player3D | PlayerBlob | None = None,
         clear_screen: bool = False,
+        hud: str | None = None,
     ):
+        """`hud` lets the caller hand over an already-built HUD string, so that
+        printing a frame never has to reach back into live player state."""
         message_container_coords: tuple[ScreenPos, ScreenPos] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
@@ -169,9 +172,8 @@ class Display(KeyboardHandler):
                     # use a precomputed store with the not rounded coord, aka subpixel??
                     else colored(
                         self._screen_grid[y][x],
-                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                            ANTIALIASING_INTENSITY
-                        )
+                        bg_color=ANTIALIASING_INTENSITY
+                        * extract_color_from_string(self._screen_grid[y][x])
                         if (self._antialiasing and not is_part_of_message)
                         else RGB(0, 0, 0),
                     )
@@ -179,11 +181,15 @@ class Display(KeyboardHandler):
             if y < self._curr_y_resolution - 1:
                 screen_content += BR
 
-        if player:
-            screen_content += BR + self._get_hud_content(player)
+        hud_content = hud if hud is not None else (self.get_hud_content(player) if player else None)
+
+        if hud_content:
+            screen_content += BR + hud_content
 
         if self._print_fps:
-            _sep = SEPARATOR if isinstance(player, Player2D) else "" if player else BR
+            _sep = (
+                SEPARATOR if isinstance(player, Player2D) else "" if hud_content is not None else BR
+            )
             _fps_factor = self._measured_fps / self._curr_fps
             _fps_color = Green(min(1, _fps_factor)).mix_with(Red(max(0, 1 - _fps_factor)))
             screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
@@ -245,12 +251,12 @@ class Display(KeyboardHandler):
                 def _border_col(ch: str) -> str:
                     return colored(
                         ch,
-                        color=_MESSAGE_LOWER_BORDER_COLOR.get_gradient(
+                        color=self._message_intensity
+                        * _MESSAGE_LOWER_BORDER_COLOR.get_gradient(
                             _MESSAGE_UPPER_BORDER_COLOR, _border_intensity
-                        ).with_intensity(self._message_intensity),
-                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                            (1 - self._message_intensity)
                         ),
+                        bg_color=(1 - self._message_intensity)
+                        * extract_color_from_string(self._screen_grid[y][x]),
                     )
 
                 # TODO: This is hacky, do better.
@@ -260,12 +266,8 @@ class Display(KeyboardHandler):
                     LOWER_PIXEL_CHAR
                     if self._game.mode == GameMode.PHYSICS_2D
                     else UPPER_PIXEL_CHAR,
-                    color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                        _bg_intensity
-                    ),
-                    bg_color=extract_bg_color_from_string(self._screen_grid[y][x]).with_intensity(
-                        _bg_intensity
-                    ),
+                    color=_bg_intensity * extract_color_from_string(self._screen_grid[y][x]),
+                    bg_color=_bg_intensity * extract_bg_color_from_string(self._screen_grid[y][x]),
                 )
 
                 if y == starting_border_y:
@@ -300,9 +302,8 @@ class Display(KeyboardHandler):
                     return colored(
                         row[index] if index < len(row) else self._screen_grid[new_y_idx][x],
                         color=_MESSAGE_TEXT_COLOR,
-                        bg_color=extract_bg_color_from_string(
-                            self._screen_grid[new_y_idx][x]
-                        ).with_intensity(1 - self._message_intensity)
+                        bg_color=(1 - self._message_intensity)
+                        * extract_bg_color_from_string(self._screen_grid[new_y_idx][x])
                         if self._screen_grid[new_y_idx][x] != EMPTY_SPACE
                         else RGB(0, 0, 0, 0),
                     )
@@ -344,7 +345,7 @@ class Display(KeyboardHandler):
         self._curr_x_resolution = resolution.x
         self._curr_y_resolution = resolution.y
 
-    def _get_hud_content(self, player: Player2D | Player3D | PlayerBlob) -> str:
+    def get_hud_content(self, player: Player2D | Player3D | PlayerBlob) -> str:
         hud = ""
 
         # Horrible branching

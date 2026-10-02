@@ -224,7 +224,7 @@ def test_scenario(
     )
     bg_circle_1 = Circunference(
         center=PointF(40, 40),
-        theme=Theme(color=Cyan().with_intensity(0.3)),
+        theme=Theme(color=0.3 * Cyan()),
         engine=engine,
         radius=6,
         affected_by_gravity=True,
@@ -233,7 +233,7 @@ def test_scenario(
     )
     bg_circle_5 = Circunference(
         center=PointF(1, 1),
-        theme=Theme(color=Yellow().with_intensity(0.3)),
+        theme=Theme(color=0.3 * Yellow()),
         engine=engine,
         radius=1.5,
         affected_by_gravity=True,
@@ -242,14 +242,14 @@ def test_scenario(
     )
     bg_circle_2 = Circunference(
         center=PointF(X_RESOLUTION_PHYSICS / 2, Y_RESOLUTION_PHYSICS / 2),
-        theme=Theme(color=Blue().with_intensity(0.3)),
+        theme=Theme(color=0.3 * Blue()),
         engine=engine,
         radius=5,
         floating_multi=0.05,
     )
     bg_circle_3 = Circunference(
         center=PointF(30, 21),
-        theme=Theme(color=Green().with_intensity(0.3)),
+        theme=Theme(color=0.3 * Green()),
         radius=15,
         floating_multi=ALMOST_ZERO,
         engine=engine,

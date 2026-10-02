@@ -819,13 +819,13 @@ def homing_missile_trail(
                     255,
                     190 - (i * 10),
                     50,
-                ).with_intensity(1)
+                )
                 if is_odd
                 else RGB(
                     255,
                     255 - (i - 1) * 12,
                     (i - 1) * 1,
-                ).with_intensity(1)
+                )
             )
 
             _THRUST_FIRE_SPAWN_RANDOMNESS_FACTOR = 2

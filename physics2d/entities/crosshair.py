@@ -97,19 +97,13 @@ class Crosshair(PhysicsEntity, MouseHandler):
 
         if not curr_weapon.can_shoot():
             _factor = curr_weapon.get_life_time_ellapsed_ratio()
-            _target_color = (
-                _og_color.with_intensity(1 if _is_pressing_trigger else 0.6)
-            ).with_intensity(_target_intensity)
+            _target_color = (1 if _is_pressing_trigger else 0.6) * _target_intensity * _og_color
 
-            _final_color = (
-                (
-                    RGB(110, 110, 110)
-                    if _is_pressing_trigger or not _CROSSHAIR_SHOOTING_THEME.color
-                    else _CROSSHAIR_SHOOTING_THEME.color
-                )
-                .with_intensity(_initial_intensity)
-                .get_gradient(_target_color, _factor)
-            )
+            _final_color = _initial_intensity * (
+                RGB(110, 110, 110)
+                if _is_pressing_trigger or not _CROSSHAIR_SHOOTING_THEME.color
+                else _CROSSHAIR_SHOOTING_THEME.color
+            ).get_gradient(_target_color, _factor)
             self.theme = Theme(_final_color)
         elif not _is_pressing_trigger:
             self.theme = Theme(_og_color)

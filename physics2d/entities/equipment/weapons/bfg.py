@@ -21,7 +21,6 @@ _BFG_DEPLETED_LIGHT = RGB(30, 50, 30, 1)
 _BFG_FIRING_LIGHT = RGB(255, 0, 0, 1)
 
 
-# TODO: handle blast damage
 class BFG(Weapon):
     def __init__(
         self,
@@ -57,11 +56,9 @@ class BFG(Weapon):
             self._firing_countdown = _BFG_BASE_COUNTDOWN
         elif not self.can_shoot():
             # charging up
-            _factor = self.get_life_time_ellapsed_ratio()
-            _target = _BFG_READY_LIGHT.with_intensity(0.5)
-            self.color = _BFG_DEPLETED_LIGHT.with_intensity(_factor) + _target.with_intensity(
-                1 - _factor
-            )
+            _factor = 1 - self.get_life_time_ellapsed_ratio()
+            _target = 0.5 * _BFG_READY_LIGHT
+            self.color = _BFG_DEPLETED_LIGHT.get_gradient(_target, _factor)
 
         if self.can_shoot() and not self._trigger_pressed:
             self.color = _BFG_READY_LIGHT
@@ -82,14 +79,14 @@ class BFG(Weapon):
         for angle in range(0, 360, 30):
             offset = VectorF(2 * _radius, 0).rotate_2d(math.radians(angle), PointF(0, 0))
 
-            def _particle(engine: "Physics2D", c) -> None:
+            def _particles(engine: "Physics2D", c) -> None:
                 particle = CircularParticle(
                     origin=c,
                     initial_velocity=VectorF.random_offset_vector(),
                     size=0.4,
                     final_radius=0.01,
                     initial_color=_particle_color,
-                    ending_color=_particle_color.with_intensity(0.2),
+                    ending_color=0.2 * _particle_color,
                     life_time=8,
                     floating_multi=1,
                     engine=engine,
@@ -101,10 +98,10 @@ class BFG(Weapon):
                 initial_velocity=(-(1 / _radius) * offset).as_vector(),
                 size=_size * 2,
                 size_change_type=TransitionType.LINEAR_DECREASE,
-                initial_color=_particle_color.with_intensity(0.2),
+                initial_color=0.2 * _particle_color,
                 ending_color=_particle_color,
                 life_time=_BFG_BASE_COUNTDOWN,
-                particle_generator=_particle,
+                particle_generator=_particles,
                 engine=self._engine,
             )
             self._engine.scenario.fg_shapes.append(particle)
@@ -122,10 +119,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _ROCKET_SPEED = 2
     _LIFE_TIME = 100
     _BLAST_RADIUS = 75
-    _MAX_BLAST_DAMAGE = 200
+    _MAX_BLAST_DAMAGE = 300
     _TENDRILS_DAMAGE = 4
     _MAX_NUM_TENDRILS = 4
-    _DAMAGE_RANGE = 60
+    _TENDRILS_RANGE = 60
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
@@ -162,12 +159,12 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         damage=_DAMAGE,
         explosion_generator=_explosion,
         particle_generator=get_lightning_bolts(
-            _COLOR,
-            _COLOR.with_intensity(0.2),
-            _TENDRILS_DAMAGE,
+            initial_color=_COLOR,
+            ending_color=0.2 * _COLOR,
+            damage=_TENDRILS_DAMAGE,
             life_time=2,
-            damage_range=_DAMAGE_RANGE,
-            default_tendril_length=_DAMAGE_RANGE,
+            damage_range=_TENDRILS_RANGE,
+            default_tendril_length=_TENDRILS_RANGE,
             render_on_top=False,
             num_tendrils=_MAX_NUM_TENDRILS,
         ),

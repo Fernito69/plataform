@@ -135,8 +135,8 @@ CandyTheme = Theme(
 )
 
 WaterTheme = Theme(
-    color=RGB(0, 0, 255).with_intensity(0.7),
-    bg_color=RGB(150, 127, 255).with_intensity(.8),
+    color=0.7 * RGB(0, 0, 255),
+    bg_color=0.8 * RGB(150, 127, 255),
     custom_line_chars=[
         "▓",
         "█",

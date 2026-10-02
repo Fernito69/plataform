@@ -237,12 +237,12 @@ def get_line_equations(point1: PointF, point2: PointF) -> GetLineEquationRespons
     m = get_slope(point1, point2)
 
     def get_y(x: float) -> float:
-        if m == "+Inf" or m == "-Inf":
+        if isinstance(m, str) or m == 0:
             return point1.y
         return m * (x - point1.x) + point1.y
 
     def get_x(y: float):
-        if m == "+Inf" or m == "-Inf" or m == 0:
+        if isinstance(m, str) or m == 0:
             return point1.x
         return ((y - point1.y) / m) + point1.x
 

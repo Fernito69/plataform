@@ -49,12 +49,9 @@ class StarrySpace(Background):
                                 y=+(Y_RES) * random(),
                             ),
                             theme=Theme(
-                                _STAR_COLOR.with_intensity(_factor**0.8)
-                                + RGB(random() * 4 * layer_num, 0, 0)
+                                (_factor**0.8) * _STAR_COLOR + RGB(random() * 4 * layer_num, 0, 0)
                             ),
-                            secondary_theme=Theme(
-                                _STAR_COLOR.with_intensity(_factor * _DIMMING_RATIO)
-                            ),
+                            secondary_theme=Theme((_factor * _DIMMING_RATIO) * _STAR_COLOR),
                             color_cycling_factor=(3 + random_offset()) / 2,
                         )
                     )

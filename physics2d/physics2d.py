@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR, RGB
@@ -9,6 +10,8 @@ from model.theme import LOWER_PIXEL_CHAR
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
+from physics2d.entities.utils import apply_hp_bar_to_screen
+from physics2d.model.frame import FrameSnapshot, HealthBarSnapshot
 from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
 from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
@@ -31,6 +34,11 @@ CAMERA_MOVEMENT_SPEED = 2
 # Shapes this far outside the screen are still rendered, so nothing pops in
 # at the edge and fast movers aren't culled a frame too early.
 CULLING_GRACE_MARGIN = 8
+
+
+def _get_render_info(entity) -> list[RenderInfo]:
+    """Module-level so the pool isn't handed a closure over engine state."""
+    return entity.get_render_info()
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -68,6 +76,7 @@ class Physics2D(Engine, KeyboardHandler):
         initial_screen_corner: PointF = INITIAL_CORNER,
         curr_scenario_index: int = 1,
         curr_bg_index: int = 0,
+        render_workers: int = 0,
     ):
         self.game = game
         self.screen_corner = initial_screen_corner
@@ -76,6 +85,28 @@ class Physics2D(Engine, KeyboardHandler):
         self.curr_scenario_index = curr_scenario_index
         self.curr_bg_index = curr_bg_index
         self.init_screen_buffer()
+
+        # Resolving an entity's pixels is independent per entity, so it can be
+        # spread over a pool. Only actually parallel on a free-threaded
+        # interpreter (python3.14t); under the GIL it just adds overhead.
+        self._render_pool = (
+            ThreadPoolExecutor(max_workers=render_workers, thread_name_prefix="render-info")
+            if render_workers > 1
+            else None
+        )
+
+    def compute_render_info_batch(self, entities: list) -> list[list[RenderInfo]]:
+        """Resolve each entity's pixels, in the order they were given."""
+        if self._render_pool is None:
+            return [entity.get_render_info() for entity in entities]
+
+        # `map` keeps input order, which the scatter in Scenario depends on.
+        return list(self._render_pool.map(_get_render_info, entities))
+
+    def shutdown(self) -> None:
+        if self._render_pool is not None:
+            self._render_pool.shutdown(wait=False, cancel_futures=True)
+            self._render_pool = None
 
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
@@ -104,9 +135,44 @@ class Physics2D(Engine, KeyboardHandler):
                 self._screen_buffer[y].append([])
 
     def main_loop(self) -> None:
+        self.render_frame(self.calculate_frame())
+
+    def calculate_frame(self) -> FrameSnapshot:
+        """Stage 1: advance the world and resolve it into a self-contained frame."""
         self.init_screen_buffer()
         self._calc_physics_and_compute_render_info()
-        self._render()
+
+        return self._take_frame_snapshot()
+
+    def render_frame(self, frame: FrameSnapshot) -> None:
+        """Stage 2: turn a frame into characters and push it to the terminal.
+
+        Reads nothing but `frame`, so it can run while stage 1 is already
+        working on the next one.
+        """
+        new_data = self._convert_screen_buffer_to_display_data(frame)
+        new_data = self._add_health_bars(new_data, frame)
+        self._send_data_to_display(new_data, frame)
+
+    def _take_frame_snapshot(self) -> FrameSnapshot:
+        # `init_screen_buffer` builds a brand new buffer every frame, so handing
+        # this one over doesn't need a copy: stage 1 won't write to it again.
+        return FrameSnapshot(
+            screen_buffer=self._screen_buffer,
+            x_res=self._screen_buffer_x_res,
+            y_res=self._screen_buffer_y_res,
+            health_bars=self._take_health_bar_snapshots(),
+            hud=self._display.get_hud_content(self.player),
+        )
+
+    def _take_health_bar_snapshots(self) -> list[HealthBarSnapshot]:
+        snapshots = [
+            enemy.get_hp_bar_snapshot(with_special_chars=False)
+            for enemy in self.scenario.enemies
+            if enemy.show_health and self.is_in_screen(enemy.position)
+        ]
+
+        return [s for s in snapshots if s is not None]
 
     def is_in_screen(
         self,
@@ -165,27 +231,15 @@ class Physics2D(Engine, KeyboardHandler):
         self.scenario.do_your_thing()
         self.scenario.compute_render_info()
 
-    def _render(self) -> None:
-        new_data = self._convert_screen_buffer_to_display_data()
-        new_data = self._add_health_bars(new_data)
-        self._send_data_to_display(new_data)
-
-    def _add_health_bars(self, data: list[list[str]]) -> list[list[str]]:
+    def _add_health_bars(
+        self,
+        data: list[list[str]],
+        frame: FrameSnapshot,
+    ) -> list[list[str]]:
         """since health bars are a pre-constructed string, we add them after rendering the scenario data"""
 
-        _, Y_RES = self.get_resolution()
-
-        # remember now we are dealing with raw screen data, so we need to correct
-        # (see: self.init_screen_buffer and self._convert_screen_buffer_to_display_data)
-        Y_RES = round(Y_RES / 2)
-
-        for enemy in [
-            en for en in self.scenario.enemies if en.show_health and self.is_in_screen(en.position)
-        ]:
-            enemy.add_hp_bar_to_screen(
-                data,
-                with_special_chars=False,
-            )
+        for health_bar in frame.health_bars:
+            apply_hp_bar_to_screen(data, health_bar)
 
         return data
 
@@ -216,23 +270,24 @@ class Physics2D(Engine, KeyboardHandler):
         ):
             self._screen_buffer[new_y][new_x].append(render_info)
 
-    def _convert_screen_buffer_to_display_data(self) -> list[list[str]]:
+    def _convert_screen_buffer_to_display_data(self, frame: FrameSnapshot) -> list[list[str]]:
         new_screen_grid: list[list[str]] = []
+        screen_buffer = frame.screen_buffer
 
         # TODO: for now, we assume y-res is always even
         # Note the step is 2 here <─────────────────┐
-        for y in range(0, self._screen_buffer_y_res, 2):
+        for y in range(0, frame.y_res, 2):
             new_y = int(y / 2)
             # we use the backwards index because, in the buffer, `going up == y++`,
             # whereas in the screen grid it's actually the opposite
-            backwards_y = self._screen_buffer_y_res - 1 - y
+            backwards_y = frame.y_res - 1 - y
 
             if len(new_screen_grid) <= new_y:
                 new_screen_grid.append([])
 
-            for x in range(self._screen_buffer_x_res):
-                upper_pixel_info = self._screen_buffer[backwards_y - 1][x]
-                lower_pixel_info = self._screen_buffer[backwards_y][x]
+            for x in range(frame.x_res):
+                upper_pixel_info = screen_buffer[backwards_y - 1][x]
+                lower_pixel_info = screen_buffer[backwards_y][x]
 
                 if not upper_pixel_info and not lower_pixel_info:
                     new_screen_grid[new_y].append(DEFAULT_CHAR)
@@ -254,9 +309,13 @@ class Physics2D(Engine, KeyboardHandler):
 
         return new_screen_grid
 
-    def _send_data_to_display(self, new_screen_grid: list[list[str]]) -> None:
+    def _send_data_to_display(
+        self,
+        new_screen_grid: list[list[str]],
+        frame: FrameSnapshot,
+    ) -> None:
         self._display.put_screen_content(new_screen_grid)
-        self._display.print_curr_screen(self.player)
+        self._display.print_curr_screen(hud=frame.hud)
 
     def handle_keyboard_input(self) -> None:
         self._reset_scenario()
@@ -322,7 +381,7 @@ class Physics2D(Engine, KeyboardHandler):
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
-            return il[idx].color.with_intensity_v2(
+            return il[idx].color.with_intensity(
                 max(
                     0,
                     1 - (il[idx]).distance_to_pixel_center,
@@ -350,7 +409,7 @@ class Physics2D(Engine, KeyboardHandler):
             # TODO: I'm sure you can generalize, but let's play it safe first with cases
             # case 1:
             if not covers_everything and not is_transparent:
-                curr_color = curr_color + _next_raw_color.with_intensity_v2(
+                curr_color = curr_color + _next_raw_color.with_intensity(
                     (1 - curr_color.intensity) * _next_raw_color.opacity
                 )
 
@@ -358,9 +417,9 @@ class Physics2D(Engine, KeyboardHandler):
 
             # case 2:
             elif covers_everything and is_transparent:
-                curr_color = curr_color.with_intensity_v2(
+                curr_color = curr_color.with_intensity(
                     curr_color.opacity
-                ) + _next_raw_color.with_intensity_v2(
+                ) + _next_raw_color.with_intensity(
                     (1 - curr_color.opacity) * _next_raw_color.opacity
                 )
 
@@ -369,8 +428,8 @@ class Physics2D(Engine, KeyboardHandler):
                 # This is not perfect, but good enough it seems
                 _factor = curr_color.opacity * curr_color.intensity
                 curr_color = (
-                    curr_color.with_intensity_v2(_factor)
-                    + _next_raw_color.with_intensity_v2(1 - _factor) * _next_raw_color.opacity
+                    curr_color.with_intensity(_factor)
+                    + _next_raw_color.with_intensity(1 - _factor) * _next_raw_color.opacity
                 )
 
             # TODO: monitor this optimization, not sure if we could be missing some contributions like this
@@ -381,6 +440,6 @@ class Physics2D(Engine, KeyboardHandler):
 
         # if it's the last in the list and it's transparent, check againstbackground
         if len(info_list) > 0 and info_list[-1].color.opacity < 1:
-            curr_color = curr_color.with_intensity_v2(curr_color.opacity)
+            curr_color = curr_color.with_intensity(curr_color.opacity)
 
         return curr_color

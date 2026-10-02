@@ -95,8 +95,6 @@ class RGB:
         self.intensity = min(1, max(0, intensity))
         self.opacity = min(1, max(0, opacity))
 
-    # TODO: unify these two
-    # TODO: should with_intensity also consider opacity?
     def with_intensity(self, intensity: float | None = None) -> "RGB":
         if intensity is not None:
             self.intensity = max(0, min(1, intensity))
@@ -105,7 +103,7 @@ class RGB:
             int(self.r * self.intensity),
             int(self.g * self.intensity),
             int(self.b * self.intensity),
-            intensity=1,
+            intensity=self.intensity,
             opacity=self.opacity,
         )
 
@@ -123,18 +121,6 @@ class RGB:
             b=b if b is not None else self.b,
             intensity=intensity if intensity is not None else self.intensity,
             opacity=opacity if opacity is not None else self.opacity,
-        )
-
-    def with_intensity_v2(self, intensity: float | None = None) -> "RGB":
-        if intensity is not None:
-            self.intensity = max(0, min(1, intensity))
-
-        return RGB(
-            int(self.r * self.intensity),
-            int(self.g * self.intensity),
-            int(self.b * self.intensity),
-            intensity=self.intensity,
-            opacity=self.opacity,
         )
 
     # TODO: decommission this, doesn't work!
@@ -159,17 +145,17 @@ class RGB:
         total: float = 1,  # assumes "curr_ratio" it's given in %
     ) -> RGB:
         _factor = curr_ratio / total
-        return self.with_intensity(1 - _factor) + target_color.with_intensity(_factor)
+        return (1 - _factor) * self + _factor * target_color
 
     def __str__(self):
         return f"rgb({self.r}, {self.g}, {self.b})"
 
-    # TODO: what to do with opacity with these two methods?
     def __add__(self, other: "RGB") -> "RGB":
         return RGB(
             r=self.r + other.r,
             g=self.g + other.g,
             b=self.b + other.b,
+            # we are averaging opacities, but not sure if this is the way to go
             opacity=(self.opacity + other.opacity) / 2,
         )
 
@@ -190,6 +176,7 @@ class RGB:
             r=self.r - other.r,
             g=self.g - other.g,
             b=self.b - other.b,
+            # we are averaging opacities, but not sure if this is the way to go
             opacity=(self.opacity + other.opacity) / 2,
         )
 
@@ -200,7 +187,7 @@ class RGB:
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, RGB):
-            return NotImplemented
+            return False
 
         return (
             self.r == other.r
