@@ -2,11 +2,11 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR, RGB
-from model.base import PointF, ScreenPos
+from model.base import PointF, ScreenPos, ScreenVector
 from model.game import GameMode
-from model.keyboard import MenuKeys, MovementKeys, PhysicsKey
+from model.keyboard import DisplayKeys, MenuKeys, MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
-from model.theme import LOWER_PIXEL_CHAR
+from model.theme import LOWER_SUBPIXEL_CHAR
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
@@ -275,7 +275,7 @@ class Physics2D(Engine, KeyboardHandler):
         screen_buffer = frame.screen_buffer
 
         # TODO: for now, we assume y-res is always even
-        # Note the step is 2 here <─────────────────┐
+        # Note the step is 2 here <────┐
         for y in range(0, frame.y_res, 2):
             new_y = int(y / 2)
             # we use the backwards index because, in the buffer, `going up == y++`,
@@ -297,7 +297,7 @@ class Physics2D(Engine, KeyboardHandler):
                 lower_color = Physics2D._compute_subpixel_color(lower_pixel_info)
 
                 # TODO: use a special algorithm to detect when to use special chars, e.g., ▞, `▛`, `▜`
-                char = LOWER_PIXEL_CHAR
+                char = LOWER_SUBPIXEL_CHAR
 
                 new_screen_grid[new_y].append(
                     colored(
@@ -319,13 +319,20 @@ class Physics2D(Engine, KeyboardHandler):
 
     def handle_keyboard_input(self) -> None:
         self._reset_scenario()
+        self._reset_camera()
+
         self._move_screen_down()
         self._move_screen_up()
         self._move_screen_left()
         self._move_screen_right()
-        self._reset_camera()
-        self._cycle_scenario_background()
+
         self._cycle_scenario()
+        self._cycle_scenario_background()
+
+        self._increase_x_resolution()
+        self._decrease_x_resolution()
+        self._increase_y_resolution()
+        self._decrease_y_resolution()
 
     @on_key_press(PhysicsKey.RESET_SCENARIO, act_once_per_press=True)
     def _reset_scenario(self):
@@ -372,6 +379,24 @@ class Physics2D(Engine, KeyboardHandler):
         next_idx = (self.curr_bg_index + 1) % len(self.backgrounds)
         self.curr_bg_index = next_idx
         self.scenario.background = self.backgrounds[next_idx](self)
+
+    @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
+    def _increase_x_resolution(self):
+        self._display.set_physics_mode(self._display.get_resolution() + ScreenVector(1, 0))
+
+    @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
+    def _decrease_x_resolution(self):
+        self._display.clear_curr_screen()
+        self._display.set_physics_mode(self._display.get_resolution() - ScreenVector(1, 0))
+
+    @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
+    def _increase_y_resolution(self):
+        self._display.set_physics_mode(self._display.get_resolution() + ScreenVector(0, 1))
+
+    @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
+    def _decrease_y_resolution(self):
+        self._display.clear_curr_screen()
+        self._display.set_physics_mode(self._display.get_resolution() - ScreenVector(0, 1))
 
     @staticmethod
     def _compute_subpixel_color(info_list: list[RenderInfo]) -> RGB:
