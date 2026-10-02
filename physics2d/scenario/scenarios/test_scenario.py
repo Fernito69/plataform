@@ -19,7 +19,9 @@ from three_d_renderer.entities.polyhedra import Dodeca, Ico
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
-_STARTING_POSITION = PointF(280, 225)
+# Keeps the camera near the origin, which is where the 3D enemies project to,
+# so they are actually on screen.
+_STARTING_POSITION = PointF(40, 40)
 
 
 def test_scenario(

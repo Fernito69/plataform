@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF, ScreenPos, VectorF
+from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.enemy import Enemy
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.factories.explosion import enemy_explosion
 from physics2d.shape.line import Line
@@ -17,27 +17,19 @@ if TYPE_CHECKING:
 def _segment_touches_screen(
     start: PointF,
     end: PointF,
-    screen_res: ScreenPos,
+    visible: BoundingBox,
     margin: float,
 ) -> bool:
-    """Whether a projected segment could put any pixel on screen.
+    """Whether a projected segment could put any pixel inside `visible`.
 
-    project_3d_into_2d already returns screen coordinates -- it centres them on
-    the resolution -- so the visible rectangle is simply 0..RES. It is *not*
-    derived from screen_corner: that is a world-space camera offset, and
-    testing against it makes the window drift away from the screen as the
-    camera moves, which is what used to make segments vanish.
-
-    This compares the segment's bounding box, so it can keep a diagonal that
-    only passes near the screen, but it never drops one that touches it.
+    Compares the segment's bounding box, so it can keep a diagonal that only
+    passes near the rectangle, but it never drops one that touches it.
     """
-    x_res, y_res = screen_res
-
     return (
-        min(start.x, end.x) - margin < x_res
-        and max(start.x, end.x) + margin >= 0
-        and min(start.y, end.y) - margin < y_res
-        and max(start.y, end.y) + margin >= 0
+        min(start.x, end.x) - margin <= visible.max_x
+        and max(start.x, end.x) + margin >= visible.min_x
+        and min(start.y, end.y) - margin <= visible.max_y
+        and max(start.y, end.y) + margin >= visible.min_y
     )
 
 
@@ -69,6 +61,7 @@ class ThreeDeeEnemy(Enemy):
         line_thickness: float = 1,
         color_cycling_factor: float = 57,
         show_health: bool = False,
+        absolute_positioning: bool = False,
     ):
         self._engine = engine
         self.polyhedron = polyhedron
@@ -76,6 +69,11 @@ class ThreeDeeEnemy(Enemy):
         self.theme = theme
         self._line_thickness = line_thickness
         self._color_cycling_factor = color_cycling_factor
+        # Whether our pixels get scattered as-is or with the camera offset
+        # subtracted. It decides which rectangle counts as visible, and the
+        # two callers differ: background layers render absolutely, the
+        # scenario's three_dee_enemies relatively.
+        self._absolute_positioning = absolute_positioning
 
         super().__init__(
             size=polyhedron.get_diameter(),
@@ -212,6 +210,21 @@ class ThreeDeeEnemy(Enemy):
         #     for x in len(self._screen_buffer[y]):
         #         render_info.append(RenderInfo(point=PointF(x, y), distance_to_pixel_center=0, color=))
 
+    def _get_visible_rect(self) -> BoundingBox:
+        """The rectangle our projected points have to fall in to be drawn.
+
+        project_3d_into_2d returns screen coordinates, so when our pixels are
+        scattered absolutely the rectangle is simply 0..RES. When they are
+        scattered relatively the engine subtracts the camera offset first, so
+        the rectangle moves with the camera instead. Testing against the wrong
+        one makes segments disappear as the camera moves.
+        """
+        if self._absolute_positioning:
+            x_res, y_res = self._engine.get_resolution()
+            return BoundingBox(min_x=0, min_y=0, max_x=x_res, max_y=y_res)
+
+        return self._engine.get_viewport()
+
     def _get_render_info_like_line_renderer(self) -> list[RenderInfo]:
         vertices_in_3d = [
             (
@@ -222,7 +235,7 @@ class ThreeDeeEnemy(Enemy):
         ]
 
         lines_to_render: list[RenderInfo] = []
-        screen_res = self._engine.get_resolution()
+        visible = self._get_visible_rect()
 
         sorted_connections = sorted(
             self.polyhedron.vertex_connections,
@@ -244,7 +257,7 @@ class ThreeDeeEnemy(Enemy):
             if not _segment_touches_screen(
                 projected_point_1,
                 projected_point_2,
-                screen_res,
+                visible,
                 margin=self._line_thickness + 1,
             ):
                 continue
