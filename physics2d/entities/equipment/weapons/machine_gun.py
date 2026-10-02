@@ -119,13 +119,13 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             200,
             50,
-        ).with_intensity(1)
+        )
         if random_offset() > 0
         else RGB(
             255,
             150,
             0,
-        ).with_intensity(1)
+        )
     )
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
@@ -147,7 +147,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             120,
             20,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=5,
         engine=engine,
@@ -161,7 +161,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             80,
             20,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(120, 60, 20, intensity=1),
         life_time=5,
         engine=engine,
@@ -206,13 +206,13 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             255,
             200,
             50,
-        ).with_intensity(1)
+        )
         if random_offset() > 0
         else RGB(
             255,
             150,
             0,
-        ).with_intensity(1)
+        )
     )
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
@@ -234,7 +234,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             255,
             120,
             20,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(150, 90, 30, intensity=1),
         life_time=5,
         engine=engine,
@@ -248,7 +248,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             255,
             80,
             20,
-        ).with_intensity(1),
+        ),
         engine=engine,
         ending_color=RGB(120, 60, 20, intensity=1),
         life_time=5,
@@ -262,7 +262,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             255,
             50,
             10,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(100, 40, 10, intensity=1),
         life_time=4,
         engine=engine,

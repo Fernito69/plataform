@@ -381,7 +381,7 @@ class Physics2D(Engine, KeyboardHandler):
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
-            return il[idx].color.with_intensity_v2(
+            return il[idx].color.with_intensity(
                 max(
                     0,
                     1 - (il[idx]).distance_to_pixel_center,
@@ -409,7 +409,7 @@ class Physics2D(Engine, KeyboardHandler):
             # TODO: I'm sure you can generalize, but let's play it safe first with cases
             # case 1:
             if not covers_everything and not is_transparent:
-                curr_color = curr_color + _next_raw_color.with_intensity_v2(
+                curr_color = curr_color + _next_raw_color.with_intensity(
                     (1 - curr_color.intensity) * _next_raw_color.opacity
                 )
 
@@ -417,9 +417,9 @@ class Physics2D(Engine, KeyboardHandler):
 
             # case 2:
             elif covers_everything and is_transparent:
-                curr_color = curr_color.with_intensity_v2(
+                curr_color = curr_color.with_intensity(
                     curr_color.opacity
-                ) + _next_raw_color.with_intensity_v2(
+                ) + _next_raw_color.with_intensity(
                     (1 - curr_color.opacity) * _next_raw_color.opacity
                 )
 
@@ -428,8 +428,8 @@ class Physics2D(Engine, KeyboardHandler):
                 # This is not perfect, but good enough it seems
                 _factor = curr_color.opacity * curr_color.intensity
                 curr_color = (
-                    curr_color.with_intensity_v2(_factor)
-                    + _next_raw_color.with_intensity_v2(1 - _factor) * _next_raw_color.opacity
+                    curr_color.with_intensity(_factor)
+                    + _next_raw_color.with_intensity(1 - _factor) * _next_raw_color.opacity
                 )
 
             # TODO: monitor this optimization, not sure if we could be missing some contributions like this
@@ -440,6 +440,6 @@ class Physics2D(Engine, KeyboardHandler):
 
         # if it's the last in the list and it's transparent, check againstbackground
         if len(info_list) > 0 and info_list[-1].color.opacity < 1:
-            curr_color = curr_color.with_intensity_v2(curr_color.opacity)
+            curr_color = curr_color.with_intensity(curr_color.opacity)
 
         return curr_color

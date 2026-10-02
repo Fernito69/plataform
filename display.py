@@ -172,9 +172,8 @@ class Display(KeyboardHandler):
                     # use a precomputed store with the not rounded coord, aka subpixel??
                     else colored(
                         self._screen_grid[y][x],
-                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                            ANTIALIASING_INTENSITY
-                        )
+                        bg_color=ANTIALIASING_INTENSITY
+                        * extract_color_from_string(self._screen_grid[y][x])
                         if (self._antialiasing and not is_part_of_message)
                         else RGB(0, 0, 0),
                     )
@@ -252,12 +251,12 @@ class Display(KeyboardHandler):
                 def _border_col(ch: str) -> str:
                     return colored(
                         ch,
-                        color=_MESSAGE_LOWER_BORDER_COLOR.get_gradient(
+                        color=self._message_intensity
+                        * _MESSAGE_LOWER_BORDER_COLOR.get_gradient(
                             _MESSAGE_UPPER_BORDER_COLOR, _border_intensity
-                        ).with_intensity(self._message_intensity),
-                        bg_color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                            (1 - self._message_intensity)
                         ),
+                        bg_color=(1 - self._message_intensity)
+                        * extract_color_from_string(self._screen_grid[y][x]),
                     )
 
                 # TODO: This is hacky, do better.
@@ -267,12 +266,8 @@ class Display(KeyboardHandler):
                     LOWER_PIXEL_CHAR
                     if self._game.mode == GameMode.PHYSICS_2D
                     else UPPER_PIXEL_CHAR,
-                    color=extract_color_from_string(self._screen_grid[y][x]).with_intensity(
-                        _bg_intensity
-                    ),
-                    bg_color=extract_bg_color_from_string(self._screen_grid[y][x]).with_intensity(
-                        _bg_intensity
-                    ),
+                    color=_bg_intensity * extract_color_from_string(self._screen_grid[y][x]),
+                    bg_color=_bg_intensity * extract_bg_color_from_string(self._screen_grid[y][x]),
                 )
 
                 if y == starting_border_y:
@@ -307,9 +302,8 @@ class Display(KeyboardHandler):
                     return colored(
                         row[index] if index < len(row) else self._screen_grid[new_y_idx][x],
                         color=_MESSAGE_TEXT_COLOR,
-                        bg_color=extract_bg_color_from_string(
-                            self._screen_grid[new_y_idx][x]
-                        ).with_intensity(1 - self._message_intensity)
+                        bg_color=(1 - self._message_intensity)
+                        * extract_bg_color_from_string(self._screen_grid[new_y_idx][x])
                         if self._screen_grid[new_y_idx][x] != EMPTY_SPACE
                         else RGB(0, 0, 0, 0),
                     )

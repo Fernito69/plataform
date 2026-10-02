@@ -94,13 +94,13 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             200,
             50,
-        ).with_intensity(1)
+        )
         if random_offset() > 0
         else RGB(
             255,
             150,
             0,
-        ).with_intensity(1)
+        )
     )
     fire_1 = CircularParticle(
         origin=source.center + 7 * (direction) + VectorF.random_offset_vector(),
@@ -121,7 +121,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             120,
             20,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(150, 90, 30, intensity=1),
         engine=engine,
         life_time=6,
@@ -135,7 +135,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             255,
             80,
             20,
-        ).with_intensity(1),
+        ),
         ending_color=RGB(120, 60, 20, intensity=1),
         engine=engine,
         life_time=5,

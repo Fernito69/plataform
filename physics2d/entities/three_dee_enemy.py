@@ -152,13 +152,13 @@ class ThreeDeeEnemy(Enemy):
                     info = RenderInfo(
                         point=PointF(rounded_x_pos, rounded_y_pos),
                         distance_to_pixel_center=0,  # ???
-                        color=color.with_intensity(intensity),
+                        color=intensity * color,
                     )
                     _screen_buffer[rounded_y_pos][rounded_x_pos] = info
                 else:
                     _screen_buffer[rounded_y_pos][rounded_x_pos].color = _screen_buffer[
                         rounded_y_pos
-                    ][rounded_x_pos].color.mix_with(color.with_intensity(intensity))
+                    ][rounded_x_pos].color.mix_with(intensity * color)
 
         return [x for y in _screen_buffer.values() for x in y.values()]
 
@@ -213,41 +213,19 @@ class ThreeDeeEnemy(Enemy):
             if not projected_point_1 or not projected_point_2:
                 continue
 
-            X_RES, Y_RES = self._engine.get_resolution()
-            x_min, y_min, _ = self._engine.screen_corner
-            x_max = x_min + X_RES
-            y_max = y_min + Y_RES
+            _factor = 1 / self.visibility_threshold
+            _intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
+            _intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)
+            _color = self.theme.color or RGB()
 
-            # TODO: the logic should not that dumb, we need at least one of them to be in the screen
-            # TODO; enabled always for background testing
-            # if (
-            #     projected_point_1.x < x_max
-            #     and projected_point_1.y < y_max
-            #     and projected_point_1.x > x_min
-            #     and projected_point_1.y > y_min
-            # ) or (
-            #     projected_point_2.x < x_max
-            #     and projected_point_2.y < y_max
-            #     and projected_point_2.x > x_min
-            #     and projected_point_2.y > y_min
-            # ):
-            if True:
-                _factor = 1 / self.visibility_threshold
-                intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
-                intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)
-                color = self.theme.color or RGB()
-                line = Line(
-                    points=(projected_point_1, projected_point_2),
-                    engine=self._engine,
-                    theme=Theme(
-                        color=color.with_intensity(intensity_1),
-                    ),
-                    secondary_theme=Theme(
-                        color=color.with_intensity(intensity_2),
-                    ),
-                    thickness=self._line_thickness,
-                )
-                lines_to_render.extend(line.get_render_info())
+            line = Line(
+                points=(projected_point_1, projected_point_2),
+                engine=self._engine,
+                theme=Theme(color=_intensity_1 * _color),
+                secondary_theme=Theme(color=_intensity_2 * _color),
+                thickness=self._line_thickness,
+            )
+            lines_to_render.extend(line.get_render_info())
 
         return lines_to_render
 
