@@ -7,8 +7,8 @@ from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
+from physics2d.model.shared import BackgroundGenerator
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference

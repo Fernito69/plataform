@@ -6,10 +6,9 @@ from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
-from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BackgroundGenerator, RenderInfo
 from physics2d.scenario.background import Background
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
@@ -19,14 +18,6 @@ if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.equipment.projectile import Projectile
     from physics2d.physics2d import Physics2D
-
-
-# TODO: use this for "pieces"
-# pieces in same layer collide with each other
-@dataclass
-class PieceHierarchy:
-    layer_index: int
-    pieces: list[Shape]
 
 
 @dataclass
@@ -163,20 +154,13 @@ class Scenario:
         return self._game_tick
 
     def compute_render_info(self) -> None:
-        # The background slides its own shapes around for parallax. Doing that
-        # here, before anything is drawn, keeps drawing a pure read so its
-        # shapes can go through stage A with everything else.
         self.background.update()
 
         jobs = self._get_render_jobs()
 
-        # Stage A: resolve every entity's pixels. Each entity only looks at
-        # itself, so this is the part that can be spread over several threads.
+        # parallelize work
         all_render_info = self.engine.compute_render_info_batch([entity for entity, _ in jobs])
 
-        # Stage B: scatter them into the buffer, strictly in job order. The
-        # buffer stacks pixels front-to-back per cell and _compute_subpixel_color
-        # walks them in that order, so this half has to stay serial.
         for (_, absolute_positioning), render_info in zip(jobs, all_render_info):
             self.handle_render_info(render_info, absolute_positioning)
 

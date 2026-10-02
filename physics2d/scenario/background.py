@@ -71,11 +71,6 @@ class Background:
         return (min_x, min_y, max_x, max_y)
 
     def get_shapes(self) -> list["Shape | PhysicsEntity"]:
-        """Every shape we draw, in back-to-front order.
-
-        Handing these out lets the scenario render them the same way it
-        renders everything else: culled, and spread over the pool.
-        """
         shapes: list["Shape | PhysicsEntity"] = []
 
         for layer in self._layers:
@@ -90,11 +85,6 @@ class Background:
         return [info for shape in self.get_shapes() for info in shape.get_render_info()]
 
     def update(self) -> None:
-        """Advance our shapes and slide them for parallax.
-
-        Kept apart from drawing so that drawing stays a pure read: that is
-        what lets the shapes go through the pool with everything else.
-        """
         for layer in self._layers:
             _distance_factor = 1 / layer.depth
 
