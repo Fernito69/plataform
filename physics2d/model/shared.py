@@ -1,7 +1,13 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Callable
 
 from model.base import PointF
 from model.theme import RGB
+
+if TYPE_CHECKING:
+    from physics2d.physics2d import Physics2D
+    from physics2d.scenario.background import Background
+    from physics2d.scenario.scenario import Scenario
 
 
 @dataclass
@@ -35,3 +41,7 @@ class BoundingBox:
             and self.min_y <= other.max_y
             and self.max_y >= other.min_y
         )
+
+
+type BackgroundGenerator = Callable[["Physics2D"], "Background"]
+type ScenarioGenerator = Callable[["Physics2D", "BackgroundGenerator"], "Scenario"]

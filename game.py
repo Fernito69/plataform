@@ -95,11 +95,6 @@ class Game(Engine, KeyboardHandler):
         self._display.fps_throttle(self._pipeline.run_frame)
 
     def calculate_frame(self) -> FrameSnapshot | None:
-        """Stage 1: everything that reads input or mutates game state.
-
-        Under a threaded pipeline this is the only place game state is touched,
-        so it must stay on a single thread.
-        """
         self._check_game_status()
         self._handle_welcome_message()
 
@@ -110,8 +105,7 @@ class Game(Engine, KeyboardHandler):
             case GameMode.PHYSICS_2D:
                 return self.physics_engine.calculate_frame()
 
-            # The other modes aren't split into stages yet, so they still
-            # calculate and draw in one go, right here.
+            # The other modes aren't split into stages yet
             case GameMode.VOXELS_3D:
                 self.voxel_renderer.main_loop()
 
@@ -124,9 +118,6 @@ class Game(Engine, KeyboardHandler):
         return None
 
     def render_frame(self, frame: FrameSnapshot | None) -> None:
-        """Stage 2: draw a finished frame. Reads nothing but `frame`."""
-        # A frame can still be in flight when the mode changes under us, and the
-        # display has already been resized by then, so drop it.
         if frame is None or self.mode != GameMode.PHYSICS_2D:
             return
 

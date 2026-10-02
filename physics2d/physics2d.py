@@ -7,11 +7,10 @@ from model.keyboard import DisplayKeys, MenuKeys, MovementKeys, PhysicsKey
 from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_SUBPIXEL_CHAR
 from physics2d.entities.base import PhysicsEntity
-from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.utils import apply_hp_bar_to_screen
 from physics2d.model.frame import FrameSnapshot, HealthBarSnapshot
-from physics2d.model.shared import BoundingBox, RenderInfo
+from physics2d.model.shared import BackgroundGenerator, BoundingBox, RenderInfo, ScenarioGenerator
 from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
 from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
 from physics2d.scenario.backgrounds.starry_space import get_starry_space
@@ -41,6 +40,7 @@ def _get_render_info(entity) -> list[RenderInfo]:
     return entity.get_render_info()
 
 
+# TODO: can't we just change the behavior of RGB.with_intensity?
 def _scaled(color: RGB, intensity: float) -> RGB:
     """`color` at `intensity`, without touching `color` itself.
 
@@ -149,25 +149,17 @@ class Physics2D(Engine, KeyboardHandler):
         self.render_frame(self.calculate_frame())
 
     def calculate_frame(self) -> FrameSnapshot:
-        """Stage 1: advance the world and resolve it into a self-contained frame."""
         self.init_screen_buffer()
         self._calc_physics_and_compute_render_info()
 
         return self._take_frame_snapshot()
 
     def render_frame(self, frame: FrameSnapshot) -> None:
-        """Stage 2: turn a frame into characters and push it to the terminal.
-
-        Reads nothing but `frame`, so it can run while stage 1 is already
-        working on the next one.
-        """
         new_data = self._convert_screen_buffer_to_display_data(frame)
         new_data = self._add_health_bars(new_data, frame)
         self._send_data_to_display(new_data, frame)
 
     def _take_frame_snapshot(self) -> FrameSnapshot:
-        # `init_screen_buffer` builds a brand new buffer every frame, so handing
-        # this one over doesn't need a copy: stage 1 won't write to it again.
         return FrameSnapshot(
             screen_buffer=self._screen_buffer,
             x_res=self._screen_buffer_x_res,
@@ -214,7 +206,6 @@ class Physics2D(Engine, KeyboardHandler):
         )
 
     def get_viewport(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
-        """The visible rectangle in world coordinates."""
         X_RES, Y_RES = self.get_resolution()
 
         return BoundingBox(
@@ -225,7 +216,6 @@ class Physics2D(Engine, KeyboardHandler):
         )
 
     def get_screen_rect(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
-        """The visible rectangle for things already in screen coordinates."""
         X_RES, Y_RES = self.get_resolution()
 
         return BoundingBox(
@@ -237,12 +227,6 @@ class Physics2D(Engine, KeyboardHandler):
 
     @staticmethod
     def is_worth_rendering(shape: "Shape", viewport: BoundingBox) -> bool:
-        """Whether a shape can possibly land on screen.
-
-        One box test here saves computing every pixel of a shape that is
-        nowhere near the camera. Shapes that can't describe their own extent
-        return no box, and those we always render.
-        """
         box = shape.get_bounding_box()
 
         return box is None or box.overlaps(viewport)
@@ -300,9 +284,6 @@ class Physics2D(Engine, KeyboardHandler):
         def _convert_band(band: Sequence[int]) -> list[list[str]]:
             return [self._convert_row(frame, y) for y in band]
 
-        # A row only ever reads its own two buffer rows, so bands of rows are
-        # independent. This is where a big explosion spends its time: lots of
-        # overlapping translucent particles make the per-cell blend much deeper.
         if self._render_pool is None:
             return _convert_band(buffer_rows)
 

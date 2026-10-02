@@ -4,7 +4,7 @@ from factories.theme import Theme
 from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.model.shared import BackgroundGenerator
+from physics2d.model.shared import BackgroundGenerator
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
