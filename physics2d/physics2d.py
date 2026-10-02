@@ -224,6 +224,17 @@ class Physics2D(Engine, KeyboardHandler):
             max_y=self.screen_corner.y + Y_RES + grace_margin,
         )
 
+    def get_screen_rect(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
+        """The visible rectangle for things already in screen coordinates."""
+        X_RES, Y_RES = self.get_resolution()
+
+        return BoundingBox(
+            min_x=-grace_margin,
+            min_y=-grace_margin,
+            max_x=X_RES + grace_margin,
+            max_y=Y_RES + grace_margin,
+        )
+
     @staticmethod
     def is_worth_rendering(shape: "Shape", viewport: BoundingBox) -> bool:
         """Whether a shape can possibly land on screen.

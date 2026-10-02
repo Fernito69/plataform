@@ -163,6 +163,11 @@ class Scenario:
         return self._game_tick
 
     def compute_render_info(self) -> None:
+        # The background slides its own shapes around for parallax. Doing that
+        # here, before anything is drawn, keeps drawing a pure read so its
+        # shapes can go through stage A with everything else.
+        self.background.update()
+
         jobs = self._get_render_jobs()
 
         # Stage A: resolve every entity's pixels. Each entity only looks at
@@ -174,13 +179,6 @@ class Scenario:
         # walks them in that order, so this half has to stay serial.
         for (_, absolute_positioning), render_info in zip(jobs, all_render_info):
             self.handle_render_info(render_info, absolute_positioning)
-
-        # The background moves its own shapes around while it renders, so it is
-        # not just a read of entity state -- it stays out of stage A.
-        self.handle_render_info(
-            self.background.get_render_info(),
-            absolute_positioning=True,
-        )
 
     # TODO: unify, we need a common class
     def _get_render_jobs(
@@ -215,9 +213,10 @@ class Scenario:
             *self.bg_shapes,
         ]
 
-        # Absolutely-positioned pieces are already in screen coords, so the
-        # viewport test doesn't apply to them.
+        # Two rectangles: world-positioned things are tested against the camera
+        # viewport, screen-positioned ones against the screen itself.
         viewport = self.engine.get_viewport()
+        screen = self.engine.get_screen_rect()
 
         return [
             *[(entity, True) for entity in absolutely_positioned],
@@ -225,6 +224,12 @@ class Scenario:
                 (entity, False)
                 for entity in relatively_positioned
                 if self.engine.is_worth_rendering(entity, viewport)
+            ],
+            # Last, so it ends up behind everything else.
+            *[
+                (shape, True)
+                for shape in self.background.get_shapes()
+                if self.engine.is_worth_rendering(shape, screen)
             ],
         ]
 
