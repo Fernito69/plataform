@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF, VectorF
+from model.base import PointF, ScreenPos, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.enemy import Enemy
 from physics2d.model.shared import RenderInfo
@@ -12,6 +12,33 @@ from utils import project_3d_into_2d
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+
+
+def _segment_touches_screen(
+    start: PointF,
+    end: PointF,
+    screen_res: ScreenPos,
+    margin: float,
+) -> bool:
+    """Whether a projected segment could put any pixel on screen.
+
+    project_3d_into_2d already returns screen coordinates -- it centres them on
+    the resolution -- so the visible rectangle is simply 0..RES. It is *not*
+    derived from screen_corner: that is a world-space camera offset, and
+    testing against it makes the window drift away from the screen as the
+    camera moves, which is what used to make segments vanish.
+
+    This compares the segment's bounding box, so it can keep a diagonal that
+    only passes near the screen, but it never drops one that touches it.
+    """
+    x_res, y_res = screen_res
+
+    return (
+        min(start.x, end.x) - margin < x_res
+        and max(start.x, end.x) + margin >= 0
+        and min(start.y, end.y) - margin < y_res
+        and max(start.y, end.y) + margin >= 0
+    )
 
 
 class ThreeDeeEnemy(Enemy):
@@ -195,6 +222,7 @@ class ThreeDeeEnemy(Enemy):
         ]
 
         lines_to_render: list[RenderInfo] = []
+        screen_res = self._engine.get_resolution()
 
         sorted_connections = sorted(
             self.polyhedron.vertex_connections,
@@ -211,6 +239,14 @@ class ThreeDeeEnemy(Enemy):
             projected_point_2 = project_3d_into_2d(second_vertex, self._engine.get_resolution())
 
             if not projected_point_1 or not projected_point_2:
+                continue
+
+            if not _segment_touches_screen(
+                projected_point_1,
+                projected_point_2,
+                screen_res,
+                margin=self._line_thickness + 1,
+            ):
                 continue
 
             _factor = 1 / self.visibility_threshold
