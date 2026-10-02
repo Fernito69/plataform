@@ -55,6 +55,8 @@ class DodecaDyson(Background):
                         # theme=Theme(RGB(255, 0, 80)),
                         # secondary_theme=Theme(RGB(0, 80, 255)),
                         color_cycling_factor=200,
+                        # Background layers are drawn in screen coordinates.
+                        absolute_positioning=True,
                     ),
                     # "Milky way"
                     Line(
