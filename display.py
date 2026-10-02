@@ -1,6 +1,6 @@
 import datetime
 import time
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from constants import ALMOST_ZERO
 from factories.theme import RGB, SEPARATOR, Cyan, DoubleLines, Green, Red, White, Yellow
@@ -27,6 +27,7 @@ from utils import colored, extract_bg_color_from_string, extract_color_from_stri
 
 if TYPE_CHECKING:
     from game import Game
+    from parallel import RenderPool
 
 _DEFAULT_FPS = MAX_FPS_PHYSICS
 
@@ -56,7 +57,9 @@ class Display(KeyboardHandler):
         game: "Game",
         fps: float = _DEFAULT_FPS,
         print_fps: bool = True,
+        render_pool: "RenderPool | None" = None,
     ):
+        self._render_pool = render_pool
         self._antialiasing = True
         self._game = game
         self._curr_fps = fps
@@ -140,6 +143,49 @@ class Display(KeyboardHandler):
     def clear_curr_screen(self) -> None:
         clear_screen()
 
+    def _build_screen_row(
+        self,
+        y: int,
+        message_container_coords: "tuple[ScreenPos, ScreenPos] | None",
+    ) -> str:
+        """One row of the frame, including the line break that follows it."""
+        if y >= len(self._screen_grid):
+            return ""
+
+        grid_row = self._screen_grid[y]
+        parts: list[str] = []
+
+        for x in range(self._curr_x_resolution):
+            if x >= len(grid_row):
+                continue
+
+            is_part_of_message: bool = (
+                message_container_coords[1].y <= y <= message_container_coords[1].x
+                or message_container_coords[0].y <= x <= message_container_coords[0].x
+                if message_container_coords
+                else False
+            )
+            # TODO: all this looks nice but is really hacky. Do properly.
+            parts.append(
+                grid_row[x]
+                if has_bg_color(grid_row[x], black_is_not_condidered_bg=False)
+                # TODO: it should not override the color behind it in the case of superposing objects
+                # check if it belongs to the same entity!! we can do that in the loop I think
+                # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
+                # use a precomputed store with the not rounded coord, aka subpixel??
+                else colored(
+                    grid_row[x],
+                    bg_color=ANTIALIASING_INTENSITY * extract_color_from_string(grid_row[x])
+                    if (self._antialiasing and not is_part_of_message)
+                    else RGB(0, 0, 0),
+                )
+            )
+
+        if y < self._curr_y_resolution - 1:
+            parts.append(BR)
+
+        return "".join(parts)
+
     def print_curr_screen(
         self,
         player: Player2D | Player3D | PlayerBlob | None = None,
@@ -152,40 +198,18 @@ class Display(KeyboardHandler):
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
 
-        screen_content = ""
+        rows = range(self._curr_y_resolution)
 
-        for y in range(self._curr_y_resolution):
-            if y >= len(self._screen_grid):
-                continue
+        def _build_band(band: Sequence[int]) -> list[str]:
+            return [self._build_screen_row(y, message_container_coords) for y in band]
 
-            for x in range(self._curr_x_resolution):
-                if x >= len(self._screen_grid[y]):
-                    continue
-
-                is_part_of_message: bool = (
-                    message_container_coords[1].y <= y <= message_container_coords[1].x
-                    or message_container_coords[0].y <= x <= message_container_coords[0].x
-                    if message_container_coords
-                    else False
-                )
-                # TODO: all this looks nice but is really hacky. Do properly.
-                screen_content += (
-                    self._screen_grid[y][x]
-                    if has_bg_color(self._screen_grid[y][x], black_is_not_condidered_bg=False)
-                    # TODO: it should not override the color behind it in the case of superposing objects
-                    # check if it belongs to the same entity!! we can do that in the loop I think
-                    # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
-                    # use a precomputed store with the not rounded coord, aka subpixel??
-                    else colored(
-                        self._screen_grid[y][x],
-                        bg_color=ANTIALIASING_INTENSITY
-                        * extract_color_from_string(self._screen_grid[y][x])
-                        if (self._antialiasing and not is_part_of_message)
-                        else RGB(0, 0, 0),
-                    )
-                )
-            if y < self._curr_y_resolution - 1:
-                screen_content += BR
+        # Each row's text depends only on its own grid row, so bands of rows
+        # are independent.
+        screen_content = "".join(
+            _build_band(rows)
+            if self._render_pool is None
+            else self._render_pool.map_bands(_build_band, rows)
+        )
 
         hud_content = hud if hud is not None else (self.get_hud_content(player) if player else None)
 
