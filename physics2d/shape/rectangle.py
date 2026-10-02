@@ -160,7 +160,7 @@ class Rectangle(Line):
                 piece_info.append(
                     RenderInfo(
                         distance_to_pixel_center=abs(VectorF(distance_x, distance_y)),
-                        color=self._get_color(x, y).with_intensity(),
+                        color=self._get_color(x, y),
                         point=PointF(x, y),
                     )
                 )

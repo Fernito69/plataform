@@ -77,19 +77,21 @@ class SaturnRings(Background):
                             z=z,
                         ),
                         theme=Theme(
-                            RGB(
-                                200 + 20 * random_offset(),
-                                170 + 40 * random_offset(),
-                                60,
-                            ).with_intensity(color_gradient_factor)
-                        ),
-                        secondary_theme=Theme(
-                            0.6
+                            color_gradient_factor
                             * RGB(
                                 200 + 20 * random_offset(),
                                 170 + 40 * random_offset(),
                                 60,
-                            ).with_intensity(color_gradient_factor)
+                            )
+                        ),
+                        secondary_theme=Theme(
+                            0.6
+                            * color_gradient_factor
+                            * RGB(
+                                200 + 20 * random_offset(),
+                                170 + 40 * random_offset(),
+                                60,
+                            )
                         ),
                     )
                 )
