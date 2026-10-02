@@ -1,6 +1,6 @@
 import math
 
-from model.theme import EMPTY_SPACE, LOWER_PIXEL_CHAR, RGB
+from model.theme import EMPTY_SPACE, LOWER_SUBPIXEL_CHAR, RGB
 from physics2d.model.frame import HealthBarSnapshot
 from utils import colored, extract_bg_color_from_string, extract_color_from_string
 
@@ -164,7 +164,7 @@ def apply_hp_bar_to_screen(data: list[list[str]], health_bar: HealthBarSnapshot)
             _hp_bar_intensity = 0.4
 
             _new_pixel = colored(
-                LOWER_PIXEL_CHAR,
+                LOWER_SUBPIXEL_CHAR,
                 color=(_hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _color),
                 bg_color=(
                     _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _bg_color

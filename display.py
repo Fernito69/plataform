@@ -9,13 +9,13 @@ from model.base import ScreenPos, ScreenVector
 from model.game import GameMode
 from model.keyboard import DisplayKeys
 from model.shared import KeyboardHandler
-from model.theme import BR, EMPTY_SPACE, LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
+from model.theme import BR, EMPTY_SPACE, LOWER_SUBPIXEL_CHAR, UPPER_SUBPIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.utils import get_hp_bar_str
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
-from system import clear_screen, on_key_press, print_and_reset_cursor
+from system import clear_screen, print_and_reset_cursor
 from three_d_renderer.constants import (
     ANTIALIASING_INTENSITY,
     MAX_FPS_3D,
@@ -74,7 +74,7 @@ class Display(KeyboardHandler):
             case GameMode.VOXELS_3D | GameMode.LINES_3D:
                 self._set_3d_mode()
             case GameMode.PHYSICS_2D:
-                self._set_physics_mode()
+                self.set_physics_mode()
 
     def debug_log(self, msg: str | None) -> None:
         if msg is None:
@@ -155,7 +155,13 @@ class Display(KeyboardHandler):
         screen_content = ""
 
         for y in range(self._curr_y_resolution):
+            if y >= len(self._screen_grid):
+                continue
+
             for x in range(self._curr_x_resolution):
+                if x >= len(self._screen_grid[y]):
+                    continue
+
                 is_part_of_message: bool = (
                     message_container_coords[1].y <= y <= message_container_coords[1].x
                     or message_container_coords[0].y <= x <= message_container_coords[0].x
@@ -263,9 +269,9 @@ class Display(KeyboardHandler):
                 # TODO: Voxel still prints them flipped, fix!
                 _bg_intensity = 1 - self._message_intensity if self._message_intensity else 0.7
                 char: str = colored(
-                    LOWER_PIXEL_CHAR
+                    LOWER_SUBPIXEL_CHAR
                     if self._game.mode == GameMode.PHYSICS_2D
-                    else UPPER_PIXEL_CHAR,
+                    else UPPER_SUBPIXEL_CHAR,
                     color=_bg_intensity * extract_color_from_string(self._screen_grid[y][x]),
                     bg_color=_bg_intensity * extract_bg_color_from_string(self._screen_grid[y][x]),
                 )
@@ -321,17 +327,18 @@ class Display(KeyboardHandler):
         self._set_resolution(ScreenPos(X_RESOLUTION_2D, Y_RESOLUTION_2D))
         self._set_max_fps(MAX_FPS_2D)
 
-    def _set_physics_mode(self):
+    def set_physics_mode(
+        self,
+        res: ScreenPos = ScreenPos(
+            X_RESOLUTION_PHYSICS,
+            round(Y_RESOLUTION_PHYSICS / 2),
+        ),
+    ):
         # Handled in-engine
         self._antialiasing = False
         self._set_max_fps(MAX_FPS_PHYSICS)
         # FAQ: Why Y_RES/2? Each console character represent 2 "pixels" with LOWER_PIXEL_CHAR and a bg color for the empty space
-        self._set_resolution(
-            ScreenPos(
-                X_RESOLUTION_PHYSICS,
-                round(Y_RESOLUTION_PHYSICS / 2),
-            )
-        )
+        self._set_resolution(res)
 
     def _set_3d_mode(self):
         self._antialiasing = True
@@ -418,24 +425,4 @@ class Display(KeyboardHandler):
         if self._game.mode == GameMode.PLATFORMER_V1:
             return
 
-        self._increase_x_resolution()
-        self._decrease_x_resolution()
-        self._increase_y_resolution()
-        self._decrease_y_resolution()
-
-    # TODO: increase res functionality is broken, fix
-    @on_key_press(DisplayKeys.INCREASE_X_RESOLUTION)
-    def _increase_x_resolution(self):
-        self._modify_resolution(ScreenVector(1, 0))
-
-    @on_key_press(DisplayKeys.DECREASE_X_RESOLUTION)
-    def _decrease_x_resolution(self):
-        self._modify_resolution(ScreenVector(-1, 0))
-
-    @on_key_press(DisplayKeys.INCREASE_Y_RESOLUTION)
-    def _increase_y_resolution(self):
-        self._modify_resolution(ScreenVector(0, 1))
-
-    @on_key_press(DisplayKeys.DECREASE_Y_RESOLUTION)
-    def _decrease_y_resolution(self):
-        self._modify_resolution(ScreenVector(0, -1))
+        pass

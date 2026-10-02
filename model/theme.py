@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Literal
 
 EMPTY_SPACE = " "
-UPPER_PIXEL_CHAR = "▀"
-LOWER_PIXEL_CHAR = "▄"
+UPPER_SUBPIXEL_CHAR = "▀"
+LOWER_SUBPIXEL_CHAR = "▄"
 
 """
 TODO: we have all these options, maybe we can improve the renderer in the future

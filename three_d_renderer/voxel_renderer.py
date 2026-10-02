@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from factories.theme import DEFAULT_CHAR, DoubleLines
 from model.base import PointF
-from model.theme import LOWER_PIXEL_CHAR, UPPER_PIXEL_CHAR
+from model.theme import LOWER_SUBPIXEL_CHAR, UPPER_SUBPIXEL_CHAR
 from three_d_renderer.three_d_renderer import ThreeDeeRenderer
 from utils import colored, distance_between_points, has_bg_color
 
@@ -97,7 +97,7 @@ class VoxelRenderer(ThreeDeeRenderer):
                 d: float = abs(vector)
                 intensity: float = max(min(1 - d / self.visibility_threshold, 1), 0)
 
-                char: str = UPPER_PIXEL_CHAR if y_pos % 1 > 0.5 else LOWER_PIXEL_CHAR
+                char: str = UPPER_SUBPIXEL_CHAR if y_pos % 1 > 0.5 else LOWER_SUBPIXEL_CHAR
                 colored_char = colored(char, color=color(intensity))
 
                 # checks if another vertex has been drawn in the specified coord and draws only the one closest to the spectator
