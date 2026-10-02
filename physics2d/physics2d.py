@@ -1,5 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from factories.theme import DEFAULT_CHAR, RGB
 from model.base import PointF, ScreenPos, ScreenVector
@@ -26,6 +25,7 @@ from utils import colored
 
 if TYPE_CHECKING:
     from game import Game
+    from parallel import RenderPool
     from physics2d.shape.base import Shape
 
 INITIAL_CORNER = PointF(0, 0)
@@ -39,6 +39,23 @@ CULLING_GRACE_MARGIN = 8
 def _get_render_info(entity) -> list[RenderInfo]:
     """Module-level so the pool isn't handed a closure over engine state."""
     return entity.get_render_info()
+
+
+def _scaled(color: RGB, intensity: float) -> RGB:
+    """`color` at `intensity`, without touching `color` itself.
+
+    Same result as RGB.with_intensity, but that one writes the intensity onto
+    the colour before reading it back, and a shape hands out the same colour
+    object for every one of its pixels. Two bands blending at once would then
+    interleave that write and read, so the blend uses this instead.
+    """
+    return RGB(
+        int(color.r * intensity),
+        int(color.g * intensity),
+        int(color.b * intensity),
+        intensity=intensity,
+        opacity=color.opacity,
+    )
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -76,7 +93,7 @@ class Physics2D(Engine, KeyboardHandler):
         initial_screen_corner: PointF = INITIAL_CORNER,
         curr_scenario_index: int = 1,
         curr_bg_index: int = 0,
-        render_workers: int = 0,
+        render_pool: "RenderPool | None" = None,
     ):
         self.game = game
         self.screen_corner = initial_screen_corner
@@ -86,27 +103,21 @@ class Physics2D(Engine, KeyboardHandler):
         self.curr_bg_index = curr_bg_index
         self.init_screen_buffer()
 
-        # Resolving an entity's pixels is independent per entity, so it can be
-        # spread over a pool. Only actually parallel on a free-threaded
-        # interpreter (python3.14t); under the GIL it just adds overhead.
-        self._render_pool = (
-            ThreadPoolExecutor(max_workers=render_workers, thread_name_prefix="render-info")
-            if render_workers > 1
-            else None
-        )
+        # Shared with the Display, and owned by the Game -- see parallel.py.
+        self._render_pool = render_pool
 
     def compute_render_info_batch(self, entities: list) -> list[list[RenderInfo]]:
         """Resolve each entity's pixels, in the order they were given."""
+
         if self._render_pool is None:
             return [entity.get_render_info() for entity in entities]
 
-        # `map` keeps input order, which the scatter in Scenario depends on.
-        return list(self._render_pool.map(_get_render_info, entities))
-
-    def shutdown(self) -> None:
-        if self._render_pool is not None:
-            self._render_pool.shutdown(wait=False, cancel_futures=True)
-            self._render_pool = None
+        # One task per entity, not per band. Entities differ enormously in cost
+        # (a big circle against a spark), and handing them out one at a time
+        # lets whichever thread is free take the next one. Measured: banding
+        # them instead costs ~55% more during an explosion, even though it
+        # submits far fewer tasks.
+        return self._render_pool.map(_get_render_info, entities)
 
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
@@ -271,43 +282,52 @@ class Physics2D(Engine, KeyboardHandler):
             self._screen_buffer[new_y][new_x].append(render_info)
 
     def _convert_screen_buffer_to_display_data(self, frame: FrameSnapshot) -> list[list[str]]:
-        new_screen_grid: list[list[str]] = []
-        screen_buffer = frame.screen_buffer
-
         # TODO: for now, we assume y-res is always even
         # Note the step is 2 here <────┐
-        for y in range(0, frame.y_res, 2):
-            new_y = int(y / 2)
-            # we use the backwards index because, in the buffer, `going up == y++`,
-            # whereas in the screen grid it's actually the opposite
-            backwards_y = frame.y_res - 1 - y
+        buffer_rows = range(0, frame.y_res, 2)
 
-            if len(new_screen_grid) <= new_y:
-                new_screen_grid.append([])
+        def _convert_band(band: Sequence[int]) -> list[list[str]]:
+            return [self._convert_row(frame, y) for y in band]
 
-            for x in range(frame.x_res):
-                upper_pixel_info = screen_buffer[backwards_y - 1][x]
-                lower_pixel_info = screen_buffer[backwards_y][x]
+        # A row only ever reads its own two buffer rows, so bands of rows are
+        # independent. This is where a big explosion spends its time: lots of
+        # overlapping translucent particles make the per-cell blend much deeper.
+        if self._render_pool is None:
+            return _convert_band(buffer_rows)
 
-                if not upper_pixel_info and not lower_pixel_info:
-                    new_screen_grid[new_y].append(DEFAULT_CHAR)
-                    continue
+        return self._render_pool.map_bands(_convert_band, buffer_rows)
 
-                upper_color = Physics2D._compute_subpixel_color(upper_pixel_info)
-                lower_color = Physics2D._compute_subpixel_color(lower_pixel_info)
+    def _convert_row(self, frame: FrameSnapshot, y: int) -> list[str]:
+        screen_buffer = frame.screen_buffer
+        # we use the backwards index because, in the buffer, `going up == y++`,
+        # whereas in the screen grid it's actually the opposite
+        backwards_y = frame.y_res - 1 - y
 
-                # TODO: use a special algorithm to detect when to use special chars, e.g., ▞, `▛`, `▜`
-                char = LOWER_SUBPIXEL_CHAR
+        row: list[str] = []
 
-                new_screen_grid[new_y].append(
-                    colored(
-                        char,
-                        color=upper_color,
-                        bg_color=lower_color,
-                    )
+        for x in range(frame.x_res):
+            upper_pixel_info = screen_buffer[backwards_y - 1][x]
+            lower_pixel_info = screen_buffer[backwards_y][x]
+
+            if not upper_pixel_info and not lower_pixel_info:
+                row.append(DEFAULT_CHAR)
+                continue
+
+            upper_color = Physics2D._compute_subpixel_color(upper_pixel_info)
+            lower_color = Physics2D._compute_subpixel_color(lower_pixel_info)
+
+            # TODO: use a special algorithm to detect when to use special chars, e.g., ▞, `▛`, `▜`
+            char = LOWER_SUBPIXEL_CHAR
+
+            row.append(
+                colored(
+                    char,
+                    color=upper_color,
+                    bg_color=lower_color,
                 )
+            )
 
-        return new_screen_grid
+        return row
 
     def _send_data_to_display(
         self,
@@ -406,11 +426,12 @@ class Physics2D(Engine, KeyboardHandler):
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
-            return il[idx].color.with_intensity(
+            return _scaled(
+                il[idx].color,
                 max(
                     0,
                     1 - (il[idx]).distance_to_pixel_center,
-                )
+                ),
             )
 
         curr_color = _get_color(info_list, curr_index)
