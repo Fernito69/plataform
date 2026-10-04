@@ -9,6 +9,8 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.entities.equipment.thrusters.basic_thruster import BasicThruster
+
+from physics2d.entities.equipment.thrusters.chamorro_thruster import ChamorroThruster
 from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruster
 from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBallThruster
 from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
@@ -159,6 +161,7 @@ class PlayerBlob(PhysicsEntity, Player):
             MeteorThruster(self._engine),
             SonicThruster(self._engine),
             PlasmaBallThruster(self._engine),
+            ChamorroThruster(self._engine),
         ]
         self._curr_thruster_index = 0
         self._weapons = [

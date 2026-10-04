@@ -8,7 +8,6 @@ from mappings.keyboard import default_keyboard_mapping
 from model.base import ScreenPos, ScreenVector
 from model.game import GameMode
 from model.keyboard import DisplayKeys
-from model.shared import KeyboardHandler
 from model.theme import BR, EMPTY_SPACE, LOWER_SUBPIXEL_CHAR, UPPER_SUBPIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.player_blob import PlayerBlob
@@ -39,7 +38,7 @@ _MESSAGE_TEXT_COLOR = Yellow()
 _MAX_DEBUG_LOGS = 15
 
 
-class Display(KeyboardHandler):
+class Display:
     _curr_x_resolution: int
     _curr_y_resolution: int
     _antialiasing: bool
@@ -169,10 +168,6 @@ class Display(KeyboardHandler):
             parts.append(
                 grid_row[x]
                 if has_bg_color(grid_row[x], black_is_not_condidered_bg=False)
-                # TODO: it should not override the color behind it in the case of superposing objects
-                # check if it belongs to the same entity!! we can do that in the loop I think
-                # TODO: how do I know if there is gonna be something there later? since we are checking from closest to farthest
-                # use a precomputed store with the not rounded coord, aka subpixel??
                 else colored(
                     grid_row[x],
                     bg_color=ANTIALIASING_INTENSITY * extract_color_from_string(grid_row[x])
@@ -192,8 +187,6 @@ class Display(KeyboardHandler):
         clear_screen: bool = False,
         hud: str | None = None,
     ):
-        """`hud` lets the caller hand over an already-built HUD string, so that
-        printing a frame never has to reach back into live player state."""
         message_container_coords: tuple[ScreenPos, ScreenPos] | None = None
         if self._message:
             message_container_coords = self._add_message_to_screen_grid()
@@ -203,8 +196,6 @@ class Display(KeyboardHandler):
         def _build_band(band: Sequence[int]) -> list[str]:
             return [self._build_screen_row(y, message_container_coords) for y in band]
 
-        # Each row's text depends only on its own grid row, so bands of rows
-        # are independent.
         screen_content = "".join(
             _build_band(rows)
             if self._render_pool is None
@@ -441,12 +432,3 @@ class Display(KeyboardHandler):
         hud += str(round(player.falling_velocity, 3))
 
         return hud
-
-    ##############
-    # PLAYER INPUT
-    ##############
-    def handle_keyboard_input(self) -> None:
-        if self._game.mode == GameMode.PLATFORMER_V1:
-            return
-
-        pass
