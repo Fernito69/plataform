@@ -146,12 +146,6 @@ def _get_middle_bar(
 
 
 def apply_hp_bar_to_screen(data: list[list[str]], health_bar: HealthBarSnapshot) -> None:
-    """Draw an already-resolved health bar on top of rendered screen data.
-
-    Render-stage only: it needs the pixels underneath to blend against, but it
-    touches no live entity, which is why the bar is snapshotted beforehand.
-    """
-
     for x_idx, x in enumerate(
         range(health_bar.x_start, health_bar.x_start + len(health_bar.pixels))
     ):

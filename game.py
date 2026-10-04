@@ -1,5 +1,4 @@
 from display import Display
-from model.base import PointF
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.shared import Engine, KeyboardHandler
@@ -8,11 +7,7 @@ from parallel import make_render_pool
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.model.frame import FrameSnapshot
 from physics2d.physics2d import Physics2D
-from pipeline import (
-    FramePipeline,
-    SequentialFramePipeline,
-    ThreadedFramePipeline,
-)
+from pipeline import FramePipeline, SequentialFramePipeline, ThreadedFramePipeline
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
 from player import Player, PlayerStatus
@@ -82,9 +77,6 @@ class Game(Engine, KeyboardHandler):
         self.player_blob = PlayerBlob(self.physics_engine)
         self.physics_engine.init_player()
 
-        # hardcoded cool initial place
-        self.player3d.position = PointF(9, -44, -33)
-
         self._pipeline: FramePipeline = (
             ThreadedFramePipeline(self.calculate_frame, self.render_frame)
             if threaded
@@ -99,7 +91,6 @@ class Game(Engine, KeyboardHandler):
         self._handle_welcome_message()
 
         self.handle_keyboard_input()
-        self._display.handle_keyboard_input()
 
         match self.mode:
             case GameMode.PHYSICS_2D:
