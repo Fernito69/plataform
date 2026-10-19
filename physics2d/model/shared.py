@@ -19,8 +19,6 @@ class RenderInfo:
 
 @dataclass
 class BoundingBox:
-    """World-space rectangle a shape can draw inside."""
-
     min_x: float
     min_y: float
     max_x: float

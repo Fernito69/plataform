@@ -228,10 +228,11 @@ class Angle:
 
     def __add__(self, other: Angle | float) -> Angle:
         """If float, radians are always assumed"""
-        return Angle(value=self.value + other if isinstance(other, float | int) else other.value)
+        return Angle(value=self.value + (other if isinstance(other, float | int) else other.value))
 
     def __sub__(self, other: Angle | float) -> Angle:
-        return Angle(value=self.value - other if isinstance(other, float | int) else other.value)
+        """If float, radians are always assumed"""
+        return Angle(value=self.value - (other if isinstance(other, float | int) else other.value))
 
     def __mul__(self, scalar: float) -> Angle:
         return Angle(value=self.value * scalar)

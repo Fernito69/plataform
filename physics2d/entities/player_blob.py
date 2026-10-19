@@ -9,7 +9,6 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.entities.equipment.thrusters.basic_thruster import BasicThruster
-
 from physics2d.entities.equipment.thrusters.chamorro_thruster import ChamorroThruster
 from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruster
 from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBallThruster
@@ -109,7 +108,7 @@ class PlayerBlob(PhysicsEntity, Player):
             # die :(
             self.die()
 
-        self.get_curr_thruster().handle_particles()
+        self.get_curr_thruster().do_your_thing()
         self.get_curr_weapon().do_your_thing()
 
         self._handle_mouse_input()
@@ -152,29 +151,30 @@ class PlayerBlob(PhysicsEntity, Player):
         return self.center + self.radius * self.get_aiming_direction()
 
     def init_player(self) -> None:
-        if not self._engine:
+        e = self._engine
+        if not e:
             return
 
         self._thrusters = [
-            BasicThruster(self._engine),
-            SoapyThruster(self._engine),
-            MeteorThruster(self._engine),
-            SonicThruster(self._engine),
-            PlasmaBallThruster(self._engine),
-            ChamorroThruster(self._engine),
+            BasicThruster(e),
+            SoapyThruster(e),
+            MeteorThruster(e),
+            SonicThruster(e),
+            PlasmaBallThruster(e),
+            ChamorroThruster(e),
         ]
         self._curr_thruster_index = 0
         self._weapons = [
-            MachineGun(self._engine),
-            Shotgun(self._engine),
-            LightningGun(self._engine),
-            HeavyMachineGun(self._engine),
-            RocketLauncher(self._engine),
-            HomingMissileLauncher(self._engine),
-            HeavyRocketLauncher(self._engine),
-            Zapper(self._engine),
-            DeathRay(self._engine),
-            BFG(self._engine),
+            MachineGun(e),
+            Shotgun(e),
+            LightningGun(e),
+            HeavyMachineGun(e),
+            RocketLauncher(e),
+            HomingMissileLauncher(e),
+            HeavyRocketLauncher(e),
+            Zapper(e),
+            DeathRay(e),
+            BFG(e),
         ]
         self._curr_weapon_index = 0
         self._set_thruster_theme()
@@ -187,7 +187,6 @@ class PlayerBlob(PhysicsEntity, Player):
         self.init_player()
 
     def get_bounding_box(self) -> BoundingBox | None:
-        # The weapon is drawn outside the body, so widen the box to cover it.
         box = super().get_bounding_box()
         if box is None:
             return None

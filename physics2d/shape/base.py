@@ -113,14 +113,8 @@ class Shape:
         # Each shape should do its thing
         raise NotImplementedError(f"Shape must have a would_collide_with method")
 
-    def get_bounding_box(self) -> BoundingBox | None:
-        """World-space box this shape can draw inside, or None if we can't tell.
-
-        Used to skip rendering shapes that can't land on screen anyway. None
-        means "no idea", and callers must then render the shape rather than
-        risk culling something visible.
-        """
-        return None
+    @abstractmethod
+    def get_bounding_box(self) -> BoundingBox | None: ...
 
     @abstractmethod
     def get_render_info(cls) -> list[RenderInfo]:

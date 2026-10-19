@@ -116,8 +116,7 @@ class ThreeDeeEnemy(Enemy):
         # return super()._move_by(vector)
 
     def get_bounding_box(self) -> None:
-        # We project 3D vertices straight to screen positions, so the inherited
-        # centre+radius box says nothing about where we actually draw. Never cull.
+        # TODO: implement
         return None
 
     def get_render_info(self) -> list[RenderInfo]:
@@ -211,14 +210,6 @@ class ThreeDeeEnemy(Enemy):
         #         render_info.append(RenderInfo(point=PointF(x, y), distance_to_pixel_center=0, color=))
 
     def _get_visible_rect(self) -> BoundingBox:
-        """The rectangle our projected points have to fall in to be drawn.
-
-        project_3d_into_2d returns screen coordinates, so when our pixels are
-        scattered absolutely the rectangle is simply 0..RES. When they are
-        scattered relatively the engine subtracts the camera offset first, so
-        the rectangle moves with the camera instead. Testing against the wrong
-        one makes segments disappear as the camera moves.
-        """
         if self._absolute_positioning:
             x_res, y_res = self._engine.get_resolution()
             return BoundingBox(min_x=0, min_y=0, max_x=x_res, max_y=y_res)
