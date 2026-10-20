@@ -41,13 +41,7 @@ _STOP = object()
 
 
 class ThreadedFramePipeline:
-    """Calculate frame N+1 on a worker thread while frame N is rendered here.
-
-    The worker owns all mutable game state (physics, input, scenario); the
-    calling thread only ever touches the FrameSnapshot it was handed, plus the
-    terminal. Since writing a full frame to the terminal releases the GIL, that
-    write overlaps with the next frame's calculation.
-    """
+    """Calculate frame N+1 on a worker thread while frame N is rendered here"""
 
     def __init__(self, calculate: CalculateFrame, render: RenderFrame):
         self._calculate = calculate
@@ -66,7 +60,6 @@ class ThreadedFramePipeline:
             try:
                 self._frames.put(self._calculate())
             except BaseException as error:
-                # Re-raised on the calling thread, otherwise it dies silently.
                 self._frames.put(error)
                 return
 
@@ -82,7 +75,7 @@ class ThreadedFramePipeline:
             self._running = False
             raise frame
 
-        # Ask for N+1 *before* rendering N. That overlap is the whole point.
+        # Ask for N+1 before rendering N
         self._requests.put(_WORK)
 
         self._render(frame)
@@ -98,7 +91,7 @@ class ThreadedFramePipeline:
         except queue.Full:
             pass
 
-        # Unblock a worker that is holding a finished frame nobody will render.
+        # Unblock a worker that is holding a finished frame nobody will render
         try:
             self._frames.get_nowait()
         except queue.Empty:

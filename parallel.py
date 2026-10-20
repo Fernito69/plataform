@@ -30,12 +30,7 @@ class RenderPool:
         work: Callable[[Sequence[_T]], list[_R]],
         items: Sequence[_T],
     ) -> list[_R]:
-        """One task per contiguous band of items, flattened back in order.
-
-        For items that are individually cheap and cost about the same each,
-        like a screen row, where one task apiece would cost more in overhead
-        than it saves. Use `map` instead when the items vary in cost.
-        """
+        """One task per contiguous band of items, flattened back in order."""
         if len(items) <= 1:
             return work(items)
 
@@ -49,5 +44,5 @@ class RenderPool:
 
 
 def make_render_pool(workers: int) -> RenderPool | None:
-    """None when there's nothing to gain, so callers can take the serial path."""
+    """None -> serial path"""
     return RenderPool(workers) if workers > 1 else None
