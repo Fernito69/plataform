@@ -13,6 +13,8 @@ from utils import project_3d_into_2d
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
+_MAX_VISIBLE_DISTANCE = 160
+
 
 def _segment_touches_screen(
     start: PointF,
@@ -20,11 +22,6 @@ def _segment_touches_screen(
     visible: BoundingBox,
     margin: float,
 ) -> bool:
-    """Whether a projected segment could put any pixel inside `visible`.
-
-    Compares the segment's bounding box, so it can keep a diagonal that only
-    passes near the rectangle, but it never drops one that touches it.
-    """
     return (
         min(start.x, end.x) - margin <= visible.max_x
         and max(start.x, end.x) + margin >= visible.min_x
@@ -69,10 +66,6 @@ class ThreeDeeEnemy(Enemy):
         self.theme = theme
         self._line_thickness = line_thickness
         self._color_cycling_factor = color_cycling_factor
-        # Whether our pixels get scattered as-is or with the camera offset
-        # subtracted. It decides which rectangle counts as visible, and the
-        # two callers differ: background layers render absolutely, the
-        # scenario's three_dee_enemies relatively.
         self._absolute_positioning = absolute_positioning
 
         super().__init__(
@@ -163,8 +156,7 @@ class ThreeDeeEnemy(Enemy):
             rounded_y_pos = round(y_pos)
 
             d: float = abs(vector)
-            intensity: float = max(min(1 - d / 160, 1), 0)
-            # intensity: float = vertex.z
+            intensity: float = max(min(1 - d / _MAX_VISIBLE_DISTANCE, 1), 0)
 
             _buffer_y = _screen_buffer.get(rounded_y_pos)
 
@@ -217,7 +209,7 @@ class ThreeDeeEnemy(Enemy):
         return self._engine.get_viewport()
 
     def _get_render_info_like_line_renderer(self) -> list[RenderInfo]:
-        vertices_in_3d = [
+        vertices_in_3d: list[tuple[PointF, float]] = [
             (
                 v,
                 abs(v),
@@ -239,8 +231,9 @@ class ThreeDeeEnemy(Enemy):
         for num_a, num_b in sorted_connections:
             first_vertex, first_distance = vertices_in_3d[num_a]
             second_vertex, second_distance = vertices_in_3d[num_b]
-            projected_point_1 = project_3d_into_2d(first_vertex, self._engine.get_resolution())
-            projected_point_2 = project_3d_into_2d(second_vertex, self._engine.get_resolution())
+            resolution = self._engine.get_resolution()
+            projected_point_1 = project_3d_into_2d(first_vertex, resolution)
+            projected_point_2 = project_3d_into_2d(second_vertex, resolution)
 
             if not projected_point_1 or not projected_point_2:
                 continue

@@ -102,7 +102,7 @@ def zapper_bolt(engine: "Physics2D", source: "PhysicsEntity") -> None:
     for index in range(_NUM_SECONDARY_RAYS):
         # TODO: horrible, do it well
         _color = RGB(255, 100, 100) if index == 0 else RGB(100, 255, 100)
-        _ending_color = 0.3 * _color
+        _ending_color = _color.copy(opacity=0.3)
         sec_l = Lightning(
             source=source,
             start_point=start_point,
