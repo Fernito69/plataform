@@ -75,7 +75,6 @@ class PhysicsEntity(Circunference):
         # volume depends on the type of entity
 
     def get_bounding_box(self) -> BoundingBox | None:
-        # extra_shapes are drawn too, and can stick out past our own radius.
         box = super().get_bounding_box()
         for shape in self.extra_shapes:
             extra_box = shape.get_bounding_box()

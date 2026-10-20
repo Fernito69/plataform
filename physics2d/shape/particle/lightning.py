@@ -89,8 +89,6 @@ class Lightning(Particle, Line):
         self._gen_lightning()
 
     def get_bounding_box(self) -> BoundingBox | None:
-        # The bolt jags away from the straight line between our two points, so
-        # the inherited Line box would be too tight -- use the segments instead.
         box: BoundingBox | None = None
         for line in self.segments:
             segment_box = line.get_bounding_box()
@@ -148,11 +146,6 @@ class Lightning(Particle, Line):
         avg_segment_length = line_length / (num_segments or ALMOST_ZERO)
 
         division_lenghts = [num_seg * avg_segment_length for num_seg in range(self.num_segments)]
-        # if line_length > 8:
-        #     raise NotImplementedError(
-        #         # f"line: {line_vector}\nline_length:{line_length}\nnum_segments:{num_segments}\navg_seg_len: {avg_segment_length}\n"
-        #         f"division_lengths {division_lenghts}"
-        #     )
 
         def _rand_vector() -> VectorF:
             parallel_unit_vector = (1 / line_length) * line_vector

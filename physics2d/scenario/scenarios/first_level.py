@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.spawner_entity import SpawnerEntity
 from physics2d.entities.spawners.enemy import machine_gun_enemy_spawner, super_rocket_enemy_spawner
+from physics2d.model.shared import BackgroundGenerator
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 

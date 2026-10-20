@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.enemy import Enemy
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.factories.explosion import enemy_explosion
 from physics2d.shape.line import Line
@@ -12,6 +12,22 @@ from utils import project_3d_into_2d
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+
+_MAX_VISIBLE_DISTANCE = 160
+
+
+def _segment_touches_screen(
+    start: PointF,
+    end: PointF,
+    visible: BoundingBox,
+    margin: float,
+) -> bool:
+    return (
+        min(start.x, end.x) - margin <= visible.max_x
+        and max(start.x, end.x) + margin >= visible.min_x
+        and min(start.y, end.y) - margin <= visible.max_y
+        and max(start.y, end.y) + margin >= visible.min_y
+    )
 
 
 class ThreeDeeEnemy(Enemy):
@@ -42,6 +58,7 @@ class ThreeDeeEnemy(Enemy):
         line_thickness: float = 1,
         color_cycling_factor: float = 57,
         show_health: bool = False,
+        absolute_positioning: bool = False,
     ):
         self._engine = engine
         self.polyhedron = polyhedron
@@ -49,6 +66,7 @@ class ThreeDeeEnemy(Enemy):
         self.theme = theme
         self._line_thickness = line_thickness
         self._color_cycling_factor = color_cycling_factor
+        self._absolute_positioning = absolute_positioning
 
         super().__init__(
             size=polyhedron.get_diameter(),
@@ -91,8 +109,7 @@ class ThreeDeeEnemy(Enemy):
         # return super()._move_by(vector)
 
     def get_bounding_box(self) -> None:
-        # We project 3D vertices straight to screen positions, so the inherited
-        # centre+radius box says nothing about where we actually draw. Never cull.
+        # TODO: implement
         return None
 
     def get_render_info(self) -> list[RenderInfo]:
@@ -139,8 +156,7 @@ class ThreeDeeEnemy(Enemy):
             rounded_y_pos = round(y_pos)
 
             d: float = abs(vector)
-            intensity: float = max(min(1 - d / 160, 1), 0)
-            # intensity: float = vertex.z
+            intensity: float = max(min(1 - d / _MAX_VISIBLE_DISTANCE, 1), 0)
 
             _buffer_y = _screen_buffer.get(rounded_y_pos)
 
@@ -152,13 +168,13 @@ class ThreeDeeEnemy(Enemy):
                     info = RenderInfo(
                         point=PointF(rounded_x_pos, rounded_y_pos),
                         distance_to_pixel_center=0,  # ???
-                        color=color.with_intensity(intensity),
+                        color=intensity * color,
                     )
                     _screen_buffer[rounded_y_pos][rounded_x_pos] = info
                 else:
                     _screen_buffer[rounded_y_pos][rounded_x_pos].color = _screen_buffer[
                         rounded_y_pos
-                    ][rounded_x_pos].color.mix_with(color.with_intensity(intensity))
+                    ][rounded_x_pos].color.mix_with(intensity * color)
 
         return [x for y in _screen_buffer.values() for x in y.values()]
 
@@ -185,8 +201,15 @@ class ThreeDeeEnemy(Enemy):
         #     for x in len(self._screen_buffer[y]):
         #         render_info.append(RenderInfo(point=PointF(x, y), distance_to_pixel_center=0, color=))
 
+    def _get_visible_rect(self) -> BoundingBox:
+        if self._absolute_positioning:
+            x_res, y_res = self._engine.get_resolution()
+            return BoundingBox(min_x=0, min_y=0, max_x=x_res, max_y=y_res)
+
+        return self._engine.get_viewport()
+
     def _get_render_info_like_line_renderer(self) -> list[RenderInfo]:
-        vertices_in_3d = [
+        vertices_in_3d: list[tuple[PointF, float]] = [
             (
                 v,
                 abs(v),
@@ -195,6 +218,7 @@ class ThreeDeeEnemy(Enemy):
         ]
 
         lines_to_render: list[RenderInfo] = []
+        visible = self._get_visible_rect()
 
         sorted_connections = sorted(
             self.polyhedron.vertex_connections,
@@ -207,47 +231,34 @@ class ThreeDeeEnemy(Enemy):
         for num_a, num_b in sorted_connections:
             first_vertex, first_distance = vertices_in_3d[num_a]
             second_vertex, second_distance = vertices_in_3d[num_b]
-            projected_point_1 = project_3d_into_2d(first_vertex, self._engine.get_resolution())
-            projected_point_2 = project_3d_into_2d(second_vertex, self._engine.get_resolution())
+            resolution = self._engine.get_resolution()
+            projected_point_1 = project_3d_into_2d(first_vertex, resolution)
+            projected_point_2 = project_3d_into_2d(second_vertex, resolution)
 
             if not projected_point_1 or not projected_point_2:
                 continue
 
-            X_RES, Y_RES = self._engine.get_resolution()
-            x_min, y_min, _ = self._engine.screen_corner
-            x_max = x_min + X_RES
-            y_max = y_min + Y_RES
+            if not _segment_touches_screen(
+                projected_point_1,
+                projected_point_2,
+                visible,
+                margin=self._line_thickness + 1,
+            ):
+                continue
 
-            # TODO: the logic should not that dumb, we need at least one of them to be in the screen
-            # TODO; enabled always for background testing
-            # if (
-            #     projected_point_1.x < x_max
-            #     and projected_point_1.y < y_max
-            #     and projected_point_1.x > x_min
-            #     and projected_point_1.y > y_min
-            # ) or (
-            #     projected_point_2.x < x_max
-            #     and projected_point_2.y < y_max
-            #     and projected_point_2.x > x_min
-            #     and projected_point_2.y > y_min
-            # ):
-            if True:
-                _factor = 1 / self.visibility_threshold
-                intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
-                intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)
-                color = self.theme.color or RGB()
-                line = Line(
-                    points=(projected_point_1, projected_point_2),
-                    engine=self._engine,
-                    theme=Theme(
-                        color=color.with_intensity(intensity_1),
-                    ),
-                    secondary_theme=Theme(
-                        color=color.with_intensity(intensity_2),
-                    ),
-                    thickness=self._line_thickness,
-                )
-                lines_to_render.extend(line.get_render_info())
+            _factor = 1 / self.visibility_threshold
+            _intensity_1: float = max(min(1 - first_distance / _factor, 1), 0)
+            _intensity_2: float = max(min(1 - second_distance / _factor, 1), 0)
+            _color = self.theme.color or RGB()
+
+            line = Line(
+                points=(projected_point_1, projected_point_2),
+                engine=self._engine,
+                theme=Theme(color=_intensity_1 * _color),
+                secondary_theme=Theme(color=_intensity_2 * _color),
+                thickness=self._line_thickness,
+            )
+            lines_to_render.extend(line.get_render_info())
 
         return lines_to_render
 

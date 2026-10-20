@@ -204,7 +204,7 @@ class Circunference(Shape):
 
         # TODO: I know this is expensive and dumb, but let's see if it improves it
         # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
-        ranges = [0, 0.1]
+        ranges = [0, -0.1]
 
         for value in ranges:
             new_pos = (value * self.velocity) + self.center

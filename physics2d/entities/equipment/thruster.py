@@ -34,5 +34,5 @@ class Thruster:
         self.accel = accel
         self.decel = decel
 
-    def handle_particles(self) -> None:
+    def do_your_thing(self) -> None:
         self.particle_generator(self._engine, self._engine.scenario.player)

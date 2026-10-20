@@ -6,10 +6,9 @@ from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
-from physics2d.entities.model.shared import BackgroundGenerator
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BackgroundGenerator, RenderInfo
 from physics2d.scenario.background import Background
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
@@ -19,14 +18,6 @@ if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.equipment.projectile import Projectile
     from physics2d.physics2d import Physics2D
-
-
-# TODO: use this for "pieces"
-# pieces in same layer collide with each other
-@dataclass
-class PieceHierarchy:
-    layer_index: int
-    pieces: list[Shape]
 
 
 @dataclass
@@ -163,27 +154,25 @@ class Scenario:
         return self._game_tick
 
     def compute_render_info(self) -> None:
-        self.handle_render_info(
-            self.crosshair.get_render_info(),
-            absolute_positioning=True,
-        )
+        self.background.update()
 
-        viewport = self.engine.get_viewport()
+        jobs = self._get_render_jobs()
 
-        # TODO: unify, we need a common class
-        def _handle(
-            pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy],
-            absolute_positioning: bool = False,
-        ):
-            for p in pieces:
-                # Skip anything the camera can't see. Absolutely-positioned
-                # pieces are already in screen coords, so the test doesn't apply.
-                if not absolute_positioning and not self.engine.is_worth_rendering(p, viewport):
-                    continue
+        # parallelize work
+        all_render_info = self.engine.compute_render_info_batch([entity for entity, _ in jobs])
 
-                self.handle_render_info(p.get_render_info(), absolute_positioning)
+        for (_, absolute_positioning), render_info in zip(jobs, all_render_info):
+            self.handle_render_info(render_info, absolute_positioning)
 
-        _handle(self.overlay_shapes, absolute_positioning=True)
+    # TODO: unify, we need a common class
+    def _get_render_jobs(
+        self,
+    ) -> list[tuple[Shape | Projectile | Enemy | ThreeDeeEnemy, bool]]:
+        """What to render this frame, paired with its positioning, in draw order.
+
+        Anything the camera can't see is dropped here, so it never reaches the
+        pool in stage A.
+        """
 
         # Foreground gets differentiated treatment. TODO: this is a hack. Do properly
         _render_in_front_of_player: list[Shape] = []
@@ -195,22 +184,38 @@ class Scenario:
             else:
                 _render_in_front_of_player.append(shape)
 
-        _handle(_render_behind_player)
-        self.handle_render_info(self.player.get_render_info())
-        _handle(_render_in_front_of_player)
+        absolutely_positioned = [self.crosshair, *self.overlay_shapes]
+        relatively_positioned = [
+            *_render_behind_player,
+            self.player,
+            *_render_in_front_of_player,
+            *self.solid_shapes,
+            *self.projectiles,
+            *self.enemy_projectiles,
+            *self.enemies,
+            *self.three_dee_enemies,
+            *self.bg_shapes,
+        ]
 
-        _handle(self.solid_shapes)
-        _handle(self.projectiles)
-        _handle(self.enemy_projectiles)
-        _handle(self.enemies)
-        _handle(self.three_dee_enemies)
+        # Two rectangles: world-positioned things are tested against the camera
+        # viewport, screen-positioned ones against the screen itself.
+        viewport = self.engine.get_viewport()
+        screen = self.engine.get_screen_rect()
 
-        _handle(self.bg_shapes)
-
-        self.handle_render_info(
-            self.background.get_render_info(),
-            absolute_positioning=True,
-        )
+        return [
+            *[(entity, True) for entity in absolutely_positioned],
+            *[
+                (entity, False)
+                for entity in relatively_positioned
+                if self.engine.is_worth_rendering(entity, viewport)
+            ],
+            # Last, so it ends up behind everything else.
+            *[
+                (shape, True)
+                for shape in self.background.get_shapes()
+                if self.engine.is_worth_rendering(shape, screen)
+            ],
+        ]
 
     def handle_render_info(
         self,

@@ -1,11 +1,13 @@
 from display import Display
-from model.base import PointF
 from model.game import GameMode, GameStatus
 from model.keyboard import DisplayKeys, MenuKeys
 from model.shared import Engine, KeyboardHandler
 from model.theme import BR
+from parallel import make_render_pool
 from physics2d.entities.player_blob import PlayerBlob
+from physics2d.model.frame import FrameSnapshot
 from physics2d.physics2d import Physics2D
+from pipeline import FramePipeline, SequentialFramePipeline, ThreadedFramePipeline
 from platformer_v1.entities.player2d import Player2D
 from platformer_v1.platformer_v1 import PlatformerV1
 from player import Player, PlayerStatus
@@ -52,11 +54,17 @@ class Game(Engine, KeyboardHandler):
     def __init__(
         self,
         mode: GameMode = GameMode.PHYSICS_2D,
+        threaded: bool = False,
+        render_workers: int = 0,
     ):
         self.status = GameStatus.RUNNING
         self.mode = mode
 
-        self._display = Display(self)
+        # One pool, shared by everything in the frame that splits into
+        # independent work: entity pixels, buffer conversion, row text.
+        self._render_pool = make_render_pool(render_workers)
+
+        self._display = Display(self, render_pool=self._render_pool)
 
         self.player2d = Player2D(1)
         self.platformer_v1 = PlatformerV1(self)
@@ -65,35 +73,52 @@ class Game(Engine, KeyboardHandler):
         self.voxel_renderer = VoxelRenderer(self)
         self.line_renderer = LineRenderer(self)
 
-        self.physics_engine = Physics2D(self)
+        self.physics_engine = Physics2D(self, render_pool=self._render_pool)
         self.player_blob = PlayerBlob(self.physics_engine)
         self.physics_engine.init_player()
 
-        # hardcoded cool initial place
-        self.player3d.position = PointF(9, -44, -33)
+        self._pipeline: FramePipeline = (
+            ThreadedFramePipeline(self.calculate_frame, self.render_frame)
+            if threaded
+            else SequentialFramePipeline(self.calculate_frame, self.render_frame)
+        )
 
     def main_loop(self) -> None:
-        def _main_loop():
-            self._check_game_status()
-            self._handle_welcome_message()
+        self._display.fps_throttle(self._pipeline.run_frame)
 
-            self.handle_keyboard_input()
-            self._display.handle_keyboard_input()
+    def calculate_frame(self) -> FrameSnapshot | None:
+        self._check_game_status()
+        self._handle_welcome_message()
 
-            match self.mode:
-                case GameMode.PHYSICS_2D:
-                    return self.physics_engine.main_loop()
+        self.handle_keyboard_input()
 
-                case GameMode.VOXELS_3D:
-                    return self.voxel_renderer.main_loop()
+        match self.mode:
+            case GameMode.PHYSICS_2D:
+                return self.physics_engine.calculate_frame()
 
-                case GameMode.LINES_3D:
-                    return self.line_renderer.main_loop()
+            # The other modes aren't split into stages yet
+            case GameMode.VOXELS_3D:
+                self.voxel_renderer.main_loop()
 
-                case GameMode.PLATFORMER_V1:
-                    return self.platformer_v1.main_loop()
+            case GameMode.LINES_3D:
+                self.line_renderer.main_loop()
 
-        self._display.fps_throttle(_main_loop)
+            case GameMode.PLATFORMER_V1:
+                self.platformer_v1.main_loop()
+
+        return None
+
+    def render_frame(self, frame: FrameSnapshot | None) -> None:
+        if frame is None or self.mode != GameMode.PHYSICS_2D:
+            return
+
+        self.physics_engine.render_frame(frame)
+
+    def shutdown(self) -> None:
+        self._pipeline.shutdown()
+
+        if self._render_pool is not None:
+            self._render_pool.shutdown()
 
     def quit_game(self, message: str = f"BYE BYE!{BR}Thanks for playing :)") -> None:
         self._display.set_message(message)

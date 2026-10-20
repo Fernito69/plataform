@@ -70,9 +70,21 @@ class Background:
 
         return (min_x, min_y, max_x, max_y)
 
-    def get_render_info(self) -> list[RenderInfo]:
-        render_info: list[RenderInfo] = []
+    def get_shapes(self) -> list["Shape | PhysicsEntity"]:
+        shapes: list["Shape | PhysicsEntity"] = []
 
+        for layer in self._layers:
+            shapes.extend(layer.shapes)
+
+        for bg in self._additional_backgrounds:
+            shapes.extend(bg.get_shapes())
+
+        return shapes
+
+    def get_render_info(self) -> list[RenderInfo]:
+        return [info for shape in self.get_shapes() for info in shape.get_render_info()]
+
+    def update(self) -> None:
         for layer in self._layers:
             _distance_factor = 1 / layer.depth
 
@@ -118,12 +130,8 @@ class Background:
                     elif center.y > Y_RES + y_safety_margin:
                         shape._move_by(VectorF(0, -y_loop))
 
-                render_info.extend(shape.get_render_info())
-
         for bg in self._additional_backgrounds:
-            render_info.extend(bg.get_render_info())
-
-        return render_info
+            bg.update()
 
     @abstractmethod
     def _init_layers(self) -> list[BgLayer]: ...
