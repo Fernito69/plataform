@@ -5,7 +5,7 @@ from constants import ALMOST_ZERO, HALF_PIXEL, PI
 from factories.theme import White
 from model.base import PointF, Slope, VectorF
 from model.theme import RGB, Theme
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from utils import (
     GetLineEquationResponse,
@@ -91,6 +91,15 @@ class Line(Shape):
         if not self.is_collideable or not colliding_shape.is_collideable:
             return
         # TODO: implement
+
+    def get_bounding_box(self) -> BoundingBox:
+        start, end = self.points
+        return BoundingBox(
+            min_x=min(start.x, end.x) - self.thickness,
+            min_y=min(start.y, end.y) - self.thickness,
+            max_x=max(start.x, end.x) + self.thickness,
+            max_y=max(start.y, end.y) + self.thickness,
+        )
 
     def get_render_info(self) -> list[RenderInfo]:
         piece_info = []

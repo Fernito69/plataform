@@ -22,7 +22,7 @@ from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, Ma
 from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.entities.equipment.weapons.zapper import Zapper
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.circunference import Circunference
 from physics2d.shape.factories.explosion import get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
@@ -182,6 +182,22 @@ class PlayerBlob(PhysicsEntity, Player):
     def set_scenario(self, scenario: "Scenario") -> None:
         self._scenario = scenario
         self.init_player()
+
+    def get_bounding_box(self) -> BoundingBox | None:
+        # The weapon is drawn outside the body, so widen the box to cover it.
+        box = super().get_bounding_box()
+        if box is None:
+            return None
+
+        weapon = self.get_weapon_position()
+        return box.union(
+            BoundingBox(
+                min_x=weapon.x - _WEAPON_RADIUS,
+                min_y=weapon.y - _WEAPON_RADIUS,
+                max_x=weapon.x + _WEAPON_RADIUS,
+                max_y=weapon.y + _WEAPON_RADIUS,
+            )
+        )
 
     def get_render_info(self) -> list[RenderInfo]:
         body_parts = super().get_render_info()

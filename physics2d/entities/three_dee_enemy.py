@@ -90,6 +90,11 @@ class ThreeDeeEnemy(Enemy):
         # self.polyhedron.move_by(vector)
         # return super()._move_by(vector)
 
+    def get_bounding_box(self) -> None:
+        # We project 3D vertices straight to screen positions, so the inherited
+        # centre+radius box says nothing about where we actually draw. Never cull.
+        return None
+
     def get_render_info(self) -> list[RenderInfo]:
         return (
             self._get_render_info_v1()

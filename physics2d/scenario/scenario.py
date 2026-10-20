@@ -168,12 +168,19 @@ class Scenario:
             absolute_positioning=True,
         )
 
+        viewport = self.engine.get_viewport()
+
         # TODO: unify, we need a common class
         def _handle(
             pieces: list[Shape] | list[Projectile] | list[Enemy] | list[ThreeDeeEnemy],
             absolute_positioning: bool = False,
         ):
             for p in pieces:
+                # Skip anything the camera can't see. Absolutely-positioned
+                # pieces are already in screen coords, so the test doesn't apply.
+                if not absolute_positioning and not self.engine.is_worth_rendering(p, viewport):
+                    continue
+
                 self.handle_render_info(p.get_render_info(), absolute_positioning)
 
         _handle(self.overlay_shapes, absolute_positioning=True)

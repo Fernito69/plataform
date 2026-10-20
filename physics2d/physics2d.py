@@ -9,7 +9,7 @@ from model.theme import LOWER_PIXEL_CHAR
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import BackgroundGenerator, ScenarioGenerator
 from physics2d.entities.player_blob import PlayerBlob
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
 from physics2d.scenario.backgrounds.saturn_rings import get_saturn_rings
 from physics2d.scenario.backgrounds.starry_space import get_starry_space
@@ -23,9 +23,14 @@ from utils import colored
 
 if TYPE_CHECKING:
     from game import Game
+    from physics2d.shape.base import Shape
 
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
+
+# Shapes this far outside the screen are still rendered, so nothing pops in
+# at the edge and fast movers aren't culled a frame too early.
+CULLING_GRACE_MARGIN = 8
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -130,6 +135,29 @@ class Physics2D(Engine, KeyboardHandler):
             and point_or_entity.y >= y_min
             and point_or_entity.y < y_max
         )
+
+    def get_viewport(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
+        """The visible rectangle in world coordinates."""
+        X_RES, Y_RES = self.get_resolution()
+
+        return BoundingBox(
+            min_x=self.screen_corner.x - grace_margin,
+            min_y=self.screen_corner.y - grace_margin,
+            max_x=self.screen_corner.x + X_RES + grace_margin,
+            max_y=self.screen_corner.y + Y_RES + grace_margin,
+        )
+
+    @staticmethod
+    def is_worth_rendering(shape: "Shape", viewport: BoundingBox) -> bool:
+        """Whether a shape can possibly land on screen.
+
+        One box test here saves computing every pixel of a shape that is
+        nowhere near the camera. Shapes that can't describe their own extent
+        return no box, and those we always render.
+        """
+        box = shape.get_bounding_box()
+
+        return box is None or box.overlaps(viewport)
 
     def _calc_physics_and_compute_render_info(self) -> None:
         self.scenario.background.update_previous_screen_corner(self.screen_corner)
