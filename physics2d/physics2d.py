@@ -91,7 +91,7 @@ class Physics2D(Engine, KeyboardHandler):
         self,
         game: "Game",
         initial_screen_corner: PointF = INITIAL_CORNER,
-        curr_scenario_index: int = 1,
+        curr_scenario_index: int = 2,
         curr_bg_index: int = 0,
         render_pool: "RenderPool | None" = None,
     ):

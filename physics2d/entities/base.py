@@ -44,6 +44,8 @@ class PhysicsEntity(Circunference):
         is_collideable: bool = True,
         extra_shapes: list["PhysicsEntity | Shape"] = [],
         particle_generator: ParticleGenerator | None = None,
+        x_factor: float = 1,
+        y_factor: float = 1,
     ):
         super().__init__(
             center=position,
@@ -62,6 +64,8 @@ class PhysicsEntity(Circunference):
             color_gradient_exponent=color_gradient_exponent,
             color_gradient_exponent_end=color_gradient_exponent_end,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
+            x_factor=x_factor,
+            y_factor=y_factor,
         )
         self._engine = engine
         self.position = position

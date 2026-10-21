@@ -62,6 +62,8 @@ class Enemy(PhysicsEntity):
         spawner_on_death: Spawner | None = None,
         color_cycling_factor: float = 0,
         show_health: bool = False,
+        x_factor: float = 1,
+        y_factor: float = 1,
     ):
         super().__init__(
             density=density,
@@ -83,6 +85,8 @@ class Enemy(PhysicsEntity):
             color_gradient_exponent=color_gradient_exponent,
             color_gradient_exponent_end=color_gradient_exponent_end,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
+            x_factor=x_factor,
+            y_factor=y_factor,
         )
         self._engine = engine
         self.health = health

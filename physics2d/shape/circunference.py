@@ -31,6 +31,9 @@ _DECEL_FACTOR = 0.2
 class Circunference(Shape):
     center: PointF
     radius: float
+    # these two are equivalent to a**2 and b**2 from the ellipse equation
+    x_factor: float
+    y_factor: float
 
     # TODO: remove from Enemy class
     _initial_theme: Theme
@@ -42,6 +45,8 @@ class Circunference(Shape):
         radius: float,
         engine: "Physics2D",
         theme: Theme,
+        x_factor: float = 1,
+        y_factor: float = 1,
         secondary_theme: Theme | None = None,
         color_gradient_exponent: float = 1,
         color_gradient_exponent_end: float | None = None,
@@ -64,6 +69,8 @@ class Circunference(Shape):
         self.weight = self.volume * self.density
         self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
         self._color_cycling_factor = color_cycling_factor
+        self.x_factor = x_factor
+        self.y_factor = y_factor
 
         super().__init__(
             theme=theme,
@@ -166,137 +173,27 @@ class Circunference(Shape):
 
     def get_circunference_equations(self) -> GetCircunferenceEquationResponse:
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (x - self.center.x) ** 2
+            root_arg = self.radius**2 - ((x - self.center.x) ** 2) / self.x_factor**2
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5
+            root = root_arg**0.5 * self.y_factor
             return (self.center.y - root, self.center.y + root)
 
         def get_xs(y: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - (y - self.center.y) ** 2
+            root_arg = self.radius**2 - ((y - self.center.y) ** 2) / self.y_factor**2
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5
+            root = root_arg**0.5 * self.x_factor
             return (self.center.x - root, self.center.x + root)
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
-    # this only makes sense if we implement textured circunferences
-    def _rotate(self) -> None:
-        pass
-
-    # TODO: generalize this, every entity should know what to do!
-    # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
-    # TODO: should should calculate ACTUAL kinetic energy transfer
-
-    # TODO: THIS SHOULD ONLY RETURN A BOOLEAN AND EVERY ENTITY SHOULD TAKE CARE OF THE ENTITY-SPECIFIC LOGIC
-    def would_collide_with(self, colliding_shape: Shape) -> bool:
-        from physics2d.entities.equipment.projectile import Projectile
-
-        if (
-            not self.is_collideable
-            or not colliding_shape.is_collideable
-            or self is colliding_shape
-            # TODO: do we want this? maybe we want to get hit by our own stuff
-            or (isinstance(self, Projectile) and self.owner is colliding_shape)
-        ):
-            return False
-
-        # TODO: I know this is expensive and dumb, but let's see if it improves it
-        # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
-        ranges = [0, -0.1]
-
-        for value in ranges:
-            new_pos = (value * self.velocity) + self.center
-
-            # CASE: Ball x Ball
-            if isinstance(colliding_shape, Circunference):
-                # if the distance between their centers is less than the sum of both radii, it means they would collide
-                if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
-                    # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
-                    # TODO: Fix the logic of this energy transfer
-                    denominator = self.weight + colliding_shape.weight
-                    # normal_at_collision = (self.center, colliding_shape.center)
-                    # only the vel. component parallel to the normal of the collision point
-
-                    # TODO: energy transfer should consider kinetic energy e = m*v^2
-                    self_transfer_factor = colliding_shape.weight / denominator
-                    other_shape_transfer_factor = self.weight / denominator
-                    # self_transfer_factor = 1
-                    # other_shape_transfer_factor = 1
-
-                    # TODO: make this a Shape property, and also affected by friction
-                    elastic_transfer_factor = 0.2 * abs(self.velocity)
-                    self_transfer_factor = (colliding_shape.weight / denominator) * (
-                        1 - elastic_transfer_factor
-                    )
-
-                    # raise NotImplementedError(
-                    #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
-                    # )
-                    # new_velocity = (
-                    #     (-self.velocity * other_shape_transfer_factor)
-                    #     + (colliding_shape.velocity * other_shape_transfer_factor)
-                    # ).as_vector()
-                    new_velocity = (
-                        (colliding_shape.velocity * self_transfer_factor)
-                        - (self.velocity * elastic_transfer_factor)
-                    ).as_vector()
-
-                    # engine.display.debug_log(
-                    #     f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
-                    # )
-
-                    self.velocity = new_velocity
-                    return True
-
-            # CASE: Line x Ball
-            if isinstance(colliding_shape, Line):
-                if (
-                    colliding_shape.is_in_hitbox_area(self.center, self.radius)
-                    and colliding_shape.get_distance_to_point(self.center)
-                    < self.radius + colliding_shape.thickness
-                ):
-                    # TODO!!!!! Should be minus/plus double the difference between the normal and itself
-                    angle_vel = get_line_angle(self.center, new_pos)
-                    # angle_line = get_line_angle(*colliding_shape.points)
-                    line_normal_angle = get_angle_from_slope(
-                        get_perpendicular_slope(*colliding_shape.points)
-                    )
-                    bounce_angle = 2 * line_normal_angle - angle_vel
-                    # res_angle = angle_line + PI - angle_vel
-
-                    # factor_x = -1 if self.velocity.x < 0 else 1
-                    # factor_y = 1 if self.velocity.y < 0 else -1
-                    factor_x = 1
-                    factor_y = 1
-
-                    new_velocity = (
-                        abs(self.velocity)
-                        * VectorF(
-                            x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
-                        )
-                    ).as_vector()
-
-                    def _get_angle(angle) -> int:
-                        return int(angle * 180 / PI)
-
-                    # engine._display.debug_log(
-                    #     f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
-                    # )
-
-                    self.velocity = new_velocity
-                    return True
-
-        # TODO: add the other shapes
-        return False
-
     def get_bounding_box(self) -> BoundingBox:
         return BoundingBox(
-            min_x=self.center.x - self.radius,
-            min_y=self.center.y - self.radius,
-            max_x=self.center.x + self.radius,
-            max_y=self.center.y + self.radius,
+            min_x=self.center.x - (self.radius * self.x_factor),
+            min_y=self.center.y - (self.radius * self.y_factor),
+            max_x=self.center.x - (self.radius * self.x_factor),
+            max_y=self.center.y - (self.radius * self.y_factor),
         )
 
     def get_render_info(self) -> list[RenderInfo]:
@@ -309,14 +206,16 @@ class Circunference(Shape):
     def _get_render_info_v1(self) -> list[RenderInfo]:
         piece_info: list[RenderInfo] = []
 
+        eq = self.get_circunference_equations()
+        # _box = self.get_bounding_box()
+        x_delta = self.radius * self.x_factor
         min_x, max_x = sorted(
             (
-                self.center.x + self.radius,
-                self.center.x - self.radius,
+                self.center.x + x_delta,
+                self.center.x - x_delta,
             )
         )
-
-        eq = self.get_circunference_equations()
+        # x_range = range(math.floor(_box.min_x - 2), math.ceil(_box.max_x + 1))
         x_range = range(math.floor(min_x - 2), math.ceil(max_x + 1))
 
         for x_index, curr_x in enumerate(x_range):
@@ -450,3 +349,113 @@ class Circunference(Shape):
                 )
 
         return piece_info
+
+    # this only makes sense if we implement textured circunferences
+    def _rotate(self) -> None:
+        pass
+
+    # TODO: generalize this, every entity should know what to do!
+    # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
+    # TODO: should should calculate ACTUAL kinetic energy transfer
+
+    # TODO: THIS SHOULD ONLY RETURN A BOOLEAN AND EVERY ENTITY SHOULD TAKE CARE OF THE ENTITY-SPECIFIC LOGIC
+    def would_collide_with(self, colliding_shape: Shape) -> bool:
+        from physics2d.entities.equipment.projectile import Projectile
+
+        if (
+            not self.is_collideable
+            or not colliding_shape.is_collideable
+            or self is colliding_shape
+            # TODO: do we want this? maybe we want to get hit by our own stuff
+            or (isinstance(self, Projectile) and self.owner is colliding_shape)
+        ):
+            return False
+
+        # TODO: I know this is expensive and dumb, but let's see if it improves it
+        # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
+        ranges = [0, -0.1]
+
+        for value in ranges:
+            new_pos = (value * self.velocity) + self.center
+
+            # CASE: Ball x Ball
+            if isinstance(colliding_shape, Circunference):
+                # if the distance between their centers is less than the sum of both radii, it means they would collide
+                if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
+                    # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
+                    # TODO: Fix the logic of this energy transfer
+                    denominator = self.weight + colliding_shape.weight
+                    # normal_at_collision = (self.center, colliding_shape.center)
+                    # only the vel. component parallel to the normal of the collision point
+
+                    # TODO: energy transfer should consider kinetic energy e = m*v^2
+                    self_transfer_factor = colliding_shape.weight / denominator
+                    other_shape_transfer_factor = self.weight / denominator
+                    # self_transfer_factor = 1
+                    # other_shape_transfer_factor = 1
+
+                    # TODO: make this a Shape property, and also affected by friction
+                    elastic_transfer_factor = 0.2 * abs(self.velocity)
+                    self_transfer_factor = (colliding_shape.weight / denominator) * (
+                        1 - elastic_transfer_factor
+                    )
+
+                    # raise NotImplementedError(
+                    #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
+                    # )
+                    # new_velocity = (
+                    #     (-self.velocity * other_shape_transfer_factor)
+                    #     + (colliding_shape.velocity * other_shape_transfer_factor)
+                    # ).as_vector()
+                    new_velocity = (
+                        (colliding_shape.velocity * self_transfer_factor)
+                        - (self.velocity * elastic_transfer_factor)
+                    ).as_vector()
+
+                    # engine.display.debug_log(
+                    #     f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
+                    # )
+
+                    self.velocity = new_velocity
+                    return True
+
+            # CASE: Line x Ball
+            if isinstance(colliding_shape, Line):
+                if (
+                    colliding_shape.is_in_hitbox_area(self.center, self.radius)
+                    and colliding_shape.get_distance_to_point(self.center)
+                    < self.radius + colliding_shape.thickness
+                ):
+                    # TODO!!!!! Should be minus/plus double the difference between the normal and itself
+                    angle_vel = get_line_angle(self.center, new_pos)
+                    # angle_line = get_line_angle(*colliding_shape.points)
+                    line_normal_angle = get_angle_from_slope(
+                        get_perpendicular_slope(*colliding_shape.points)
+                    )
+                    bounce_angle = 2 * line_normal_angle - angle_vel
+                    # res_angle = angle_line + PI - angle_vel
+
+                    # factor_x = -1 if self.velocity.x < 0 else 1
+                    # factor_y = 1 if self.velocity.y < 0 else -1
+                    factor_x = 1
+                    factor_y = 1
+
+                    new_velocity = (
+                        abs(self.velocity)
+                        * VectorF(
+                            x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
+                        )
+                    ).as_vector()
+
+                    def _get_angle(angle) -> int:
+                        return int(angle * 180 / PI)
+
+                    # engine._display.debug_log(
+                    #     f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
+                    # )
+
+                    self.velocity = new_velocity
+                    return True
+
+        # TODO: add the other shapes
+        return False

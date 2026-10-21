@@ -1,3 +1,4 @@
+import math
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
@@ -17,7 +18,16 @@ class CircularParticle(Particle, PhysicsEntity):
 
     source: PhysicsEntity | None
 
+    _initial_radius: float
     _final_radius: float
+
+    _initial_x_factor: float
+    _final_x_factor: float | None
+    _initial_y_factor: float
+    _final_y_factor: float | None
+
+    _x_elliptical_oscillation_frequency: float | None
+    _y_elliptical_oscillation_frequency: float | None
 
     def __init__(
         self,
@@ -25,6 +35,10 @@ class CircularParticle(Particle, PhysicsEntity):
         size: float,
         initial_color: RGB,
         engine: "Physics2D",
+        x_factor: float = 1,
+        y_factor: float = 1,
+        final_x_factor: float | None = None,
+        final_y_factor: float | None = None,
         initial_velocity: VectorF = VectorF(0, 0),
         gravity: float | None = None,
         ending_color: RGB | None = None,
@@ -37,6 +51,8 @@ class CircularParticle(Particle, PhysicsEntity):
         density: float = 1,
         final_radius: float | None = None,
         offset_from_origin: VectorF = VectorF(0, 0),
+        x_elliptical_oscillation_frequency: float | None = None,
+        y_elliptical_oscillation_frequency: float | None = None,
         name="Particle",
     ):
         self._engine = engine
@@ -52,9 +68,20 @@ class CircularParticle(Particle, PhysicsEntity):
         self._affected_by_gravity = gravity is not None
         self.floating_multi = floating_multi
         self.velocity = initial_velocity
-        # TODO: why's this x2?
-        self.radius = size * 2
-        self._final_radius = final_radius or (self.radius * 2)
+
+        self.radius = size
+        self._initial_radius = self.radius
+        self._final_radius = final_radius or (self.radius)
+
+        self.x_factor = x_factor
+        self.y_factor = y_factor
+        self._initial_x_factor = x_factor
+        self._initial_y_factor = y_factor
+        self._final_x_factor = final_x_factor
+        self._final_y_factor = final_y_factor
+
+        self._x_elliptical_oscillation_frequency = x_elliptical_oscillation_frequency
+        self._y_elliptical_oscillation_frequency = y_elliptical_oscillation_frequency
 
         origin = origin if isinstance(origin, PointF) else origin.position
         # TODO: why does this not seem to work?
@@ -92,6 +119,8 @@ class CircularParticle(Particle, PhysicsEntity):
             name=name,
             engine=engine,
             particle_generator=particle_generator,
+            x_factor=x_factor,
+            y_factor=y_factor,
         )
 
     def _handle_life_time(self) -> None:
@@ -100,18 +129,32 @@ class CircularParticle(Particle, PhysicsEntity):
             return
         self.life_time -= 1
 
+        _life_time_factor = self.life_time / self._original_life_time
+
         # size changes
         match self.size_change_type:
             case TransitionType.LINEAR_DECREASE:
-                self.radius -= self.radius / (self.life_time + 1)
+                # self.radius -= self.radius / (self.life_time + 1)
+                self.radius = self._initial_radius * _life_time_factor
             case TransitionType.EXPONENTIAL_DECREASE:
-                self.radius *= self.life_time / self._original_life_time
+                self.radius *= _life_time_factor
                 # TODO: decomission this, starting and final size should decide this
             case TransitionType.LINEAR_INCREASE:
-                _factor = self.life_time / self._original_life_time
-                self.radius = (_factor * self.radius) + ((1 - _factor) * self._final_radius)
+                self.radius = (_life_time_factor * self.radius) + (
+                    (1 - _life_time_factor) * self._final_radius
+                )
             case TransitionType.NONE:
                 ...
+
+        # factor changes
+        if self._final_x_factor is not None and self._x_elliptical_oscillation_frequency is None:
+            self.x_factor = self._initial_x_factor * _life_time_factor + self._final_x_factor * (
+                1 - _life_time_factor
+            )
+        if self._final_y_factor is not None and self._y_elliptical_oscillation_frequency is None:
+            self.y_factor = self._initial_y_factor * _life_time_factor + self._final_y_factor * (
+                1 - _life_time_factor
+            )
 
         # color changes
         if (
@@ -136,9 +179,38 @@ class CircularParticle(Particle, PhysicsEntity):
                 + self.ending_color.opacity * ending_factor,
             )
 
+    _ellipticallity_counter: int = 0
+
+    def _handle_ellipticallity(self):
+        if (
+            self._final_x_factor is not None
+            and self._x_elliptical_oscillation_frequency is not None
+        ):
+            _val = math.radians(
+                self._ellipticallity_counter * self._x_elliptical_oscillation_frequency
+            )
+            self.x_factor = (
+                self._final_x_factor * math.sin(_val) ** 2
+                + self._initial_x_factor * math.cos(_val) ** 2
+            )
+        if (
+            self._final_y_factor is not None
+            and self._y_elliptical_oscillation_frequency is not None
+        ):
+            _val = math.radians(
+                self._ellipticallity_counter * self._y_elliptical_oscillation_frequency
+            )
+            self.y_factor = (
+                self._final_y_factor * math.sin(_val) ** 2
+                + self._initial_y_factor * math.cos(_val) ** 2
+            )
+
+        self._ellipticallity_counter += 1
+
     def do_your_thing(self) -> None:
         self._apply_movement()
         self._handle_life_time()
+        self._handle_ellipticallity()
 
     def _get_color(self, curr_idx: int, total: int) -> RGB:
         # No gradient handling for particle (for now?)

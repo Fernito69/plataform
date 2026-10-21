@@ -38,6 +38,10 @@ class Projectile(CircularParticle):
         engine: "Physics2D",
         initial_color: RGB,
         explosion_generator: "ParticleGenerator",
+        x_factor: float = 1,
+        y_factor: float = 1,
+        final_x_factor: float | None = None,
+        final_y_factor: float | None = None,
         is_enemy: bool = False,
         particle_generator: "ParticleGenerator | None" = None,
         trail_generator: "ParticleGeneratorWithTarget | None" = None,
@@ -57,6 +61,8 @@ class Projectile(CircularParticle):
         homing_kick_in_time: float = 0,
         target_projectiles_above_size: float = 0.7,
         offset_from_origin: VectorF = VectorF(0, 0),
+        x_elliptical_oscillation_frequency: float | None = None,
+        y_elliptical_oscillation_frequency: float | None = None,
     ):
         super().__init__(
             origin=owner,
@@ -73,6 +79,12 @@ class Projectile(CircularParticle):
             density=density,
             particle_generator=particle_generator,
             offset_from_origin=offset_from_origin,
+            x_factor=x_factor,
+            final_x_factor=final_x_factor,
+            x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
+            y_factor=y_factor,
+            final_y_factor=final_y_factor,
+            y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
         )
         self.damage = damage
         self.owner = owner

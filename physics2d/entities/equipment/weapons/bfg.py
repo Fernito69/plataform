@@ -170,6 +170,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         ),
         density=3,
         explode_on_life_time_over=True,
+        final_x_factor=0.6,
+        final_y_factor=0.6,
+        x_elliptical_oscillation_frequency=15,
+        y_elliptical_oscillation_frequency=21,
     )
     engine.scenario.projectiles.append(bfg_ball)
 
