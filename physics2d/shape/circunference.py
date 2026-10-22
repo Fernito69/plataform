@@ -180,7 +180,7 @@ class Circunference(Shape):
     def get_circunference_equations(self) -> GetCircunferenceEquationResponse:
         return (
             self._get_circunference_equations_rotated()
-            if self.angle and self.x_factor != self.y_factor
+            if self.angle or self.x_factor != self.y_factor
             else self._get_circunference_equations_base()
         )
 

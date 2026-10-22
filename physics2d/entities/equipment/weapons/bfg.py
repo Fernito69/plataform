@@ -116,14 +116,14 @@ class BFG(Weapon):
 
 def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 500
-    _ROCKET_SPEED = 2
+    _BALL_SPEED = 2
     _LIFE_TIME = 100
     _BLAST_RADIUS = 75
     _MAX_BLAST_DAMAGE = 300
     _TENDRILS_DAMAGE = 4
     _MAX_NUM_TENDRILS = 4
     _TENDRILS_RANGE = 60
-    _BALL_SIZE = 4
+    _BALL_SIZE = 4.5
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
@@ -148,7 +148,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         owner=source,
         offset_from_origin=VectorF.random_offset_vector(),
         initial_velocity=(
-            (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
+            (_BALL_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
         engine=engine,
         size=_BALL_SIZE,
@@ -171,10 +171,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         ),
         density=3,
         explode_on_life_time_over=True,
-        final_x_factor=0.6,
-        final_y_factor=0.6,
+        final_x_factor=0.7,
+        final_y_factor=0.7,
         x_elliptical_oscillation_frequency=15,
-        y_elliptical_oscillation_frequency=21,
+        y_elliptical_oscillation_frequency=19,
     )
     engine.scenario.projectiles.append(bfg_ball)
 

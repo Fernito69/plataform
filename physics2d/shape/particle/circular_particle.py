@@ -1,6 +1,7 @@
 import math
 from typing import TYPE_CHECKING
 
+from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
@@ -71,14 +72,18 @@ class CircularParticle(Particle, PhysicsEntity):
 
         self.radius = size
         self._initial_radius = self.radius
-        self._final_radius = final_radius or (self.radius)
+        self._final_radius = final_radius or self.radius
 
-        self.x_factor = 1 / x_factor**2
-        self.y_factor = 1 / y_factor**2
-        self._initial_x_factor = self.x_factor
-        self._initial_y_factor = self.y_factor
-        self._final_x_factor = 1 / final_x_factor**2 if final_x_factor is not None else None
-        self._final_y_factor = 1 / final_y_factor**2 if final_y_factor is not None else None
+        self.x_factor = 1 / x_factor
+        self.y_factor = 1 / y_factor
+        self._initial_x_factor = 1 / x_factor
+        self._initial_y_factor = 1 / y_factor
+        self._final_x_factor = (
+            1 / (final_x_factor or ALMOST_ZERO) if final_x_factor is not None else None
+        )
+        self._final_y_factor = (
+            1 / (final_y_factor or ALMOST_ZERO) if final_y_factor is not None else None
+        )
 
         self._x_elliptical_oscillation_frequency = x_elliptical_oscillation_frequency
         self._y_elliptical_oscillation_frequency = y_elliptical_oscillation_frequency
@@ -186,24 +191,30 @@ class CircularParticle(Particle, PhysicsEntity):
             self._final_x_factor is not None
             and self._x_elliptical_oscillation_frequency is not None
         ):
-            _val = math.radians(
-                self._ellipticallity_counter * self._x_elliptical_oscillation_frequency
+            _factor = (
+                math.sin(
+                    math.radians(
+                        self._ellipticallity_counter * self._x_elliptical_oscillation_frequency
+                    )
+                )
+                ** 2
             )
-            self.x_factor = (
-                self._final_x_factor * math.sin(_val) ** 2
-                + self._initial_x_factor * math.cos(_val) ** 2
-            )
+
+            self.x_factor = self._final_x_factor * _factor + self._initial_x_factor * (1 - _factor)
         if (
             self._final_y_factor is not None
             and self._y_elliptical_oscillation_frequency is not None
         ):
-            _val = math.radians(
-                self._ellipticallity_counter * self._y_elliptical_oscillation_frequency
+            _factor = (
+                math.sin(
+                    math.radians(
+                        self._ellipticallity_counter * self._y_elliptical_oscillation_frequency
+                    )
+                )
+                ** 2
             )
-            self.y_factor = (
-                self._final_y_factor * math.sin(_val) ** 2
-                + self._initial_y_factor * math.cos(_val) ** 2
-            )
+
+            self.y_factor = self._final_y_factor * _factor + self._initial_y_factor * (1 - _factor)
 
         self._ellipticallity_counter += 1
 

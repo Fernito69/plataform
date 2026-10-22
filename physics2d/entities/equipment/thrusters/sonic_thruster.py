@@ -89,8 +89,6 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=25,
         floating_multi=1,
         engine=engine,
-        final_x_factor=abs(source.velocity.x) * -0.5,
-        final_y_factor=abs(source.velocity.y) * -0.5,
     )
     pieces.append(sonic_boom)
 
