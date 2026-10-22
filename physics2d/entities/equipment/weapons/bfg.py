@@ -123,6 +123,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _TENDRILS_DAMAGE = 4
     _MAX_NUM_TENDRILS = 4
     _TENDRILS_RANGE = 60
+    _BALL_SIZE = 4
 
     _COLOR = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(180, 255, 90, 1)
@@ -150,7 +151,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
             (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
         ).as_vector(),
         engine=engine,
-        size=3.5,
+        size=_BALL_SIZE,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.LINEAR_DECREASE,
         initial_color=_COLOR,

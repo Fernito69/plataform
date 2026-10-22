@@ -33,7 +33,9 @@ class Circunference(Shape):
     radius: float
     # these two are equivalent to a**2 and b**2 from the ellipse equation
     x_factor: float
+    _x_factor_orig: float
     y_factor: float
+    _y_factor_orig: float
 
     # TODO: remove from Enemy class
     _initial_theme: Theme
@@ -69,8 +71,11 @@ class Circunference(Shape):
         self.weight = self.volume * self.density
         self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
         self._color_cycling_factor = color_cycling_factor
-        self.x_factor = x_factor
-        self.y_factor = y_factor
+        # TODO: rename this two
+        self.x_factor = 1 / x_factor
+        self._x_factor_orig = x_factor
+        self.y_factor = 1 / y_factor
+        self._y_factor_orig = y_factor
 
         super().__init__(
             theme=theme,
@@ -159,6 +164,7 @@ class Circunference(Shape):
         self._apply_gravity()
         self._float_around()
         self._apply_collisions()
+        self._rotate()
 
         if not any(a != 0 for a in self.velocity):
             return
@@ -172,23 +178,96 @@ class Circunference(Shape):
         self.center_of_mass = self.center
 
     def get_circunference_equations(self) -> GetCircunferenceEquationResponse:
+        return (
+            self._get_circunference_equations_rotated()
+            if self.angle and self.x_factor != self.y_factor
+            else self._get_circunference_equations_base()
+        )
+
+    def _get_circunference_equations_base(self) -> GetCircunferenceEquationResponse:
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - ((x - self.center.x) ** 2) / self.x_factor**2
+            root_arg = self.radius**2 - ((x - self.center.x) ** 2) * self.x_factor
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5 * self.y_factor
+            root = root_arg**0.5 * self._y_factor_orig
             return (self.center.y - root, self.center.y + root)
 
         def get_xs(y: float) -> tuple[float, float] | tuple[None, None]:
-            root_arg = self.radius**2 - ((y - self.center.y) ** 2) / self.y_factor**2
+            root_arg = self.radius**2 - ((y - self.center.y) ** 2) * self.y_factor
             if root_arg < 0:
                 return (None, None)
-            root = root_arg**0.5 * self.x_factor
+            root = root_arg**0.5 * self._x_factor_orig
             return (self.center.x - root, self.center.x + root)
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
 
+    def _get_circunference_equations_rotated(self) -> GetCircunferenceEquationResponse:
+        # TODO: optimize this with some cache, which is invalidated upon rotation/factor change
+        s = math.sin(self.angle)
+        c = math.cos(self.angle)
+        s_2 = s**2
+        c_2 = c**2
+        yf = self.y_factor
+        xf = self.x_factor
+
+        A = xf * s_2 + yf * c_2
+        B = (xf - yf) * s * c
+        C = xf * c_2 + yf * s_2
+
+        def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
+            dx = x - self.center.x
+            discriminant = A * self.radius**2 - yf * xf * dx**2
+
+            if discriminant < 0:
+                return None, None
+
+            root = discriminant**0.5
+
+            y1 = self.center.y + (-B * dx - root) / A
+            y2 = self.center.y + (-B * dx + root) / A
+
+            return y1, y2
+
+        def get_xs(y: float):
+            dy = y - self.center.y
+            discriminant = C * self.radius**2 - self.y_factor * self.x_factor * dy**2
+
+            if discriminant < 0:
+                return None, None
+
+            root = discriminant**0.5
+
+            x1 = self.center.x + (-B * dy - root) / C
+            x2 = self.center.x + (-B * dy + root) / C
+            return x1, x2
+
+        return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
+
+    def _get_x_range(self) -> range:
+        xs = (0, 0)
+
+        if self.angle:
+            # TODO: optimize this with cache
+            s = math.sin(self.angle)
+            c = math.cos(self.angle)
+            s_2 = s**2
+            c_2 = c**2
+            A = self.x_factor * s_2 + self.y_factor * c_2
+            root = self.radius * ((A / (self.x_factor * self.y_factor)) ** 0.5)
+            xs = (self.center.x - root, self.center.x + root)
+        else:
+            x_delta = self.radius * self.x_factor
+            xs = sorted(
+                (
+                    self.center.x + x_delta,
+                    self.center.x - x_delta,
+                )
+            )
+
+        return range(math.floor(xs[0]), math.ceil(xs[1]) + 1)
+
     def get_bounding_box(self) -> BoundingBox:
+        # TODO: consider angle
         return BoundingBox(
             min_x=self.center.x - (self.radius * self.x_factor),
             min_y=self.center.y - (self.radius * self.y_factor),
@@ -207,16 +286,7 @@ class Circunference(Shape):
         piece_info: list[RenderInfo] = []
 
         eq = self.get_circunference_equations()
-        # _box = self.get_bounding_box()
-        x_delta = self.radius * self.x_factor
-        min_x, max_x = sorted(
-            (
-                self.center.x + x_delta,
-                self.center.x - x_delta,
-            )
-        )
-        # x_range = range(math.floor(_box.min_x - 2), math.ceil(_box.max_x + 1))
-        x_range = range(math.floor(min_x - 2), math.ceil(max_x + 1))
+        x_range = self._get_x_range()
 
         for x_index, curr_x in enumerate(x_range):
             # TODO: these calculations seem to be the ones slowing down big balls' rendering
@@ -239,7 +309,7 @@ class Circunference(Shape):
             _distance: float = -1
 
             x1: float | None = curr_x
-            x2: float | None = self.radius + self.center.x - curr_x
+            x2: float | None = None
 
             for index_y, curr_y in enumerate(y_range):
                 if not _go_full_color_until_next_x:
@@ -350,9 +420,10 @@ class Circunference(Shape):
 
         return piece_info
 
-    # this only makes sense if we implement textured circunferences
     def _rotate(self) -> None:
-        pass
+        if self.angular_velocity == 0:
+            return
+        self.angle = (self.angle + self.angular_velocity) % (2 * PI)
 
     # TODO: generalize this, every entity should know what to do!
     # TODO: this should somehow return the normal of the collision point AND the theoretical point of collision
