@@ -213,6 +213,7 @@ class Circunference(Shape):
 
         yf = self.y_factor
         xf = self.x_factor
+        xfyf = xf * yf
 
         xc = self.center.x
         yc = self.center.y
@@ -223,29 +224,31 @@ class Circunference(Shape):
 
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
             dx = x - xc
-            discriminant = A * r_2 - yf * xf * dx**2
+            discriminant = A * r_2 - xfyf * dx**2
 
             if discriminant < 0:
                 return None, None
 
             root = discriminant**0.5
+            _bdx = -B * dx
 
-            y1 = yc + (-B * dx - root) / A
-            y2 = yc + (-B * dx + root) / A
+            y1 = yc + (_bdx - root) / A
+            y2 = yc + (_bdx + root) / A
 
             return y1, y2
 
         def get_xs(y: float):
             dy = y - yc
-            discriminant = C * r_2 - yf * xf * dy**2
+            discriminant = C * r_2 - xfyf * dy**2
 
             if discriminant < 0:
                 return None, None
 
             root = discriminant**0.5
+            _bdy = -B * dy
 
-            x1 = xc + (-B * dy - root) / C
-            x2 = xc + (-B * dy + root) / C
+            x1 = xc + (_bdy - root) / C
+            x2 = xc + (_bdy + root) / C
             return x1, x2
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
@@ -308,8 +311,6 @@ class Circunference(Shape):
             local_max_y = max(all_ys)
             local_min_y = min(all_ys)
 
-            y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
-
             # This is in order to optimize the rendering, since calculating circunference equations is expensive
             _go_full_color_until_next_x: bool = False
             _next_x: float | None = None
@@ -317,6 +318,8 @@ class Circunference(Shape):
 
             x1: float | None = curr_x
             x2: float | None = None
+
+            y_range = range(math.floor(local_min_y - 1), math.ceil(local_max_y + 1))
 
             for index_y, curr_y in enumerate(y_range):
                 if not _go_full_color_until_next_x:
@@ -336,7 +339,7 @@ class Circunference(Shape):
                     )
                     _next_x = x2
 
-                if _distance > 1:
+                if _distance >= 1:
                     continue
 
                 if _distance <= 0 and not _go_full_color_until_next_x:
@@ -361,22 +364,23 @@ class Circunference(Shape):
         return piece_info
 
     def _get_color(self, curr_idx: int, total: int) -> RGB:
-        # Theme gradient (apply vertically)
-        _gradient_factor: float = (
-            (curr_idx + 1) / max(1, total - 1)
-        ) ** self._color_gradient_exponent
+        if (
+            self._initial_theme.color is not None
+            and self.secondary_theme is not None
+            and self.secondary_theme.color is not None
+            and not self._color_cycling_factor
+        ):
+            # Theme gradient (apply vertically)
+            _gradient_factor: float = (
+                (curr_idx + 1) / max(1, total - 1)
+            ) ** self._color_gradient_exponent
 
-        return (
-            _gradient_factor * self._initial_theme.color
-            + (1 - _gradient_factor) * self.secondary_theme.color
-            if (
-                self._initial_theme.color is not None
-                and self.secondary_theme is not None
-                and self.secondary_theme.color is not None
-                and not self._color_cycling_factor
+            return (
+                _gradient_factor * self._initial_theme.color
+                + (1 - _gradient_factor) * self.secondary_theme.color
             )
-            else self.theme.color or RGB()
-        )
+        else:
+            return self.theme.color or RGB()
 
     # TODO: experimenting with a cheaper renderer
     def _get_render_info_cheap(self) -> list[RenderInfo]:
