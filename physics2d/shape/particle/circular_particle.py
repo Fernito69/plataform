@@ -115,8 +115,8 @@ class CircularParticle(Particle, PhysicsEntity):
             name=name,
             engine=engine,
             particle_generator=particle_generator,
-            x_factor=x_stretching_factor,
-            y_factor=y_stretching_factor,
+            x_stretching_factor=x_stretching_factor,
+            y_stretching_factor=y_stretching_factor,
             initial_angular_velocity=initial_angular_velocity,
         )
 
@@ -159,7 +159,6 @@ class CircularParticle(Particle, PhysicsEntity):
                 ...
 
         # factor changes
-        # TODO: fix this, why does it not work?
         if self._final_x_factor is not None and self._x_elliptical_oscillation_frequency is None:
             _f = _life_time_factor**2
             self.x_factor = self._initial_x_factor * _f + self._final_x_factor * (1 - _f)

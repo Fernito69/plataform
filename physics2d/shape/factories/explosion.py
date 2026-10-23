@@ -383,7 +383,7 @@ def get_rocket_explosion(
     blast_radius: float,
     blast_damage_at_ground_zero: float,
     throw_sparks: bool = True,
-    bfg_sparks: bool = False,
+    is_bfg: bool = False,
     with_smoke: bool = True,
     main_color: RGB | None = None,
     secondary_color: RGB | None = None,
@@ -395,25 +395,40 @@ def get_rocket_explosion(
         if not isinstance(source, Projectile):
             return
 
-        return rocket_explosion(
-            engine=engine,
-            rocket=source,
-            damage=damage,
-            blast_radius=blast_radius,
-            blast_damage_at_ground_zero=blast_damage_at_ground_zero,
-            throw_sparks=throw_sparks,
-            main_color=main_color,
-            secondary_color=secondary_color,
-            tertiary_color=tertiary_color,
-            little_explosions_color=little_explosions_color,
-            is_bfg=bfg_sparks,
-            with_smoke=with_smoke,
-            spark_color=spark_color,
+        return (
+            bfg_explosion(
+                engine=engine,
+                rocket=source,
+                damage=damage,
+                blast_radius=blast_radius,
+                blast_damage_at_ground_zero=blast_damage_at_ground_zero,
+                throw_sparks=throw_sparks,
+                main_color=main_color,
+                secondary_color=secondary_color,
+                tertiary_color=tertiary_color,
+                spark_color=spark_color,
+            )
+            if is_bfg
+            else rocket_explosion(
+                engine=engine,
+                rocket=source,
+                damage=damage,
+                blast_radius=blast_radius,
+                blast_damage_at_ground_zero=blast_damage_at_ground_zero,
+                throw_sparks=throw_sparks,
+                main_color=main_color,
+                secondary_color=secondary_color,
+                tertiary_color=tertiary_color,
+                little_explosions_color=little_explosions_color,
+                with_smoke=with_smoke,
+                spark_color=spark_color,
+            )
         )
 
     return _explosion
 
 
+# TODO: split this with bfg explosion, the branching is disgusting
 def rocket_explosion(
     engine: "Physics2D",
     rocket: "Projectile",
@@ -426,11 +441,9 @@ def rocket_explosion(
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
     spark_color: RGB | None = None,
-    is_bfg: bool = False,
     with_smoke: bool = True,
 ) -> None:
     _SIZE = damage / 10
-    # _VELOCITY = (-0.1 * rocket.velocity).as_vector().unit_vector()
     _VELOCITY = VectorF(0, 0)
 
     explosions: list[CircularParticle] = []
@@ -443,22 +456,22 @@ def rocket_explosion(
     color_3 = secondary_color or RGB(255, 255, 80, 1)
     end_color_3 = secondary_color.copy(opacity=0.4) if secondary_color else RGB(140, 140, 30)
 
-    INITIAL_X_FACTOR: float = 0.1 if is_bfg else 1
-    INITIAL_Y_FACTOR: float = 1 if is_bfg else 1
-    # FINAL_X_FACTOR: float | None = 0.1 if is_bfg else None
-    # FINAL_Y_FACTOR: float | None = 2 if is_bfg else None
-    FINAL_X_FACTOR: float | None = 0.2 if is_bfg else None
-    FINAL_Y_FACTOR: float | None = None if is_bfg else None
-    ANGULAR_VELOCITY: float = 0.15 if is_bfg else 0
+    INITIAL_X_FACTOR: float = 1
+    INITIAL_Y_FACTOR: float = 1
+    # FINAL_X_FACTOR: float | None = 0 None
+    # FINAL_Y_FACTOR: float | None = None
+    FINAL_X_FACTOR: float | None = None
+    FINAL_Y_FACTOR: float | None = None
+    ANGULAR_VELOCITY: float = 0
     Y_FACTOR_FREQUENCY: float = 30
 
-    GRAV_1: float | None = None if is_bfg else -0.08
-    GRAV_2: float | None = None if is_bfg else -0.075
-    GRAV_3: float | None = None if is_bfg else -0.07
+    GRAV_1: float | None = -0.08
+    GRAV_2: float | None = -0.075
+    GRAV_3: float | None = -0.07
 
-    LIFE_TIME_1: float = 40 if is_bfg else 20
-    LIFE_TIME_2: float = 40 if is_bfg else 25
-    LIFE_TIME_3: float = 40 if is_bfg else 30
+    LIFE_TIME_1: float = 20
+    LIFE_TIME_2: float = 25
+    LIFE_TIME_3: float = 30
 
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -534,7 +547,6 @@ def rocket_explosion(
 
     secondary_explosions: list[CircularParticle] = []
     _sec_size = _SIZE**0.5
-
     for _ in range(round(_SIZE / 3)):
         _sec_explosion_color = (
             little_explosions_color
@@ -574,47 +586,28 @@ def rocket_explosion(
         )
         secondary_explosions.append(sec_explosion)
 
-    engine.scenario.fg_shapes[0:0] = secondary_explosions
+        engine.scenario.fg_shapes[0:0] = secondary_explosions
 
     if throw_sparks:
         for _ in range(round(_SIZE)):
             # TODO: make these sparks and other useful things into their own class
             # TODO: see why custom_sparks can't be passed into get_explosion()
-            sparks = (
-                CircularParticle(
-                    origin=(
-                        rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
-                    ).as_point(),
-                    initial_velocity=(10 * VectorF.random_offset_vector()).as_vector(),
-                    size=1.5,
-                    size_change_type=TransitionType.LINEAR_DECREASE,
-                    initial_color=spark_color or RGB(200, 255, 200),
-                    ending_color=spark_color.copy(opacity=0.3)
-                    if spark_color
-                    else RGB(0, 160, 0, opacity=0.4),
-                    life_time=35,
-                    engine=engine,
-                    floating_multi=1,
-                    gravity=-0.01,
-                )
-                if is_bfg
-                else CircularParticle(
-                    origin=PointF(
-                        x=eye_x + random_offset() * rocket.radius * 2,
-                        y=eye_y + random_offset() * rocket.radius * 2,
-                    ),
-                    initial_velocity=(
-                        VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
-                    ).as_vector(),
-                    size=0.5,
-                    initial_color=spark_color or RGB(255, 255, 200, 1),  # almost white hot
-                    ending_color=spark_color.copy(opacity=0.3)
-                    if spark_color
-                    else RGB(80, 40, 0, 1, opacity=0.5),  # dark orange
-                    life_time=70,
-                    engine=engine,
-                    gravity=0.1,
-                )
+            sparks = CircularParticle(
+                origin=PointF(
+                    x=eye_x + random_offset() * rocket.radius * 2,
+                    y=eye_y + random_offset() * rocket.radius * 2,
+                ),
+                initial_velocity=(
+                    VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
+                ).as_vector(),
+                size=0.5,
+                initial_color=spark_color or RGB(255, 255, 200, 1),  # almost white hot
+                ending_color=spark_color.copy(opacity=0.3)
+                if spark_color
+                else RGB(80, 40, 0, 1, opacity=0.5),  # dark orange
+                life_time=70,
+                engine=engine,
+                gravity=0.1,
             )
             engine.scenario.add_to_fg_or_bg_randomly(sparks)
 
@@ -635,10 +628,205 @@ def rocket_explosion(
     )
     engine.scenario.fg_shapes.append(shock_wave)
 
+    # TODO: I don't like the particle generator taking care of damage (same with Lightning).
+    # Needs refactoring
+    _calc_explosion_damage(
+        engine=engine,
+        rocket=rocket,
+        blast_radius=blast_radius,
+        blast_damage_at_ground_zero=blast_damage_at_ground_zero,
+    )
+
+
+#################################
+def bfg_explosion(
+    engine: "Physics2D",
+    rocket: "Projectile",
+    damage: float,
+    blast_radius: float,
+    blast_damage_at_ground_zero: float,
+    throw_sparks: bool = True,
+    main_color: RGB | None = None,
+    secondary_color: RGB | None = None,
+    tertiary_color: RGB | None = None,
+    spark_color: RGB | None = None,
+) -> None:
+    _SIZE = damage / 10
+    _VELOCITY = VectorF(0, 0)
+
+    explosions: list[CircularParticle] = []
+
+    eye_x = rocket.center.x - rocket.velocity.x
+    eye_y = rocket.center.y - rocket.velocity.y
+
+    color_2 = tertiary_color or RGB(255, 255, 255, 1)
+    end_color_2 = tertiary_color.copy(opacity=0.3) if tertiary_color else RGB(180, 180, 120)
+    color_3 = secondary_color or RGB(255, 255, 80, 1)
+    end_color_3 = secondary_color.copy(opacity=0.4) if secondary_color else RGB(140, 140, 30)
+
+    INITIAL_X_FACTOR: float = 0.1
+    INITIAL_Y_FACTOR: float = 1
+    # FINAL_X_FACTOR: float | None = 0.1
+    # FINAL_Y_FACTOR: float | None = 2
+    FINAL_X_FACTOR: float | None = 0.2
+    FINAL_Y_FACTOR: float | None = None
+    ANGULAR_VELOCITY: float = 0.15
+    Y_FACTOR_FREQUENCY: float = 30
+
+    GRAV_1: float | None = None
+    GRAV_2: float | None = None
+    GRAV_3: float | None = None
+    LIFE_TIME_1: float = 40
+    LIFE_TIME_2: float = 40
+    LIFE_TIME_3: float = 40
+
+    core_explosion_1 = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=_VELOCITY,
+        size=_SIZE * 0.75,
+        engine=engine,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=color_2,
+        ending_color=end_color_2,
+        life_time=LIFE_TIME_1,
+        gravity=GRAV_1,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=FINAL_Y_FACTOR,
+        x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
+        initial_angular_velocity=ANGULAR_VELOCITY * 3,
+    )
+    core_explosion_2 = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=_VELOCITY,
+        size=_SIZE * 0.875,
+        engine=engine,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=color_3,
+        ending_color=end_color_3,  # smokelike
+        life_time=LIFE_TIME_2,
+        gravity=GRAV_2,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=FINAL_Y_FACTOR,
+        x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
+        initial_angular_velocity=ANGULAR_VELOCITY * 2,
+    )
+    explosions.append(core_explosion_1)
+    explosions.append(core_explosion_2)
+
+    _main_explosion_color = main_color or (
+        RGB(
+            255,
+            160 * random(),
+            50 * random(),
+        )
+        if random_offset() > 0
+        else RGB(
+            255,
+            160 - 30 * random(),
+            1 * random(),
+        )
+    )
+    _main_explosion_ending = (
+        main_color.copy(opacity=0.3) if main_color else RGB(30, 30, 30, intensity=1)
+    )
+
+    main_explosion = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=_VELOCITY,
+        size=_SIZE,
+        size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=_main_explosion_color,
+        ending_color=_main_explosion_ending,
+        life_time=LIFE_TIME_3,
+        engine=engine,
+        gravity=GRAV_3,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=None,
+        initial_angular_velocity=0.001,
+    )
+    explosions.append(main_explosion)
+
+    bfg_flash = CircularParticle(
+        origin=PointF(x=eye_x, y=eye_y),
+        initial_velocity=_VELOCITY,
+        size=_SIZE,
+        size_change_type=TransitionType.NONE,
+        initial_color=_main_explosion_color,
+        ending_color=_main_explosion_ending,
+        life_time=10,
+        engine=engine,
+        gravity=GRAV_3,
+        y_stretching_factor=1,
+        final_y_stretching_factor=0.1,
+        initial_angular_velocity=0.001,
+    )
+    explosions[0:0] = [bfg_flash]
+
+    if throw_sparks:
+        for _ in range(round(_SIZE)):
+            # TODO: make these sparks and other useful things into their own class
+            # TODO: see why custom_sparks can't be passed into get_explosion()
+            sparks = CircularParticle(
+                origin=(
+                    rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
+                ).as_point(),
+                initial_velocity=(10 * VectorF.random_offset_vector()).as_vector(),
+                size=1.5,
+                size_change_type=TransitionType.LINEAR_DECREASE,
+                initial_color=spark_color or RGB(200, 255, 200),
+                ending_color=spark_color.copy(opacity=0.3)
+                if spark_color
+                else RGB(0, 160, 0, opacity=0.4),
+                life_time=35,
+                engine=engine,
+                floating_multi=1,
+                gravity=-0.01,
+            )
+            engine.scenario.add_to_fg_or_bg_randomly(sparks)
+
+    engine.scenario.fg_shapes[0:0] = explosions
+
+    shock_wave = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        size=blast_radius / 2,
+        engine=engine,
+        size_change_type=TransitionType.LINEAR_INCREASE,
+        final_radius=blast_radius / 1.75,
+        initial_color=RGB(255, 255, 255, 1, opacity=1),
+        ending_color=RGB(255, 255, 255, 1, opacity=0),
+        life_time=15,
+    )
+    engine.scenario.fg_shapes.append(shock_wave)
+
+    # TODO: I don't like the particle generator taking care of damage (same with Lightning).
+    # Needs refactoring
+    _calc_explosion_damage(
+        engine=engine,
+        rocket=rocket,
+        blast_radius=blast_radius,
+        blast_damage_at_ground_zero=blast_damage_at_ground_zero,
+    )
+
+
+#################################
+
+
+def _calc_explosion_damage(
+    engine: "Physics2D",
+    rocket: "Projectile",
+    blast_radius: float,
+    blast_damage_at_ground_zero: float,
+) -> None:
     # TODO: rename
     _PUSH_FACTOR = 1.2
 
-    # TODO: this deals WAY too much damage to the player, check what's wrong
+    # TODO: this deals WAY too much damage to the player, that's why it's gated now. check what's wrong
     if rocket.is_enemy:
         distance = engine.scenario.get_distance_to_player(rocket, calc_distance_to_border=True)
 
@@ -685,9 +873,6 @@ def rocket_explosion(
     #     if res.projectile is rocket or res.projectile.exploded:
     #         return
     #     res.projectile.hit()
-
-
-#################################
 
 
 def rocket_trail(

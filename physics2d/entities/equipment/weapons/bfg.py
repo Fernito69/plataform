@@ -141,7 +141,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         little_explosions_color=_MINI_EXPLOSION_COLOR,
         with_smoke=False,
         throw_sparks=True,
-        bfg_sparks=True,
+        is_bfg=True,
     )
 
     bfg_ball = Projectile(

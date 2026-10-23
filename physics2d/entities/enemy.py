@@ -85,8 +85,8 @@ class Enemy(PhysicsEntity):
             color_gradient_exponent=color_gradient_exponent,
             color_gradient_exponent_end=color_gradient_exponent_end,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
-            x_factor=x_factor,
-            y_factor=y_factor,
+            x_stretching_factor=x_factor,
+            y_stretching_factor=y_factor,
         )
         self._engine = engine
         self.health = health

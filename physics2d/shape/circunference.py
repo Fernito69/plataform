@@ -47,8 +47,8 @@ class Circunference(Shape):
         radius: float,
         engine: "Physics2D",
         theme: Theme,
-        x_factor: float = 1,
-        y_factor: float = 1,
+        x_stretching_factor: float = 1,
+        y_stretching_factor: float = 1,
         secondary_theme: Theme | None = None,
         color_gradient_exponent: float = 1,
         color_gradient_exponent_end: float | None = None,
@@ -71,11 +71,12 @@ class Circunference(Shape):
         self.weight = self.volume * self.density
         self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
         self._color_cycling_factor = color_cycling_factor
-        # TODO: rename this two
-        self.x_factor = 1 / x_factor**2
-        self._x_factor_orig = x_factor
-        self.y_factor = 1 / y_factor**2
-        self._y_factor_orig = y_factor
+        # here we convert the stretching factors (A and B in the standard ellipse equations)
+        # to the forms 1/A^2 and 1/B^2 to have them precomputed
+        self.x_factor = 1 / x_stretching_factor**2
+        self._x_factor_orig = x_stretching_factor
+        self.y_factor = 1 / y_stretching_factor**2
+        self._y_factor_orig = y_stretching_factor
 
         super().__init__(
             theme=theme,
