@@ -160,11 +160,17 @@ class CircularParticle(Particle, PhysicsEntity):
 
         # factor changes
         if self._final_x_factor is not None and self._x_elliptical_oscillation_frequency is None:
-            _f = _life_time_factor**2
-            self.x_factor = self._initial_x_factor * _f + self._final_x_factor * (1 - _f)
+            self.x_factor = (
+                self._initial_x_factor**0.5 * _life_time_factor
+                + self._final_x_factor**0.5 * (1 - _life_time_factor)
+            ) ** 2
         if self._final_y_factor is not None and self._y_elliptical_oscillation_frequency is None:
-            _f = _life_time_factor**2
-            self.y_factor = self._initial_y_factor * _f + self._final_y_factor * (1 - _f)
+            # _f = _life_time_factor**0.1
+            # self.y_factor = self._initial_y_factor * _f + self._final_y_factor * (1 - _f)
+            self.y_factor = (
+                self._initial_y_factor**0.5 * _life_time_factor
+                + self._final_y_factor**0.5 * (1 - _life_time_factor)
+            ) ** 2
 
         # color changes
         if (

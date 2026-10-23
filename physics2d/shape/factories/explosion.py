@@ -1,11 +1,13 @@
 from random import random
 from typing import TYPE_CHECKING
 
+from constants import PHI, PI
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
+from physics2d.shape.particle.lightning import Lightning
 from utils import random_offset
 
 if TYPE_CHECKING:
@@ -395,6 +397,7 @@ def get_rocket_explosion(
         if not isinstance(source, Projectile):
             return
 
+        # TODO: get rid of this branching
         return (
             bfg_explosion(
                 engine=engine,
@@ -660,25 +663,47 @@ def bfg_explosion(
     eye_y = rocket.center.y - rocket.velocity.y
 
     color_2 = tertiary_color or RGB(255, 255, 255, 1)
-    end_color_2 = tertiary_color.copy(opacity=0.3) if tertiary_color else RGB(180, 180, 120)
+    end_color_2 = tertiary_color.copy(opacity=0.1) if tertiary_color else RGB(180, 180, 120)
     color_3 = secondary_color or RGB(255, 255, 80, 1)
-    end_color_3 = secondary_color.copy(opacity=0.4) if secondary_color else RGB(140, 140, 30)
+    end_color_3 = secondary_color.copy(opacity=0.1) if secondary_color else RGB(140, 140, 30)
+
+    # add flash with lightning!!!!
+    LIGHTNING_COLOR = RGB(127, 255, 127, 1)
+    _start_point = 1 * rocket.position
+
+    # TODO: this should be able to change according to the source's lifetime
+    def _get_lightnings(
+        engine: "Physics2D",
+        rocket: "PhysicsEntity",
+    ) -> None:
+        ls = [
+            Lightning(
+                source=rocket,
+                start_point=_start_point,
+                end_point=_start_point
+                + VectorF.random_offset_vector(blast_radius * (1 + random_offset())),
+                initial_color=LIGHTNING_COLOR,
+                ending_color=0.1 * LIGHTNING_COLOR,
+                normal_noise=3,
+                parallel_noise=4,
+                life_time=3,
+                num_segments=10,
+                thickness=1,
+                engine=engine,
+                final_thickness=0.001,
+                moves=False,
+            )
+            for _ in range(2)
+        ]
+        engine.scenario.bg_shapes[0:0] = ls
 
     INITIAL_X_FACTOR: float = 0.1
+    FINAL_X_FACTOR: float | None = 0.1
     INITIAL_Y_FACTOR: float = 1
-    # FINAL_X_FACTOR: float | None = 0.1
-    # FINAL_Y_FACTOR: float | None = 2
-    FINAL_X_FACTOR: float | None = 0.2
     FINAL_Y_FACTOR: float | None = None
-    ANGULAR_VELOCITY: float = 0.15
+    ANGULAR_VELOCITY: float = 0.2
     Y_FACTOR_FREQUENCY: float = 30
-
-    GRAV_1: float | None = None
-    GRAV_2: float | None = None
-    GRAV_3: float | None = None
-    LIFE_TIME_1: float = 40
-    LIFE_TIME_2: float = 40
-    LIFE_TIME_3: float = 40
+    LIFE_TIME: float = 40
 
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -688,14 +713,13 @@ def bfg_explosion(
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=color_2,
         ending_color=end_color_2,
-        life_time=LIFE_TIME_1,
-        gravity=GRAV_1,
+        life_time=LIFE_TIME,
         x_stretching_factor=INITIAL_X_FACTOR,
         y_stretching_factor=INITIAL_Y_FACTOR,
         final_x_stretching_factor=FINAL_X_FACTOR,
         final_y_stretching_factor=FINAL_Y_FACTOR,
         x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
-        initial_angular_velocity=ANGULAR_VELOCITY * 3,
+        initial_angular_velocity=ANGULAR_VELOCITY * PI,
     )
     core_explosion_2 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -705,17 +729,16 @@ def bfg_explosion(
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=color_3,
         ending_color=end_color_3,  # smokelike
-        life_time=LIFE_TIME_2,
-        gravity=GRAV_2,
+        life_time=LIFE_TIME,
         x_stretching_factor=INITIAL_X_FACTOR,
         y_stretching_factor=INITIAL_Y_FACTOR,
         final_x_stretching_factor=FINAL_X_FACTOR,
         final_y_stretching_factor=FINAL_Y_FACTOR,
         x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
-        initial_angular_velocity=ANGULAR_VELOCITY * 2,
+        initial_angular_velocity=ANGULAR_VELOCITY * PHI,
     )
-    # explosions.append(core_explosion_1)
-    # explosions.append(core_explosion_2)
+    explosions.append(core_explosion_1)
+    explosions.append(core_explosion_2)
 
     _main_explosion_color = main_color or (
         RGB(
@@ -731,7 +754,7 @@ def bfg_explosion(
         )
     )
     _main_explosion_ending = (
-        main_color.copy(opacity=0.3) if main_color else RGB(30, 30, 30, intensity=1)
+        main_color.copy(opacity=0.1) if main_color else RGB(30, 30, 30, intensity=1)
     )
 
     main_explosion = CircularParticle(
@@ -741,14 +764,13 @@ def bfg_explosion(
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
         ending_color=_main_explosion_ending,
-        life_time=LIFE_TIME_3,
+        life_time=LIFE_TIME,
         engine=engine,
-        gravity=GRAV_3,
         x_stretching_factor=INITIAL_X_FACTOR,
         y_stretching_factor=INITIAL_Y_FACTOR,
         final_x_stretching_factor=FINAL_X_FACTOR,
         final_y_stretching_factor=None,
-        initial_angular_velocity=0.001,
+        initial_angular_velocity=ANGULAR_VELOCITY,
     )
     explosions.append(main_explosion)
 
@@ -757,19 +779,25 @@ def bfg_explosion(
         initial_velocity=_VELOCITY,
         size=_SIZE,
         size_change_type=TransitionType.NONE,
-        initial_color=_main_explosion_color,
-        ending_color=_main_explosion_ending,
-        life_time=10,
+        initial_color=RGB(150, 255, 150),
+        ending_color=RGB(0, 255, 0, opacity=0.1),
+        life_time=50,
         engine=engine,
-        gravity=GRAV_3,
-        y_stretching_factor=1,
-        final_y_stretching_factor=0.1,
-        initial_angular_velocity=0.001,
+        y_stretching_factor=1.3,
+        final_y_stretching_factor=0.02,
     )
-    explosions[0:0] = [bfg_flash]
+    dummy_lightning = CircularParticle(
+        origin=PointF(x=eye_x, y=eye_y),
+        size=0.1,
+        initial_color=RGB(150, 255, 150),
+        life_time=30,
+        engine=engine,
+        particle_generator=_get_lightnings,
+    )
+    explosions.extend([bfg_flash, dummy_lightning])
 
     if throw_sparks:
-        for _ in range(round(_SIZE)):
+        for _ in range(round(_SIZE * 2)):
             # TODO: make these sparks and other useful things into their own class
             # TODO: see why custom_sparks can't be passed into get_explosion()
             sparks = CircularParticle(

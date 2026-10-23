@@ -125,10 +125,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _TENDRILS_RANGE = 60
     _BALL_SIZE = 4.5
 
-    _COLOR = RGB(127, 255, 127, 1)
-    _COLOR_2 = RGB(150, 255, 150, 1)
-    _COLOR_3 = RGB(170, 255, 170, 1)
-    _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
+    # TODO: these colors should be in the get_bfg_ball_explosion function
+    _COLOR_3 = RGB(127, 255, 127, 1)
+    _COLOR_2 = RGB(80, 255, 80, 1)
+    _COLOR = RGB(30, 255, 30, 1)
     _ENDING_COLOR = RGB(200, 180, 30, 1)
 
     _explosion = get_rocket_explosion(
@@ -138,7 +138,6 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         main_color=_COLOR,
         secondary_color=_COLOR_2,
         tertiary_color=_COLOR_3,
-        little_explosions_color=_MINI_EXPLOSION_COLOR,
         with_smoke=False,
         throw_sparks=True,
         is_bfg=True,

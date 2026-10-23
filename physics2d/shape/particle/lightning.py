@@ -46,6 +46,7 @@ class Lightning(Particle, Line):
         final_thickness: float | None = None,
         render_behind_player: bool = False,
         target: PhysicsEntity | None = None,
+        moves: bool = True,
     ):
         self.source = source
         self.points = (start_point or source.center, end_point)
@@ -64,6 +65,7 @@ class Lightning(Particle, Line):
         self._initial_target_position = (
             PointF(x=self._target.position.x, y=self._target.position.y) if self._target else None
         )
+        self.moves = moves
 
         super().__init__(
             initial_color=initial_color,
@@ -108,6 +110,10 @@ class Lightning(Particle, Line):
 
     def _apply_movement(self) -> None:
         self._gen_lightning()
+
+        if not self.moves:
+            return
+
         self._float_around()
         self._rotate()
 

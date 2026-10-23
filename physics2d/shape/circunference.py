@@ -263,7 +263,7 @@ class Circunference(Shape):
             root = self.radius * ((A / (self.x_factor * self.y_factor)) ** 0.5)
             xs = (self.center.x - root, self.center.x + root)
         else:
-            x_delta = self.radius / self.x_factor
+            x_delta = self.radius / self._x_factor_orig
             xs = sorted(
                 (
                     self.center.x + x_delta,
