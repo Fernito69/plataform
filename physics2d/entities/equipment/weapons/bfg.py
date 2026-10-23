@@ -126,10 +126,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _BALL_SIZE = 4.5
 
     _COLOR = RGB(127, 255, 127, 1)
-    _COLOR_2 = RGB(180, 255, 90, 1)
-    _COLOR_3 = RGB(200, 255, 60, 1)
+    _COLOR_2 = RGB(150, 255, 150, 1)
+    _COLOR_3 = RGB(170, 255, 170, 1)
     _MINI_EXPLOSION_COLOR = RGB(220, 255, 127, 1)
-    _ENDING_COLOR = RGB(127, 255, 30, 1)
+    _ENDING_COLOR = RGB(200, 180, 30, 1)
 
     _explosion = get_rocket_explosion(
         damage=_DAMAGE,
@@ -171,10 +171,10 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         ),
         density=3,
         explode_on_life_time_over=True,
-        final_x_factor=0.7,
-        final_y_factor=0.7,
+        final_x_stretching_factor=0.8,
+        final_y_stretching_factor=0.8,
         x_elliptical_oscillation_frequency=15,
-        y_elliptical_oscillation_frequency=19,
+        y_elliptical_oscillation_frequency=21,
     )
     engine.scenario.projectiles.append(bfg_ball)
 

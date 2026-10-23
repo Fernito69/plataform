@@ -406,7 +406,7 @@ def get_rocket_explosion(
             secondary_color=secondary_color,
             tertiary_color=tertiary_color,
             little_explosions_color=little_explosions_color,
-            bfg_sparks=bfg_sparks,
+            is_bfg=bfg_sparks,
             with_smoke=with_smoke,
             spark_color=spark_color,
         )
@@ -426,7 +426,7 @@ def rocket_explosion(
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
     spark_color: RGB | None = None,
-    bfg_sparks: bool = False,
+    is_bfg: bool = False,
     with_smoke: bool = True,
 ) -> None:
     _SIZE = damage / 10
@@ -443,27 +443,56 @@ def rocket_explosion(
     color_3 = secondary_color or RGB(255, 255, 80, 1)
     end_color_3 = secondary_color.copy(opacity=0.4) if secondary_color else RGB(140, 140, 30)
 
+    INITIAL_X_FACTOR: float = 0.1 if is_bfg else 1
+    INITIAL_Y_FACTOR: float = 1 if is_bfg else 1
+    # FINAL_X_FACTOR: float | None = 0.1 if is_bfg else None
+    # FINAL_Y_FACTOR: float | None = 2 if is_bfg else None
+    FINAL_X_FACTOR: float | None = 0.2 if is_bfg else None
+    FINAL_Y_FACTOR: float | None = None if is_bfg else None
+    ANGULAR_VELOCITY: float = 0.15 if is_bfg else 0
+    Y_FACTOR_FREQUENCY: float = 30
+
+    GRAV_1: float | None = None if is_bfg else -0.08
+    GRAV_2: float | None = None if is_bfg else -0.075
+    GRAV_3: float | None = None if is_bfg else -0.07
+
+    LIFE_TIME_1: float = 40 if is_bfg else 20
+    LIFE_TIME_2: float = 40 if is_bfg else 25
+    LIFE_TIME_3: float = 40 if is_bfg else 30
+
     core_explosion_1 = CircularParticle(
-        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
-        initial_velocity=_VELOCITY,
-        size=_SIZE * 0.5,
-        engine=engine,
-        size_change_type=TransitionType.LINEAR_DECREASE,
-        initial_color=color_2,
-        ending_color=end_color_2,
-        life_time=20,
-        gravity=-0.08,
-    )
-    core_explosion_2 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
         initial_velocity=_VELOCITY,
         size=_SIZE * 0.75,
         engine=engine,
         size_change_type=TransitionType.LINEAR_DECREASE,
+        initial_color=color_2,
+        ending_color=end_color_2,
+        life_time=LIFE_TIME_1,
+        gravity=GRAV_1,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=FINAL_Y_FACTOR,
+        x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
+        initial_angular_velocity=ANGULAR_VELOCITY * 3,
+    )
+    core_explosion_2 = CircularParticle(
+        origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
+        initial_velocity=_VELOCITY,
+        size=_SIZE * 0.875,
+        engine=engine,
+        size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=color_3,
         ending_color=end_color_3,  # smokelike
-        life_time=25,
-        gravity=-0.075,
+        life_time=LIFE_TIME_2,
+        gravity=GRAV_2,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=FINAL_Y_FACTOR,
+        x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
+        initial_angular_velocity=ANGULAR_VELOCITY * 2,
     )
     explosions.append(core_explosion_1)
     explosions.append(core_explosion_2)
@@ -482,7 +511,7 @@ def rocket_explosion(
         )
     )
     _main_explosion_ending = (
-        main_color.copy(opacity=0.5) if main_color else RGB(30, 30, 30, intensity=1)
+        main_color.copy(opacity=0.3) if main_color else RGB(30, 30, 30, intensity=1)
     )
 
     main_explosion = CircularParticle(
@@ -492,9 +521,14 @@ def rocket_explosion(
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_main_explosion_color,
         ending_color=_main_explosion_ending,
-        life_time=30,
+        life_time=LIFE_TIME_3,
         engine=engine,
-        gravity=-0.07,
+        gravity=GRAV_3,
+        x_stretching_factor=INITIAL_X_FACTOR,
+        y_stretching_factor=INITIAL_Y_FACTOR,
+        final_x_stretching_factor=FINAL_X_FACTOR,
+        final_y_stretching_factor=None,
+        initial_angular_velocity=0.001,
     )
     explosions.append(main_explosion)
 
@@ -563,7 +597,7 @@ def rocket_explosion(
                     floating_multi=1,
                     gravity=-0.01,
                 )
-                if bfg_sparks
+                if is_bfg
                 else CircularParticle(
                     origin=PointF(
                         x=eye_x + random_offset() * rocket.radius * 2,

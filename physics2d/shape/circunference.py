@@ -72,9 +72,9 @@ class Circunference(Shape):
         self._initial_theme = Theme(color=theme.color.copy() if theme.color else RGB())
         self._color_cycling_factor = color_cycling_factor
         # TODO: rename this two
-        self.x_factor = 1 / x_factor
+        self.x_factor = 1 / x_factor**2
         self._x_factor_orig = x_factor
-        self.y_factor = 1 / y_factor
+        self.y_factor = 1 / y_factor**2
         self._y_factor_orig = y_factor
 
         super().__init__(
@@ -203,42 +203,48 @@ class Circunference(Shape):
 
     def _get_circunference_equations_rotated(self) -> GetCircunferenceEquationResponse:
         # TODO: optimize this with some cache, which is invalidated upon rotation/factor change
-        s = math.sin(self.angle)
-        c = math.cos(self.angle)
-        s_2 = s**2
-        c_2 = c**2
+        sin = math.sin(self.angle)
+        cos = math.cos(self.angle)
+
+        sin_2 = sin**2
+        cos_2 = cos**2
+        r_2 = self.radius**2
+
         yf = self.y_factor
         xf = self.x_factor
 
-        A = xf * s_2 + yf * c_2
-        B = (xf - yf) * s * c
-        C = xf * c_2 + yf * s_2
+        xc = self.center.x
+        yc = self.center.y
+
+        A = xf * sin_2 + yf * cos_2
+        B = (xf - yf) * sin * cos
+        C = xf * cos_2 + yf * sin_2
 
         def get_ys(x: float) -> tuple[float, float] | tuple[None, None]:
-            dx = x - self.center.x
-            discriminant = A * self.radius**2 - yf * xf * dx**2
+            dx = x - xc
+            discriminant = A * r_2 - yf * xf * dx**2
 
             if discriminant < 0:
                 return None, None
 
             root = discriminant**0.5
 
-            y1 = self.center.y + (-B * dx - root) / A
-            y2 = self.center.y + (-B * dx + root) / A
+            y1 = yc + (-B * dx - root) / A
+            y2 = yc + (-B * dx + root) / A
 
             return y1, y2
 
         def get_xs(y: float):
-            dy = y - self.center.y
-            discriminant = C * self.radius**2 - self.y_factor * self.x_factor * dy**2
+            dy = y - yc
+            discriminant = C * r_2 - yf * xf * dy**2
 
             if discriminant < 0:
                 return None, None
 
             root = discriminant**0.5
 
-            x1 = self.center.x + (-B * dy - root) / C
-            x2 = self.center.x + (-B * dy + root) / C
+            x1 = xc + (-B * dy - root) / C
+            x2 = xc + (-B * dy + root) / C
             return x1, x2
 
         return GetCircunferenceEquationResponse(get_xs=get_xs, get_ys=get_ys)
@@ -256,7 +262,7 @@ class Circunference(Shape):
             root = self.radius * ((A / (self.x_factor * self.y_factor)) ** 0.5)
             xs = (self.center.x - root, self.center.x + root)
         else:
-            x_delta = self.radius * self.x_factor
+            x_delta = self.radius / self.x_factor
             xs = sorted(
                 (
                     self.center.x + x_delta,
@@ -271,8 +277,8 @@ class Circunference(Shape):
         return BoundingBox(
             min_x=self.center.x - (self.radius * self.x_factor),
             min_y=self.center.y - (self.radius * self.y_factor),
-            max_x=self.center.x - (self.radius * self.x_factor),
-            max_y=self.center.y - (self.radius * self.y_factor),
+            max_x=self.center.x + (self.radius * self.x_factor),
+            max_y=self.center.y + (self.radius * self.y_factor),
         )
 
     def get_render_info(self) -> list[RenderInfo]:

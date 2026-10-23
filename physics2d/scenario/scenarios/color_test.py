@@ -26,10 +26,10 @@ def color_test(
             name="MidEnemy",
             position=PointF(100, 0),
             theme=Theme(RGB(255, 50, 50)),
-            secondary_theme=Theme(RGB(0, 255,0)),
+            secondary_theme=Theme(RGB(0, 255, 0)),
             # color_gradient_exponent=0.1,
-            x_factor=0.1,
-            y_factor=2,
+            x_factor=0.2,
+            y_factor=1,
             initial_angular_velocity=0.01,
         ),
         # Enemy(
@@ -44,11 +44,14 @@ def color_test(
         # ),
         Enemy(
             engine=engine,
-            size=24,
+            size=36,
             health=400,
             name="MidEnemy",
-            position=PointF(120, 0),
+            position=PointF(180, 0),
             theme=Theme(RGB(50, 50, 255, opacity=1)),
+            secondary_theme=Theme(RGB(0, 0, 50, opacity=0.1)),
+            x_factor=2,
+            initial_angular_velocity=0.001,
         ),
         ###
         # Enemy(
