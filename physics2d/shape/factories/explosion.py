@@ -714,8 +714,8 @@ def bfg_explosion(
         x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
         initial_angular_velocity=ANGULAR_VELOCITY * 2,
     )
-    explosions.append(core_explosion_1)
-    explosions.append(core_explosion_2)
+    # explosions.append(core_explosion_1)
+    # explosions.append(core_explosion_2)
 
     _main_explosion_color = main_color or (
         RGB(
