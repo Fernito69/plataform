@@ -49,9 +49,9 @@ def color_test(
             name="MidEnemy",
             position=PointF(180, 0),
             theme=Theme(RGB(50, 50, 255, opacity=1)),
-            secondary_theme=Theme(RGB(0, 0, 50, opacity=0.1)),
+            secondary_theme=Theme(RGB(60, 0, 50, opacity=0.1)),
             x_factor=2,
-            initial_angular_velocity=0.001,
+            initial_angular_velocity=0.005,
         ),
         ###
         # Enemy(

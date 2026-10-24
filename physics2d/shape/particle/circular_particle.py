@@ -56,6 +56,7 @@ class CircularParticle(Particle, PhysicsEntity):
         y_elliptical_oscillation_frequency: float | None = None,
         initial_angular_velocity: float = 0,
         name="Particle",
+        angle: float = 0,
     ):
         self._engine = engine
         self.life_time = life_time
@@ -91,6 +92,7 @@ class CircularParticle(Particle, PhysicsEntity):
         self.density = density
         self.name = name
         self.initial_angular_velocity = initial_angular_velocity
+        self.angle = angle
 
         super().__init__(
             initial_color=initial_color,
@@ -118,6 +120,7 @@ class CircularParticle(Particle, PhysicsEntity):
             x_stretching_factor=x_stretching_factor,
             y_stretching_factor=y_stretching_factor,
             initial_angular_velocity=initial_angular_velocity,
+            angle=angle,
         )
 
         self.x_factor = 1 / x_stretching_factor**2

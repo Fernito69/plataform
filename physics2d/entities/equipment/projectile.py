@@ -63,6 +63,7 @@ class Projectile(CircularParticle):
         offset_from_origin: VectorF = VectorF(0, 0),
         x_elliptical_oscillation_frequency: float | None = None,
         y_elliptical_oscillation_frequency: float | None = None,
+        angle: float = 0,
     ):
         super().__init__(
             origin=owner,
@@ -85,6 +86,7 @@ class Projectile(CircularParticle):
             y_stretching_factor=y_stretching_factor,
             final_y_stretching_factor=final_y_stretching_factor,
             y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
+            angle=angle,
         )
         self.damage = damage
         self.owner = owner

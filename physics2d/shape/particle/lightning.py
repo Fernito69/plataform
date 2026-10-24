@@ -47,6 +47,7 @@ class Lightning(Particle, Line):
         render_behind_player: bool = False,
         target: PhysicsEntity | None = None,
         moves: bool = True,
+        initial_angular_velocity: float = 0,
     ):
         self.source = source
         self.points = (start_point or source.center, end_point)
@@ -66,6 +67,7 @@ class Lightning(Particle, Line):
             PointF(x=self._target.position.x, y=self._target.position.y) if self._target else None
         )
         self.moves = moves
+        self.angular_velocity = initial_angular_velocity
 
         super().__init__(
             initial_color=initial_color,
@@ -86,8 +88,10 @@ class Lightning(Particle, Line):
             thickness=thickness,
             render_behind_player=render_behind_player,
             engine=engine,
+            initial_angular_velocity=initial_angular_velocity,
         )
         self.segments = []
+        self.angular_velocity = initial_angular_velocity
         self._gen_lightning()
 
     def get_bounding_box(self) -> BoundingBox | None:
@@ -110,12 +114,12 @@ class Lightning(Particle, Line):
 
     def _apply_movement(self) -> None:
         self._gen_lightning()
+        self._rotate()
 
         if not self.moves:
             return
 
         self._float_around()
-        self._rotate()
 
         if not any(a != 0 for a in self.velocity):
             return
@@ -142,6 +146,11 @@ class Lightning(Particle, Line):
             self.segments[idx]._apply_movement()
 
         self._update_center_of_mass()
+
+    def _rotate(self) -> None:
+        # TODO: why does this not work?
+        for idx, _ in enumerate(self.segments):
+            self.segments[idx]._rotate(self.points[0])
 
     # TODO: create recursive random branching
     def _gen_lightning(self) -> None:
@@ -180,6 +189,7 @@ class Lightning(Particle, Line):
                     theme=self.theme,
                     initial_velocity=self.velocity,
                     engine=self._engine,
+                    initial_angular_velocity=self.angular_velocity,
                 )
             ]
             + [
@@ -192,6 +202,7 @@ class Lightning(Particle, Line):
                     theme=self.theme,
                     initial_velocity=self.velocity,
                     engine=self._engine,
+                    initial_angular_velocity=self.angular_velocity,
                 )
                 for idx, p in enumerate(segment_points[:-1])
             ]
@@ -202,6 +213,7 @@ class Lightning(Particle, Line):
                     theme=self.theme,
                     initial_velocity=self.velocity,
                     engine=self._engine,
+                    initial_angular_velocity=self.angular_velocity,
                 )
             ]
         )

@@ -73,5 +73,6 @@ def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
         target_acquire_threshold=_TRIGGER_DISTANCE,
         homing_factor=_HOMING_FACTOR,
         homing_kick_in_time=_HOMING_KICK_IN_TIME,
+        y_stretching_factor=0.2,
     )
     engine.scenario.projectiles.append(rocket)

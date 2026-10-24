@@ -676,12 +676,13 @@ def bfg_explosion(
         engine: "Physics2D",
         rocket: "PhysicsEntity",
     ) -> None:
+        return
         ls = [
             Lightning(
                 source=rocket,
                 start_point=_start_point,
                 end_point=_start_point
-                + VectorF.random_offset_vector(blast_radius * (1 + random_offset())),
+                + VectorF.random_offset_vector(blast_radius * (0.75 + random_offset())),
                 initial_color=LIGHTNING_COLOR,
                 ending_color=0.1 * LIGHTNING_COLOR,
                 normal_noise=3,
@@ -737,8 +738,6 @@ def bfg_explosion(
         x_elliptical_oscillation_frequency=Y_FACTOR_FREQUENCY,
         initial_angular_velocity=ANGULAR_VELOCITY * PHI,
     )
-    explosions.append(core_explosion_1)
-    explosions.append(core_explosion_2)
 
     _main_explosion_color = main_color or (
         RGB(
@@ -772,7 +771,10 @@ def bfg_explosion(
         final_y_stretching_factor=None,
         initial_angular_velocity=ANGULAR_VELOCITY,
     )
-    explosions.append(main_explosion)
+
+    # explosions.append(core_explosion_1)
+    # explosions.append(core_explosion_2)
+    # explosions.append(main_explosion)
 
     bfg_flash = CircularParticle(
         origin=PointF(x=eye_x, y=eye_y),
@@ -831,6 +833,28 @@ def bfg_explosion(
         life_time=15,
     )
     engine.scenario.fg_shapes.append(shock_wave)
+    engine.scenario.bg_shapes.extend(
+        [
+            Lightning(
+                source=rocket,
+                start_point=_start_point,
+                end_point=_start_point
+                + VectorF.random_offset_vector(blast_radius * (0.75 + random_offset())),
+                initial_color=LIGHTNING_COLOR,
+                ending_color=LIGHTNING_COLOR.copy(opacity=0.1),
+                normal_noise=3,
+                parallel_noise=4,
+                life_time=30,
+                num_segments=10,
+                thickness=1,
+                engine=engine,
+                final_thickness=0.001,
+                moves=False,
+                initial_angular_velocity=10,
+            )
+            for _ in range(10)
+        ]
+    )
 
     # TODO: I don't like the particle generator taking care of damage (same with Lightning).
     # Needs refactoring

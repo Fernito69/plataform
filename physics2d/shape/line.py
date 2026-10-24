@@ -151,10 +151,12 @@ class Line(Shape):
     def get_distance_to_point(self, point: PointF) -> float:
         return distance_from_line_to_point(self.points, point).distance
 
-    def _rotate(self) -> None:
+    def _rotate(self, axis: PointF | None = None) -> None:
+        _axis = axis or self.center_of_mass
         new_angle = 0
+
         if self.angular_velocity != 0:
-            distance_from_center_to_farthest_point = abs(self.center_of_mass - self.points[0])
+            distance_from_center_to_farthest_point = abs(_axis - self.points[0])
             new_angle = self.angular_velocity / (
                 distance_from_center_to_farthest_point or ALMOST_ZERO
             )
@@ -165,8 +167,8 @@ class Line(Shape):
         new_angle = math.radians(new_angle)
 
         self.points = (
-            self.points[0].rotate_2d(new_angle, self.center_of_mass),
-            self.points[1].rotate_2d(new_angle, self.center_of_mass),
+            self.points[0].rotate_2d(new_angle, _axis),
+            self.points[1].rotate_2d(new_angle, _axis),
         )
         self.angle = new_angle
 

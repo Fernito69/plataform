@@ -200,14 +200,15 @@ def rocket(
     trail_floating_multi: float = 0.1,
     trail_life_time: int = 10,
     is_enemy: bool = False,
+    y_stretching_factor: float = 0.2,
 ):
+    _velocity = ((rocket_speed + random_offset()) * source.get_aiming_direction()).as_vector()
+
     return Projectile(
         owner=source,
         engine=engine,
         offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=(
-            (rocket_speed + random_offset()) * source.get_aiming_direction()
-        ).as_vector(),
+        initial_velocity=_velocity,
         size=size,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.NONE,
@@ -215,7 +216,9 @@ def rocket(
         # TODO: IMPLEMENT THIS, so we can have gradient effects in particles
         # secondary_color=secondary_color
         life_time=life_time,
+        y_stretching_factor=y_stretching_factor,
         damage=damage,
+        angle=_velocity.get_angle(),
         explosion_generator=get_rocket_explosion(
             damage=damage,
             blast_radius=blast_radius,
