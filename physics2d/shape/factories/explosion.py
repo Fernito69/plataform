@@ -676,7 +676,6 @@ def bfg_explosion(
         engine: "Physics2D",
         rocket: "PhysicsEntity",
     ) -> None:
-        return
         ls = [
             Lightning(
                 source=rocket,
@@ -799,14 +798,14 @@ def bfg_explosion(
     explosions.extend([bfg_flash, dummy_lightning])
 
     if throw_sparks:
-        for _ in range(round(_SIZE * 2)):
+        for _ in range(round(_SIZE * 1)):
             # TODO: make these sparks and other useful things into their own class
             # TODO: see why custom_sparks can't be passed into get_explosion()
             sparks = CircularParticle(
                 origin=(
                     rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
                 ).as_point(),
-                initial_velocity=(5 * VectorF.random_offset_vector()).as_vector(),
+                initial_velocity=(2 * VectorF.random_offset_vector()).as_vector(),
                 size=1.5,
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=spark_color or RGB(200, 255, 200),
