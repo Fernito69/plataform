@@ -124,7 +124,9 @@ class Projectile(CircularParticle):
                 * (self.target.position - self.position).as_vector().unit_vector()
             )
             vel_contrib = (1 / self.homing_factor) * self.velocity
-            self.velocity = (vel_contrib + to_target).as_vector()
+            _new_velocity = (vel_contrib + to_target).as_vector()
+            self.velocity = _new_velocity
+            self.angle = _new_velocity.get_angle()
         elif (
             self.target_acquire_threshold is not None
             and self._original_life_time is not None

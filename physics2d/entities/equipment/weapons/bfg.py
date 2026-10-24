@@ -86,7 +86,7 @@ class BFG(Weapon):
                     size=0.4,
                     final_radius=0.01,
                     initial_color=_particle_color,
-                    ending_color=0.2 * _particle_color,
+                    ending_color=_particle_color.copy(opacity=0.1),
                     life_time=8,
                     floating_multi=1,
                     engine=engine,
@@ -98,7 +98,7 @@ class BFG(Weapon):
                 initial_velocity=(-(1 / _radius) * offset).as_vector(),
                 size=_size * 2,
                 size_change_type=TransitionType.LINEAR_DECREASE,
-                initial_color=0.2 * _particle_color,
+                initial_color=_particle_color.copy(opacity=0.1),
                 ending_color=_particle_color,
                 life_time=_BFG_BASE_COUNTDOWN,
                 particle_generator=_particles,
@@ -128,7 +128,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     # TODO: these colors should be in the get_bfg_ball_explosion function
     _COLOR_3 = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(80, 255, 80, 1)
-    _COLOR = RGB(30, 255, 30, 1)
+    _COLOR = RGB(80, 255, 80, 1)
     _ENDING_COLOR = RGB(200, 180, 30, 1)
 
     _explosion = get_rocket_explosion(
@@ -142,6 +142,33 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         throw_sparks=True,
         is_bfg=True,
     )
+
+    def _part_gen(engine: "Physics2D", source: "PhysicsEntity") -> None:
+        engine.scenario.bg_shapes[0:0] = [
+            CircularParticle(
+                origin=source.center,
+                initial_velocity=(source.velocity).as_vector(),
+                size=1,
+                size_change_type=TransitionType.LINEAR_DECREASE,
+                initial_color=_COLOR,
+                ending_color=_COLOR.copy(opacity=0.3),
+                life_time=15,
+                engine=engine,
+                floating_multi=1,
+            )
+            for _ in range(1)
+        ]
+
+        get_lightning_bolts(
+            initial_color=_COLOR,
+            ending_color=0.2 * _COLOR,
+            damage=_TENDRILS_DAMAGE,
+            life_time=2,
+            damage_range=_TENDRILS_RANGE,
+            default_tendril_length=_TENDRILS_RANGE,
+            render_on_top=False,
+            num_tendrils=_MAX_NUM_TENDRILS,
+        )(engine, source)
 
     bfg_ball = Projectile(
         owner=source,
@@ -158,16 +185,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         life_time=_LIFE_TIME,
         damage=_DAMAGE,
         explosion_generator=_explosion,
-        particle_generator=get_lightning_bolts(
-            initial_color=_COLOR,
-            ending_color=0.2 * _COLOR,
-            damage=_TENDRILS_DAMAGE,
-            life_time=2,
-            damage_range=_TENDRILS_RANGE,
-            default_tendril_length=_TENDRILS_RANGE,
-            render_on_top=False,
-            num_tendrils=_MAX_NUM_TENDRILS,
-        ),
+        particle_generator=_part_gen,
         density=3,
         explode_on_life_time_over=True,
         final_x_stretching_factor=0.8,

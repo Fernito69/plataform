@@ -806,7 +806,7 @@ def bfg_explosion(
                 origin=(
                     rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
                 ).as_point(),
-                initial_velocity=(10 * VectorF.random_offset_vector()).as_vector(),
+                initial_velocity=(5 * VectorF.random_offset_vector()).as_vector(),
                 size=1.5,
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=spark_color or RGB(200, 255, 200),
@@ -816,7 +816,6 @@ def bfg_explosion(
                 life_time=35,
                 engine=engine,
                 floating_multi=1,
-                gravity=-0.01,
             )
             engine.scenario.add_to_fg_or_bg_randomly(sparks)
 
@@ -838,18 +837,18 @@ def bfg_explosion(
             Lightning(
                 source=rocket,
                 start_point=_start_point,
-                end_point=_start_point
-                + VectorF.random_offset_vector(blast_radius * (0.75 + random_offset())),
+                end_point=_start_point + VectorF.random_offset_vector(blast_radius),
                 initial_color=LIGHTNING_COLOR,
-                ending_color=LIGHTNING_COLOR.copy(opacity=0.1),
+                ending_color=0.1 * LIGHTNING_COLOR,
                 normal_noise=3,
-                parallel_noise=4,
-                life_time=30,
+                parallel_noise=5,
+                life_time=20,
                 num_segments=10,
                 thickness=1,
                 engine=engine,
                 final_thickness=0.001,
                 moves=False,
+                # TODO: this doesn't work
                 initial_angular_velocity=10,
             )
             for _ in range(10)

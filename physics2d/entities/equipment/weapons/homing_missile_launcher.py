@@ -52,12 +52,12 @@ def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _BLAST_RADIUS = 15
     _MAX_BLAST_DAMAGE = 60
 
+    _velocity = ((_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
+
     rocket = Projectile(
         owner=source,
         offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=(
-            (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
-        ).as_vector(),
+        initial_velocity=_velocity,
         engine=engine,
         size=1.2,
         size_change_type=TransitionType.NONE,
@@ -74,5 +74,6 @@ def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
         homing_factor=_HOMING_FACTOR,
         homing_kick_in_time=_HOMING_KICK_IN_TIME,
         y_stretching_factor=0.2,
+        angle=_velocity.get_angle(),
     )
     engine.scenario.projectiles.append(rocket)
