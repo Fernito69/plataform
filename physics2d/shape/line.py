@@ -26,6 +26,8 @@ class Line(Shape):
     _pulsate_freq: float
     _pulsate_amplitude: float
 
+    _thickness_gradient_threshold: float | None
+
     def __init__(
         self,
         points: tuple[PointF, PointF],
@@ -44,6 +46,7 @@ class Line(Shape):
         render_behind_player: bool = False,
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
+        thickness_gradient_threshold: float | None = None,
         name: str = "Line",
     ):
         self.points = points
@@ -54,6 +57,11 @@ class Line(Shape):
         self.render_behind_player = render_behind_player
         self._pulsate_freq = pulsate_freq
         self._pulsate_amplitude = pulsate_amplitude
+        self._thickness_gradient_threshold = (
+            min(max(thickness_gradient_threshold, 0), 1)
+            if thickness_gradient_threshold is not None
+            else None
+        )
 
         self._update_center_of_mass()
         super().__init__(
@@ -132,15 +140,26 @@ class Line(Shape):
             )
 
             # TODO: fix rendering of line borders
-            for y_index, y in enumerate(y_range):
+            for _, y in enumerate(y_range):
                 distance = self.get_distance_to_point(PointF(x + HALF_PIXEL, y + HALF_PIXEL))
 
                 if distance > self.thickness:
                     continue
 
+                _d = distance / (abs(self.thickness) or ALMOST_ZERO)
+                if self._thickness_gradient_threshold:
+                    _d = (
+                        (_d - self._thickness_gradient_threshold)
+                        / (1 - self._thickness_gradient_threshold)
+                        if _d > self._thickness_gradient_threshold
+                        else 1
+                        if _d > (1 - self._thickness_gradient_threshold)
+                        else 0
+                    )
+
                 piece_info.append(
                     RenderInfo(
-                        distance_to_pixel_center=distance / (abs(self.thickness) or ALMOST_ZERO),
+                        distance_to_pixel_center=_d,
                         color=self._get_color(x, y),
                         point=PointF(x, y),
                     )

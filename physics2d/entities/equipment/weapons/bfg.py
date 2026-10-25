@@ -129,7 +129,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _COLOR_3 = RGB(127, 255, 127, 1)
     _COLOR_2 = RGB(80, 255, 80, 1)
     _COLOR = RGB(80, 255, 80, 1)
-    _ENDING_COLOR = RGB(200, 180, 30, 1)
+    _ENDING_COLOR = RGB(60, 255, 60, 1)
 
     _explosion = get_rocket_explosion(
         damage=_DAMAGE,
@@ -152,7 +152,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=_COLOR,
                 ending_color=_COLOR.copy(opacity=0.3),
-                life_time=15,
+                life_time=25,
                 engine=engine,
                 floating_multi=1,
             )

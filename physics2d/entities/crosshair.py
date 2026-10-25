@@ -24,7 +24,7 @@ _CROSSHAIR_PARTICLE_NAME = "CrosshairParticle"
 
 _DOT_SIZE = 1
 _HAIR_SIZE = 1
-_HAIR_OFFSET = 4
+_HAIR_OFFSET = 3
 
 # TODO: parametrize this
 _MOUSE_SENSITIVITY = 0.2
@@ -62,7 +62,8 @@ class Crosshair(PhysicsEntity, MouseHandler):
                     self.center + PointF(l[0][0], l[0][1]),
                     self.center + PointF(l[1][0], l[1][1]),
                 ),
-                thickness=1,
+                thickness=2,
+                thickness_gradient_threshold=0.4,
                 theme=_CROSSHAIR_THEME,
                 engine=self._engine,
             )
