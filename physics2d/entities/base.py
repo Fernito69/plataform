@@ -42,10 +42,14 @@ class PhysicsEntity(Circunference):
         own_gravity: float | None = None,
         floating_multi: float = 0,
         is_collideable: bool = True,
-        extra_shapes: list["PhysicsEntity | Shape"] = [],
+        extra_shapes: list["PhysicsEntity | Enemy | Shape"] = [],
         particle_generator: ParticleGenerator | None = None,
         x_stretching_factor: float = 1,
         y_stretching_factor: float = 1,
+        final_x_stretching_factor: float | None = None,
+        final_y_stretching_factor: float | None = None,
+        x_elliptical_oscillation_frequency: float | None = None,
+        y_elliptical_oscillation_frequency: float | None = None,
     ):
         super().__init__(
             center=position,
@@ -66,6 +70,10 @@ class PhysicsEntity(Circunference):
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
             x_stretching_factor=x_stretching_factor,
             y_stretching_factor=y_stretching_factor,
+            final_x_stretching_factor=final_x_stretching_factor,
+            final_y_stretching_factor=final_y_stretching_factor,
+            x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
+            y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
         )
         self._engine = engine
         self.position = position

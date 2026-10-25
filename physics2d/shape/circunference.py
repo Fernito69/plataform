@@ -2,17 +2,13 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable
 
-from constants import PI
+from constants import ALMOST_ZERO, PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
-from utils import (
-    get_angle_from_slope,
-    get_line_angle,
-    get_perpendicular_slope,
-)
+from utils import get_angle_from_slope, get_line_angle, get_perpendicular_slope
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -37,6 +33,14 @@ class Circunference(Shape):
     y_factor: float
     _y_factor_orig: float
 
+    _initial_x_factor: float
+    _final_x_factor: float | None
+    _initial_y_factor: float
+    _final_y_factor: float | None
+
+    _x_elliptical_oscillation_frequency: float | None
+    _y_elliptical_oscillation_frequency: float | None
+
     # TODO: remove from Enemy class
     _initial_theme: Theme
     _color_cycling_factor: float
@@ -47,8 +51,6 @@ class Circunference(Shape):
         radius: float,
         engine: "Physics2D",
         theme: Theme,
-        x_stretching_factor: float = 1,
-        y_stretching_factor: float = 1,
         secondary_theme: Theme | None = None,
         color_gradient_exponent: float = 1,
         color_gradient_exponent_end: float | None = None,
@@ -62,6 +64,12 @@ class Circunference(Shape):
         density: float = 1,
         is_collideable: bool = False,
         color_cycling_factor: float = 0,
+        x_stretching_factor: float = 1,
+        y_stretching_factor: float = 1,
+        final_x_stretching_factor: float | None = None,
+        final_y_stretching_factor: float | None = None,
+        x_elliptical_oscillation_frequency: float | None = None,
+        y_elliptical_oscillation_frequency: float | None = None,
     ):
         self.center = center
         self.radius = radius
@@ -77,6 +85,21 @@ class Circunference(Shape):
         self._x_factor_orig = x_stretching_factor
         self.y_factor = 1 / y_stretching_factor**2
         self._y_factor_orig = y_stretching_factor
+        self._initial_x_factor = self.x_factor
+        self._initial_y_factor = self.y_factor
+
+        self._final_x_factor = (
+            1 / (final_x_stretching_factor or ALMOST_ZERO) ** 2
+            if final_x_stretching_factor is not None
+            else None
+        )
+        self._final_y_factor = (
+            1 / (final_y_stretching_factor or ALMOST_ZERO) ** 2
+            if final_y_stretching_factor is not None
+            else None
+        )
+        self._x_elliptical_oscillation_frequency = x_elliptical_oscillation_frequency
+        self._y_elliptical_oscillation_frequency = y_elliptical_oscillation_frequency
 
         super().__init__(
             theme=theme,
@@ -166,6 +189,7 @@ class Circunference(Shape):
         self._float_around()
         self._apply_collisions()
         self._rotate()
+        self._handle_ellipticallity()
 
         if not any(a != 0 for a in self.velocity):
             return
@@ -266,7 +290,7 @@ class Circunference(Shape):
             root = self.radius * ((A / (self.x_factor * self.y_factor)) ** 0.5)
             xs = (self.center.x - root, self.center.x + root)
         else:
-            x_delta = self.radius / self._x_factor_orig
+            x_delta = self.radius / self.x_factor**2
             xs = sorted(
                 (
                     self.center.x + x_delta,
@@ -541,3 +565,40 @@ class Circunference(Shape):
 
         # TODO: add the other shapes
         return False
+
+    #################################################################
+    _ellipticallity_counter: int = 0
+
+    def _handle_ellipticallity(self):
+        if (
+            self._final_x_factor is not None
+            and self._x_elliptical_oscillation_frequency is not None
+        ):
+            _factor = (
+                math.sin(
+                    # TODO: make _x_elliptical_oscillation_frequency actually sync with time
+                    math.radians(
+                        self._ellipticallity_counter * self._x_elliptical_oscillation_frequency
+                    )
+                )
+                ** 2
+            )
+
+            self.x_factor = self._final_x_factor * _factor + self._initial_x_factor * (1 - _factor)
+        if (
+            self._final_y_factor is not None
+            and self._y_elliptical_oscillation_frequency is not None
+        ):
+            _factor = (
+                math.sin(
+                    # TODO: make _y_elliptical_oscillation_frequency actually sync with time
+                    math.radians(
+                        self._ellipticallity_counter * self._y_elliptical_oscillation_frequency
+                    )
+                )
+                ** 2
+            )
+
+            self.y_factor = self._final_y_factor * _factor + self._initial_y_factor * (1 - _factor)
+
+        self._ellipticallity_counter += 1

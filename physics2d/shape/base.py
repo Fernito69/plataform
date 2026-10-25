@@ -154,10 +154,13 @@ class Shape:
         if self.floating_multi == 0:
             return
 
-        self.velocity = (
+        _new_velocity = (
             self.velocity
             + VectorF(self.floating_multi * random_offset(), self.floating_multi * random_offset())
         ).as_vector()
+
+        self.velocity = _new_velocity
+        self.angle = _new_velocity.get_angle()
 
     @abstractmethod
     def _apply_movement(cls) -> None:

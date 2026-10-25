@@ -62,8 +62,12 @@ class Enemy(PhysicsEntity):
         spawner_on_death: Spawner | None = None,
         color_cycling_factor: float = 0,
         show_health: bool = False,
-        x_factor: float = 1,
-        y_factor: float = 1,
+        x_stretching_factor: float = 1,
+        y_stretching_factor: float = 1,
+        final_x_stretching_factor: float | None = None,
+        final_y_stretching_factor: float | None = None,
+        x_elliptical_oscillation_frequency: float | None = None,
+        y_elliptical_oscillation_frequency: float | None = None,
     ):
         super().__init__(
             density=density,
@@ -85,8 +89,12 @@ class Enemy(PhysicsEntity):
             color_gradient_exponent=color_gradient_exponent,
             color_gradient_exponent_end=color_gradient_exponent_end,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
-            x_stretching_factor=x_factor,
-            y_stretching_factor=y_factor,
+            x_stretching_factor=x_stretching_factor,
+            y_stretching_factor=y_stretching_factor,
+            final_x_stretching_factor=final_x_stretching_factor,
+            final_y_stretching_factor=final_y_stretching_factor,
+            x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
+            y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
         )
         self._engine = engine
         self.health = health

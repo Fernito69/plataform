@@ -1,7 +1,5 @@
-import math
 from typing import TYPE_CHECKING
 
-from constants import ALMOST_ZERO
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
@@ -119,24 +117,28 @@ class CircularParticle(Particle, PhysicsEntity):
             particle_generator=particle_generator,
             x_stretching_factor=x_stretching_factor,
             y_stretching_factor=y_stretching_factor,
+            final_x_stretching_factor=final_x_stretching_factor,
+            final_y_stretching_factor=final_y_stretching_factor,
+            x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
+            y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
             initial_angular_velocity=initial_angular_velocity,
             angle=angle,
         )
 
-        self.x_factor = 1 / x_stretching_factor**2
-        self.y_factor = 1 / y_stretching_factor**2
-        self._initial_x_factor = self.x_factor
-        self._initial_y_factor = self.y_factor
-        self._final_x_factor = (
-            1 / (final_x_stretching_factor or ALMOST_ZERO) ** 2
-            if final_x_stretching_factor is not None
-            else None
-        )
-        self._final_y_factor = (
-            1 / (final_y_stretching_factor or ALMOST_ZERO) ** 2
-            if final_y_stretching_factor is not None
-            else None
-        )
+        # self.x_factor = 1 / x_stretching_factor**2
+        # self.y_factor = 1 / y_stretching_factor**2
+        # self._initial_x_factor = self.x_factor
+        # self._initial_y_factor = self.y_factor
+        # self._final_x_factor = (
+        #     1 / (final_x_stretching_factor or ALMOST_ZERO) ** 2
+        #     if final_x_stretching_factor is not None
+        #     else None
+        # )
+        # self._final_y_factor = (
+        #     1 / (final_y_stretching_factor or ALMOST_ZERO) ** 2
+        #     if final_y_stretching_factor is not None
+        #     else None
+        # )
 
     def _handle_life_time(self) -> None:
         # basic stuff
@@ -198,46 +200,9 @@ class CircularParticle(Particle, PhysicsEntity):
                 + self.ending_color.opacity * ending_factor,
             )
 
-    _ellipticallity_counter: int = 0
-
-    def _handle_ellipticallity(self):
-        if (
-            self._final_x_factor is not None
-            and self._x_elliptical_oscillation_frequency is not None
-        ):
-            _factor = (
-                math.sin(
-                    # TODO: make _x_elliptical_oscillation_frequency actually sync with time
-                    math.radians(
-                        self._ellipticallity_counter * self._x_elliptical_oscillation_frequency
-                    )
-                )
-                ** 2
-            )
-
-            self.x_factor = self._final_x_factor * _factor + self._initial_x_factor * (1 - _factor)
-        if (
-            self._final_y_factor is not None
-            and self._y_elliptical_oscillation_frequency is not None
-        ):
-            _factor = (
-                math.sin(
-                    # TODO: make _y_elliptical_oscillation_frequency actually sync with time
-                    math.radians(
-                        self._ellipticallity_counter * self._y_elliptical_oscillation_frequency
-                    )
-                )
-                ** 2
-            )
-
-            self.y_factor = self._final_y_factor * _factor + self._initial_y_factor * (1 - _factor)
-
-        self._ellipticallity_counter += 1
-
     def do_your_thing(self) -> None:
         self._apply_movement()
         self._handle_life_time()
-        self._handle_ellipticallity()
 
     def _get_color(self, curr_idx: int, total: int) -> RGB:
         # No gradient handling for particle (for now?)

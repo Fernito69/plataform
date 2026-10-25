@@ -34,9 +34,13 @@ class PointF:
 
     def get_slope(self, point2: "PointF | None" = None) -> Slope:
         point2 = point2 or PointF(0, 0)
-        if point2.x - self.x == 0:
-            return "+Inf" if self.y >= point2.y else "-Inf"
-        return (point2.y - self.y) / (point2.x - self.x)
+
+        dx = point2.x - self.x
+
+        if dx == 0:
+            return 0 if self.y == point2.y else "+Inf" if self.y > point2.y else "-Inf"
+
+        return (point2.y - self.y) / dx
 
     def rotate_2d(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "PointF":
         rotation_axis = rotation_axis or (PointF(0, 0) if isinstance(self, VectorF) else self)

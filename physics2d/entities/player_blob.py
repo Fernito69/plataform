@@ -42,10 +42,11 @@ _WEAPON_RADIUS = 1.2
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 
-_SECONDARY_THEME_INTENSITY = 0.1
+_SECONDARY_THEME_INTENSITY = 0.05
 
 _MIN_PLAYER_DISTANCE_TO_SCREEN_BORDER = 20
 _GRADIENT_EXPONENT = 0.7
+_SPEED_DEFORMATION_FACTOR = 0.03
 
 
 class PlayerBlob(PhysicsEntity, Player):
@@ -118,6 +119,7 @@ class PlayerBlob(PhysicsEntity, Player):
         self._apply_movement()
         self._keep_player_in_screen()
         self._handle_current_damage()
+        self._handle_speed_deformation()
 
     def die(self) -> None:
         self.status = PlayerStatus.DEAD
@@ -251,6 +253,12 @@ class PlayerBlob(PhysicsEntity, Player):
             self.velocity = (
                 self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
             ).as_vector()
+
+    def _handle_speed_deformation(self) -> None:
+        self.angle = self.velocity.get_angle()
+        _factor = (_SPEED_DEFORMATION_FACTOR * abs(self.velocity)) ** 0.5
+        self.y_factor = 1 + _factor
+        self.x_factor = 1 - _factor
 
     def _handle_current_damage(self) -> None:
         _factor = self.health / self._initial_health

@@ -28,8 +28,10 @@ def color_test(
             theme=Theme(RGB(255, 50, 50)),
             secondary_theme=Theme(RGB(0, 255, 0)),
             # color_gradient_exponent=0.1,
-            x_factor=0.2,
-            y_factor=1,
+            x_stretching_factor=0.2,
+            y_stretching_factor=1,
+            final_x_stretching_factor=1,
+            x_elliptical_oscillation_frequency=1,
             initial_angular_velocity=0.01,
         ),
         # Enemy(
@@ -50,7 +52,7 @@ def color_test(
             position=PointF(180, 0),
             theme=Theme(RGB(50, 50, 255, opacity=1)),
             secondary_theme=Theme(RGB(60, 0, 50, opacity=0.1)),
-            x_factor=2,
+            x_stretching_factor=1.7,
             initial_angular_velocity=0.005,
         ),
         ###

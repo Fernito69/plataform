@@ -31,7 +31,7 @@ _SIZE = 1.2
 _HEALTH = 1000
 
 _NUM_SATELLITES = 3
-_ROCKET_LAUNCHER_SATELLITE_RADIUS = 4
+_ROCKET_LAUNCHER_SATELLITE_RADIUS = 6
 _SATELLITE_ANGULAR_SPEED = 3
 
 
@@ -118,6 +118,10 @@ class SuperRocketEnemy(StalkingEnemy):
                 precision=precision,
                 aggressivity=aggressivity,
                 particle_generator=satellite_thrusters,
+                x_elliptical_oscillation_frequency=1,
+                y_elliptical_oscillation_frequency=1.4142,
+                final_y_stretching_factor=0.5,
+                final_x_stretching_factor=0.6,
                 # color_cycling_factor=15,
             )
             for num in range(_NUM_SATELLITES)
@@ -135,11 +139,13 @@ class SuperRocketEnemy(StalkingEnemy):
             enemy._move_by(self.velocity)
             enemy._generate_particles()
             enemy._attack_player()
-            self._cycle_color()
+            enemy._handle_ellipticallity()
+            enemy._cycle_color()
             enemy._apply_collisions()
-            enemy.center = enemy.center.rotate_2d(
-                math.radians(_SATELLITE_ANGULAR_SPEED), self.center
-            )
+
+            _angle = math.radians(_SATELLITE_ANGULAR_SPEED)
+            enemy.center = enemy.center.rotate_2d(_angle, self.center)
+            enemy.angle += _angle
             enemy.position = enemy.center
 
 
