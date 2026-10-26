@@ -138,7 +138,7 @@ class SuperRocketEnemy(StalkingEnemy):
             # TODO: these should happen in a parent class
             enemy._move_by(self.velocity)
             enemy._generate_particles()
-            # enemy._attack_player()
+            enemy._attack_player()
             enemy._handle_ellipticallity()
             enemy._cycle_color()
             enemy._apply_collisions()
