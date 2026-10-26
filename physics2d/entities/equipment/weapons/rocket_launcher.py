@@ -46,6 +46,9 @@ class RocketLauncher(Weapon):
     def secondary_fire(self) -> None: ...
 
 
+#################################################################
+
+
 class HeavyRocketLauncher(RocketLauncher):
     def __init__(
         self,
@@ -59,6 +62,31 @@ class HeavyRocketLauncher(RocketLauncher):
             recoil=2,
             projectile_generator=heavy_rocket,
             name="HeavyRocketLauncher",
+            engine=engine,
+        )
+
+    def _spend_ammo(self) -> None:
+        self._ammo -= 1
+
+    def secondary_fire(self) -> None: ...
+
+
+#################################################################
+
+
+class MicroMissileLauncher(RocketLauncher):
+    def __init__(
+        self,
+        engine: "Physics2D",
+    ):
+        super().__init__(
+            max_ammo=500,
+            refractory_period=4,
+            ammo=500,
+            color=RGB(30, 127, 0, 1),
+            recoil=0.2,
+            projectile_generator=micro_missile,
+            name="MicroMissileLauncher",
             engine=engine,
         )
 
@@ -92,7 +120,6 @@ def heavy_rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
         max_blast_damage=_MAX_BLAST_DAMAGE,
         size=_SIZE,
         color=RGB(255, 100, 100),
-        secondary_color=RGB(200, 0, 0),
     )
     engine.scenario.projectiles.append(_rocket)
 
@@ -114,6 +141,33 @@ def _rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
         blast_radius=_BLAST_RADIUS,
         max_blast_damage=_MAX_BLAST_DAMAGE,
         size=_SIZE,
+    )
+    engine.scenario.projectiles.append(_rocket)
+
+
+def micro_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
+    _DAMAGE = 12
+    _ROCKET_SPEED = 8.5
+    _LIFE_TIME = 120
+    _BLAST_RADIUS = 10
+    _MAX_BLAST_DAMAGE = 25
+    _SIZE = 0.8
+
+    _rocket = rocket(
+        engine=engine,
+        source=source,
+        damage=_DAMAGE,
+        rocket_speed=_ROCKET_SPEED,
+        life_time=_LIFE_TIME,
+        blast_radius=_BLAST_RADIUS,
+        max_blast_damage=_MAX_BLAST_DAMAGE,
+        size=_SIZE,
+        color=RGB(80, 200, 60),
+        floating_multi=0.5,
+        trail_size_factor=0.3,
+        explosion_size=4,
+        max_random_spread_in_radians=0.01,
+        trail_life_time=5,
     )
     engine.scenario.projectiles.append(_rocket)
 

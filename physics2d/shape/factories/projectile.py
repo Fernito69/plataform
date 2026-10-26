@@ -189,7 +189,6 @@ def rocket(
     max_blast_damage: float,
     size: float,
     color: RGB = RGB(127, 127, 127, 1),
-    secondary_color: RGB = RGB(127, 127, 127, 1),
     trail_color_1: RGB | None = None,
     trail_color_2: RGB | None = None,
     explosion_color_1: RGB | None = None,
@@ -201,6 +200,10 @@ def rocket(
     trail_life_time: int = 10,
     is_enemy: bool = False,
     y_stretching_factor: float = 0.2,
+    floating_multi: float = 0,
+    trail_size_factor: float = 1.2,
+    explosion_size: float | None = None,
+    max_random_spread_in_radians: float = 0,
 ):
     _velocity = ((rocket_speed + random_offset()) * source.get_aiming_direction()).as_vector()
 
@@ -208,7 +211,11 @@ def rocket(
         owner=source,
         engine=engine,
         offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=_velocity,
+        initial_velocity=(
+            _velocity.rotate_2d(max_random_spread_in_radians * random_offset())
+            if max_random_spread_in_radians
+            else _velocity
+        ).as_vector(),
         size=size,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.NONE,
@@ -228,6 +235,7 @@ def rocket(
             tertiary_color=explosion_color_3,
             little_explosions_color=explosion_color_4,
             spark_color=explosion_spark_color,
+            explosion_size=explosion_size,
         ),
         trail_generator=rocket_trail(
             trail_color_1=trail_color_1,
@@ -235,10 +243,12 @@ def rocket(
             no_smoke=True,
             trail_floating_multi=trail_floating_multi,
             trail_life_time=trail_life_time,
+            size_factor=trail_size_factor,
         ),
         density=3,
         explode_on_life_time_over=True,
         is_enemy=is_enemy,
+        floating_multi=floating_multi,
     )
 
 

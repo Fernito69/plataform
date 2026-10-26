@@ -1,6 +1,7 @@
 import math
 from typing import TYPE_CHECKING
 
+from constants import PHI, PI
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.entities.equipment.projectile import Projectile
@@ -123,7 +124,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _TENDRILS_DAMAGE = 4
     _MAX_NUM_TENDRILS = 4
     _TENDRILS_RANGE = 60
-    _BALL_SIZE = 4.5
+    _BALL_SIZE = 5
 
     # TODO: these colors should be in the get_bfg_ball_explosion function
     _COLOR_3 = RGB(127, 255, 127, 1)
@@ -188,10 +189,11 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         particle_generator=_part_gen,
         density=3,
         explode_on_life_time_over=True,
-        final_x_stretching_factor=0.8,
-        final_y_stretching_factor=0.8,
-        x_elliptical_oscillation_frequency=15,
-        y_elliptical_oscillation_frequency=21,
+        final_x_stretching_factor=0.7,
+        final_y_stretching_factor=0.7,
+        x_elliptical_oscillation_frequency=PI * 3,
+        y_elliptical_oscillation_frequency=PHI * 3,
+        initial_angular_velocity=0.3,
     )
     engine.scenario.projectiles.append(bfg_ball)
 

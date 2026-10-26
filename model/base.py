@@ -164,8 +164,14 @@ class VectorF(PointF):
         )
 
     @staticmethod
-    def from_angle(angle: float, magnitude: float = 1) -> VectorF:
-        return (magnitude * VectorF(x=math.cos(angle), y=math.sin(angle))).as_vector()
+    def from_angle(angle_in_radians: float, magnitude: float = 1) -> VectorF:
+        return (
+            magnitude
+            * VectorF(
+                x=math.cos(angle_in_radians),
+                y=math.sin(angle_in_radians),
+            )
+        ).as_vector()
 
 
 @dataclass

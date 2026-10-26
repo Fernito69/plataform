@@ -20,7 +20,11 @@ from physics2d.entities.equipment.weapons.death_ray import DeathRay
 from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
 from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
 from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, MachineGun
-from physics2d.entities.equipment.weapons.rocket_launcher import HeavyRocketLauncher, RocketLauncher
+from physics2d.entities.equipment.weapons.rocket_launcher import (
+    HeavyRocketLauncher,
+    MicroMissileLauncher,
+    RocketLauncher,
+)
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.entities.equipment.weapons.zapper import Zapper
 from physics2d.model.shared import BoundingBox, RenderInfo
@@ -174,6 +178,7 @@ class PlayerBlob(PhysicsEntity, Player):
             RocketLauncher(e),
             HomingMissileLauncher(e),
             HeavyRocketLauncher(e),
+            MicroMissileLauncher(e),
             Zapper(e),
             DeathRay(e),
             BFG(e),

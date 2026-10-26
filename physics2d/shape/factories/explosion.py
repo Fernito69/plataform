@@ -392,6 +392,7 @@ def get_rocket_explosion(
     tertiary_color: RGB | None = None,
     little_explosions_color: RGB | None = None,
     spark_color: RGB | None = None,
+    explosion_size: float | None = None,
 ) -> "ParticleGenerator":
     def _explosion(engine: "Physics2D", source: "PhysicsEntity") -> None:
         if not isinstance(source, Projectile):
@@ -425,6 +426,7 @@ def get_rocket_explosion(
                 little_explosions_color=little_explosions_color,
                 with_smoke=with_smoke,
                 spark_color=spark_color,
+                size=explosion_size,
             )
         )
 
@@ -445,8 +447,9 @@ def rocket_explosion(
     little_explosions_color: RGB | None = None,
     spark_color: RGB | None = None,
     with_smoke: bool = True,
+    size: float | None = None,
 ) -> None:
-    _SIZE = damage / 10
+    _SIZE = size or (damage / 10)
     _VELOCITY = VectorF(0, 0)
 
     explosions: list[CircularParticle] = []
@@ -931,6 +934,7 @@ def rocket_trail(
     trail_life_time: int = 10,
     trail_floating_multi: float = 0.1,
     no_smoke: bool = False,
+    size_factor: float = 1.2,
 ) -> "ParticleGeneratorWithTarget":
     def _r(engine: "Physics2D", source: "PhysicsEntity", _):
         return _rocket_trail(
@@ -941,6 +945,7 @@ def rocket_trail(
             no_smoke=no_smoke,
             trail_floating_multi=trail_floating_multi,
             trail_life_time=trail_life_time,
+            size_factor=size_factor,
         )
 
     return _r
@@ -954,6 +959,7 @@ def _rocket_trail(
     trail_floating_multi: float = 0.1,
     trail_life_time: int = 10,
     no_smoke: bool = False,
+    size_factor: float = 1.2,
 ) -> None:
     if not engine.is_in_screen(
         source,
@@ -973,7 +979,7 @@ def _rocket_trail(
 
         is_odd = _i % 2 == 1
         _randomness_multi = random() * 2
-        _radius_factor = random() * 1.2
+        _radius_factor = random() * size_factor
 
         # METEOR KINDA TRAIL
         _thrust_color = (
