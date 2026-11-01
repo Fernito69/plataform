@@ -196,13 +196,13 @@ class Scenario:
             *_render_behind_player,
             self.player,
             *_render_in_front_of_player,
+            *self.pickables,
             *self.solid_shapes,
             *self.projectiles,
             *self.enemy_projectiles,
             *self.enemies,
             *self.three_dee_enemies,
             *self.bg_shapes,
-            *self.pickables,
         ]
 
         # Two rectangles: world-positioned things are tested against the camera

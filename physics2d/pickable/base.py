@@ -40,7 +40,6 @@ class Pickable(PhysicsEntity):
         particle_generator: ParticleGenerator | None = None,
     ) -> None:
         self.engine = engine
-        self._particle_generator = particle_generator
 
         super().__init__(
             engine=engine,
@@ -66,6 +65,7 @@ class Pickable(PhysicsEntity):
             x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
             y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
             is_collideable=True,
+            particle_generator=particle_generator,
         )
 
     def do_your_thing(self) -> None:
