@@ -136,10 +136,10 @@ class PlayerBlob(PhysicsEntity, Player):
     ##############
 
     def get_curr_thruster(self) -> Thruster:
-        return self._thrusters[self._curr_thruster_index]
+        return self._thrusters[self._curr_thruster_index or 0]
 
     def get_curr_weapon(self) -> Weapon:
-        return self._weapons[self._curr_weapon_index]
+        return self._weapons[self._curr_weapon_index or 0]
 
     def get_aiming_direction(self) -> VectorF:
         _screen_pos = self._engine.screen_corner

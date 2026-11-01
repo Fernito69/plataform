@@ -40,7 +40,7 @@ class MachineGun(Weapon):
 class HeavyMachineGun(Weapon):
     _ammo_per_gametick: int
 
-    def __init__(self, engine: "Physics2D", ammo_per_gametick: int = 2):
+    def __init__(self, engine: "Physics2D", ammo_per_gametick: int = 3):
         self._ammo_per_gametick = ammo_per_gametick
 
         def _bullets(engine: "Physics2D", source: "PhysicsEntity"):
@@ -77,7 +77,7 @@ def gatling_bullets(
     source: "PhysicsEntity",
     bullets_per_game_tick: int,
 ) -> None:
-    _DAMAGE = 5
+    _DAMAGE = 4
     _BULLET_SPEED = 9
 
     velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
@@ -91,7 +91,7 @@ def gatling_bullets(
         bullet = Projectile(
             owner=source,
             initial_velocity=velocity,
-            size=0.7,
+            size=0.4,
             size_change_type=TransitionType.NONE,
             initial_color=RGB(255 - random() * 80, 255 - random() * 60, 0, 1),
             ending_color=RGB(30, 30, 30, 1),

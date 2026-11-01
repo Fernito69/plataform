@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from factories.theme import RGB, White
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.model.shared import RenderInfo
+from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.line import Line
 
 if TYPE_CHECKING:
@@ -69,6 +69,15 @@ class Rectangle(Line):
             )
         )
         return (min_x, max_x, min_y, max_y)
+
+    def get_bounding_box(self) -> BoundingBox:
+        min_x, max_x, min_y, max_y = self._get_sorted_vertices()
+        return BoundingBox(
+            min_x=min_x,
+            min_y=min_y,
+            max_x=max_x,
+            max_y=max_y,
+        )
 
     def _apply_movement(self) -> None:
         self._float_around()
