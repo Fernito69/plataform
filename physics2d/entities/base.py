@@ -102,7 +102,7 @@ class PhysicsEntity(Circunference):
     def get_render_info(self) -> list[RenderInfo]:
         info = super().get_render_info()
         for shape in self.extra_shapes:
-            info.extend(shape.get_render_info())
+            info[0:0] = shape.get_render_info()
         return info
 
     def _apply_movement(self) -> None:

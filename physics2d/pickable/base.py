@@ -8,11 +8,13 @@ from physics2d.entities.model.shared import ParticleGenerator
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.shape.base import Shape
 
 
 class Pickable(PhysicsEntity):
     engine: "Physics2D"
     _particle_generator: ParticleGenerator | None
+    extra_shapes: list["Shape"]
 
     def __init__(
         self,
@@ -38,6 +40,7 @@ class Pickable(PhysicsEntity):
         x_elliptical_oscillation_frequency: float | None = None,
         y_elliptical_oscillation_frequency: float | None = None,
         particle_generator: ParticleGenerator | None = None,
+        extra_shapes: list["Shape"] = [],
     ) -> None:
         self.engine = engine
 
@@ -66,6 +69,7 @@ class Pickable(PhysicsEntity):
             y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
             is_collideable=True,
             particle_generator=particle_generator,
+            extra_shapes=extra_shapes,
         )
 
     def do_your_thing(self) -> None:
