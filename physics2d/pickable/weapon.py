@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF
 from model.theme import Theme
 from physics2d.constants import SHOTGUN_COLOR
+from physics2d.entities.equipment.thrusters.sonic_thruster import sonic_wave
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.pickable.base import Pickable
 
@@ -20,8 +21,9 @@ class ShotgunPickup(Pickable):
             engine,
             theme=Theme(SHOTGUN_COLOR),
             secondary_theme=Theme(0.4 * SHOTGUN_COLOR),
-            radius=5,
-            center=position,
+            size=5,
+            position=position,
+            particle_generator=sonic_wave,
         )
 
     def _grant_player_something(self) -> None:

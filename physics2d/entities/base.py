@@ -50,6 +50,7 @@ class PhysicsEntity(Circunference):
         final_y_stretching_factor: float | None = None,
         x_elliptical_oscillation_frequency: float | None = None,
         y_elliptical_oscillation_frequency: float | None = None,
+        color_cycling_factor: float = 0,
     ):
         super().__init__(
             center=position,
@@ -74,6 +75,7 @@ class PhysicsEntity(Circunference):
             final_y_stretching_factor=final_y_stretching_factor,
             x_elliptical_oscillation_frequency=x_elliptical_oscillation_frequency,
             y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
+            color_cycling_factor=color_cycling_factor,
         )
         self._engine = engine
         self.position = position

@@ -3,20 +3,22 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import Theme
-from physics2d.shape.circunference import Circunference
+from physics2d.entities.base import PhysicsEntity
+from physics2d.entities.model.shared import ParticleGenerator
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 
-class Pickable(Circunference):
+class Pickable(PhysicsEntity):
     engine: "Physics2D"
+    _particle_generator: ParticleGenerator | None
 
     def __init__(
         self,
         engine: "Physics2D",
-        center: PointF,
-        radius: float,
+        position: PointF,
+        size: float,
         theme: Theme,
         secondary_theme: Theme | None = None,
         color_gradient_exponent: float = 1,
@@ -35,12 +37,16 @@ class Pickable(Circunference):
         final_y_stretching_factor: float | None = None,
         x_elliptical_oscillation_frequency: float | None = None,
         y_elliptical_oscillation_frequency: float | None = None,
+        particle_generator: ParticleGenerator | None = None,
     ) -> None:
         self.engine = engine
+        self._particle_generator = particle_generator
+
         super().__init__(
             engine=engine,
-            center=center,
-            radius=radius,
+            position=position,
+            density=1,
+            size=size,
             theme=theme,
             secondary_theme=secondary_theme,
             color_gradient_exponent=color_gradient_exponent,
@@ -63,6 +69,8 @@ class Pickable(Circunference):
         )
 
     def do_your_thing(self) -> None:
+        super().do_your_thing()
+
         if self.engine.scenario.player.would_collide_with(self):
             self._pick_up()
 
