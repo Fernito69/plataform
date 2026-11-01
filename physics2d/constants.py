@@ -1,6 +1,15 @@
+from model.theme import RGB
+
 MAX_FPS_PHYSICS = 30
 
 X_RESOLUTION_PHYSICS = 200
 Y_RESOLUTION_PHYSICS = 120
 
 DEFAULT_GRAVITY_ACCELERATION = 0.3
+
+"""
+WEAPONS
+# TODO: move these elsewhere?
+"""
+
+SHOTGUN_COLOR = RGB(255, 0, 127, 1)

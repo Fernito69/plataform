@@ -146,11 +146,11 @@ def _rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
 
 def micro_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
-    _DAMAGE = 12
+    _DAMAGE = 20
     _ROCKET_SPEED = 8.5
     _LIFE_TIME = 120
     _BLAST_RADIUS = 10
-    _MAX_BLAST_DAMAGE = 25
+    _MAX_BLAST_DAMAGE = 30
     _SIZE = 0.8
 
     _rocket = rocket(

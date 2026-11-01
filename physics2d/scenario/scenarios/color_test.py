@@ -5,11 +5,13 @@ from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
 from physics2d.model.shared import BackgroundGenerator
+from physics2d.pickable.weapon import ShotgunPickup
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.pickable.base import Pickable
 
 _STARTING_POSITION = PointF(0, 0)
 
@@ -209,6 +211,9 @@ def color_test(
     fg_pieces: list[Shape] = []
     solid_pieces: list[Shape] = []
     bg_pieces: list[Shape] = []
+    pickables: list["Pickable"] = [
+        ShotgunPickup(engine=engine, position=PointF(100, 100)),
+    ]
 
     return Scenario(
         name="First level",
@@ -217,6 +222,7 @@ def color_test(
         fg_shapes=fg_pieces,
         bg_shapes=bg_pieces,
         solid_shapes=solid_pieces,
+        pickables=pickables,
         engine=engine,
         player=engine.player,
         background_gen=background_gen,

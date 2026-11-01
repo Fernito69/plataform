@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from itertools import chain
 from typing import TYPE_CHECKING, Literal
 
 from model.base import PointF
@@ -9,6 +10,7 @@ from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.player_blob import PlayerBlob
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import BackgroundGenerator, RenderInfo
+from physics2d.pickable.base import Pickable
 from physics2d.scenario.background import Background
 from physics2d.shape.base import Shape
 from physics2d.shape.particle.base import Particle
@@ -49,6 +51,8 @@ class Scenario:
     projectiles: list[Projectile]
     enemy_projectiles: list[Projectile]
 
+    pickables: list[Pickable]
+
     # TODO: add _debug_pieces, for angle lines, etc
 
     player: PlayerBlob
@@ -75,6 +79,7 @@ class Scenario:
         solid_shapes: list[Shape] = [],
         overlay_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
+        pickables: list[Pickable] = [],
     ):
         self.name = name
         self.engine = engine
@@ -84,6 +89,7 @@ class Scenario:
         self.solid_shapes = solid_shapes
         self.three_dee_enemies = three_dee_enemies
         self.overlay_shapes = overlay_shapes
+        self.pickables = pickables
 
         for p in self.solid_shapes:
             p.is_collideable = True
@@ -103,15 +109,16 @@ class Scenario:
         self.player.do_your_thing()
         self.crosshair.do_your_thing()
 
-        for entity in (
-            self.fg_shapes
-            + self.bg_shapes
-            + self.solid_shapes
-            + self.overlay_shapes
-            + self.projectiles
-            + self.enemy_projectiles
-            + self.enemies
-            + self.three_dee_enemies
+        for entity in chain(
+            self.fg_shapes,
+            self.bg_shapes,
+            self.solid_shapes,
+            self.overlay_shapes,
+            self.projectiles,
+            self.enemy_projectiles,
+            self.enemies,
+            self.three_dee_enemies,
+            self.pickables,
         ):
             entity.do_your_thing()
 
@@ -195,6 +202,7 @@ class Scenario:
             *self.enemies,
             *self.three_dee_enemies,
             *self.bg_shapes,
+            *self.pickables,
         ]
 
         # Two rectangles: world-positioned things are tested against the camera

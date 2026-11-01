@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
+from physics2d.constants import SHOTGUN_COLOR
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import bullet_ricochet
@@ -27,7 +28,7 @@ class Shotgun(Weapon):
             fire_particle_generator=shotgun_nozzle,
             projectile_generator=buckshot,
             ammo=100,
-            color=RGB(255, 0, 127, 1),
+            color=SHOTGUN_COLOR,
         )
 
     def _spend_ammo(self) -> None:

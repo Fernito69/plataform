@@ -360,9 +360,19 @@ class PlayerBlob(PhysicsEntity, Player):
         self.secondary_theme = thruster_theme.copy(
             color_intensity=_SECONDARY_THEME_INTENSITY,
         )
-        # raise NotImplementedError(
-        #     f"COLOR1: {self.theme.color}, color2: {self.secondary_theme.color}"
-        # )
+
+    def grant_weapon(self, weapon: Weapon) -> None:
+        # TODO: check if this works to make thge logic simpler
+        # if weapon not in self._weapons:
+        weapon_idx = next((i for i, w in enumerate(self._weapons) if w.name == weapon.name), -1)
+
+        if weapon_idx == -1:
+            self._weapons.append(weapon)
+            self._curr_weapon_index = len(self._weapons) - 1
+        else:
+            # grant half the ammo, alla doom
+            # TODO: create proper method to add ammo
+            self._weapons[weapon_idx]._ammo += round(weapon._ammo / 2)
 
     ###############
     """  INPUT  """
