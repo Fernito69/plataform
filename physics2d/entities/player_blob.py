@@ -15,8 +15,8 @@ from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBa
 from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
 from physics2d.entities.equipment.thrusters.sonic_thruster import SonicThruster
 from physics2d.entities.equipment.weapon import Weapon
+from physics2d.entities.equipment.weapons.bfg import BFG
 
-# from physics2d.entities.equipment.weapons.bfg import BFG
 # from physics2d.entities.equipment.weapons.death_ray import DeathRay
 # from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
 # from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
@@ -136,10 +136,10 @@ class PlayerBlob(PhysicsEntity, Player):
     ##############
 
     def get_curr_thruster(self) -> Thruster:
-        return self._thrusters[self._curr_thruster_index or 0]
+        return self._thrusters[min(self._curr_thruster_index, len(self._thrusters) - 1)]
 
     def get_curr_weapon(self) -> Weapon:
-        return self._weapons[self._curr_weapon_index or 0]
+        return self._weapons[min(self._curr_weapon_index, len(self._weapons) - 1)]
 
     def get_aiming_direction(self) -> VectorF:
         _screen_pos = self._engine.screen_corner
@@ -184,7 +184,7 @@ class PlayerBlob(PhysicsEntity, Player):
             # MicroMissileLauncher(e),
             # Zapper(e),
             # DeathRay(e),
-            # BFG(e),
+            BFG(e),
         ]
         self._curr_weapon_index = 0
         self._set_thruster_theme()
