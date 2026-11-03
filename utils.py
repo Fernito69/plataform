@@ -131,19 +131,50 @@ def distance_from_line_to_point(
     line_point_1, line_point_2 = line
     original_m = get_slope(line_point_1, line_point_2)
 
+    max_x = max(line_point_1.x, line_point_2.x)
+    max_y = max(line_point_1.y, line_point_2.y)
+    min_x = min(line_point_1.x, line_point_2.x)
+    min_y = min(line_point_1.y, line_point_2.y)
+
+    y_within_range: bool = max_y >= point.y >= min_y
+    points_sorted_by_y = sorted([line_point_1, line_point_2], key=lambda p: -p.y)
+    y_ref_point = (
+        point
+        if y_within_range
+        else points_sorted_by_y[0]
+        if point.y > max_y
+        else points_sorted_by_y[1]
+    )
+
+    x_within_range: bool = max_x >= point.x >= min_x
+    points_sorted_by_x = sorted([line_point_1, line_point_2], key=lambda p: -p.x)
+    x_ref_point = (
+        point
+        if x_within_range
+        else points_sorted_by_x[0]
+        if point.x > max_x
+        else points_sorted_by_x[1]
+    )
+
     # edge case 1: when slope is infinite! straight distance from point to line
     if original_m == "+Inf" or original_m == "-Inf":
+        distance = abs(point.x - line_point_1.x) if y_within_range else abs(point - y_ref_point)
+        intersection = PointF(line_point_1.x, y_ref_point.y)
+
         return DistanceFromLineToPointResponse(
-            distance=abs(point.x - line_point_1.x),
-            intersection=PointF(line_point_1.x, point.y),
+            distance=distance,
+            intersection=intersection,
             slope=original_m,
         )
 
     # edge case 2: when slope is 0! same as above
     if original_m == 0:
+        distance = abs(point.y - line_point_1.y) if x_within_range else abs(point - x_ref_point)
+        intersection = PointF(x_ref_point.x, line_point_1.y)
+
         return DistanceFromLineToPointResponse(
-            distance=abs(point.y - line_point_1.y),
-            intersection=PointF(point.x, line_point_1.y),
+            distance=distance,
+            intersection=intersection,
             slope=0,
         )
 
@@ -157,7 +188,10 @@ def distance_from_line_to_point(
     # we equate both to extract x, and then y
     new_x = (y_intercept_perp_line - y_intercept_orig_line) / (original_m - perpendicular_m)
     new_y = perpendicular_m * new_x + y_intercept_perp_line
-    intersection = PointF(new_x, new_y)
+    intersection = PointF(
+        max(min_x, min(max_x, new_x)),
+        max(min_y, min(max_y, new_y)),
+    )
 
     # now get distance
     return DistanceFromLineToPointResponse(

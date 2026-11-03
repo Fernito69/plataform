@@ -124,20 +124,20 @@ class Line(Shape):
             )
         )
 
-        eq = self._get_equations()
+        # eq = self._get_equations()
         x_range = range(math.floor(min_x - self.thickness), math.ceil(max_x + self.thickness))
 
         for x in x_range:
-            # get y_range:
-            prev_y = eq.get_y(x - self.thickness)
-            next_y = eq.get_y(x + self.thickness)
-            local_min_y = max(min_y, (min(prev_y, next_y)))
-            local_max_y = min(max_y, (max(prev_y, next_y)))
+            # TODO: fix this optimization
+            # prev_y = eq.get_y(x - self.thickness)
+            # next_y = eq.get_y(x + self.thickness)
+            # local_min_y = max(min_y, (min(prev_y, next_y)))
+            # local_max_y = min(max_y, (max(prev_y, next_y)))
 
-            # y_range = range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness))
-            y_range = range(
-                math.floor(local_min_y - self.thickness), math.ceil(local_max_y + self.thickness)
-            )
+            y_range = range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness))
+            # y_range = range(
+            #     math.floor(local_min_y - self.thickness), math.ceil(local_max_y + self.thickness)
+            # )
 
             # TODO: fix rendering of line borders
             for _, y in enumerate(y_range):

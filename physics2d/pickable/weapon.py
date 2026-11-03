@@ -5,7 +5,7 @@ from model.theme import RGB, Theme
 from physics2d.constants import SHOTGUN_COLOR
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
 from physics2d.pickable.base import Pickable
-from physics2d.shape.line import Line
+from physics2d.shape.factories.text import Text
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
 
@@ -22,6 +22,14 @@ class ShotgunPickup(Pickable):
         engine: "Physics2D",
         position: PointF,
     ) -> None:
+        text = Text(
+            engine=engine,
+            position=position,
+            letter_color=SHOTGUN_COLOR.get_gradient(RGB(255, 255, 255)),
+            factor=1,
+            thickness=1,
+        )
+
         super().__init__(
             engine,
             theme=Theme(SHOTGUN_COLOR),
@@ -30,44 +38,15 @@ class ShotgunPickup(Pickable):
             color_gradient_exponent=1,
             size=10,
             position=position,
-            particle_generator=_weapon_flame(SHOTGUN_COLOR),
-            extra_shapes=_letter_s(engine, position),
+            particle_generator=_weapon_pickup_flame(SHOTGUN_COLOR),
+            extra_shapes=text.get_text("s"),
         )
 
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(Shotgun(self.engine))
 
 
-def _letter_s(engine: "Physics2D", position: PointF, factor: float = 1.7) -> list["Shape"]:
-    _letter_color = Theme(SHOTGUN_COLOR.get_gradient(RGB(255, 255, 255)))
-
-    def _l(points: tuple[PointF, PointF]) -> Line:
-        return Line(
-            points=(
-                position + points[0],
-                position + points[1],
-            ),
-            engine=engine,
-            theme=_letter_color,
-            thickness=factor / 2,
-            thickness_gradient_threshold=0.5,
-        )
-
-    letter_shapes: list["Shape"] = [
-        _l((factor * PointF(-1, 0), factor * PointF(1, 0))),
-        _l((factor * PointF(-1, 0), factor * PointF(-1.5, 0.5))),
-        _l((factor * PointF(-1.5, 0.5), factor * PointF(-1.5, 1))),
-        _l((factor * PointF(-1.5, 1), factor * PointF(-1, 1.5))),
-        _l((factor * PointF(-1, 1.5), factor * PointF(1.5, 1.5))),
-        _l((factor * PointF(1, 0), factor * PointF(1.5, -0.5))),
-        _l((factor * PointF(1.5, -0.5), factor * PointF(1.5, -1))),
-        _l((factor * PointF(1.5, -1), factor * PointF(1, -1.5))),
-        _l((factor * PointF(1, -1.5), factor * PointF(-1.5, -1.5))),
-    ]
-    return letter_shapes
-
-
-def _weapon_flame(color: RGB) -> "ParticleGenerator":
+def _weapon_pickup_flame(color: RGB) -> "ParticleGenerator":
     def _w(engine: "Physics2D", source: "PhysicsEntity") -> None:
         pieces: list[Shape] = []
 
@@ -77,7 +56,7 @@ def _weapon_flame(color: RGB) -> "ParticleGenerator":
                 origin=(source.center),
                 size=(0.8 + random_offset()),
                 initial_color=color,
-                ending_color=0.1 * color,
+                ending_color=color.copy(opacity=0.1),
                 life_time=10,
                 floating_multi=1,
                 engine=engine,

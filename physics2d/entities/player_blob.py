@@ -18,18 +18,16 @@ from physics2d.entities.equipment.weapon import Weapon
 from physics2d.entities.equipment.weapons.bfg import BFG
 
 # from physics2d.entities.equipment.weapons.death_ray import DeathRay
-# from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
-# from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
-# from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, MachineGun
-from physics2d.entities.equipment.weapons.machine_gun import MachineGun
-
-# from physics2d.entities.equipment.weapons.rocket_launcher import (
-#     HeavyRocketLauncher,
-#     MicroMissileLauncher,
-#     RocketLauncher,
-# )
-# from physics2d.entities.equipment.weapons.shotgun import Shotgun
-# from physics2d.entities.equipment.weapons.zapper import Zapper
+from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
+from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
+from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun, MachineGun
+from physics2d.entities.equipment.weapons.rocket_launcher import (
+    HeavyRocketLauncher,
+    MicroMissileLauncher,
+    RocketLauncher,
+)
+from physics2d.entities.equipment.weapons.shotgun import Shotgun
+from physics2d.entities.equipment.weapons.zapper import Zapper
 from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.circunference import Circunference
 from physics2d.shape.factories.explosion import get_smoke_generator
@@ -175,14 +173,14 @@ class PlayerBlob(PhysicsEntity, Player):
         self._curr_thruster_index = 0
         self._weapons = [
             MachineGun(e),
-            # Shotgun(e),
-            # LightningGun(e),
-            # HeavyMachineGun(e),
-            # RocketLauncher(e),
-            # HomingMissileLauncher(e),
-            # HeavyRocketLauncher(e),
-            # MicroMissileLauncher(e),
-            # Zapper(e),
+            Shotgun(e),
+            LightningGun(e),
+            HeavyMachineGun(e),
+            RocketLauncher(e),
+            HomingMissileLauncher(e),
+            HeavyRocketLauncher(e),
+            MicroMissileLauncher(e),
+            Zapper(e),
             # DeathRay(e),
             BFG(e),
         ]
