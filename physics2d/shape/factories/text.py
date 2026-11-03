@@ -14,7 +14,7 @@ class Text:
         self,
         engine: "Physics2D",
         position: PointF,
-        factor: float = 1.7,
+        factor: float = 1,
         letter_color: RGB = RGB(),
         thickness: float = 1,
         thickness_gradient_threshold: float = 0.5,
@@ -92,7 +92,7 @@ class Text:
         if offset_by_char_height:
             _letter_initial_position -= PointF(
                 x=self._get_char_width() / 2,
-                y=self._get_char_height() / 2 - 1,
+                y=self._get_char_height() / 2,
             )
 
         return Line(

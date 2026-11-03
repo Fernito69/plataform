@@ -26,8 +26,6 @@ class ShotgunPickup(Pickable):
             engine=engine,
             position=position,
             letter_color=SHOTGUN_COLOR.get_gradient(RGB(255, 255, 255)),
-            factor=1,
-            thickness=1,
         )
 
         super().__init__(
