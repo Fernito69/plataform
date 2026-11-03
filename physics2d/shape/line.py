@@ -134,12 +134,12 @@ class Line(Shape):
             # local_min_y = max(min_y, (min(prev_y, next_y)))
             # local_max_y = min(max_y, (max(prev_y, next_y)))
 
-            y_range = range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness))
             # y_range = range(
             #     math.floor(local_min_y - self.thickness), math.ceil(local_max_y + self.thickness)
             # )
 
-            # TODO: fix rendering of line borders
+            y_range = range(math.floor(min_y - self.thickness), math.ceil(max_y + self.thickness))
+
             for _, y in enumerate(y_range):
                 distance = self.get_distance_to_point(PointF(x + HALF_PIXEL, y + HALF_PIXEL))
 
