@@ -51,6 +51,8 @@ class Display:
     _message_intensity: float
     _print_fps: bool
 
+    _render_pool: "RenderPool | None"
+
     def __init__(
         self,
         game: "Game",
@@ -85,7 +87,10 @@ class Display:
 
         # Add timestamp and clean the line breaks from it, otherwise it will break other stuff
         msg = (
-            colored(f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}]", Yellow(0.7))
+            colored(
+                f"[{datetime.datetime.now().strftime('%H:%M:%S:%f')[:-3]}]",
+                Yellow(0.7),
+            )
             + " "
             + msg.replace(BR, " ")
         )
@@ -145,7 +150,7 @@ class Display:
     def _build_screen_row(
         self,
         y: int,
-        message_container_coords: "tuple[ScreenPos, ScreenPos] | None",
+        message_container_coords: tuple[ScreenPos, ScreenPos] | None,
     ) -> str:
         """One row of the frame, including the line break that follows it."""
         if y >= len(self._screen_grid):
@@ -212,7 +217,7 @@ class Display:
                 SEPARATOR if isinstance(player, Player2D) else "" if hud_content is not None else BR
             )
             _fps_factor = self._measured_fps / self._curr_fps
-            _fps_color = Green(min(1, _fps_factor)).mix_with(Red(max(0, 1 - _fps_factor)))
+            _fps_color = Green(min(1, _fps_factor)) + Red(max(0, 1 - _fps_factor))
             screen_content += f"{_sep}{colored('FPS:', Cyan(1))} {colored(str(round(self._measured_fps)), _fps_color)}"
 
         if self._debug_str:
@@ -419,6 +424,7 @@ class Display:
 
             return hud
 
+        # Platformer v1 HUD
         health = player.get_health()
 
         hud = "Score: " + str(player.points) + " | Health: " + health

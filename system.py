@@ -100,8 +100,8 @@ if os.name == "nt":
 ##################
 _mouse_lock = Lock()
 _mouse_previous_position: tuple[float, float] | None = None
-_mouse_delta = (0.0, 0.0)
-_mouse_scroll_delta = 0.0
+_mouse_delta: tuple[float, float] = (0.0, 0.0)
+_mouse_scroll_delta: float = 0.0
 
 
 def _on_mouse_move(x: float, y: float) -> None:

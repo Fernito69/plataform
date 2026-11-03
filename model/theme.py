@@ -53,9 +53,8 @@ TODO: we have all these options, maybe we can improve the renderer in the future
 BR = "\n"
 
 
-# Double lines
 @dataclass
-class Line:
+class AsciiLine:
     UL: str
     UR: str
     LL: str
@@ -207,7 +206,7 @@ class Theme:
     color: RGB | None = None
     bg_color: RGB | None = None
     # TODO: move this legacy platformer_v1 stuff somewhere else
-    line_type: Line | None = None
+    line_type: AsciiLine | None = None
     custom_line_chars: list[str] | None = None
     # only relevant if custom_line_chars is not None
     custom_line_type: SequencingType = "random"

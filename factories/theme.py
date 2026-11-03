@@ -1,11 +1,11 @@
-from model.theme import EMPTY_SPACE, RGB, Line, Theme
+from model.theme import EMPTY_SPACE, RGB, AsciiLine, Theme
 from utils import colored
 
 """
 COLORS
 """
 
-DoubleLines = Line(
+DoubleLines = AsciiLine(
     UL="╔",
     UR="╗",
     LL="╚",
@@ -20,7 +20,7 @@ DoubleLines = Line(
 )
 
 
-SingleLines = Line(
+SingleLines = AsciiLine(
     UL="┌",
     UR="┐",
     LL="└",
@@ -33,6 +33,9 @@ SingleLines = Line(
     CU="┴",
     CA="┼",
 )
+
+
+# TODO: decomission all the unused/obsolete shit below
 
 
 # Receives a float between 0 and 1
