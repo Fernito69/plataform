@@ -46,7 +46,6 @@ def extract_color_from_string(text: str) -> RGB:
     return RGB(int(r), int(g), int(b))
 
 
-# TODO: get rid of this function in favor of RGB.mix_with
 def mix_colors(colores: list[RGB]) -> RGB:
     weighted_intensity = sum([c.intensity for c in colores])
     weighted_sum_r = sum([c.r * c.intensity for c in colores]) / weighted_intensity
@@ -110,7 +109,6 @@ def distance_between_points(
     distance_to_border: float | None = (
         distance * 0.5 + diameter_p2 if diameter_p2 else distance * 0.5
     )
-    # distance_to_border: float = distance + (diameter_p2 / 2) if diameter_p2 else distance
     return DistVector3D(
         distance=distance,
         vector=vector,
@@ -126,7 +124,9 @@ class DistanceFromLineToPointResponse:
 
 
 def distance_from_line_to_point(
-    line: tuple[PointF, PointF], point: PointF
+    line: tuple[PointF, PointF],
+    point: PointF,
+    line_is_finite: bool = True,
 ) -> DistanceFromLineToPointResponse:
     line_point_1, line_point_2 = line
     original_m = get_slope(line_point_1, line_point_2)
@@ -136,29 +136,22 @@ def distance_from_line_to_point(
     min_x = min(line_point_1.x, line_point_2.x)
     min_y = min(line_point_1.y, line_point_2.y)
 
-    y_within_range: bool = max_y >= point.y >= min_y
-    points_sorted_by_y = sorted([line_point_1, line_point_2], key=lambda p: -p.y)
-    y_ref_point = (
-        point
-        if y_within_range
-        else points_sorted_by_y[0]
-        if point.y > max_y
-        else points_sorted_by_y[1]
-    )
-
-    x_within_range: bool = max_x >= point.x >= min_x
-    points_sorted_by_x = sorted([line_point_1, line_point_2], key=lambda p: -p.x)
-    x_ref_point = (
-        point
-        if x_within_range
-        else points_sorted_by_x[0]
-        if point.x > max_x
-        else points_sorted_by_x[1]
-    )
-
     # edge case 1: when slope is infinite! straight distance from point to line
     if original_m == "+Inf" or original_m == "-Inf":
-        distance = abs(point.x - line_point_1.x) if y_within_range else abs(point - y_ref_point)
+        base_distance = abs(point.x - line_point_1.x)
+        y_within_range: bool = max_y >= point.y >= min_y
+
+        if not line_is_finite or y_within_range:
+            return DistanceFromLineToPointResponse(
+                distance=base_distance,
+                intersection=PointF(line_point_1.x, point.y),
+                slope=original_m,
+            )
+
+        highest_p, lowest_p = sorted([line_point_1, line_point_2], key=lambda p: -p.y)
+        y_ref_point = highest_p if point.y > max_y else lowest_p
+
+        distance = abs(point - y_ref_point)
         intersection = PointF(line_point_1.x, y_ref_point.y)
 
         return DistanceFromLineToPointResponse(
@@ -169,13 +162,26 @@ def distance_from_line_to_point(
 
     # edge case 2: when slope is 0! same as above
     if original_m == 0:
-        distance = abs(point.y - line_point_1.y) if x_within_range else abs(point - x_ref_point)
+        base_distance = abs(point.y - line_point_1.y)
+        x_within_range: bool = max_x >= point.x >= min_x
+
+        if not line_is_finite or x_within_range:
+            return DistanceFromLineToPointResponse(
+                distance=base_distance,
+                intersection=PointF(point.x, line_point_1.y),
+                slope=original_m,
+            )
+
+        rightmost_p, leftmost_p = sorted([line_point_1, line_point_2], key=lambda p: -p.x)
+        x_ref_point = rightmost_p if point.x > max_x else leftmost_p
+
+        distance = base_distance if x_within_range else abs(point - x_ref_point)
         intersection = PointF(x_ref_point.x, line_point_1.y)
 
         return DistanceFromLineToPointResponse(
             distance=distance,
             intersection=intersection,
-            slope=0,
+            slope=original_m,
         )
 
     # get the equation of the perpendicular line
@@ -188,10 +194,12 @@ def distance_from_line_to_point(
     # we equate both to extract x, and then y
     new_x = (y_intercept_perp_line - y_intercept_orig_line) / (original_m - perpendicular_m)
     new_y = perpendicular_m * new_x + y_intercept_perp_line
-    intersection = PointF(
-        max(min_x, min(max_x, new_x)),
-        max(min_y, min(max_y, new_y)),
-    )
+
+    if line_is_finite:
+        new_x = max(min_x, min(max_x, new_x))
+        new_y = max(min_y, min(max_y, new_y))
+
+    intersection = PointF(new_x, new_y)
 
     # now get distance
     return DistanceFromLineToPointResponse(
@@ -239,8 +247,8 @@ def get_normal_vectors(vector: VectorF, unit_vector: bool = False) -> tuple[Vect
     angle = get_angle_from_slope(m) % PI
     magnitude = 1 if unit_vector else abs(vector)
     return (
-        VectorF.from_angle(angle + PI / 2, magnitude),
-        VectorF.from_angle(angle - PI / 2, magnitude),
+        VectorF.from_angle(angle + PI / 4, magnitude),
+        VectorF.from_angle(angle - PI / 4, magnitude),
     )
 
 
