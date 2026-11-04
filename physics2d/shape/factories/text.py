@@ -52,9 +52,9 @@ class Text:
         self._text = text
 
         for letter_idx, letter in enumerate(text):
-            if _letter_points.get(letter, None) is not None:
+            if _character_vertices.get(letter, None) is not None:
                 shapes += self._coords_to_lines(
-                    _letter_points[letter],
+                    _character_vertices[letter],
                     letter_idx,
                     offset_by_char_height,
                     extra_offset,
@@ -197,14 +197,14 @@ _D = [
 ]
 _d = [PointF(4 - p.x, p.y) for p in _b]
 
-_E_pt1 = [
+_E_1 = [
     PointF(4, 0),
     PointF(1, 0),
     PointF(0, 1),
     PointF(0, 8),
     PointF(4, 8),
 ]
-_E_pt2 = [
+_E_2 = [
     PointF(4, 4),
     PointF(1, 4),
 ]
@@ -219,29 +219,107 @@ _e = [
     PointF(4, 3),
     PointF(1, 3),
 ]
-
-_F_pt1 = [
-    PointF(0, 0),
-    PointF(0, 7),
-    PointF(1, 8),
-    PointF(4, 8),
-]
-_F_pt2 = [
-    PointF(4, 4),
-    PointF(1, 4),
-]
-
-_f_pt1 = [
+_f_1 = [
     PointF(1, 0),
     PointF(1, 5),
     PointF(2, 6),
     PointF(4, 6),
 ]
-_f_pt2 = [
+_f_2 = [
     PointF(0, 3),
     PointF(3, 3),
 ]
+_F_1 = [
+    PointF(0, 0),
+    PointF(0, 7),
+    PointF(1, 8),
+    PointF(4, 8),
+]
+_F_2 = [
+    PointF(4, 4),
+    PointF(1, 4),
+]
+_G = [
+    PointF(3, 3),
+    PointF(4, 3),
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 6),
+    PointF(2, 8),
+    PointF(3, 8),
+    PointF(4, 7),
+]
+_g = [
+    PointF(3, 2),
+    PointF(4, 2),
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 4),
+    PointF(2, 6),
+    PointF(3, 6),
+    PointF(4, 5),
+]
+_H_1 = [
+    PointF(0, 0),
+    PointF(0, 8),
+]
+_H_2 = [
+    PointF(4, 0),
+    PointF(4, 8),
+]
+_H_3 = [
+    PointF(1, 4),
+    PointF(3, 4),
+]
+_h_1 = [
+    PointF(0, 0),
+    PointF(0, 6),
+]
+_h_2 = [
+    PointF(0, 3),
+    PointF(3, 3),
+    PointF(4, 2),
+    PointF(4, 0),
+]
 
+
+_I = [
+    PointF(1, 8),
+    PointF(2, 8),
+    PointF(2, 0),
+    PointF(3, 0),
+]
+_i_1 = [
+    PointF(1, 4),
+    PointF(2, 4),
+    PointF(2, 0),
+    PointF(3, 0),
+]
+_i_2 = [
+    PointF(2, 6),
+    PointF(2, 5.9),
+]
+
+_J = [
+    PointF(0, 0),
+    PointF(2, 0),
+    PointF(4, 2),
+    PointF(4, 8),
+    PointF(3, 8),
+]
+_j_1 = [
+    PointF(0, 0),
+    PointF(1, 0),
+    PointF(2, 1),
+    PointF(2, 4),
+    PointF(1, 4),
+]
+_j_2 = [
+    PointF(2, 6),
+    PointF(2, 5.9),
+]
 
 _O = [
     PointF(1, 0),
@@ -254,6 +332,10 @@ _O = [
     PointF(0, 2),
     PointF(1, 0),
 ]
+_0_1 = [
+    PointF(0, 2),
+    PointF(4, 6),
+]
 _o = [
     PointF(1, 0),
     PointF(3, 0),
@@ -264,6 +346,25 @@ _o = [
     PointF(0, 5),
     PointF(0, 1),
     PointF(1, 0),
+]
+
+_R = [
+    PointF(0, 0),
+    PointF(0, 8),
+    PointF(2, 8),
+    PointF(4, 6),
+    PointF(4, 5),
+    PointF(3, 4),
+    PointF(0, 4),
+    PointF(4, 0),
+]
+_r_pt1 = [
+    PointF(0, 0),
+    PointF(0, 6),
+]
+_r_pt2 = [
+    PointF(0, 5),
+    PointF(4, 6),
 ]
 
 _S = [
@@ -291,7 +392,13 @@ _s = [
     PointF(4, 6),
 ]
 
-_letter_points: dict[str, list[list[PointF]]] = {
+_1 = [
+    PointF(2, 0),
+    PointF(2, 8),
+    PointF(1, 6),
+]
+_character_vertices: dict[str, list[list[PointF]]] = {
+    # Letters
     "A": [_A],
     "a": [_a],
     "B": [_B],
@@ -300,12 +407,27 @@ _letter_points: dict[str, list[list[PointF]]] = {
     "c": [_c],
     "D": [_D],
     "d": [_d],
-    "E": [_E_pt1, _E_pt2],
+    "E": [_E_1, _E_2],
     "e": [_e],
-    "F": [_F_pt1, _F_pt2],
-    "f": [_f_pt1, _f_pt2],
+    "F": [_F_1, _F_2],
+    "f": [_f_1, _f_2],
+    "G": [_G],
+    "g": [_g],
+    "H": [_H_1, _H_2, _H_3],
+    "h": [_h_1, _h_2],
+    "I": [_I],
+    "i": [_i_1, _i_2],
+    "J": [_J],
+    "j": [_j_1, _j_2],
     "O": [_O],
     "o": [_o],
+    "R": [_R],
+    "r": [_r_pt1, _r_pt2],
     "S": [_S],
     "s": [_s],
+    # Numbers
+    "0": [_0_1, _O],
+    "1": [_1],
+    # Symbols
+    " ": [],
 }
