@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 class Weapon:
     name: str
     color: RGB
+    
+    # TODO: implement concept of weapon slot
+    slot: int
 
     _original_color: RGB
 
@@ -69,6 +72,9 @@ class Weapon:
 
     def do_your_thing(self) -> None:
         self._handle_color()
+
+    def add_ammo(self, ammo: int) -> None:
+        self._ammo = min(self._ammo + ammo, self._max_ammo)
 
     def get_life_time_ellapsed_ratio(self) -> float:
         return (self._refractory_limit - self._engine.scenario.now()) / self._refractory_period

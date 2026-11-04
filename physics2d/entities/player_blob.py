@@ -373,10 +373,7 @@ class PlayerBlob(PhysicsEntity, Player):
         else:
             _curr_weapon = self._weapons[weapon_idx]
             # grant half the ammo, alla doom
-            # TODO: create proper method to add ammo
-            _curr_weapon._ammo += round(weapon._ammo / 2)
-            if _curr_weapon._ammo > _curr_weapon._max_ammo:
-                _curr_weapon._ammo = _curr_weapon._max_ammo
+            _curr_weapon.add_ammo(round(weapon._ammo / 2))
 
     ###############
     """  INPUT  """
