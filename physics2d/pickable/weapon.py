@@ -26,6 +26,11 @@ class ShotgunPickup(Pickable):
             engine=engine,
             position=position,
             letter_color=SHOTGUN_COLOR.get_gradient(RGB(255, 255, 255)),
+            factor=3,
+            thickness=0.7,
+            pulsate_freq=0.5,
+            pulsate_amplitude=0.3,
+            # initial_velocity=VectorF(0.1, 0.12121221),
         )
 
         super().__init__(
@@ -37,7 +42,8 @@ class ShotgunPickup(Pickable):
             size=10,
             position=position,
             particle_generator=_weapon_pickup_flame(SHOTGUN_COLOR),
-            extra_shapes=text.get_text("s"),
+            # extra_shapes=text.get_text("s"),
+            extra_shapes=text.get_text("AaBbCcDdEeFfSsOo"),
         )
 
     def _grant_player_something(self) -> None:

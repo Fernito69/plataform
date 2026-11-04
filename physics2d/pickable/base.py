@@ -75,6 +75,9 @@ class Pickable(PhysicsEntity):
     def do_your_thing(self) -> None:
         super().do_your_thing()
 
+        for shape in self.extra_shapes:
+            shape.do_your_thing()
+
         if self.engine.scenario.player.would_collide_with(self):
             self._pick_up()
 

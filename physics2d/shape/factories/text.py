@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.shape.line import Line
 
@@ -18,6 +18,9 @@ class Text:
         letter_color: RGB = RGB(),
         thickness: float = 1,
         thickness_gradient_threshold: float = 0.5,
+        initial_velocity: VectorF = VectorF(0, 0),
+        pulsate_freq: float = 0,
+        pulsate_amplitude: float = 0,
     ):
         self.theme = Theme(letter_color)
         self.position = position
@@ -25,6 +28,9 @@ class Text:
         self.factor = factor
         self.thickness = thickness
         self.thickness_gradient_threshold = thickness_gradient_threshold
+        self.velocity = initial_velocity
+        self.pulsate_freq = pulsate_freq
+        self.pulsate_amplitude = pulsate_amplitude
 
     def _get_char_height(self) -> float:
         is_lowercase = self._text == self._text.lower()
@@ -58,24 +64,27 @@ class Text:
 
     def _coords_to_lines(
         self,
-        letter_points: list[PointF],
+        letter_pointss: list[list[PointF]],
         letter_idx: int,
         offset_by_char_height: bool,
         extra_offset: PointF,
     ) -> list["Shape"]:
-        # TODO: this assumes letters are always made of consecutive lines! must be fixed
-        return [
-            self._make_line(
-                (
-                    point,
-                    letter_points[point_idx + 1],
-                ),
-                letter_idx,
-                offset_by_char_height,
-                extra_offset,
-            )
-            for point_idx, point in enumerate(letter_points[:-1])
-        ]
+        shapes: list["Shape"] = []
+
+        for letter_points in letter_pointss:
+            shapes += [
+                self._make_line(
+                    (
+                        point,
+                        letter_points[point_idx + 1],
+                    ),
+                    letter_idx,
+                    offset_by_char_height,
+                    extra_offset,
+                )
+                for point_idx, point in enumerate(letter_points[:-1])
+            ]
+        return shapes
 
     def _make_line(
         self,
@@ -104,6 +113,9 @@ class Text:
             theme=self.theme,
             thickness=self.thickness,
             thickness_gradient_threshold=self.thickness_gradient_threshold,
+            initial_velocity=self.velocity,
+            pulsate_amplitude=self.pulsate_amplitude,
+            pulsate_freq=self.pulsate_freq,
         )
 
 
@@ -116,6 +128,143 @@ UPPERCASE_CHAR_HEIGHT = 8
 LOWERCASE_CHAR_HEIGHT = 6
 
 CHAR_WIDTH = 4
+
+_A = [
+    PointF(0, 0),
+    PointF(2, 8),
+    PointF(4, 0),
+    PointF(0.5, 2),
+]
+_a = [
+    PointF(0, 0),
+    PointF(2, 6),
+    PointF(4, 0),
+    PointF(0.5, 1.5),
+]
+
+_B = [
+    PointF(0, 4),
+    PointF(0, 0),
+    PointF(2, 0),
+    PointF(4, 1),
+    PointF(4, 3),
+    PointF(2, 4),
+    PointF(0, 4),
+    PointF(0, 8),
+    PointF(2, 8),
+    PointF(4, 7),
+    PointF(4, 5),
+    PointF(2, 4),
+]
+_b = [
+    PointF(0, 0),
+    PointF(0, 2),
+    PointF(2, 0),
+    PointF(4, 1),
+    PointF(4, 3),
+    PointF(2, 4),
+    PointF(0, 2),
+    PointF(0, 6),
+]
+
+_C = [
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 6),
+    PointF(2, 8),
+    PointF(3, 8),
+    PointF(4, 7),
+]
+_c = [
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 5),
+    PointF(1, 6),
+    PointF(3, 6),
+    PointF(4, 5),
+]
+
+_D = [
+    PointF(0, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 6),
+    PointF(2, 8),
+    PointF(0, 8),
+    PointF(0, 2),
+]
+_d = [PointF(4 - p.x, p.y) for p in _b]
+
+_E_pt1 = [
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 8),
+    PointF(4, 8),
+]
+_E_pt2 = [
+    PointF(4, 4),
+    PointF(1, 4),
+]
+_e = [
+    PointF(4, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+    PointF(0, 5),
+    PointF(1, 6),
+    PointF(3, 6),
+    PointF(4, 5),
+    PointF(4, 3),
+    PointF(1, 3),
+]
+
+_F_pt1 = [
+    PointF(0, 0),
+    PointF(0, 7),
+    PointF(1, 8),
+    PointF(4, 8),
+]
+_F_pt2 = [
+    PointF(4, 4),
+    PointF(1, 4),
+]
+
+_f_pt1 = [
+    PointF(1, 0),
+    PointF(1, 5),
+    PointF(2, 6),
+    PointF(4, 6),
+]
+_f_pt2 = [
+    PointF(0, 3),
+    PointF(3, 3),
+]
+
+
+_O = [
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 2),
+    PointF(4, 6),
+    PointF(3, 8),
+    PointF(1, 8),
+    PointF(0, 6),
+    PointF(0, 2),
+    PointF(1, 0),
+]
+_o = [
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 5),
+    PointF(3, 6),
+    PointF(1, 6),
+    PointF(0, 5),
+    PointF(0, 1),
+    PointF(1, 0),
+]
 
 _S = [
     PointF(0, 0),
@@ -142,32 +291,21 @@ _s = [
     PointF(4, 6),
 ]
 
-_O = [
-    PointF(1, 0),
-    PointF(3, 0),
-    PointF(4, 2),
-    PointF(4, 6),
-    PointF(3, 8),
-    PointF(1, 8),
-    PointF(0, 6),
-    PointF(0, 2),
-    PointF(1, 0),
-]
-_o = [
-    PointF(1, 0),
-    PointF(3, 0),
-    PointF(4, 1),
-    PointF(4, 5),
-    PointF(3, 6),
-    PointF(1, 6),
-    PointF(0, 5),
-    PointF(0, 1),
-    PointF(1, 0),
-]
-
-_letter_points: dict[str, list[PointF]] = {
-    "S": _S,
-    "s": _s,
-    "O": _O,
-    "o": _o,
+_letter_points: dict[str, list[list[PointF]]] = {
+    "A": [_A],
+    "a": [_a],
+    "B": [_B],
+    "b": [_b],
+    "C": [_C],
+    "c": [_c],
+    "D": [_D],
+    "d": [_d],
+    "E": [_E_pt1, _E_pt2],
+    "e": [_e],
+    "F": [_F_pt1, _F_pt2],
+    "f": [_f_pt1, _f_pt2],
+    "O": [_O],
+    "o": [_o],
+    "S": [_S],
+    "s": [_s],
 }
