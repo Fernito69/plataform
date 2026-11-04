@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.scenario.scenario import Scenario
 
-_INITIAL_HEALTH = 500
+_INITIAL_HEALTH = 5000
 _PLAYER_RADIUS = 4
 _WEAPON_RADIUS = 1.2
 
