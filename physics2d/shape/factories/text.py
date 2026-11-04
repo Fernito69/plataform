@@ -15,14 +15,14 @@ class Text:
         engine: "Physics2D",
         position: PointF,
         factor: float = 1,
-        letter_color: RGB = RGB(),
+        text_color: RGB = RGB(),
         thickness: float = 1,
         thickness_gradient_threshold: float = 0.5,
         initial_velocity: VectorF = VectorF(0, 0),
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
     ):
-        self.theme = Theme(letter_color)
+        self.theme = Theme(text_color)
         self.position = position
         self.engine = engine
         self.factor = factor
@@ -42,7 +42,7 @@ class Text:
     """"""
     _text: str
 
-    def get_text(
+    def generate(
         self,
         text: str,
         offset_by_char_height: bool = True,
@@ -51,63 +51,64 @@ class Text:
         shapes: list["Shape"] = []
         self._text = text
 
-        for letter_idx, letter in enumerate(text):
-            if _character_vertices.get(letter, None) is not None:
-                shapes += self._coords_to_lines(
-                    _character_vertices[letter],
-                    letter_idx,
+        for char_idx, char in enumerate(text):
+            if _char_vertex_compendium.get(char, None) is not None:
+                shapes += self._vertices_to_lines(
+                    _char_vertex_compendium[char],
+                    char_idx,
                     offset_by_char_height,
                     extra_offset,
                 )
 
         return shapes
 
-    def _coords_to_lines(
+    def _vertices_to_lines(
         self,
-        letter_pointss: list[list[PointF]],
-        letter_idx: int,
+        list_of_char_vertices: list[list[PointF]],
+        char_idx: int,
         offset_by_char_height: bool,
         extra_offset: PointF,
     ) -> list["Shape"]:
         shapes: list["Shape"] = []
 
-        for letter_points in letter_pointss:
+        for char_vertices in list_of_char_vertices:
             shapes += [
-                self._make_line(
+                self._generate_char_trace(
                     (
-                        point,
-                        letter_points[point_idx + 1],
+                        vertex,
+                        char_vertices[vertex_idx + 1],
                     ),
-                    letter_idx,
+                    char_idx,
                     offset_by_char_height,
                     extra_offset,
                 )
-                for point_idx, point in enumerate(letter_points[:-1])
+                for vertex_idx, vertex in enumerate(char_vertices[:-1])
             ]
         return shapes
 
-    def _make_line(
+    def _generate_char_trace(
         self,
         points: tuple[PointF, PointF],
-        letter_idx: int,
+        char_idx: int,
         offset_by_char_height: bool,
         extra_offset: PointF,
     ) -> "Shape":
-        _offset = letter_idx * (CHAR_WIDTH + SPACE_BETWEEN_LETTERS) * self.factor
-        _letter_initial_position = self.position + PointF(
-            x=_offset + extra_offset.x,
+        _text_offset = char_idx * (CHAR_WIDTH + SPACE_BETWEEN_CHARS) * self.factor
+        _char_initial_position = self.position + PointF(
+            x=_text_offset + extra_offset.x,
             y=extra_offset.y,
         )
+        # TODO: rethink this for text that's longer than 1 char
         if offset_by_char_height:
-            _letter_initial_position -= PointF(
+            _char_initial_position -= PointF(
                 x=self._get_char_width() / 2,
                 y=self._get_char_height() / 2,
             )
 
         return Line(
             points=(
-                _letter_initial_position + self.factor * points[0],
-                _letter_initial_position + self.factor * points[1],
+                _char_initial_position + self.factor * points[0],
+                _char_initial_position + self.factor * points[1],
             ),
             engine=self.engine,
             theme=self.theme,
@@ -123,7 +124,7 @@ class Text:
 # Letter data
 """
 
-SPACE_BETWEEN_LETTERS = 2
+SPACE_BETWEEN_CHARS = 2
 UPPERCASE_CHAR_HEIGHT = 8
 LOWERCASE_CHAR_HEIGHT = 6
 
@@ -397,7 +398,7 @@ _1 = [
     PointF(2, 8),
     PointF(1, 6),
 ]
-_character_vertices: dict[str, list[list[PointF]]] = {
+_char_vertex_compendium: dict[str, list[list[PointF]]] = {
     # Letters
     "A": [_A],
     "a": [_a],
