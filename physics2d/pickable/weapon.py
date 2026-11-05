@@ -43,7 +43,7 @@ class ShotgunPickup(Pickable):
             position=position,
             particle_generator=_weapon_pickup_flame(SHOTGUN_COLOR),
             # extra_shapes=text.get_text("s"),
-            extra_shapes=text.generate("AbcDeFgHi 100"),
+            extra_shapes=text.generate("Feño"),
         )
 
     def _grant_player_something(self) -> None:

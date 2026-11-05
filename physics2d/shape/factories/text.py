@@ -322,6 +322,79 @@ _j_2 = [
     PointF(2, 5.9),
 ]
 
+_k_2 = [
+    PointF(0, 0),
+    PointF(0, 6),
+]
+_k_1 = [
+    PointF(4, 0),
+    PointF(0, 2),
+    PointF(4, 4),
+]
+_K_2 = [
+    PointF(0, 0),
+    PointF(0, 8),
+]
+_K_1 = [
+    PointF(4, 0),
+    PointF(0, 4.5),
+    PointF(4.5, 8),
+]
+
+_l = [
+    PointF(0, 6),
+    PointF(0, 0.5),
+    PointF(0.5, 0),
+    PointF(4, 0),
+]
+
+_L = [
+    PointF(0, 8),
+    PointF(0, 1),
+    PointF(1, 0),
+    PointF(4, 0),
+]
+
+_m = [
+    PointF(0, 0),
+    PointF(0, 6),
+    PointF(2, 4),
+    PointF(4, 6),
+    PointF(4, 0),
+]
+
+_M = [
+    PointF(0, 0),
+    PointF(0, 8),
+    PointF(2, 5),
+    PointF(4, 8),
+    PointF(4, 0),
+]
+
+_n = [
+    PointF(0, 0),
+    PointF(0, 6),
+    PointF(4, 0),
+    PointF(4, 6),
+]
+
+_N = [
+    PointF(0, 0),
+    PointF(0, 8),
+    PointF(4, 0),
+    PointF(4, 8),
+]
+
+_ñ_2 = [
+    PointF(1, 7),
+    PointF(3, 7),
+]
+
+_Ñ_2 = [
+    PointF(1, 9),
+    PointF(3, 9),
+]
+
 _O = [
     PointF(1, 0),
     PointF(3, 0),
@@ -420,6 +493,16 @@ _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     "i": [_i_1, _i_2],
     "J": [_J],
     "j": [_j_1, _j_2],
+    "K": [_K_1, _K_2],
+    "k": [_k_1, _k_2],
+    "L": [_L],
+    "l": [_l],
+    "M": [_M],
+    "m": [_m],
+    "N": [_N],
+    "n": [_n],
+    "Ñ": [_N, _Ñ_2],
+    "ñ": [_n, _ñ_2],
     "O": [_O],
     "o": [_o],
     "R": [_R],
