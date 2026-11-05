@@ -14,7 +14,7 @@ class Text:
         self,
         engine: "Physics2D",
         position: PointF,
-        factor: float = 1,
+        scale_factor: float = 1,
         text_color: RGB = RGB(),
         thickness: float = 1,
         thickness_gradient_threshold: float = 0.5,
@@ -25,7 +25,7 @@ class Text:
         self.theme = Theme(text_color)
         self.position = position
         self.engine = engine
-        self.factor = factor
+        self.scale_factor = scale_factor
         self.thickness = thickness
         self.thickness_gradient_threshold = thickness_gradient_threshold
         self.velocity = initial_velocity
@@ -34,10 +34,12 @@ class Text:
 
     def _get_char_height(self) -> float:
         is_lowercase = self._text == self._text.lower()
-        return (LOWERCASE_CHAR_HEIGHT if is_lowercase else UPPERCASE_CHAR_HEIGHT) * self.factor
+        return self.scale_factor * (
+            LOWERCASE_CHAR_HEIGHT if is_lowercase else UPPERCASE_CHAR_HEIGHT
+        )
 
     def _get_char_width(self) -> float:
-        return CHAR_WIDTH * self.factor
+        return CHAR_WIDTH * self.scale_factor
 
     """"""
     _text: str
@@ -93,9 +95,9 @@ class Text:
         offset_by_char_height: bool,
         extra_offset: PointF,
     ) -> "Shape":
-        _text_offset = char_idx * (CHAR_WIDTH + SPACE_BETWEEN_CHARS) * self.factor
+        _char_position_offset = char_idx * (CHAR_WIDTH + SPACE_BETWEEN_CHARS) * self.scale_factor
         _char_initial_position = self.position + PointF(
-            x=_text_offset + extra_offset.x,
+            x=_char_position_offset + extra_offset.x,
             y=extra_offset.y,
         )
         # TODO: rethink this for text that's longer than 1 char
@@ -107,8 +109,8 @@ class Text:
 
         return Line(
             points=(
-                _char_initial_position + self.factor * points[0],
-                _char_initial_position + self.factor * points[1],
+                _char_initial_position + self.scale_factor * points[0],
+                _char_initial_position + self.scale_factor * points[1],
             ),
             engine=self.engine,
             theme=self.theme,
@@ -127,7 +129,6 @@ class Text:
 SPACE_BETWEEN_CHARS = 2
 UPPERCASE_CHAR_HEIGHT = 8
 LOWERCASE_CHAR_HEIGHT = 6
-
 CHAR_WIDTH = 4
 
 _A = [
@@ -143,31 +144,40 @@ _a = [
     PointF(0.5, 1.5),
 ]
 
-_B = [
-    PointF(0, 4),
+_B_1 = [
     PointF(0, 0),
-    PointF(2, 0),
-    PointF(4, 1),
+    PointF(3, 0),
+    PointF(4, 1.5),
     PointF(4, 3),
-    PointF(2, 4),
-    PointF(0, 4),
-    PointF(0, 8),
-    PointF(2, 8),
+    PointF(3, 4.5),
+    PointF(0, 4.5),
+    PointF(0, 0),
+]
+_B_2 = [
+    PointF(3, 4.5),
+    PointF(4, 5.5),
     PointF(4, 7),
-    PointF(4, 5),
-    PointF(2, 4),
+    PointF(3, 8),
+    PointF(0, 8),
+    PointF(0, 4.5),
 ]
-_b = [
+_b_1 = [
     PointF(0, 0),
-    PointF(0, 2),
-    PointF(2, 0),
+    PointF(3, 0),
     PointF(4, 1),
-    PointF(4, 3),
-    PointF(2, 4),
-    PointF(0, 2),
-    PointF(0, 6),
+    PointF(4, 2),
+    PointF(3, 3),
+    PointF(0, 3),
+    PointF(0, 0),
 ]
-
+_b_2 = [
+    PointF(3, 3),
+    PointF(4, 4),
+    PointF(4, 5),
+    PointF(3, 6),
+    PointF(0, 6),
+    PointF(0, 3),
+]
 _C = [
     PointF(4, 0),
     PointF(1, 0),
@@ -196,7 +206,15 @@ _D = [
     PointF(0, 8),
     PointF(0, 2),
 ]
-_d = [PointF(4 - p.x, p.y) for p in _b]
+_d = [
+    PointF(0, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 5),
+    PointF(2, 6),
+    PointF(0, 6),
+    PointF(0, 1.5),
+]
 
 _E_1 = [
     PointF(4, 0),
@@ -422,6 +440,31 @@ _o = [
     PointF(1, 0),
 ]
 
+
+_P = [
+    PointF(0, 0),
+    PointF(0, 8),
+    PointF(2.5, 8),
+    PointF(4, 6.5),
+    PointF(4, 5.5),
+    PointF(2.5, 4),
+    PointF(1, 4),
+]
+_p = [
+    PointF(0, 0),
+    PointF(0, 6),
+    PointF(3, 6),
+    PointF(4, 5),
+    PointF(4, 4),
+    PointF(3, 3),
+    PointF(1, 3),
+]
+
+_q_2 = [
+    PointF(2, 1.5),
+    PointF(3, -1.5),
+]
+
 _R = [
     PointF(0, 0),
     PointF(0, 8),
@@ -466,6 +509,133 @@ _s = [
     PointF(4, 6),
 ]
 
+_T_1 = [
+    PointF(2, 0),
+    PointF(2, 8),
+]
+_T_2 = [
+    PointF(0, 8),
+    PointF(4, 8),
+]
+_t_1 = [
+    PointF(2, 0),
+    PointF(2, 6),
+]
+_t_2 = [
+    PointF(0, 6),
+    PointF(4, 6),
+]
+
+_U = [
+    PointF(0, 8),
+    PointF(0, 1.5),
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 1.5),
+    PointF(4, 8),
+]
+_u = [
+    PointF(0, 6),
+    PointF(0, 1),
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 6),
+]
+
+_V = [
+    PointF(0, 8),
+    PointF(2, 0),
+    PointF(4, 8),
+]
+_v = [
+    PointF(0, 6),
+    PointF(2, 0),
+    PointF(4, 6),
+]
+
+_W = [
+    PointF(0, 8),
+    PointF(1, 0),
+    PointF(2, 4),
+    PointF(3, 0),
+    PointF(4, 8),
+]
+_w = [
+    PointF(0, 6),
+    PointF(1, 0),
+    PointF(2, 3),
+    PointF(3, 0),
+    PointF(4, 6),
+]
+
+_X_1 = [
+    PointF(0, 8),
+    PointF(4, 0),
+]
+_X_2 = [
+    PointF(4, 8),
+    PointF(0, 0),
+]
+
+_x_1 = [
+    PointF(0, 6),
+    PointF(4, 0),
+]
+_x_2 = [
+    PointF(4, 6),
+    PointF(0, 0),
+]
+
+_Y_1 = [
+    PointF(0, 8),
+    PointF(2, 4.5),
+    PointF(4, 8),
+]
+_Y_2 = [
+    PointF(2, 0),
+    PointF(2, 4),
+]
+
+_y_1 = [
+    PointF(0, 6),
+    PointF(2, 3.5),
+    PointF(4, 6),
+]
+_y_2 = [
+    PointF(2, 0),
+    PointF(2, 3),
+]
+
+_Z = [
+    PointF(0, 8),
+    PointF(4, 8),
+    PointF(0, 0),
+    PointF(4, 0),
+]
+
+_z = [
+    PointF(0, 6),
+    PointF(4, 6),
+    PointF(0, 0),
+    PointF(4, 0),
+]
+
+_APOSTROPHE = [
+    PointF(3, 8),
+    PointF(2.5, 6.5),
+]
+
+_DOT = [
+    PointF(2, 0),
+    PointF(2, 0.1),
+]
+
+_COMMA = [
+    PointF(2, 0),
+    PointF(1, -2),
+]
+
 _1 = [
     PointF(2, 0),
     PointF(2, 8),
@@ -475,8 +645,8 @@ _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     # Letters
     "A": [_A],
     "a": [_a],
-    "B": [_B],
-    "b": [_b],
+    "B": [_B_1, _B_2],
+    "b": [_b_1, _b_2],
     "C": [_C],
     "c": [_c],
     "D": [_D],
@@ -505,13 +675,38 @@ _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     "ñ": [_n, _ñ_2],
     "O": [_O],
     "o": [_o],
+    "P": [_P],
+    "p": [_p],
+    "Q": [_q_2, _O],
+    "q": [_q_2, _o],
     "R": [_R],
     "r": [_r_pt1, _r_pt2],
     "S": [_S],
     "s": [_s],
+    "T": [_T_1, _T_2],
+    "t": [_t_1, _t_2],
+    "U": [_U],
+    "u": [_u],
+    "V": [_V],
+    "v": [_v],
+    "W": [_W],
+    "w": [_w],
+    "X": [_X_1, _X_2],
+    "x": [_x_1, _x_2],
+    "Y": [_Y_1, _Y_2],
+    "y": [_y_1, _y_2],
+    "Z": [_Z],
+    "z": [_z],
     # Numbers
     "0": [_0_1, _O],
     "1": [_1],
     # Symbols
     " ": [],
+    "'": [_APOSTROPHE],
+    ".": [_DOT],
+    ",": [_COMMA],
 }
+
+"""
+Dedicated to my friend and mentor Jared. It is through your always thoughtful advice that I've been able to develop the skills to make this even possible
+"""
