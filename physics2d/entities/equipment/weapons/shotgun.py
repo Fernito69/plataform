@@ -29,6 +29,9 @@ class Shotgun(Weapon):
             projectile_generator=buckshot,
             ammo=100,
             color=SHOTGUN_COLOR,
+            weapon_radius=1.5,
+            x_factor=1,
+            y_factor=0.4,
         )
 
     def _spend_ammo(self) -> None:

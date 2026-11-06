@@ -42,10 +42,7 @@ class ShotgunPickup(Pickable):
             size=10,
             position=position,
             particle_generator=_weapon_pickup_flame(SHOTGUN_COLOR),
-            # extra_shapes=text.get_text("s"),
-            extra_shapes=text.generate(
-                "Dedicated to my friend and mentor Jared. It is through your always thoughtful advice that I've been able to develop the skills to make this even possible"
-            ),
+            extra_shapes=text.generate("s"),
         )
 
     def _grant_player_something(self) -> None:

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class Weapon:
     name: str
     color: RGB
-    
+
     # TODO: implement concept of weapon slot
     slot: int
 
@@ -28,6 +28,10 @@ class Weapon:
     _ammo: int
     _max_ammo: int
 
+    weapon_radius: float
+    x_factor: float
+    y_factor: float
+
     _recoil: float
 
     def __init__(
@@ -39,8 +43,12 @@ class Weapon:
         fire_particle_generator: ParticleGenerator,
         projectile_generator: ParticleGenerator,
         refractory_period: int,
+        weapon_radius: float,
         ammo: int = 0,
         recoil: float = 0,
+        # TODO: better pass a Circunference factory instead of all params separated
+        x_factor: float = 1,
+        y_factor: float = 1,
     ):
         self._engine = engine
         self.name = name
@@ -53,6 +61,9 @@ class Weapon:
         self._ammo = min(ammo, max_ammo)
         self._refractory_limit = engine.scenario.now()
         self._recoil = recoil
+        self.weapon_radius = weapon_radius
+        self.x_factor = x_factor
+        self.y_factor = y_factor
 
     def fire(self) -> None:
         if not self.can_shoot():

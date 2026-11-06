@@ -43,7 +43,6 @@ if TYPE_CHECKING:
 
 _INITIAL_HEALTH = 5000
 _PLAYER_RADIUS = 4
-_WEAPON_RADIUS = 1.2
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
 
@@ -200,22 +199,30 @@ class PlayerBlob(PhysicsEntity, Player):
             return None
 
         weapon = self.get_weapon_position()
+        weapon_radius = self.get_curr_weapon().weapon_radius
         return box.union(
             BoundingBox(
-                min_x=weapon.x - _WEAPON_RADIUS,
-                min_y=weapon.y - _WEAPON_RADIUS,
-                max_x=weapon.x + _WEAPON_RADIUS,
-                max_y=weapon.y + _WEAPON_RADIUS,
+                min_x=weapon.x - weapon_radius,
+                min_y=weapon.y - weapon_radius,
+                max_x=weapon.x + weapon_radius,
+                max_y=weapon.y + weapon_radius,
             )
         )
 
     def get_render_info(self) -> list[RenderInfo]:
         body_parts = super().get_render_info()
+        curr_weapon = self.get_curr_weapon()
+        weapon_pos = self.get_weapon_position()
+        angle = (weapon_pos - self.position).as_vector().get_angle()
+
         weapon_parts = Circunference(
             engine=self._engine,
-            center=self.get_weapon_position(),
-            radius=_WEAPON_RADIUS,
-            theme=Theme(color=self.get_curr_weapon().color),
+            center=weapon_pos,
+            radius=curr_weapon.weapon_radius,
+            theme=Theme(color=curr_weapon.color),
+            angle=angle,
+            x_stretching_factor=curr_weapon.x_factor,
+            y_stretching_factor=curr_weapon.y_factor,
         ).get_render_info()
 
         return weapon_parts + body_parts
@@ -368,12 +375,12 @@ class PlayerBlob(PhysicsEntity, Player):
         weapon_idx = next((i for i, w in enumerate(self._weapons) if w.name == weapon.name), -1)
 
         if weapon_idx == -1:
+            new_idx = len(self._weapons)
             self._weapons.append(weapon)
-            self._curr_weapon_index = len(self._weapons) - 1
+            self._curr_weapon_index = new_idx
         else:
-            _curr_weapon = self._weapons[weapon_idx]
             # grant half the ammo, alla doom
-            _curr_weapon.add_ammo(round(weapon._ammo / 2))
+            self._weapons[weapon_idx].add_ammo(round(weapon._ammo / 2))
 
     ###############
     """  INPUT  """

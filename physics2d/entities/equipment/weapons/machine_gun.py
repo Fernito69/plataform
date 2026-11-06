@@ -27,6 +27,9 @@ class MachineGun(Weapon):
             projectile_generator=get_bullet(),
             ammo=1000,
             color=RGB(127, 127, 127, 1),
+            weapon_radius=1.2,
+            x_factor=1,
+            y_factor=0.3,
         )
 
     def _spend_ammo(self) -> None:
@@ -56,6 +59,9 @@ class HeavyMachineGun(Weapon):
             ammo=4000,
             color=RGB(90, 90, 90, 1),
             engine=engine,
+            weapon_radius=2.5,
+            x_factor=1,
+            y_factor=0.3,
         )
 
     def _spend_ammo(self) -> None:

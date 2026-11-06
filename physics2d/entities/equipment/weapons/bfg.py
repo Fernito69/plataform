@@ -37,6 +37,9 @@ class BFG(Weapon):
             ammo=5,
             color=_BFG_READY_LIGHT,
             recoil=3,
+            weapon_radius=2,
+            x_factor=1,
+            y_factor=0.7,
         )
 
     def _spend_ammo(self) -> None:

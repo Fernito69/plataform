@@ -29,6 +29,9 @@ class HomingMissileLauncher(Weapon):
             ammo=30,
             color=RGB(180, 90, 255, 1),
             recoil=1,
+            weapon_radius=1.3,
+            x_factor=1,
+            y_factor=0.5,
         )
 
     def _spend_ammo(self) -> None:

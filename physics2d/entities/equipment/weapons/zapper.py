@@ -24,6 +24,9 @@ class Zapper(Weapon):
             projectile_generator=zapper_bolt,
             ammo=50,
             color=RGB(100, 190, 255, 1),
+            weapon_radius=2,
+            x_factor=1,
+            y_factor=0.2,
         )
 
     def _spend_ammo(self) -> None:

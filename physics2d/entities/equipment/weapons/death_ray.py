@@ -30,6 +30,9 @@ class DeathRay(Weapon):
             ammo=30,
             color=RGB(255, 255, 50, 1),
             recoil=1,
+            weapon_radius=1.6,
+            x_factor=1,
+            y_factor=0.2,
         )
 
     def _spend_ammo(self) -> None:

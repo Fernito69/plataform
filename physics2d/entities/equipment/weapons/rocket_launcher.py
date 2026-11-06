@@ -27,6 +27,9 @@ class RocketLauncher(Weapon):
         ammo=50,
         color=RGB(220, 32, 12, 1),
         name="RocketLauncher",
+        weapon_radius=1.5,
+        x_factor=1,
+        y_factor=0.5,
     ):
         super().__init__(
             name=name,
@@ -38,6 +41,9 @@ class RocketLauncher(Weapon):
             ammo=ammo,
             color=color,
             recoil=recoil,
+            weapon_radius=weapon_radius,
+            x_factor=x_factor,
+            y_factor=y_factor,
         )
 
     def _spend_ammo(self) -> None:
@@ -63,6 +69,9 @@ class HeavyRocketLauncher(RocketLauncher):
             projectile_generator=heavy_rocket,
             name="HeavyRocketLauncher",
             engine=engine,
+            weapon_radius=1.7,
+            x_factor=1,
+            y_factor=0.5,
         )
 
     def _spend_ammo(self) -> None:
@@ -88,6 +97,9 @@ class MicroMissileLauncher(RocketLauncher):
             projectile_generator=micro_missile,
             name="MicroMissileLauncher",
             engine=engine,
+            weapon_radius=1.4,
+            x_factor=1,
+            y_factor=0.4,
         )
 
     def _spend_ammo(self) -> None:

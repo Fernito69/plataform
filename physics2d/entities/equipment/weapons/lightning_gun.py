@@ -31,6 +31,9 @@ class LightningGun(Weapon):
                 _DAMAGE,
                 _DAMAGE_RANGE,
             ),
+            weapon_radius=1.3,
+            x_factor=1,
+            y_factor=1,
             ammo=2000,
             color=RGB(255, 190, 255, 1),
         )
