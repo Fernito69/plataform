@@ -5,7 +5,14 @@ from model.base import PointF
 from model.theme import RGB
 from physics2d.entities.enemy import Enemy
 from physics2d.model.shared import BackgroundGenerator
-from physics2d.pickable.weapon import ShotgunPickup
+from physics2d.pickable.health import HealthPickup
+from physics2d.pickable.weapon import (
+    HeavyRocketLauncherPickup,
+    HomingMissilesLauncherPickup,
+    MicroMissilesLauncherPickup,
+    RocketLauncherPickup,
+    ShotgunPickup,
+)
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -213,6 +220,13 @@ def color_test(
     bg_pieces: list[Shape] = []
     pickables: list["Pickable"] = [
         ShotgunPickup(engine=engine, position=PointF(100, 100)),
+        RocketLauncherPickup(engine=engine, position=PointF(140, 100)),
+        MicroMissilesLauncherPickup(engine=engine, position=PointF(160, 100)),
+        HomingMissilesLauncherPickup(engine=engine, position=PointF(180, 100)),
+        HeavyRocketLauncherPickup(engine=engine, position=PointF(140, 100)),
+        HealthPickup(engine=engine, position=PointF(140, 80), amount=100),
+        HealthPickup(engine=engine, position=PointF(160, 80), amount=200),
+        HealthPickup(engine=engine, position=PointF(180, 80), amount=500),
     ]
 
     return Scenario(

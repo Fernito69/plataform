@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
+from physics2d.constants import HOMING_MISSILE_LAUNCHER_COLOR
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.entities.equipment.weapons.rocket_launcher import rocket_launcher_nozzle
@@ -27,7 +28,7 @@ class HomingMissileLauncher(Weapon):
             fire_particle_generator=rocket_launcher_nozzle,
             projectile_generator=homing_missile,
             ammo=30,
-            color=RGB(180, 90, 255, 1),
+            color=HOMING_MISSILE_LAUNCHER_COLOR,
             recoil=1,
             weapon_radius=1.3,
             x_factor=1,

@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.scenario.scenario import Scenario
 
-_INITIAL_HEALTH = 5000
+_MAX_HEALTH = 5000
 _PLAYER_RADIUS = 4
 
 _PLAYER_THEME = Theme(color=RGB(122, 23, 255))
@@ -74,7 +74,7 @@ class PlayerBlob(PhysicsEntity, Player):
         player_number: int = 1,
         lives: int = 3,
         points: int = 0,
-        health: float = _INITIAL_HEALTH,
+        health: float = _MAX_HEALTH,
     ):
         _secondary_theme = Theme(
             color=_PLAYER_THEME.color.copy(intensity=_SECONDARY_THEME_INTENSITY)
@@ -374,6 +374,9 @@ class PlayerBlob(PhysicsEntity, Player):
         self.secondary_theme = thruster_theme.copy(
             color_intensity=_SECONDARY_THEME_INTENSITY,
         )
+
+    def grant_health(self, health: int) -> None:
+        self.health = min(_MAX_HEALTH, self.health + health)
 
     def grant_weapon(self, weapon: Weapon) -> None:
         weapon_idx: int = next(

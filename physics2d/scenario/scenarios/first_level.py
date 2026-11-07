@@ -5,11 +5,14 @@ from physics2d.entities.enemy import Enemy
 from physics2d.entities.spawner_entity import SpawnerEntity
 from physics2d.entities.spawners.enemy import machine_gun_enemy_spawner, super_rocket_enemy_spawner
 from physics2d.model.shared import BackgroundGenerator
+from physics2d.pickable.health import HealthPickup
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.pickable.base import Pickable
+
 
 _STARTING_POSITION = PointF(0, 0)
 
@@ -44,6 +47,9 @@ def first_level(
     ]
 
     solid_pieces: list[Shape] = []
+    pickables: list["Pickable"] = [
+        HealthPickup(engine=engine, position=PointF(180, 80), amount=500),
+    ]
 
     return Scenario(
         name="First level",
@@ -56,4 +62,5 @@ def first_level(
         player=engine.player,
         background_gen=background_gen,
         player_initial_position=_STARTING_POSITION,
+        pickables=pickables,
     )

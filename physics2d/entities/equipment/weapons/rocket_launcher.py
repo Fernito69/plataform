@@ -2,6 +2,11 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
+from physics2d.constants import (
+    HEAVY_ROCKET_LAUNCHER_COLOR,
+    MICROMISSILES_LAUNCHER_COLOR,
+    ROCKET_LAUNCHER_COLOR,
+)
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import get_smoke_generator
 from physics2d.shape.factories.projectile import rocket
@@ -25,7 +30,7 @@ class RocketLauncher(Weapon):
         fire_particle_generator: "ParticleGenerator | None" = None,
         projectile_generator: "ParticleGenerator | None" = None,
         ammo=50,
-        color=RGB(220, 32, 12, 1),
+        color=ROCKET_LAUNCHER_COLOR,
         name="RocketLauncher",
         weapon_radius=1.5,
         x_factor=1,
@@ -64,7 +69,7 @@ class HeavyRocketLauncher(RocketLauncher):
             max_ammo=10,
             refractory_period=25,
             ammo=10,
-            color=RGB(160, 10, 4, 1),
+            color=HEAVY_ROCKET_LAUNCHER_COLOR,
             recoil=2,
             projectile_generator=heavy_rocket,
             name="HeavyRocketLauncher",
@@ -92,7 +97,7 @@ class MicroMissileLauncher(RocketLauncher):
             max_ammo=500,
             refractory_period=4,
             ammo=500,
-            color=RGB(30, 127, 0, 1),
+            color=MICROMISSILES_LAUNCHER_COLOR,
             recoil=0.2,
             projectile_generator=micro_missile,
             name="MicroMissileLauncher",
