@@ -219,8 +219,8 @@ def color_test(
     solid_pieces: list[Shape] = []
     bg_pieces: list[Shape] = []
     pickables: list["Pickable"] = [
-        ShotgunPickup(engine=engine, position=PointF(100, 100)),
-        RocketLauncherPickup(engine=engine, position=PointF(140, 100)),
+        ShotgunPickup(engine=engine, position=PointF(100, 120)),
+        RocketLauncherPickup(engine=engine, position=PointF(140, 60)),
         MicroMissilesLauncherPickup(engine=engine, position=PointF(160, 100)),
         HomingMissilesLauncherPickup(engine=engine, position=PointF(180, 100)),
         HeavyRocketLauncherPickup(engine=engine, position=PointF(140, 100)),

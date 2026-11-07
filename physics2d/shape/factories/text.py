@@ -636,11 +636,102 @@ _COMMA = [
     PointF(1, -2),
 ]
 
-_1 = [
-    PointF(2, 0),
+_EXCLAMATION_MARK_1 = [
+    PointF(2, 2),
     PointF(2, 8),
-    PointF(1, 6),
 ]
+
+_EXCLAMATION_MARK_2 = [
+    PointF(2, 0),
+    PointF(2, 0.1),
+]
+
+_1 = [
+    PointF(3, 0),
+    PointF(3, 8),
+    PointF(2, 6),
+]
+
+_2 = [
+    PointF(4, 0),
+    PointF(0, 0),
+    PointF(4, 4),
+    PointF(4, 6.5),
+    PointF(2.5, 8),
+    PointF(1.5, 8),
+    PointF(0, 6.5),
+]
+
+_3 = [
+    PointF(0, 7),
+    PointF(1, 8),
+    PointF(3, 8),
+    PointF(4, 7),
+    PointF(4, 5),
+    PointF(2.5, 4),
+    PointF(4, 3),
+    PointF(4, 1),
+    PointF(3, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+]
+
+_4 = [
+    PointF(4, 0),
+    PointF(4, 8),
+    PointF(0, 3),
+    PointF(4, 3),
+]
+
+_5 = [
+    PointF(4, 8),
+    PointF(0, 8),
+    PointF(0, 4),
+    PointF(1, 5),
+    PointF(3, 5),
+    PointF(4, 4),
+    PointF(4, 1),
+    PointF(3, 0),
+    PointF(1, 0),
+    PointF(0, 1),
+]
+
+_6 = [
+    PointF(4, 8),
+    PointF(2, 8),
+    PointF(0, 6),
+    PointF(0, 1),
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 3),
+    PointF(3, 4),
+    PointF(0, 4),
+]
+
+_7 = [
+    PointF(0, 8),
+    PointF(4, 8),
+    PointF(1, 0),
+]
+
+_8 = [
+    PointF(1, 0),
+    PointF(3, 0),
+    PointF(4, 1),
+    PointF(4, 3),
+    PointF(0, 5),
+    PointF(0, 7),
+    PointF(1, 8),
+    PointF(3, 8),
+    PointF(4, 7),
+    PointF(4, 5),
+    PointF(0, 3),
+    PointF(0, 1),
+    PointF(1, 0),
+]
+_9 = [PointF(4 - p.x, 8 - p.y) for p in _6]
+
 _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     # Letters
     "A": [_A],
@@ -700,11 +791,20 @@ _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     # Numbers
     "0": [_0_1, _O],
     "1": [_1],
+    "2": [_2],
+    "3": [_3],
+    "4": [_4],
+    "5": [_5],
+    "6": [_6],
+    "7": [_7],
+    "8": [_8],
+    "9": [_9],
     # Symbols
     " ": [],
     "'": [_APOSTROPHE],
     ".": [_DOT],
     ",": [_COMMA],
+    "!": [_EXCLAMATION_MARK_1, _EXCLAMATION_MARK_2],
 }
 
 """
