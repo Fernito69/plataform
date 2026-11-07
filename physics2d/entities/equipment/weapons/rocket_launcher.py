@@ -267,7 +267,7 @@ def rocket_launcher_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None
         initial_velocity=(
             source.velocity
             + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
-        ).as_vector(),
+        ),
         size=0.5,
         size_change_type=TransitionType.NONE,
         initial_color=RGB(255, 255, 200, 1),  # almost white hot

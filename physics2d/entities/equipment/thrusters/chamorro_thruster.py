@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING
 
-from model.base import VectorF, PointF
+from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.shape.base import Shape
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import random_offset
 
 if TYPE_CHECKING:
     from physics2d.entities.base import PhysicsEntity
@@ -41,7 +40,7 @@ def chamorro_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
 
     main_cheese = CircularParticle(
         origin=source.center - 3 * source.velocity,
-        initial_velocity=(-source.velocity).as_vector(),
+        initial_velocity=-source.velocity,
         size=7,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=_cheese_color,
@@ -54,6 +53,7 @@ def chamorro_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
     engine.scenario.bg_shapes.extend(pieces)
 
     holes = []
+
     cheese_positions = (
         [PointF(-2.3, 2.3), PointF(2.3, -2.3)]
         if engine.scenario.now() % 2 == 0
@@ -63,7 +63,7 @@ def chamorro_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
     for pos in cheese_positions:
         hole = CircularParticle(
             origin=source.position - 3 * pos - source.velocity,
-            initial_velocity=(-source.velocity * 2).as_vector(),
+            initial_velocity=(-source.velocity * 2),
             size=0.8,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(0, 0, 0),

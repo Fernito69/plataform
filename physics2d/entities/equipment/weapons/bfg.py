@@ -99,7 +99,7 @@ class BFG(Weapon):
 
             particle = CircularParticle(
                 origin=player.center + offset,
-                initial_velocity=(-(1 / _radius) * offset).as_vector(),
+                initial_velocity=(-(1 / _radius) * offset),
                 size=_size * 2,
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=_particle_color.copy(opacity=0.1),
@@ -151,7 +151,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
         engine.scenario.bg_shapes[0:0] = [
             CircularParticle(
                 origin=source.center,
-                initial_velocity=(source.velocity).as_vector(),
+                initial_velocity=source.velocity,
                 size=1,
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=_COLOR,
@@ -177,9 +177,7 @@ def bfg_ball(engine: "Physics2D", source: "PhysicsEntity") -> None:
     bfg_ball = Projectile(
         owner=source,
         offset_from_origin=VectorF.random_offset_vector(),
-        initial_velocity=(
-            (_BALL_SPEED + random_offset()) * source.get_aiming_direction()
-        ).as_vector(),
+        initial_velocity=(_BALL_SPEED + random_offset()) * source.get_aiming_direction(),
         engine=engine,
         size=_BALL_SIZE,
         size_change_type=TransitionType.NONE,

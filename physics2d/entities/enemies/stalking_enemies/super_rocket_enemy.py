@@ -165,9 +165,8 @@ def satellite_thrusters(engine: "Physics2D", source: "PhysicsEntity") -> None:
                 - source.get_last_known_direction() * 2
             )
             + source.size * VectorF.random_offset_vector(),
-            initial_velocity=(
-                +0.2 * VectorF.random_offset_vector() - source.get_last_known_direction()
-            ).as_vector(),
+            initial_velocity=0.2 * VectorF.random_offset_vector()
+            - source.get_last_known_direction(),
             size=0.7 + random_offset(),
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(255, 0, 255),
@@ -191,7 +190,7 @@ def main_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
         # little particles doing particle stuff
         _particle = CircularParticle(
             origin=(source.center) + source.size * VectorF.random_offset_vector(),
-            initial_velocity=(+0.2 * VectorF.random_offset_vector()).as_vector(),
+            initial_velocity=0.2 * VectorF.random_offset_vector(),
             size=2,
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(255, 0, 255),

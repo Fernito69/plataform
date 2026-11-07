@@ -131,13 +131,13 @@ class Circunference(Shape):
         if not self.affected_by_friction:
             return
         if self.velocity.y > 0:
-            self.velocity = (self.velocity + VectorF(0, -_DECEL_FACTOR)).as_vector()
+            self.velocity += VectorF(0, -_DECEL_FACTOR)
         if self.velocity.y < 0:
-            self.velocity = (self.velocity + VectorF(0, _DECEL_FACTOR)).as_vector()
+            self.velocity += VectorF(0, _DECEL_FACTOR)
         if self.velocity.x > 0:
-            self.velocity = (self.velocity + VectorF(-_DECEL_FACTOR, 0)).as_vector()
+            self.velocity += VectorF(-_DECEL_FACTOR, 0)
         if self.velocity.x < 0:
-            self.velocity = (self.velocity + VectorF(_DECEL_FACTOR, 0)).as_vector()
+            self.velocity += VectorF(_DECEL_FACTOR, 0)
         if 0 <= self.velocity.x < _DECEL_FACTOR:
             self.velocity.x = 0
         if 0 <= self.velocity.y < _DECEL_FACTOR:
@@ -513,10 +513,9 @@ class Circunference(Shape):
                     #     (-self.velocity * other_shape_transfer_factor)
                     #     + (colliding_shape.velocity * other_shape_transfer_factor)
                     # ).as_vector()
-                    new_velocity = (
-                        (colliding_shape.velocity * self_transfer_factor)
-                        - (self.velocity * elastic_transfer_factor)
-                    ).as_vector()
+                    new_velocity = (colliding_shape.velocity * self_transfer_factor) - (
+                        self.velocity * elastic_transfer_factor
+                    )
 
                     # engine.display.debug_log(
                     #     f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
@@ -546,12 +545,9 @@ class Circunference(Shape):
                     factor_x = 1
                     factor_y = 1
 
-                    new_velocity = (
-                        abs(self.velocity)
-                        * VectorF(
-                            x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
-                        )
-                    ).as_vector()
+                    new_velocity = abs(self.velocity) * VectorF(
+                        x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
+                    )
 
                     def _get_angle(angle) -> int:
                         return int(angle * 180 / PI)

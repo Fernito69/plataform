@@ -75,9 +75,7 @@ class StalkingEnemy(Enemy):
                 enemies_in_range,
                 PointF(0, 0),
             ) * (1 / len(enemies_in_range))
-            self.velocity = (
-                self.velocity + (self.position - center_of_gravity).as_vector().unit_vector()
-            ).as_vector()
+            self.velocity += (self.position - center_of_gravity).as_vector().unit_vector()
 
         self._move_by(self.velocity)
 
@@ -85,11 +83,11 @@ class StalkingEnemy(Enemy):
         _pushback_factor = 3
 
         if self.would_collide_with(self._engine.player):
-            self.velocity = (_pushback_factor * self.velocity).as_vector()
+            self.velocity = _pushback_factor * self.velocity
 
         for enemy in self._engine.scenario.enemies:
             if self.would_collide_with(enemy):
-                self.velocity = (_pushback_factor * self.velocity).as_vector()
+                self.velocity = _pushback_factor * self.velocity
 
     def do_your_thing(self) -> None:
         super().do_your_thing()
@@ -99,10 +97,10 @@ class StalkingEnemy(Enemy):
 
     def _approach_player(self) -> None:
         player = self._engine.player
-        player_direction = self.position - player.position
+        player_direction = (self.position - player.position).as_vector()
         if (distance_from_player := abs(player_direction)) > self._min_distance_from_player:
             velocity_magnitude = min(
                 1 - distance_from_player / self._min_distance_from_player,
                 self._max_velocity,
             )
-            self.velocity = player_direction.as_vector().unit_vector(velocity_magnitude)
+            self.velocity = player_direction.unit_vector(velocity_magnitude)

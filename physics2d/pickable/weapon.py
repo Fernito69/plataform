@@ -26,7 +26,7 @@ class ShotgunPickup(Pickable):
             engine=engine,
             position=position,
             text_color=SHOTGUN_COLOR.get_gradient(RGB(255, 255, 255)),
-            scale_factor=2,
+            scale_factor=1,
             thickness=0.7,
             pulsate_freq=0.5,
             pulsate_amplitude=0.3,

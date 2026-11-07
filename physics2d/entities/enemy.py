@@ -264,10 +264,9 @@ class Enemy(PhysicsEntity):
 
     def get_aiming_direction(self) -> VectorF:
         direction = (self._engine.player.position - self.position).as_vector().unit_vector()
-        return (
-            direction
-            + VectorF.random_offset_vector(0, self._precision).rotate_2d(direction.get_angle())
-        ).as_vector()
+        return direction + VectorF.random_offset_vector(0, self._precision).rotate_2d(
+            direction.get_angle()
+        )
 
     def _apply_collisions(self) -> None:
         ...

@@ -125,7 +125,7 @@ class Crosshair(PhysicsEntity, MouseHandler):
         if new_center.y < 0:
             new_center.y = 0
 
-        final_vector = (new_center - self.center).as_vector()
+        final_vector: VectorF = (new_center - self.center).as_vector()
 
         self.center = new_center
         self.position = new_center

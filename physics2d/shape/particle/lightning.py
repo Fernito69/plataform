@@ -168,7 +168,7 @@ class Lightning(Particle, Line):
             return (
                 self.normal_noise * random_offset() * parallel_unit_vector
                 + self.parallel_noise * random_offset() * normal_unit_vector
-            ).as_vector()
+            )
 
         segment_points: list[PointF] = [
             self.points[0] + (x / (line_length or ALMOST_ZERO)) * line_vector + _rand_vector()

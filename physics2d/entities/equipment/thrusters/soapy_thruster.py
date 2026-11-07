@@ -98,10 +98,10 @@ def ln2_vapor(engine: "Physics2D", source: "PhysicsEntity") -> None:
                     x=eye_x + random_offset() * 0.1 + source.velocity.x * 3,
                     y=eye_y + source.velocity.y * 3,
                 ),
-                initial_velocity=(
-                    -VectorF(x=random_offset() * 1, y=random_offset() * velocity_magnitude)
-                    + 0.5 * source.velocity
-                ).as_vector(),
+                initial_velocity=-VectorF(
+                    x=random_offset() * 1, y=random_offset() * velocity_magnitude
+                )
+                + 0.5 * source.velocity,
                 size=0.8,
                 initial_color=RGB(255, 255, 255, 1),
                 life_time=50,

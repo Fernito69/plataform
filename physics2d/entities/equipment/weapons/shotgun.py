@@ -37,13 +37,6 @@ class Shotgun(Weapon):
     def _spend_ammo(self) -> None:
         self._ammo -= 1
 
-    def _effect_on_player(self) -> None:
-        # recoil!
-        self._engine.scenario.player.velocity = (
-            self._engine.scenario.player.velocity
-            - (self._engine.scenario.player.get_aiming_direction())
-        ).as_vector()
-
     def secondary_fire(self) -> None: ...
 
 
@@ -67,9 +60,9 @@ def buckshot(engine: "Physics2D", source: "PhysicsEntity") -> None:
             initial_velocity=(
                 ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction())
                 + VectorF(0, _SPREAD * random_offset()).rotate_2d(
-                    (-source.get_aiming_direction()).as_vector().get_angle()
+                    (-source.get_aiming_direction()).get_angle()
                 )
-            ).as_vector(),
+            ),
             size=0.6,
             size_change_type=TransitionType.NONE,
             initial_color=RGB(255, 0, 127),
@@ -162,7 +155,7 @@ def shotgun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
         initial_velocity=(
             source.velocity
             + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
-        ).as_vector(),
+        ),
         size=0.5,
         size_change_type=TransitionType.NONE,
         initial_color=RGB(255, 255, 200, 1),  # almost white hot

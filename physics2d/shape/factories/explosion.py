@@ -31,7 +31,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
     eye_y = source.center.y - source.velocity.y
 
     _vel_factor = 0.2
-    _VELOCITY = (_vel_factor * source.velocity).as_vector()
+    _VELOCITY = _vel_factor * source.velocity
 
     core_explosion_1 = CircularParticle(
         origin=PointF(x=eye_x + random_offset(), y=eye_y + random_offset()),
@@ -150,7 +150,7 @@ def enemy_explosion(engine: "Physics2D", source: "PhysicsEntity", size: float) -
             engine=engine,
             initial_velocity=(
                 VectorF(x=random_offset() * 5, y=random_offset() * 5) + 1 * -_VELOCITY
-            ).as_vector(),
+            ),
             size=0.3,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
             ending_color=RGB(
@@ -227,7 +227,7 @@ def _smoke_generator(
     smoke = CircularParticle(
         origin=source.center + VectorF.random_offset_vector(random_offset_factor),
         engine=engine,
-        initial_velocity=(3 * (initial_velocity or source.velocity)).as_vector(),
+        initial_velocity=3 * (initial_velocity or source.velocity),
         size=source.radius * size_factor,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(130, 110, 90, 1, opacity=0.9),
@@ -281,8 +281,8 @@ def bullet_ricochet(engine: "Physics2D", source: "PhysicsEntity") -> None:
         origin=source.center,
         initial_velocity=(
             (-0.1) * source.velocity
-            + VectorF(0, 4 * random_offset()).rotate_2d((-source.velocity).as_vector().get_angle())
-        ).as_vector(),
+            + VectorF(0, 4 * random_offset()).rotate_2d((-source.velocity).get_angle())
+        ),
         size=0.5,
         initial_color=RGB(255, 255, 240, 1),  # almost white hot
         ending_color=RGB(100, 60, 0, 1),  # dark orange
@@ -348,7 +348,7 @@ def lightning_impact(
                 * VectorF(
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )
-            ).as_vector(),
+            ),
             size=(0.6),
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
             initial_color=RGB(255, 255, 255, 1),
@@ -580,7 +580,7 @@ def rocket_explosion(
         _factor = _SIZE * 1.5
         sec_explosion = CircularParticle(
             origin=PointF(x=eye_x + _factor * random_offset(), y=eye_y + _factor * random_offset()),
-            initial_velocity=(0.2 * _VELOCITY + 0.1 * VectorF.random_offset_vector()).as_vector(),
+            initial_velocity=0.2 * _VELOCITY + 0.1 * VectorF.random_offset_vector(),
             size=_sec_size,
             engine=engine,
             size_change_type=TransitionType.LINEAR_DECREASE,
@@ -605,7 +605,7 @@ def rocket_explosion(
                 ),
                 initial_velocity=(
                     VectorF(x=random_offset() * 5, y=random_offset() * 5) + _VELOCITY
-                ).as_vector(),
+                ),
                 size=0.5,
                 initial_color=spark_color or RGB(255, 255, 200, 1),  # almost white hot
                 ending_color=spark_color.copy(opacity=0.3)
@@ -808,7 +808,7 @@ def bfg_explosion(
                 origin=(
                     rocket.center + VectorF.random_offset_vector(blast_radius, blast_radius)
                 ).as_point(),
-                initial_velocity=(2 * VectorF.random_offset_vector()).as_vector(),
+                initial_velocity=(2 * VectorF.random_offset_vector()),
                 size=1.5,
                 size_change_type=TransitionType.LINEAR_DECREASE,
                 initial_color=spark_color or RGB(200, 255, 200),
@@ -912,10 +912,9 @@ def _calc_explosion_damage(
 
         # Semd ememy flying away
         # TODO: Make receive_damage take care of pushing back
-        res.enemy.velocity = (
-            res.enemy.velocity
-            + ((res.enemy.center - rocket.center).as_vector().unit_vector(vector_magnitude))
-        ).as_vector()
+        res.enemy.velocity = res.enemy.velocity + (
+            (res.enemy.center - rocket.center).as_vector().unit_vector(vector_magnitude)
+        )
         res.enemy.receive_damage(damage)
 
     # TODO: check why this causes a recursion error

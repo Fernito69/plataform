@@ -126,7 +126,7 @@ class Projectile(CircularParticle):
                 * (self.target.position - self.position).as_vector().unit_vector()
             )
             vel_contrib = (1 / self.homing_factor) * self.velocity
-            _new_velocity = (vel_contrib + to_target).as_vector()
+            _new_velocity = vel_contrib + to_target
             self.velocity = _new_velocity
             self.angle = _new_velocity.get_angle()
         elif (

@@ -114,7 +114,6 @@ class Weapon:
             return
 
         # recoil!
-        self._engine.scenario.player.velocity = (
-            self._engine.scenario.player.velocity
-            - self._recoil * (self._engine.scenario.player.get_aiming_direction())
-        ).as_vector()
+        self._engine.scenario.player.velocity -= self._recoil * (
+            self._engine.scenario.player.get_aiming_direction()
+        )

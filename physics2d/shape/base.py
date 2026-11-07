@@ -90,6 +90,7 @@ class Shape:
         self._color_gradient_exponent_end = color_gradient_exponent_end
         self._color_gradient_exponent_cycling_factor = color_gradient_exponent_cycling_factor
 
+    # TODO: is this used?
     def set_last_known_direction(self) -> None:
         # HACK, let's see if helps
         if abs(self.velocity.x) < ALMOST_ZERO and abs(self.velocity.y) < ALMOST_ZERO:
@@ -98,7 +99,7 @@ class Shape:
 
     def get_last_known_direction(self, scale: float = 1) -> VectorF:
         raw = self._last_known_direction or self.velocity.unit_vector()
-        return (scale * raw).as_vector() if scale != 1 else raw
+        return (scale * raw) if scale != 1 else raw
 
     @abstractmethod
     def do_your_thing(self) -> None:
@@ -154,10 +155,9 @@ class Shape:
         if self.floating_multi == 0:
             return
 
-        _new_velocity = (
-            self.velocity
-            + VectorF(self.floating_multi * random_offset(), self.floating_multi * random_offset())
-        ).as_vector()
+        _new_velocity = self.velocity + VectorF(
+            self.floating_multi * random_offset(), self.floating_multi * random_offset()
+        )
 
         self.velocity = _new_velocity
         self.angle = _new_velocity.get_angle()

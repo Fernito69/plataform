@@ -86,7 +86,7 @@ def gatling_bullets(
     _DAMAGE = 4
     _BULLET_SPEED = 9
 
-    velocity = ((_BULLET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
+    velocity = (_BULLET_SPEED + random_offset()) * source.get_aiming_direction()
     angle = velocity.get_angle()
 
     bullets = []
@@ -104,7 +104,7 @@ def gatling_bullets(
             life_time=50,
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
-            offset_from_origin=VectorF(factor, random_offset() * 4).rotate_2d(angle).as_vector(),
+            offset_from_origin=VectorF(factor, random_offset() * 4).rotate_2d(angle),
             engine=engine,
         )
         bullets.append(bullet)
@@ -189,7 +189,7 @@ def machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> None:
             initial_velocity=(
                 source.velocity
                 + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
-            ).as_vector(),
+            ),
             size=0.5,
             size_change_type=TransitionType.NONE,
             initial_color=RGB(255, 255, 200, 1),  # almost white hot
@@ -223,7 +223,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
         origin=source.center + (_offset + 1) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(1.2 * source.velocity).as_vector(),
+        initial_velocity=(1.2 * source.velocity),
         size=_base_size + 2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_fire_1_color,
@@ -233,7 +233,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     fire_2 = CircularParticle(
         origin=source.center + (_offset + 6) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(1.4 * source.velocity).as_vector(),
+        initial_velocity=(1.4 * source.velocity),
         size=_base_size + 1.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -247,7 +247,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     fire_3 = CircularParticle(
         origin=source.center + (_offset + 11) * direction + 2 * VectorF.random_offset_vector(),
-        initial_velocity=(1.7 * source.velocity).as_vector(),
+        initial_velocity=(1.7 * source.velocity),
         size=_base_size,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -261,7 +261,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     fire_4 = CircularParticle(
         origin=source.center + (_offset + 14) * direction + 2 * VectorF.random_offset_vector(),
-        initial_velocity=(2 * source.velocity).as_vector(),
+        initial_velocity=(2 * source.velocity),
         size=_base_size * 0.75,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(
@@ -276,7 +276,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     fire_white = CircularParticle(
         origin=source.center + (_offset) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(2.3 * source.velocity).as_vector(),
+        initial_velocity=(2.3 * source.velocity),
         size=_base_size + 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(255, 200, 255, 1),
@@ -291,7 +291,7 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         initial_velocity=(
             source.velocity
             + 5 * (direction + VectorF(0, random_offset() * 2).rotate_2d(direction.get_angle()))
-        ).as_vector(),
+        ),
         size=0.5,
         size_change_type=TransitionType.NONE,
         initial_color=RGB(255, 255, 200, 1),  # almost white hot

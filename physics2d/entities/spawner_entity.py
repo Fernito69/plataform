@@ -167,7 +167,7 @@ def teleport_in_particles(
                 * VectorF(
                     x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
                 )
-            ).as_vector(),
+            ),
             size=4,
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
             initial_color=_initial_color,

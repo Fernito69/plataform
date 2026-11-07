@@ -124,6 +124,40 @@ class VectorF(PointF):
         magnitude = magnitude / (abs(self) or ALMOST_ZERO)
         return (magnitude * self).as_vector()
 
+    def __add__(self, other: "PointF | VectorF") -> "VectorF":
+        return VectorF(
+            x=self.x + other.x,
+            y=self.y + other.y,
+            z=self.z + other.z,
+        )
+
+    def __sub__(self, other: "VectorF") -> "VectorF":
+        return VectorF(
+            x=self.x - other.x,
+            y=self.y - other.y,
+            z=self.z - other.z,
+        )
+
+    def __neg__(self) -> "VectorF":
+        return VectorF(x=-self.x, y=-self.y, z=-self.z)
+
+    def __mul__(self, scalar: float) -> "VectorF":
+        return VectorF(
+            self.x * scalar,
+            self.y * scalar,
+            self.z * scalar,
+        )
+
+    def __rmul__(self, scalar: float) -> "VectorF":
+        return self * scalar
+
+    def rotate_2d(self, angle_in_radians: float, rotation_axis: PointF | None = None) -> "VectorF":
+        return PointF.rotate_2d(
+            self,
+            angle_in_radians=angle_in_radians,
+            rotation_axis=rotation_axis,
+        ).as_vector()
+
     def get_angle(self) -> float:
         slope = self.get_slope()
         return (
@@ -165,13 +199,10 @@ class VectorF(PointF):
 
     @staticmethod
     def from_angle(angle_in_radians: float, magnitude: float = 1) -> VectorF:
-        return (
-            magnitude
-            * VectorF(
-                x=math.cos(angle_in_radians),
-                y=math.sin(angle_in_radians),
-            )
-        ).as_vector()
+        return magnitude * VectorF(
+            x=math.cos(angle_in_radians),
+            y=math.sin(angle_in_radians),
+        )
 
 
 @dataclass

@@ -9,7 +9,8 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.thruster import Thruster
 from physics2d.entities.equipment.thrusters.basic_thruster import BasicThruster
-from physics2d.entities.equipment.thrusters.chamorro_thruster import ChamorroThruster
+
+# from physics2d.entities.equipment.thrusters.chamorro_thruster import ChamorroThruster
 from physics2d.entities.equipment.thrusters.meteor_thruster import MeteorThruster
 from physics2d.entities.equipment.thrusters.plasma_ball_thruster import PlasmaBallThruster
 from physics2d.entities.equipment.thrusters.soapy_thruster import SoapyThruster
@@ -56,7 +57,10 @@ _SPEED_DEFORMATION_FACTOR = 0.03
 class PlayerBlob(PhysicsEntity, Player):
     _thrusters: list[Thruster]
     _curr_thruster_index: int = 0
+    # TODO: is this used?
     _last_known_direction: VectorF
+
+    _curr_acceleration: VectorF
 
     _weapons: list[Weapon]
     _curr_weapon_index: int = 0
@@ -65,7 +69,7 @@ class PlayerBlob(PhysicsEntity, Player):
         self,
         engine: "Physics2D",
         position: PointF = PointF(0, 0),
-        velocity=VectorF(0, 0),
+        velocity: VectorF = VectorF(0, 0),
         density: float = 1,
         player_number: int = 1,
         lives: int = 3,
@@ -107,6 +111,7 @@ class PlayerBlob(PhysicsEntity, Player):
         self._last_known_direction = velocity
         self.name = "PlayerBlob"
         self._color_gradient_exponent = _GRADIENT_EXPONENT
+        self._curr_acceleration = VectorF(0, 0)
 
     def do_your_thing(self) -> None:
         if self.health <= 0:
@@ -167,7 +172,7 @@ class PlayerBlob(PhysicsEntity, Player):
             MeteorThruster(e),
             SonicThruster(e),
             PlasmaBallThruster(e),
-            ChamorroThruster(e),
+            # ChamorroThruster(e),
         ]
         self._curr_thruster_index = 0
         self._weapons = [
@@ -242,33 +247,34 @@ class PlayerBlob(PhysicsEntity, Player):
     def _decelerate_if_not_pressing(self) -> None:
         _decel_amount = self._get_decel()
         _max_speed = self._get_max_speed()
+        accel: VectorF = VectorF(0, 0)
+
         if (
             self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP)
         ) or self.velocity.y > _max_speed:
-            self.velocity = (
-                self.velocity + VectorF(0, -min(_decel_amount, self.velocity.y))
-            ).as_vector()
+            accel += VectorF(0, -min(_decel_amount, self.velocity.y))
+
         if (
             self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN)
         ) or self.velocity.y < -_max_speed:
-            self.velocity = (
-                self.velocity + VectorF(0, max(_decel_amount, self.velocity.y))
-            ).as_vector()
+            accel += VectorF(0, max(_decel_amount, self.velocity.y))
+
         if (
             self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT)
         ) or self.velocity.x > _max_speed:
-            self.velocity = (
-                self.velocity + VectorF(-min(_decel_amount, self.velocity.x), 0)
-            ).as_vector()
+            accel += VectorF(-min(_decel_amount, self.velocity.x), 0)
+
         if (
             self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT)
         ) or self.velocity.x < -_max_speed:
-            self.velocity = (
-                self.velocity + VectorF(max(_decel_amount, self.velocity.x), 0)
-            ).as_vector()
+            accel += VectorF(max(_decel_amount, self.velocity.x), 0)
+
+        self._curr_acceleration = accel
+        self.velocity += accel
 
     def _handle_speed_deformation(self) -> None:
         self.angle = self.velocity.get_angle()
+        # _factor = _SPEED_DEFORMATION_FACTOR * 30 * abs(self._curr_acceleration)
         _factor = (_SPEED_DEFORMATION_FACTOR * abs(self.velocity)) ** 0.5
         self.y_factor = 1 + _factor
         self.x_factor = 1 - _factor
@@ -370,12 +376,12 @@ class PlayerBlob(PhysicsEntity, Player):
         )
 
     def grant_weapon(self, weapon: Weapon) -> None:
-        # TODO: check if this works to make thge logic simpler
-        # if weapon not in self._weapons:
-        weapon_idx = next((i for i, w in enumerate(self._weapons) if w.name == weapon.name), -1)
+        weapon_idx: int = next(
+            (i for i, w in enumerate(self._weapons) if w.name == weapon.name), -1
+        )
 
         if weapon_idx == -1:
-            new_idx = len(self._weapons)
+            new_idx: int = len(self._weapons)
             self._weapons.append(weapon)
             self._curr_weapon_index = new_idx
         else:
@@ -421,11 +427,7 @@ class PlayerBlob(PhysicsEntity, Player):
 
     @on_key_press(ActionKeys.SWITCH_THRUSTER, act_once_per_press=True)
     def _switch_thruster(self) -> None:
-        self._curr_thruster_index = (
-            self._curr_thruster_index + 1
-            if len(self._thrusters) > self._curr_thruster_index + 1
-            else 0
-        )
+        self._curr_thruster_index = (self._curr_thruster_index + 1) % len(self._thrusters)
         self._set_thruster_theme()
 
     @on_key_press(MovementKeys.UP)
@@ -433,7 +435,9 @@ class PlayerBlob(PhysicsEntity, Player):
         if self.velocity.y >= self._get_max_speed():
             return self.set_last_known_direction()
 
-        self.velocity = (self.velocity + VectorF(0, self._get_accel())).as_vector()
+        accel = VectorF(0, self._get_accel())
+        self._curr_acceleration = accel
+        self.velocity += accel
         self.set_last_known_direction()
 
     @on_key_press(MovementKeys.DOWN)
@@ -441,7 +445,9 @@ class PlayerBlob(PhysicsEntity, Player):
         if self.velocity.y <= -self._get_max_speed():
             return self.set_last_known_direction()
 
-        self.velocity = (self.velocity + VectorF(0, -self._get_accel())).as_vector()
+        accel = VectorF(0, -self._get_accel())
+        self._curr_acceleration = accel
+        self.velocity += accel
         self.set_last_known_direction()
 
     @on_key_press(MovementKeys.LEFT)
@@ -449,7 +455,9 @@ class PlayerBlob(PhysicsEntity, Player):
         if self.velocity.x <= -self._get_max_speed():
             return self.set_last_known_direction()
 
-        self.velocity = (self.velocity + VectorF(-self._get_accel(), 0)).as_vector()
+        accel = VectorF(-self._get_accel(), 0)
+        self._curr_acceleration = accel
+        self.velocity += accel
         self.set_last_known_direction()
 
     @on_key_press(MovementKeys.RIGHT)
@@ -457,7 +465,9 @@ class PlayerBlob(PhysicsEntity, Player):
         if self.velocity.x >= self._get_max_speed():
             return self.set_last_known_direction()
 
-        self.velocity = (self.velocity + VectorF(self._get_accel(), 0)).as_vector()
+        accel = VectorF(self._get_accel(), 0)
+        self._curr_acceleration = accel
+        self.velocity += accel
         self.set_last_known_direction()
 
     ################

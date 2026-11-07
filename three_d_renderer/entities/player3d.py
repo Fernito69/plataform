@@ -98,11 +98,11 @@ class Player3D(Player, LivingEntity3D):
 
     @on_key_press(MovementKeys.ROTATE_RIGHT)
     def _rotate_right(self) -> None:
-        self.set_angle((self.angle - VectorF(PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0)).as_vector())
+        self.set_angle((self.angle - VectorF(PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0)))
 
     @on_key_press(MovementKeys.ROTATE_LEFT)
     def _rotate_left(self) -> None:
-        self.set_angle((self.angle - VectorF(-PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0)).as_vector())
+        self.set_angle((self.angle - VectorF(-PLAYER_3D_MOVING_SPEED_FACTOR, 0, 0)))
 
     @on_key_press(MovementKeys.FLY_UP)
     def _fly_up(self) -> None:

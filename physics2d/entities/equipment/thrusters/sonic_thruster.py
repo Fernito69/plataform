@@ -41,10 +41,8 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
     sonic_boom_vacuum = CircularParticle(
         origin=(source.center + 0.8 * source.velocity)
         - VectorF(x=random_offset(), y=random_offset()),
-        initial_velocity=(
-            -0.5
-            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
-        ).as_vector(),
+        initial_velocity=-0.5
+        * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()),
         size=source.radius * (1 + vel_magnitude / 13),
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(0, 0, 0, 0),
@@ -59,10 +57,8 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
     sonic_boom_2 = CircularParticle(
         origin=(source.center - 0.2 * source.velocity)
         - VectorF(x=random_offset(), y=random_offset()),
-        initial_velocity=(
-            -0.4
-            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
-        ).as_vector(),
+        initial_velocity=-0.4
+        * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()),
         size=source.radius * (1 + vel_magnitude / 10),
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
@@ -77,10 +73,8 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
     # MAIN BOOM
     sonic_boom = CircularParticle(
         origin=(source.center - source.velocity) - VectorF(x=random_offset(), y=random_offset()),
-        initial_velocity=(
-            -0.4
-            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset())
-        ).as_vector(),
+        initial_velocity=-0.4
+        * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()),
         size=source.radius * (1 + (vel_magnitude + random()) / 7),
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_initial_color,
@@ -97,12 +91,8 @@ def sonic_wave(engine: "Physics2D", source: "PhysicsEntity") -> None:
         sonic_challa = CircularParticle(
             origin=(source.center - source.velocity)
             - VectorF(x=random_offset(), y=random_offset()),
-            initial_velocity=(
-                -0.4
-                * VectorF(
-                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
-                )
-            ).as_vector(),
+            initial_velocity=-0.4
+            * VectorF(x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()),
             size=(0.8 + random_offset()) * vel_magnitude / 3,
             size_change_type=TransitionType.EXPONENTIAL_DECREASE,
             initial_color=_initial_color,

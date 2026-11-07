@@ -46,9 +46,8 @@ def standard_thruster(engine: "Physics2D", source: "PhysicsEntity") -> None:
                 - source.get_last_known_direction() * 1
             )
             + source.size * VectorF.random_offset_vector(),
-            initial_velocity=(
-                +0.2 * VectorF.random_offset_vector() - source.get_last_known_direction()
-            ).as_vector(),
+            initial_velocity=0.2 * VectorF.random_offset_vector()
+            - source.get_last_known_direction(),
             size=0.7 + random_offset(),
             size_change_type=TransitionType.LINEAR_DECREASE,
             initial_color=RGB(255, 255, 120),

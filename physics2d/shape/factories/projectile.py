@@ -155,7 +155,7 @@ def get_bullet(
     life_time: int = 50,
 ) -> "ParticleGenerator":
     def _bullet(engine: "Physics2D", source: "PhysicsEntity"):
-        velocity = ((speed + random_offset()) * source.get_aiming_direction()).as_vector()
+        velocity = (speed + random_offset()) * source.get_aiming_direction()
 
         bullet = Projectile(
             owner=source,
@@ -205,7 +205,7 @@ def rocket(
     explosion_size: float | None = None,
     max_random_spread_in_radians: float = 0,
 ):
-    _velocity = ((rocket_speed + random_offset()) * source.get_aiming_direction()).as_vector()
+    _velocity = (rocket_speed + random_offset()) * source.get_aiming_direction()
 
     return Projectile(
         owner=source,
@@ -215,7 +215,7 @@ def rocket(
             _velocity.rotate_2d(max_random_spread_in_radians * random_offset())
             if max_random_spread_in_radians
             else _velocity
-        ).as_vector(),
+        ),
         size=size,
         size_change_type=TransitionType.NONE,
         ending_color_fade_type=TransitionType.NONE,

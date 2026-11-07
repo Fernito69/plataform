@@ -55,7 +55,7 @@ def homing_missile(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _BLAST_RADIUS = 15
     _MAX_BLAST_DAMAGE = 60
 
-    _velocity = ((_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()).as_vector()
+    _velocity = (_ROCKET_SPEED + random_offset()) * source.get_aiming_direction()
 
     rocket = Projectile(
         owner=source,
