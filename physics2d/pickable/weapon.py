@@ -147,7 +147,7 @@ def _build_init_params(
 ) -> dict:
     text = Text(
         engine=engine,
-        position=position,
+        position=position + PointF(0.5, 0.5),
         text_color=color.get_gradient(RGB(255, 255, 255)),
         scale_factor=1,
         thickness=0.7,
