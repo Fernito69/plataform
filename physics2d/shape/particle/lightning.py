@@ -181,44 +181,42 @@ class Lightning(Particle, Line):
             _factor = idx / (len(self.segments) or 1)
             return (1 - _factor) * self.thickness + _factor * self.final_thickness
 
-        lines: list[Line] = (
-            [
-                Line(
-                    points=(segment_points[0], self.points[0]),
-                    thickness=self.thickness,
-                    theme=self.theme,
-                    initial_velocity=self.velocity,
-                    engine=self._engine,
-                    initial_angular_velocity=self.angular_velocity,
-                )
-            ]
-            + [
-                Line(
-                    points=(
-                        p,
-                        segment_points[idx + 1],
-                    ),
-                    thickness=_get_thickness(idx),
-                    theme=self.theme,
-                    initial_velocity=self.velocity,
-                    engine=self._engine,
-                    initial_angular_velocity=self.angular_velocity,
-                )
-                for idx, p in enumerate(segment_points[:-1])
-            ]
-            + [
-                Line(
-                    points=(segment_points[-1], self.points[1]),
-                    thickness=self.final_thickness or self.thickness,
-                    theme=self.theme,
-                    initial_velocity=self.velocity,
-                    engine=self._engine,
-                    initial_angular_velocity=self.angular_velocity,
-                )
-            ]
+        starting_segment = Line(
+            points=(segment_points[0], self.points[0]),
+            thickness=self.thickness,
+            theme=self.theme,
+            initial_velocity=self.velocity,
+            engine=self._engine,
+            initial_angular_velocity=self.angular_velocity,
         )
+        ending_segment = Line(
+            points=(segment_points[-1], self.points[1]),
+            thickness=self.final_thickness or self.thickness,
+            theme=self.theme,
+            initial_velocity=self.velocity,
+            engine=self._engine,
+            initial_angular_velocity=self.angular_velocity,
+        )
+        middle_segments: list[Line] = [
+            Line(
+                points=(
+                    p,
+                    segment_points[idx + 1],
+                ),
+                thickness=_get_thickness(idx),
+                theme=self.theme,
+                initial_velocity=self.velocity,
+                engine=self._engine,
+                initial_angular_velocity=self.angular_velocity,
+            )
+            for idx, p in enumerate(segment_points[:-1])
+        ]
 
-        self.segments = lines
+        self.segments = [
+            starting_segment,
+            *middle_segments,
+            ending_segment,
+        ]
 
     def _handle_life_time(self) -> None:
         if self.life_time is None or self._original_life_time is None:
