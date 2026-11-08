@@ -25,37 +25,12 @@ from utils import colored
 if TYPE_CHECKING:
     from game import Game
     from parallel import RenderPool
+    from physics2d.entities.model.shared import RenderableEntity
     from physics2d.shape.base import Shape
 
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
-
-# Shapes this far outside the screen are still rendered, so nothing pops in
-# at the edge and fast movers aren't culled a frame too early.
 CULLING_GRACE_MARGIN = 8
-
-
-def _get_render_info(entity) -> list[RenderInfo]:
-    """Module-level so the pool isn't handed a closure over engine state."""
-    return entity.get_render_info()
-
-
-# TODO: can't we just change the behavior of RGB.with_intensity?
-def _scaled(color: RGB, intensity: float) -> RGB:
-    """`color` at `intensity`, without touching `color` itself.
-
-    Same result as RGB.with_intensity, but that one writes the intensity onto
-    the colour before reading it back, and a shape hands out the same colour
-    object for every one of its pixels. Two bands blending at once would then
-    interleave that write and read, so the blend uses this instead.
-    """
-    return RGB(
-        int(color.r * intensity),
-        int(color.g * intensity),
-        int(color.b * intensity),
-        intensity=intensity,
-        opacity=color.opacity,
-    )
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -84,7 +59,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     screen_corner: PointF
 
-    # For better performance
+    # TODO: deprecate this
     low_quality_mode: bool
 
     def __init__(
@@ -106,18 +81,16 @@ class Physics2D(Engine, KeyboardHandler):
         # Shared with the Display, and owned by the Game -- see parallel.py.
         self._render_pool = render_pool
 
-    def compute_render_info_batch(self, entities: list) -> list[list[RenderInfo]]:
+    def compute_render_info_batch(
+        self,
+        entities: list["RenderableEntity"],
+    ) -> list[list[RenderInfo]]:
         """Resolve each entity's pixels, in the order they were given."""
 
         if self._render_pool is None:
             return [entity.get_render_info() for entity in entities]
 
-        # One task per entity, not per band. Entities differ enormously in cost
-        # (a big circle against a spark), and handing them out one at a time
-        # lets whichever thread is free take the next one. Measured: banding
-        # them instead costs ~55% more during an explosion, even though it
-        # submits far fewer tasks.
-        return self._render_pool.map(_get_render_info, entities)
+        return self._render_pool.map(lambda e: e.get_render_info(), entities)
 
     def init_player(self, scenario: Scenario | None = None) -> None:
         self.player = self.game.player_blob
@@ -278,7 +251,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def _convert_screen_buffer_to_display_data(self, frame: FrameSnapshot) -> list[list[str]]:
         # TODO: for now, we assume y-res is always even
-        # Note the step is 2 here <────┐
+        # Note the step is 2 here <─────────┐
         buffer_rows = range(0, frame.y_res, 2)
 
         def _convert_band(band: Sequence[int]) -> list[list[str]]:
@@ -418,13 +391,12 @@ class Physics2D(Engine, KeyboardHandler):
             if len(il) <= idx:
                 return RGB(0, 0, 0)
 
-            return _scaled(
-                il[idx].color,
-                max(
-                    0,
-                    1 - (il[idx]).distance_to_pixel_center,
-                ),
+            intensity = max(
+                0,
+                1 - il[idx].distance_to_pixel_center,
             )
+
+            return intensity * il[idx].color.copy(intensity=intensity)
 
         curr_color = _get_color(info_list, curr_index)
         curr_index += 1
