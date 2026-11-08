@@ -467,6 +467,7 @@ class Circunference(Shape):
     # TODO: THIS SHOULD ONLY RETURN A BOOLEAN AND EVERY ENTITY SHOULD TAKE CARE OF THE ENTITY-SPECIFIC LOGIC
     def would_collide_with(self, colliding_shape: Shape) -> bool:
         from physics2d.entities.equipment.projectile import Projectile
+        from physics2d.pickable.base import Pickable
 
         if (
             not self.is_collideable
@@ -488,6 +489,10 @@ class Circunference(Shape):
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
+                    if isinstance(colliding_shape, Pickable):
+                        # don't offer resistance if it's an item
+                        return True
+
                     # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                     # TODO: Fix the logic of this energy transfer
                     denominator = self.weight + colliding_shape.weight

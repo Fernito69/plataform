@@ -646,6 +646,17 @@ _EXCLAMATION_MARK_2 = [
     PointF(2, 0.1),
 ]
 
+_PLUS_1 = [
+    PointF(0, 4),
+    PointF(4, 4),
+]
+
+_PLUS_2 = [
+    PointF(2, 6),
+    PointF(2, 2),
+]
+
+
 _1 = [
     PointF(3, 0),
     PointF(3, 8),
@@ -805,6 +816,7 @@ _char_vertex_compendium: dict[str, list[list[PointF]]] = {
     ".": [_DOT],
     ",": [_COMMA],
     "!": [_EXCLAMATION_MARK_1, _EXCLAMATION_MARK_2],
+    "+": [_PLUS_1, _PLUS_2],
 }
 
 """

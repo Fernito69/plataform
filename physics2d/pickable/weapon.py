@@ -28,12 +28,124 @@ if TYPE_CHECKING:
     from physics2d.shape.base import Shape
 
 
-def _get_text(
+class ShotgunPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine,
+                position,
+                "s",
+                SHOTGUN_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(Shotgun(self.engine))
+
+
+#############################################################
+
+
+class HeavyRocketLauncherPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine,
+                position,
+                "H",
+                HEAVY_ROCKET_LAUNCHER_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(HeavyRocketLauncher(self.engine))
+
+
+#############################################################
+
+
+class MicroMissilesLauncherPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine,
+                position,
+                "m",
+                MICROMISSILES_LAUNCHER_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(MicroMissileLauncher(self.engine))
+
+
+#############################################################
+
+
+class HomingMissilesLauncherPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine,
+                position,
+                "h",
+                HOMING_MISSILE_LAUNCHER_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(HomingMissileLauncher(self.engine))
+
+
+class RocketLauncherPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine,
+                position,
+                "r",
+                ROCKET_LAUNCHER_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(RocketLauncher(self.engine))
+
+
+#############################################################
+"""HELPERS"""
+#############################################################
+
+
+# TODO: type this shit
+def _build_init_params(
     engine: "Physics2D",
     position: PointF,
+    letter: str,
     color: RGB,
-) -> Text:
-    return Text(
+    size: float = 10,
+) -> dict:
+    text = Text(
         engine=engine,
         position=position,
         text_color=color.get_gradient(RGB(255, 255, 255)),
@@ -43,6 +155,18 @@ def _get_text(
         pulsate_amplitude=0.3,
         # initial_velocity=PointF(0.1, 0.12121221).as_vector(),
     )
+
+    return {
+        "engine": engine,
+        "theme": Theme(color),
+        "secondary_theme": Theme(0.1 * color),
+        "color_gradient_exponent_end": 0,
+        "color_gradient_exponent": 1,
+        "size": size,
+        "position": position,
+        "particle_generator": _weapon_pickup_flame(color),
+        "extra_shapes": text.generate(letter),
+    }
 
 
 def _weapon_pickup_flame(color: RGB) -> "ParticleGenerator":
@@ -65,138 +189,3 @@ def _weapon_pickup_flame(color: RGB) -> "ParticleGenerator":
         engine.scenario.bg_shapes[0:0] = pieces
 
     return _w
-
-
-#################
-
-
-class ShotgunPickup(Pickable):
-    def __init__(
-        self,
-        engine: "Physics2D",
-        position: PointF,
-    ) -> None:
-        text = _get_text(engine, position, SHOTGUN_COLOR)
-
-        super().__init__(
-            engine,
-            theme=Theme(SHOTGUN_COLOR),
-            secondary_theme=Theme(0.1 * SHOTGUN_COLOR),
-            color_gradient_exponent_end=0,
-            color_gradient_exponent=1,
-            size=10,
-            position=position,
-            particle_generator=_weapon_pickup_flame(SHOTGUN_COLOR),
-            extra_shapes=text.generate("s"),
-        )
-
-    def _grant_player_something(self) -> None:
-        self.engine.player.grant_weapon(Shotgun(self.engine))
-
-
-#############################################################
-
-
-class HeavyRocketLauncherPickup(Pickable):
-    def __init__(
-        self,
-        engine: "Physics2D",
-        position: PointF,
-    ) -> None:
-        text = _get_text(engine, position, HEAVY_ROCKET_LAUNCHER_COLOR)
-
-        super().__init__(
-            engine,
-            theme=Theme(HEAVY_ROCKET_LAUNCHER_COLOR),
-            secondary_theme=Theme(0.1 * HEAVY_ROCKET_LAUNCHER_COLOR),
-            color_gradient_exponent_end=0,
-            color_gradient_exponent=1,
-            size=10,
-            position=position,
-            particle_generator=_weapon_pickup_flame(HEAVY_ROCKET_LAUNCHER_COLOR),
-            extra_shapes=text.generate("H"),
-        )
-
-    def _grant_player_something(self) -> None:
-        self.engine.player.grant_weapon(RocketLauncher(self.engine))
-
-
-#############################################################
-
-
-class MicroMissilesLauncherPickup(Pickable):
-    def __init__(
-        self,
-        engine: "Physics2D",
-        position: PointF,
-    ) -> None:
-        text = _get_text(engine, position, MICROMISSILES_LAUNCHER_COLOR)
-
-        super().__init__(
-            engine,
-            theme=Theme(MICROMISSILES_LAUNCHER_COLOR),
-            secondary_theme=Theme(0.1 * MICROMISSILES_LAUNCHER_COLOR),
-            color_gradient_exponent_end=0,
-            color_gradient_exponent=1,
-            size=10,
-            position=position,
-            particle_generator=_weapon_pickup_flame(MICROMISSILES_LAUNCHER_COLOR),
-            extra_shapes=text.generate("m"),
-        )
-
-    def _grant_player_something(self) -> None:
-        self.engine.player.grant_weapon(HeavyRocketLauncher(self.engine))
-
-
-#############################################################
-
-
-class HomingMissilesLauncherPickup(Pickable):
-    def __init__(
-        self,
-        engine: "Physics2D",
-        position: PointF,
-    ) -> None:
-        text = _get_text(engine, position, HOMING_MISSILE_LAUNCHER_COLOR)
-
-        super().__init__(
-            engine,
-            theme=Theme(HOMING_MISSILE_LAUNCHER_COLOR),
-            secondary_theme=Theme(0.1 * HOMING_MISSILE_LAUNCHER_COLOR),
-            color_gradient_exponent_end=0,
-            color_gradient_exponent=1,
-            size=10,
-            position=position,
-            particle_generator=_weapon_pickup_flame(HOMING_MISSILE_LAUNCHER_COLOR),
-            extra_shapes=text.generate("h"),
-        )
-
-    def _grant_player_something(self) -> None:
-        self.engine.player.grant_weapon(MicroMissileLauncher(self.engine))
-
-
-#############################################################
-
-
-class RocketLauncherPickup(Pickable):
-    def __init__(
-        self,
-        engine: "Physics2D",
-        position: PointF,
-    ) -> None:
-        text = _get_text(engine, position, ROCKET_LAUNCHER_COLOR)
-
-        super().__init__(
-            engine,
-            theme=Theme(ROCKET_LAUNCHER_COLOR),
-            secondary_theme=Theme(0.1 * ROCKET_LAUNCHER_COLOR),
-            color_gradient_exponent_end=0,
-            color_gradient_exponent=1,
-            size=10,
-            position=position,
-            particle_generator=_weapon_pickup_flame(ROCKET_LAUNCHER_COLOR),
-            extra_shapes=text.generate("r"),
-        )
-
-    def _grant_player_something(self) -> None:
-        self.engine.player.grant_weapon(HomingMissileLauncher(self.engine))

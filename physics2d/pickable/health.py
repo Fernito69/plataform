@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.pickable.base import Pickable
+from physics2d.shape.factories.text import Text
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
 
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 _HEALTH_COLOR = RGB(0, 255, 0)
 
 
-def _particles(color: RGB) -> "ParticleGenerator":
+def _particles(color: RGB, size: float) -> "ParticleGenerator":
     def _p(engine: "Physics2D", source: "PhysicsEntity") -> None:
         pieces: list[Shape] = []
 
@@ -26,10 +27,10 @@ def _particles(color: RGB) -> "ParticleGenerator":
                 size=1 + random_offset(),
                 initial_color=color,
                 ending_color=color.copy(opacity=0.1),
-                life_time=5,
-                floating_multi=0.2,
+                life_time=round(size),
+                floating_multi=0.7,
                 engine=engine,
-                gravity=-0.05,
+                gravity=-0.06,
             )
             pieces.append(challita)
 
@@ -51,6 +52,20 @@ class HealthPickup(Pickable):
         amount: int,
     ) -> None:
         self._amount = amount
+        size = amount**0.333
+        scale_factor = size / 6
+        thickness = scale_factor * 0.7
+
+        text = Text(
+            engine=engine,
+            position=position + PointF(0.5, -0.5),
+            text_color=_HEALTH_COLOR.get_gradient(RGB(255, 255, 255)),
+            scale_factor=scale_factor,
+            thickness=thickness,
+            pulsate_freq=0.5,
+            pulsate_amplitude=0.3,
+            # initial_velocity=PointF(0.1, 0.12121221).as_vector(),
+        )
 
         super().__init__(
             engine,
@@ -58,9 +73,10 @@ class HealthPickup(Pickable):
             secondary_theme=Theme(0.1 * _HEALTH_COLOR.copy(opacity=0.5)),
             color_gradient_exponent_end=0,
             color_gradient_exponent=1,
-            size=amount**0.333,
+            size=size,
             position=position,
-            particle_generator=_particles(_HEALTH_COLOR),
+            particle_generator=_particles(_HEALTH_COLOR, size),
+            extra_shapes=text.generate("+"),
         )
 
     def _grant_player_something(self) -> None:
