@@ -36,10 +36,10 @@ class ShotgunPickup(Pickable):
     ) -> None:
         super().__init__(
             **_build_init_params(
-                engine,
-                position,
-                "s",
-                SHOTGUN_COLOR,
+                engine=engine,
+                position=position,
+                letter="s",
+                color=SHOTGUN_COLOR,
             )
         )
 
@@ -58,10 +58,10 @@ class HeavyRocketLauncherPickup(Pickable):
     ) -> None:
         super().__init__(
             **_build_init_params(
-                engine,
-                position,
-                "H",
-                HEAVY_ROCKET_LAUNCHER_COLOR,
+                engine=engine,
+                position=position,
+                letter="H",
+                color=HEAVY_ROCKET_LAUNCHER_COLOR,
             )
         )
 
@@ -80,10 +80,10 @@ class MicroMissilesLauncherPickup(Pickable):
     ) -> None:
         super().__init__(
             **_build_init_params(
-                engine,
-                position,
-                "m",
-                MICROMISSILES_LAUNCHER_COLOR,
+                engine=engine,
+                position=position,
+                letter="m",
+                color=MICROMISSILES_LAUNCHER_COLOR,
             )
         )
 
@@ -102,10 +102,10 @@ class HomingMissilesLauncherPickup(Pickable):
     ) -> None:
         super().__init__(
             **_build_init_params(
-                engine,
-                position,
-                "h",
-                HOMING_MISSILE_LAUNCHER_COLOR,
+                engine=engine,
+                position=position,
+                letter="h",
+                color=HOMING_MISSILE_LAUNCHER_COLOR,
             )
         )
 
@@ -121,10 +121,10 @@ class RocketLauncherPickup(Pickable):
     ) -> None:
         super().__init__(
             **_build_init_params(
-                engine,
-                position,
-                "r",
-                ROCKET_LAUNCHER_COLOR,
+                engine=engine,
+                position=position,
+                letter="r",
+                color=ROCKET_LAUNCHER_COLOR,
             )
         )
 
