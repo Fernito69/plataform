@@ -15,6 +15,7 @@ from physics2d.pickable.weapon import (
 )
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
+from physics2d.shape.bitmap import Bitmap
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -217,7 +218,14 @@ def color_test(
 
     fg_pieces: list[Shape] = []
     solid_pieces: list[Shape] = []
-    bg_pieces: list[Shape] = []
+    bg_pieces: list[Shape] = [
+        Bitmap(
+            engine=engine,
+            origin=PointF(-20, -20),
+            bitmap=_bitmap,
+            initial_velocity=PointF(0.01, 0.02).as_vector(),
+        )
+    ]
     pickables: list["Pickable"] = [
         ShotgunPickup(engine=engine, position=PointF(100, 120)),
         RocketLauncherPickup(engine=engine, position=PointF(140, 60)),
@@ -242,3 +250,15 @@ def color_test(
         background_gen=background_gen,
         player_initial_position=_STARTING_POSITION,
     )
+
+
+r = RGB(255, 0, 0)
+R = RGB(127, 0, 0)
+y = RGB(255, 255, 0)
+Y = RGB(127, 127, 0)
+
+_bitmap: list[list[RGB]] = [
+    [R, R, R, R, Y, Y, Y],
+    [R, r, r, r, Y, y, y],
+    [R, r, r, r, Y, y, y],
+]
