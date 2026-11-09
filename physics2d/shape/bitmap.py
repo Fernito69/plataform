@@ -12,14 +12,14 @@ from model.theme import RGB
 
 
 class Bitmap(Shape):
-    bitmap: list[list[RGB]]
+    bitmap: list[list[RGB | None]]
     origin: PointF
 
     def __init__(
         self,
         engine: "Physics2D",
         origin: PointF,
-        bitmap: list[list[RGB]],
+        bitmap: list[list[RGB | None]],
         angle: float = 0,
         x_scale: float = 1,
         y_scale: float = 1,
@@ -84,6 +84,9 @@ class Bitmap(Shape):
 
         for y_idx, row in enumerate(self.bitmap):
             for x_idx, pixel_color in enumerate(row):
+                if not pixel_color:
+                    continue
+
                 point = PointF(
                     x=self.origin.x + x_idx,
                     y=self.origin.y + y_idx,
@@ -91,6 +94,7 @@ class Bitmap(Shape):
                 # two cases: whether it's a perfect match with the pixel or not
                 d_x: float = self.origin.x % 1
                 d_y: float = self.origin.y % 1
+                color: RGB | None = pixel_color
 
                 if abs(d_x) < ALMOST_ZERO and abs(d_y) < ALMOST_ZERO:
                     distance_to_pixel_center = 0
@@ -117,18 +121,18 @@ class Bitmap(Shape):
                         + q3_contrib * (1 if q3_color != BLACK else 0)
                         + q4_contrib * (1 if q4_color != BLACK else 0)
                     )
-                    pixel_color = (
-                        q1_contrib * q1_color
-                        + q2_contrib * q2_color
-                        + q3_contrib * q3_color
-                        + q4_contrib * q4_color
+                    color = (
+                        q1_contrib * (q1_color or BLACK)
+                        + q2_contrib * (q2_color or BLACK)
+                        + q3_contrib * (q3_color or BLACK)
+                        + q4_contrib * (q4_color or BLACK)
                     )
 
                 render_info.append(
                     RenderInfo(
                         point=point,
                         distance_to_pixel_center=distance_to_pixel_center,
-                        color=pixel_color,
+                        color=color,
                     )
                 )
 

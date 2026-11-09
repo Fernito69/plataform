@@ -256,9 +256,23 @@ r = RGB(255, 0, 0)
 R = RGB(127, 0, 0)
 y = RGB(255, 255, 0)
 Y = RGB(127, 127, 0)
+b = RGB(0, 0, 255)
+B = RGB(0, 0, 127)
+g = RGB(0, 255, 0)
+G = RGB(0, 127, 0)
 
-_bitmap: list[list[RGB]] = [
-    [R, R, R, R, Y, Y, Y],
-    [R, r, r, r, Y, y, y],
-    [R, r, r, r, Y, y, y],
+
+_bitmap: list[list[RGB | None]] = [
+    [R, R, R, Y, Y, Y],
+    [R, R, R, Y, Y, Y],
+    [R, R, R, Y, Y, Y],
+    [G, G, G, B, B, B],
+    [G, G, G, B, B, B],
+    [G, G, G, B, B, B],
 ]
+
+# _bitmap: list[list[RGB]] = [
+#     [R, R, R, R, Y, Y, Y],
+#     [R, r, r, r, Y, y, y],
+#     [R, r, r, r, Y, y, y],
+# ]
