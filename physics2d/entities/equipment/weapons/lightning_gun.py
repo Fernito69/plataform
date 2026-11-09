@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from model.theme import RGB
+from physics2d.constants import LIGHTNING_GUN_COLOR
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.projectile import get_lightning_bolts
 
@@ -35,7 +36,7 @@ class LightningGun(Weapon):
             x_factor=1,
             y_factor=1,
             ammo=2000,
-            color=RGB(255, 190, 255, 1),
+            color=LIGHTNING_GUN_COLOR,
         )
 
     def _spend_ammo(self) -> None:

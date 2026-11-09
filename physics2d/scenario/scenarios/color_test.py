@@ -7,11 +7,15 @@ from physics2d.entities.enemy import Enemy
 from physics2d.model.shared import BackgroundGenerator
 from physics2d.pickable.health import HealthPickup
 from physics2d.pickable.weapon import (
+    BFGPickup,
+    HeavyMachineGunPickup,
     HeavyRocketLauncherPickup,
     HomingMissilesLauncherPickup,
+    LightningGunPickup,
     MicroMissilesLauncherPickup,
     RocketLauncherPickup,
     ShotgunPickup,
+    ZapperPickup,
 )
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
@@ -232,6 +236,11 @@ def color_test(
         MicroMissilesLauncherPickup(engine=engine, position=PointF(160, 100)),
         HomingMissilesLauncherPickup(engine=engine, position=PointF(180, 100)),
         HeavyRocketLauncherPickup(engine=engine, position=PointF(140, 100)),
+        LightningGunPickup(engine=engine, position=PointF(80, 100)),
+        HeavyMachineGunPickup(engine=engine, position=PointF(60, 100)),
+        ZapperPickup(engine=engine, position=PointF(40, 100)),
+        BFGPickup(engine=engine, position=PointF(20, 100)),
+        ###
         HealthPickup(engine=engine, position=PointF(140, 80), amount=100),
         HealthPickup(engine=engine, position=PointF(160, 80), amount=200),
         HealthPickup(engine=engine, position=PointF(180, 80), amount=500),

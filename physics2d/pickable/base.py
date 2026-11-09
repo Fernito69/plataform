@@ -83,9 +83,13 @@ class Pickable(PhysicsEntity):
 
     def _pick_up(self) -> None:
         self._grant_player_something()
+        self._pick_up_effect()
         self.engine.scenario.pickables = [
             p for p in self.engine.scenario.pickables if p is not self
         ]
 
     @abstractmethod
     def _grant_player_something(self) -> None: ...
+
+    @abstractmethod
+    def _pick_up_effect(self) -> None: ...

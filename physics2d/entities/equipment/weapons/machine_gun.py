@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from model.base import VectorF
 from model.theme import RGB
+from physics2d.constants import HEAVY_MACHINE_GUN_COLOR, MACHINE_GUN_COLOR
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import bullet_ricochet
@@ -26,7 +27,7 @@ class MachineGun(Weapon):
             fire_particle_generator=machine_gun_nozzle,
             projectile_generator=get_bullet(),
             ammo=1000,
-            color=RGB(127, 127, 127, 1),
+            color=MACHINE_GUN_COLOR,
             weapon_radius=1.2,
             x_factor=1,
             y_factor=0.3,
@@ -57,7 +58,7 @@ class HeavyMachineGun(Weapon):
             fire_particle_generator=heavy_machine_gun_nozzle,
             projectile_generator=_bullets,
             ammo=4000,
-            color=RGB(90, 90, 90, 1),
+            color=HEAVY_MACHINE_GUN_COLOR,
             engine=engine,
             weapon_radius=2.5,
             x_factor=1,

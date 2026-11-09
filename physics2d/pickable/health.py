@@ -4,6 +4,7 @@ from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.pickable.base import Pickable
 from physics2d.shape.factories.text import Text
+from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 _HEALTH_COLOR = RGB(0, 255, 0)
 
 
-def _particles(color: RGB, size: float) -> "ParticleGenerator":
+def _particles(color: RGB, life_time: int) -> "ParticleGenerator":
     def _p(engine: "Physics2D", source: "PhysicsEntity") -> None:
         pieces: list[Shape] = []
 
@@ -27,7 +28,7 @@ def _particles(color: RGB, size: float) -> "ParticleGenerator":
                 size=1 + random_offset(),
                 initial_color=color,
                 ending_color=color.copy(opacity=0.1),
-                life_time=round(size),
+                life_time=life_time,
                 floating_multi=0.7,
                 engine=engine,
                 gravity=-0.06,
@@ -81,6 +82,20 @@ class HealthPickup(Pickable):
 
     def _grant_player_something(self) -> None:
         self.engine.player.grant_health(self._amount)
+
+    def _pick_up_effect(self) -> None:
+        light = CircularParticle(
+            origin=self.engine.player,
+            size=0.3,
+            size_change_type=TransitionType.LINEAR_INCREASE,
+            initial_color=_HEALTH_COLOR,
+            ending_color=_HEALTH_COLOR.copy(opacity=0.01),
+            life_time=round(self.size * 3),
+            final_radius=self.size * 2,
+            engine=self.engine,
+            particle_generator=_particles(_HEALTH_COLOR, round(self.size * 2)),
+        )
+        self.engine.scenario.bg_shapes.append(light)
 
 
 #############################################################

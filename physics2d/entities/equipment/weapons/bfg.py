@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from constants import PHI, PI
 from model.base import PointF, VectorF
 from model.theme import RGB
+from physics2d.constants import BFG_COLOR
 from physics2d.entities.equipment.projectile import Projectile
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.explosion import get_rocket_explosion
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
 _BFG_BASE_COUNTDOWN = 15
-_BFG_READY_LIGHT = RGB(0, 255, 0, 1)
+_BFG_READY_LIGHT = BFG_COLOR
 _BFG_DEPLETED_LIGHT = RGB(30, 50, 30, 1)
 _BFG_FIRING_LIGHT = RGB(255, 0, 0, 1)
 

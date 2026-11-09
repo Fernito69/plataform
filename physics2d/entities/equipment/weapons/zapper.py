@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from model.theme import RGB
+from physics2d.constants import ZAPPER_COLOR
 from physics2d.entities.equipment.weapon import Weapon
 from physics2d.shape.factories.projectile import get_lightning_bolts
 from physics2d.shape.particle.lightning import Lightning
@@ -23,7 +24,7 @@ class Zapper(Weapon):
             fire_particle_generator=lightning_nozzle,
             projectile_generator=zapper_bolt,
             ammo=50,
-            color=RGB(100, 190, 255, 1),
+            color=ZAPPER_COLOR,
             weapon_radius=2,
             x_factor=1,
             y_factor=0.2,

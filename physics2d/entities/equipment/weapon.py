@@ -94,8 +94,7 @@ class Weapon:
         if not self.can_shoot():
             # charging up
             _factor = self.get_life_time_ellapsed_ratio()
-            _target_color = 0.7 * self._original_color
-            self.color = 0.2 * self._original_color.get_gradient(_target_color, _factor)
+            self.color = self._original_color.get_gradient(RGB(), _factor)
         else:
             self.color = self._original_color
 

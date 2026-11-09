@@ -3,21 +3,30 @@ from typing import TYPE_CHECKING
 from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.constants import (
+    BFG_COLOR,
+    HEAVY_MACHINE_GUN_COLOR,
     HEAVY_ROCKET_LAUNCHER_COLOR,
     HOMING_MISSILE_LAUNCHER_COLOR,
+    LIGHTNING_GUN_COLOR,
     MICROMISSILES_LAUNCHER_COLOR,
     ROCKET_LAUNCHER_COLOR,
     SHOTGUN_COLOR,
+    ZAPPER_COLOR,
 )
+from physics2d.entities.equipment.weapons.bfg import BFG
 from physics2d.entities.equipment.weapons.homing_missile_launcher import HomingMissileLauncher
+from physics2d.entities.equipment.weapons.lightning_gun import LightningGun
+from physics2d.entities.equipment.weapons.machine_gun import HeavyMachineGun
 from physics2d.entities.equipment.weapons.rocket_launcher import (
     HeavyRocketLauncher,
     MicroMissileLauncher,
     RocketLauncher,
 )
 from physics2d.entities.equipment.weapons.shotgun import Shotgun
+from physics2d.entities.equipment.weapons.zapper import Zapper
 from physics2d.pickable.base import Pickable
 from physics2d.shape.factories.text import Text
+from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
 from utils import random_offset
 
@@ -46,6 +55,9 @@ class ShotgunPickup(Pickable):
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(Shotgun(self.engine))
 
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=SHOTGUN_COLOR)
+
 
 #############################################################
 
@@ -67,6 +79,9 @@ class HeavyRocketLauncherPickup(Pickable):
 
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(HeavyRocketLauncher(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=HEAVY_ROCKET_LAUNCHER_COLOR)
 
 
 #############################################################
@@ -90,6 +105,9 @@ class MicroMissilesLauncherPickup(Pickable):
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(MicroMissileLauncher(self.engine))
 
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=MICROMISSILES_LAUNCHER_COLOR)
+
 
 #############################################################
 
@@ -112,6 +130,9 @@ class HomingMissilesLauncherPickup(Pickable):
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(HomingMissileLauncher(self.engine))
 
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=HOMING_MISSILE_LAUNCHER_COLOR)
+
 
 class RocketLauncherPickup(Pickable):
     def __init__(
@@ -130,6 +151,98 @@ class RocketLauncherPickup(Pickable):
 
     def _grant_player_something(self) -> None:
         self.engine.player.grant_weapon(RocketLauncher(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=ROCKET_LAUNCHER_COLOR)
+
+
+class ZapperPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine=engine,
+                position=position,
+                letter="z",
+                color=ZAPPER_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(Zapper(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=ZAPPER_COLOR)
+
+
+class LightningGunPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine=engine,
+                position=position,
+                letter="L",
+                color=LIGHTNING_GUN_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(LightningGun(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=LIGHTNING_GUN_COLOR)
+
+
+class HeavyMachineGunPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine=engine,
+                position=position,
+                letter="M",
+                color=HEAVY_MACHINE_GUN_COLOR,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(HeavyMachineGun(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=HEAVY_MACHINE_GUN_COLOR)
+
+
+class BFGPickup(Pickable):
+    def __init__(
+        self,
+        engine: "Physics2D",
+        position: PointF,
+    ) -> None:
+        super().__init__(
+            **_build_init_params(
+                engine=engine,
+                position=position,
+                letter="B",
+                color=BFG_COLOR,
+                size=12,
+            )
+        )
+
+    def _grant_player_something(self) -> None:
+        self.engine.player.grant_weapon(BFG(self.engine))
+
+    def _pick_up_effect(self) -> None:
+        _pick_up_effect(self, color=BFG_COLOR)
 
 
 #############################################################
@@ -189,3 +302,18 @@ def _weapon_pickup_flame(color: RGB) -> "ParticleGenerator":
         engine.scenario.bg_shapes[0:0] = pieces
 
     return _w
+
+
+def _pick_up_effect(weapon: Pickable, color: RGB) -> None:
+    light = CircularParticle(
+        origin=weapon.engine.player,
+        size=0.3,
+        size_change_type=TransitionType.LINEAR_INCREASE,
+        initial_color=color,
+        ending_color=color.copy(opacity=0.01),
+        life_time=round(weapon.size * 2),
+        final_radius=weapon.size,
+        engine=weapon.engine,
+        # particle_generator=_weapon_pickup_flame(color),
+    )
+    weapon.engine.scenario.bg_shapes.append(light)
