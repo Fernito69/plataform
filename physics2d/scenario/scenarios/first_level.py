@@ -59,19 +59,20 @@ def first_level(
 
     solid_pieces: list[Shape] = []
     pickables: list["Pickable"] = [
-        ShotgunPickup(engine=engine, position=PointF(100, -20)),
-        RocketLauncherPickup(engine=engine, position=PointF(120, -20)),
-        MicroMissilesLauncherPickup(engine=engine, position=PointF(160, -20)),
-        HomingMissilesLauncherPickup(engine=engine, position=PointF(180, -20)),
-        HeavyRocketLauncherPickup(engine=engine, position=PointF(140, -20)),
-        LightningGunPickup(engine=engine, position=PointF(80, -20)),
-        HeavyMachineGunPickup(engine=engine, position=PointF(60, -20)),
-        ZapperPickup(engine=engine, position=PointF(40, -20)),
-        BFGPickup(engine=engine, position=PointF(20, -20)),
+        ShotgunPickup(engine=engine, position=PointF(0, -20)),
+        RocketLauncherPickup(engine=engine, position=PointF(40, -20)),
+        MicroMissilesLauncherPickup(engine=engine, position=PointF(80, -20)),
+        HomingMissilesLauncherPickup(engine=engine, position=PointF(120, -20)),
+        HeavyRocketLauncherPickup(engine=engine, position=PointF(160, -20)),
+        LightningGunPickup(engine=engine, position=PointF(200, -20)),
+        HeavyMachineGunPickup(engine=engine, position=PointF(240, -20)),
+        ZapperPickup(engine=engine, position=PointF(280, -20)),
+        BFGPickup(engine=engine, position=PointF(300, -20)),
         ###
-        HealthPickup(engine=engine, position=PointF(140, 20), amount=100),
-        HealthPickup(engine=engine, position=PointF(160, 20), amount=200),
-        HealthPickup(engine=engine, position=PointF(180, 20), amount=500),
+        HealthPickup(engine=engine, position=PointF(90, 20), amount=100),
+        HealthPickup(engine=engine, position=PointF(130, 20), amount=200),
+        HealthPickup(engine=engine, position=PointF(170, 20), amount=500),
+        HealthPickup(engine=engine, position=PointF(210, 20), amount=1000),
     ]
 
     return Scenario(

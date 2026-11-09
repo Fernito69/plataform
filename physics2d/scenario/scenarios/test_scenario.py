@@ -9,6 +9,18 @@ from physics2d.constants import X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import BackgroundGenerator
+from physics2d.pickable.health import HealthPickup
+from physics2d.pickable.weapon import (
+    BFGPickup,
+    HeavyMachineGunPickup,
+    HeavyRocketLauncherPickup,
+    HomingMissilesLauncherPickup,
+    LightningGunPickup,
+    MicroMissilesLauncherPickup,
+    RocketLauncherPickup,
+    ShotgunPickup,
+    ZapperPickup,
+)
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 from physics2d.shape.circunference import Circunference
@@ -18,6 +30,7 @@ from three_d_renderer.entities.polyhedra import Dodeca, Ico
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
+    from physics2d.pickable.base import Pickable
 
 _STARTING_POSITION = PointF(280, 225)
 
@@ -329,6 +342,23 @@ def test_scenario(
         ),
     ]
 
+    pickables: list["Pickable"] = [
+        ShotgunPickup(engine=engine, position=_STARTING_POSITION),
+        RocketLauncherPickup(engine=engine, position=_STARTING_POSITION),
+        MicroMissilesLauncherPickup(engine=engine, position=_STARTING_POSITION),
+        HomingMissilesLauncherPickup(engine=engine, position=_STARTING_POSITION),
+        HeavyRocketLauncherPickup(engine=engine, position=_STARTING_POSITION),
+        LightningGunPickup(engine=engine, position=_STARTING_POSITION),
+        HeavyMachineGunPickup(engine=engine, position=_STARTING_POSITION),
+        ZapperPickup(engine=engine, position=_STARTING_POSITION),
+        BFGPickup(engine=engine, position=_STARTING_POSITION),
+        ###
+        HealthPickup(engine=engine, position=PointF(90, 20), amount=100),
+        HealthPickup(engine=engine, position=PointF(130, 20), amount=200),
+        HealthPickup(engine=engine, position=PointF(170, 20), amount=500),
+        HealthPickup(engine=engine, position=PointF(210, 20), amount=1000),
+    ]
+
     return Scenario(
         name="Test scenario",
         enemies=enemies,
@@ -339,5 +369,6 @@ def test_scenario(
         engine=engine,
         player=engine.player,
         background_gen=background_gen,
+        pickables=pickables,
         player_initial_position=_STARTING_POSITION,
     )
