@@ -84,18 +84,19 @@ class HealthPickup(Pickable):
         self.engine.player.grant_health(self._amount)
 
     def _pick_up_effect(self) -> None:
-        light = CircularParticle(
-            origin=self.engine.player,
-            size=0.3,
-            size_change_type=TransitionType.LINEAR_INCREASE,
-            initial_color=_HEALTH_COLOR,
-            ending_color=_HEALTH_COLOR.copy(opacity=0.01),
-            life_time=round(self.size * 3),
-            final_radius=self.size * 2,
-            engine=self.engine,
-            particle_generator=_particles(_HEALTH_COLOR, round(self.size * 2)),
+        self.engine.scenario.bg_shapes.append(
+            CircularParticle(
+                origin=self,
+                size=0.3,
+                size_change_type=TransitionType.LINEAR_INCREASE,
+                initial_color=_HEALTH_COLOR,
+                ending_color=_HEALTH_COLOR.copy(opacity=0.01),
+                life_time=round(self.size * 3),
+                final_radius=self.size * 2,
+                engine=self.engine,
+                particle_generator=_particles(_HEALTH_COLOR, round(self.size * 2)),
+            )
         )
-        self.engine.scenario.bg_shapes.append(light)
 
 
 #############################################################

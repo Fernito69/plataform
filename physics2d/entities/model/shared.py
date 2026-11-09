@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 
 type ParticleGenerator = Callable[[Physics2D, PhysicsEntity], None]
 type ParticleGeneratorWithTarget = Callable[[Physics2D, PhysicsEntity, PhysicsEntity | None], None]
-type RenderableEntity = "Shape | Projectile | Enemy | ThreeDeeEnemy | PhysicsEntity"
+type RenderableEntity = Shape | Projectile | Enemy | ThreeDeeEnemy | PhysicsEntity
