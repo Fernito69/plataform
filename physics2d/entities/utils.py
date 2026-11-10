@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from physics2d.entities.enemy import Enemy
+    from physics2d.entities.equipment.thruster import Thruster
     from physics2d.entities.player_blob import PlayerBlob
 
 # _LEFT_BRACKET = colored(
@@ -27,67 +28,90 @@ if TYPE_CHECKING:
 # )
 
 
-def get_hp_bar_str(
-    entity: "Enemy | PlayerBlob",
+# TODO: this is hacky, do better
+def _get_values(entity: "Enemy | PlayerBlob | Thruster") -> tuple[float | None, float | None]:
+    from physics2d.entities.equipment.thruster import Thruster
+
+    curr_value: float | None = entity.health if not isinstance(entity, Thruster) else entity.fuel
+    # Full fuel == 1
+    initial_value: float | None = entity._initial_health if not isinstance(entity, Thruster) else 1
+
+    return curr_value, initial_value
+
+
+def get_status_bar_str(
+    entity: "Enemy | PlayerBlob | Thruster",
     num_bars=_DEFAULT_NUM_HEALTH_BARS,
     with_special_chars: bool = True,
     special_charset_index: int = 0,
+    color_full: RGB = _GREEN,
+    color_empty: RGB = _RED,
 ) -> str:
-    if entity.health is None or not entity._initial_health:
+    curr_value, initial_value = _get_values(entity)
+
+    if curr_value is None or not initial_value:
         return ""
 
-    health_ratio = entity.health / entity._initial_health
+    health_ratio = curr_value / initial_value
 
     num_full_bars = math.floor(num_bars * health_ratio)
-    full_bars = colored(EMPTY_SPACE * num_full_bars, bg_color=_GREEN)
+    full_bars = colored(EMPTY_SPACE * num_full_bars, bg_color=color_full)
 
     num_empty_bars = math.floor(num_bars * (1 - health_ratio))
-    empty_bars = colored(EMPTY_SPACE * num_empty_bars, bg_color=_RED)
+    empty_bars = colored(EMPTY_SPACE * num_empty_bars, bg_color=color_empty)
 
-    middle_bar = _get_middle_bar(
+    middle_bar = _get_middle_char(
         entity=entity,
         num_bars=num_bars,
         num_full_bars=num_full_bars,
         num_empty_bars=num_empty_bars,
         special_charset_index=special_charset_index,
         with_special_chars=with_special_chars,
+        color_full=color_full,
+        color_empty=color_empty,
     )
 
     return full_bars + middle_bar + empty_bars
 
 
-def get_health_bar_as_list(
-    entity: "Enemy | PlayerBlob",
+def get_status_bar_as_list(
+    entity: "Enemy | PlayerBlob | Thruster",
     num_bars=_DEFAULT_NUM_HEALTH_BARS,
     with_special_chars: bool = True,
     special_charset_index: int = 0,
+    color_full: RGB = _GREEN,
+    color_empty: RGB = _RED,
 ) -> list[str]:
-    if entity.health is None or not entity._initial_health:
+    curr_value, initial_value = _get_values(entity)
+
+    if curr_value is None or not initial_value:
         return []
 
-    health_ratio = entity.health / entity._initial_health
+    health_ratio = curr_value / initial_value
     health_bar_list = []
 
     num_full_bars = math.floor(num_bars * health_ratio)
     num_empty_bars = math.floor(num_bars * (1 - health_ratio))
 
     for _ in range(num_full_bars):
-        health_bar_list.append(colored(EMPTY_SPACE, bg_color=_GREEN))
+        health_bar_list.append(colored(EMPTY_SPACE, bg_color=color_full))
 
-    middle_bar = _get_middle_bar(
+    middle_bar = _get_middle_char(
         entity=entity,
         num_bars=num_bars,
         num_full_bars=num_full_bars,
         num_empty_bars=num_empty_bars,
         special_charset_index=special_charset_index,
         with_special_chars=with_special_chars,
+        color_full=color_full,
+        color_empty=color_empty,
     )
 
     if middle_bar:
         health_bar_list.append(middle_bar)
 
     for _ in range(num_empty_bars):
-        health_bar_list.append(colored(EMPTY_SPACE, bg_color=_RED))
+        health_bar_list.append(colored(EMPTY_SPACE, bg_color=color_empty))
 
     return health_bar_list
 
@@ -99,19 +123,23 @@ _HEALTH_BAR_STEPS: list[str] = [
 ]
 
 
-def _get_middle_bar(
-    entity: "Enemy | PlayerBlob",
+def _get_middle_char(
+    entity: "Enemy | PlayerBlob | Thruster",
     num_bars: int,
     num_full_bars: int,
     num_empty_bars: int,
     special_charset_index: int,
     with_special_chars: bool,
+    color_full: RGB,
+    color_empty: RGB,
 ) -> str:
-    if entity.health is None or not entity._initial_health:
+    curr_value, initial_value = _get_values(entity)
+
+    if curr_value is None or not initial_value:
         return ""
 
-    _health_per_bar = entity._initial_health / num_bars
-    _middle_bar_portion = _health_per_bar - (entity.health % _health_per_bar)
+    _health_per_bar = initial_value / num_bars
+    _middle_bar_portion = _health_per_bar - (curr_value % _health_per_bar)
     _health_bar_steps = _HEALTH_BAR_STEPS[special_charset_index]
 
     step_index = math.floor(_middle_bar_portion / (_health_per_bar / len(_health_bar_steps)))
@@ -126,14 +154,14 @@ def _get_middle_bar(
         (
             colored(
                 _char,
-                color=_GREEN,
-                bg_color=_RED,
+                color=color_full,
+                bg_color=color_empty,
             )
             if with_special_chars
             else colored(
                 _char,
-                bg_color=_GREEN.get_gradient(
-                    _RED,
+                bg_color=color_full.get_gradient(
+                    color_empty,
                     _middle_bar_portion,
                     _health_per_bar,
                 ),

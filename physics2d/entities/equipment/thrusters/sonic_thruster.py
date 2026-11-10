@@ -28,6 +28,7 @@ class SonicThruster(Thruster):
             accel=2,
             decel=1.5,
             engine=engine,
+            fuel_usage_factor=0.0025,
         )
 
 

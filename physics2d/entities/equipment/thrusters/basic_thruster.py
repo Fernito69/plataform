@@ -27,6 +27,7 @@ class BasicThruster(Thruster):
             max_speed=3.5,
             accel=0.8,
             decel=0.3,
+            fuel_usage_factor=0,
         )
 
 

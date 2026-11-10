@@ -25,6 +25,7 @@ class PlasmaBallThruster(Thruster):
             max_speed=8,
             accel=3,
             decel=1.5,
+            fuel_usage_factor=0.007,
         )
 
 

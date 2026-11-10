@@ -236,6 +236,9 @@ class PlayerBlob(PhysicsEntity, Player):
     def _cycle_weapon(self, direction: int) -> None:
         self._curr_weapon_index = (self._curr_weapon_index + direction) % len(self._weapons)
 
+    def _has_fuel(self) -> bool:
+        return self.get_curr_thruster().has_fuel()
+
     def _get_max_speed(self) -> float:
         return self.get_curr_thruster().max_speed
 
@@ -245,28 +248,31 @@ class PlayerBlob(PhysicsEntity, Player):
     def _get_decel(self) -> float:
         return self.get_curr_thruster().decel
 
-    def _decelerate_if_not_pressing(self) -> None:
+    def _decelerate_if_not_thrusting(self) -> None:
         _decel_amount = self._get_decel()
         _max_speed = self._get_max_speed()
         accel: VectorF = VectorF(0, 0)
 
+        def _is_thrusting(mov_key: MovementKeys):
+            return self._is_pressed(mov_key) and self._has_fuel()
+
         if (
-            self.velocity.y > 0 and not self._is_pressed(MovementKeys.UP)
+            self.velocity.y > 0 and not _is_thrusting(MovementKeys.UP)
         ) or self.velocity.y > _max_speed:
             accel += VectorF(0, -min(_decel_amount, self.velocity.y))
 
         if (
-            self.velocity.y < 0 and not self._is_pressed(MovementKeys.DOWN)
+            self.velocity.y < 0 and not _is_thrusting(MovementKeys.DOWN)
         ) or self.velocity.y < -_max_speed:
             accel += VectorF(0, max(_decel_amount, self.velocity.y))
 
         if (
-            self.velocity.x > 0 and not self._is_pressed(MovementKeys.RIGHT)
+            self.velocity.x > 0 and not _is_thrusting(MovementKeys.RIGHT)
         ) or self.velocity.x > _max_speed:
             accel += VectorF(-min(_decel_amount, self.velocity.x), 0)
 
         if (
-            self.velocity.x < 0 and not self._is_pressed(MovementKeys.LEFT)
+            self.velocity.x < 0 and not _is_thrusting(MovementKeys.LEFT)
         ) or self.velocity.x < -_max_speed:
             accel += VectorF(max(_decel_amount, self.velocity.x), 0)
 
@@ -404,7 +410,7 @@ class PlayerBlob(PhysicsEntity, Player):
         self._move_down()
         self._next_weapon()
         self._previous_weapon()
-        self._decelerate_if_not_pressing()
+        self._decelerate_if_not_thrusting()
 
         # cheats
         self._kill_all_monsters()
@@ -436,6 +442,9 @@ class PlayerBlob(PhysicsEntity, Player):
 
     @on_key_press(MovementKeys.UP)
     def _move_up(self) -> None:
+        if not self._has_fuel():
+            return
+
         if self.velocity.y >= self._get_max_speed():
             return self.set_last_known_direction()
 
@@ -446,6 +455,9 @@ class PlayerBlob(PhysicsEntity, Player):
 
     @on_key_press(MovementKeys.DOWN)
     def _move_down(self) -> None:
+        if not self._has_fuel():
+            return
+
         if self.velocity.y <= -self._get_max_speed():
             return self.set_last_known_direction()
 
@@ -456,6 +468,9 @@ class PlayerBlob(PhysicsEntity, Player):
 
     @on_key_press(MovementKeys.LEFT)
     def _move_left(self) -> None:
+        if not self._has_fuel():
+            return
+
         if self.velocity.x <= -self._get_max_speed():
             return self.set_last_known_direction()
 
@@ -466,6 +481,9 @@ class PlayerBlob(PhysicsEntity, Player):
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_right(self) -> None:
+        if not self._has_fuel():
+            return
+
         if self.velocity.x >= self._get_max_speed():
             return self.set_last_known_direction()
 

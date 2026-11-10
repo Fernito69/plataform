@@ -27,6 +27,7 @@ class SoapyThruster(Thruster):
             accel=0.4,
             decel=0.2,
             engine=engine,
+            fuel_usage_factor=0.001,
         )
 
 

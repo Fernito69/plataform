@@ -28,6 +28,7 @@ class MeteorThruster(Thruster):
             max_speed=6,
             accel=1.3,
             decel=0.3,
+            fuel_usage_factor=0.002,
         )
 
 

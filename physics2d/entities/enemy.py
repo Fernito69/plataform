@@ -7,7 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
-from physics2d.entities.utils import apply_hp_bar_to_screen, get_health_bar_as_list
+from physics2d.entities.utils import apply_hp_bar_to_screen, get_status_bar_as_list
 from physics2d.model.frame import HealthBarSnapshot
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
@@ -196,7 +196,7 @@ class Enemy(PhysicsEntity):
             if y - _safety_margin_y > _safety_margin_y
             else y + _safety_margin_y
         )
-        health_bar_list = get_health_bar_as_list(
+        health_bar_list = get_status_bar_as_list(
             self,
             num_bars=_health_bar_length,
             with_special_chars=with_special_chars,

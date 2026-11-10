@@ -26,6 +26,7 @@ class ChamorroThruster(Thruster):
             max_speed=4,
             accel=2.2,
             decel=2.2,
+            fuel_usage_factor=0.001,
         )
 
 
