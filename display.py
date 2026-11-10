@@ -405,15 +405,14 @@ class Display:
 
             thruster = player.get_curr_thruster()
             hud += f"Thruster: {colored(thruster.name, thruster.player_theme.color)}{SEPARATOR}"
-            if thruster._fuel_usage_factor > 0:
-                fuel_bar = get_status_bar_str(
-                    thruster,
-                    num_bars=7,
-                    special_charset_index=0,
-                    color_empty=RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
-                    color_full=thruster.player_theme.color or RGB(),
-                )
-                hud += f"Fuel: {fuel_bar}{SEPARATOR}"
+            fuel_bar = get_status_bar_str(
+                thruster,
+                num_bars=7,
+                special_charset_index=0,
+                color_empty=RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
+                color_full=thruster.player_theme.color or RGB(),
+            )
+            hud += f"Fuel: {fuel_bar}{SEPARATOR}"
 
             weapon = player.get_curr_weapon()
             ammo_ratio = (weapon._ammo / weapon._max_ammo) * 200
