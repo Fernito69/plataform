@@ -227,7 +227,7 @@ def color_test(
             engine=engine,
             origin=PointF(-20, -20),
             bitmap=_bitmap,
-            initial_velocity=PointF(0.01, 0.02).as_vector(),
+            initial_velocity=PointF(0.01, 0.005).as_vector(),
         )
     ]
     pickables: list["Pickable"] = [
@@ -271,17 +271,20 @@ g = RGB(0, 255, 0)
 G = RGB(0, 127, 0)
 
 
-_bitmap: list[list[RGB | None]] = [
-    [R, R, R, Y, Y, Y],
-    [R, R, R, Y, Y, Y],
-    [R, R, R, Y, Y, Y],
-    [G, G, G, B, B, B],
-    [G, G, G, B, B, B],
-    [G, G, G, B, B, B],
-]
-
-# _bitmap: list[list[RGB]] = [
-#     [R, R, R, R, Y, Y, Y],
-#     [R, r, r, r, Y, y, y],
-#     [R, r, r, r, Y, y, y],
+# _bitmap: list[list[RGB | None]] = [
+#     [R, R, r, y, Y, Y],
+#     [R, r, r, y, y, Y],
+#     [r, r, R, Y, y, y],
+#     [g, g, G, B, b, b],
+#     [G, g, g, b, b, B],
+#     [G, G, g, b, B, B],
 # ]
+
+_bitmap: list[list[RGB | None]] = [
+    [R, R, R, R, R, R],
+    [r, r, r, r, r, R],
+    [r, r, r, r, r, R],
+    [r, r, r, r, r, R],
+    [r, r, r, r, r, R],
+    [r, r, r, r, r, R],
+]
