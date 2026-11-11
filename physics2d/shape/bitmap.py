@@ -106,40 +106,38 @@ class Bitmap(Shape):
 
                 point = PointF(x=x_screen, y=y_screen)
 
-                if d_x == 0 and d_y == 0:
-                    distance_to_pixel_center = 0
-                else:
-                    # find out color contribution per sub-pixel "quadrant"
-                    q1_contrib = (1 - d_x) * (1 - d_y)
-                    q2_contrib = d_x * (1 - d_y)
-                    q3_contrib = d_x * d_y
-                    q4_contrib = (1 - d_x) * d_y
+                # find out color contribution per sub-pixel "quadrant"
+                q1_contrib = (1 - d_x) * (1 - d_y)
+                q2_contrib = d_x * (1 - d_y)
+                q3_contrib = d_x * d_y
+                q4_contrib = (1 - d_x) * d_y
 
-                    out_of_range: bool = y_idx > height - 1 or x_idx > width - 1
+                out_of_range: bool = y_idx > height - 1 or x_idx > width - 1
 
-                    # TODO: redo!!!!
-                    q1_color = pixel_color
-                    q2_color = BLACK if x_idx < 1 or out_of_range else self.bitmap[y_idx][x_idx - 1]
-                    q3_color = (
-                        BLACK
-                        if x_idx < 1 or y_idx < 1 or out_of_range
-                        else self.bitmap[y_idx - 1][x_idx - 1]
-                    )
-                    q4_color = BLACK if y_idx < 1 or out_of_range else self.bitmap[y_idx - 1][x_idx]
+                # TODO: redo!!!!
+                q1_color = pixel_color
+                q2_color = BLACK if x_idx < 1 or out_of_range else self.bitmap[y_idx][x_idx - 1]
+                q3_color = (
+                    BLACK
+                    if x_idx < 1 or y_idx < 1 or out_of_range
+                    else self.bitmap[y_idx - 1][x_idx - 1]
+                )
+                q4_color = BLACK if y_idx < 1 or out_of_range else self.bitmap[y_idx - 1][x_idx]
 
-                    # TODO: STUPID; do better
-                    distance_to_pixel_center = 1 - (
-                        q1_contrib * (1 if q1_color != BLACK else 0)
-                        + q2_contrib * (1 if q2_color != BLACK else 0)
-                        + q3_contrib * (1 if q3_color != BLACK else 0)
-                        + q4_contrib * (1 if q4_color != BLACK else 0)
-                    )
-                    pixel_color = (
-                        q1_contrib * (q1_color or BLACK)
-                        + q2_contrib * (q2_color or BLACK)
-                        + q3_contrib * (q3_color or BLACK)
-                        + q4_contrib * (q4_color or BLACK)
-                    )
+                # TODO: STUPID; do better
+                factor = (
+                    q1_contrib * (1 if q1_color != BLACK else 0)
+                    + q2_contrib * (1 if q2_color != BLACK else 0)
+                    + q3_contrib * (1 if q3_color != BLACK else 0)
+                    + q4_contrib * (1 if q4_color != BLACK else 0)
+                )
+                distance_to_pixel_center = 1 - factor
+                pixel_color = (
+                    q1_contrib * (q1_color or BLACK)
+                    + q2_contrib * (q2_color or BLACK)
+                    + q3_contrib * (q3_color or BLACK)
+                    + q4_contrib * (q4_color or BLACK)
+                ).with_intensity(factor)
 
                 render_info.append(
                     RenderInfo(
