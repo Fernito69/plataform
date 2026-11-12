@@ -11,7 +11,6 @@ from model.keyboard import DisplayKeys
 from model.theme import BR, EMPTY_SPACE, LOWER_SUBPIXEL_CHAR, UPPER_SUBPIXEL_CHAR
 from physics2d.constants import MAX_FPS_PHYSICS, X_RESOLUTION_PHYSICS, Y_RESOLUTION_PHYSICS
 from physics2d.entities.player_blob import PlayerBlob
-from physics2d.entities.utils import get_status_bar_str
 from platformer_v1.constants import MAX_FPS_2D, X_RESOLUTION_2D, Y_RESOLUTION_2D
 from platformer_v1.entities.player2d import Player2D
 from system import clear_screen, print_and_reset_cursor
@@ -405,23 +404,31 @@ class Display:
 
             thruster = player.get_curr_thruster()
             hud += f"Thruster: {colored(thruster.name, thruster.player_theme.color)}{SEPARATOR}"
-            fuel_bar = get_status_bar_str(
-                thruster,
-                num_bars=7,
-                special_charset_index=0,
-                color_empty=RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
-                color_full=thruster.player_theme.color or RGB(),
-            )
-            hud += f"Fuel: {fuel_bar}{SEPARATOR}"
+            # fuel_bar = get_status_bar_str(
+            #     thruster,
+            #     num_bars=7,
+            #     special_charset_index=0,
+            #     color_empty=RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
+            #     color_full=thruster.player_theme.color or RGB(),
+            # )
+            # hud += f"Fuel: {fuel_bar}{SEPARATOR}"
 
             weapon = player.get_curr_weapon()
-            ammo_ratio = (weapon._ammo / weapon._max_ammo) * 200
-            ammo_color = RGB(255 - ammo_ratio, 55 + ammo_ratio, 55, 1)
+            # ammo_ratio = (weapon._ammo / weapon._max_ammo) * 200
+            # ammo_color = RGB(255 - ammo_ratio, 55 + ammo_ratio, 55, 1)
             hud += f"Weapon: {colored(weapon.name, weapon.color)}{SEPARATOR}"
-            hud += (
-                f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
-            )
-            hud += f"Health: {get_status_bar_str(player, special_charset_index=0)}{SEPARATOR}"
+            # hud += (
+            #     f"Ammo: {colored(str(weapon._ammo), ammo_color)}/{str(weapon._max_ammo)}{SEPARATOR}"
+            # )
+            # ammo = get_status_bar_str(
+            #     weapon,
+            #     num_bars=7,
+            #     special_charset_index=1,
+            #     color_empty=RGB(0, 0, 0),
+            #     color_full=ammo_color,
+            # )
+            # hud += f"Ammo: {ammo}{SEPARATOR}"
+            # hud += f"Health: {get_status_bar_str(player, special_charset_index=0)}{SEPARATOR}"
 
             # num_particles = (
             #     len(s.bg_shapes) + len(s.fg_shapes) + len(s.projectiles) + len(s.solid_shapes)

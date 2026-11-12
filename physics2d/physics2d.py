@@ -8,7 +8,7 @@ from model.shared import Engine, KeyboardHandler
 from model.theme import LOWER_SUBPIXEL_CHAR
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.player_blob import PlayerBlob
-from physics2d.entities.utils import apply_hp_bar_to_screen
+from physics2d.entities.utils import apply_status_bar_to_screen, get_status_bar_as_list
 from physics2d.model.frame import FrameSnapshot, HealthBarSnapshot
 from physics2d.model.shared import BackgroundGenerator, BoundingBox, RenderInfo, ScenarioGenerator
 from physics2d.scenario.backgrounds.dodeca_dyson import get_dodeca_dyson
@@ -31,6 +31,9 @@ if TYPE_CHECKING:
 INITIAL_CORNER = PointF(0, 0)
 CAMERA_MOVEMENT_SPEED = 2
 CULLING_GRACE_MARGIN = 8
+
+PLAYER_STATUS_BARS_LENGTH = 50
+STATUS_BAR_INTENSITY = 0.75
 
 
 class Physics2D(Engine, KeyboardHandler):
@@ -129,7 +132,7 @@ class Physics2D(Engine, KeyboardHandler):
 
     def render_frame(self, frame: FrameSnapshot) -> None:
         new_data = self._convert_screen_buffer_to_display_data(frame)
-        new_data = self._add_health_bars(new_data, frame)
+        new_data = self._add_status_bars(new_data, frame)
         self._send_data_to_display(new_data, frame)
 
     def _take_frame_snapshot(self) -> FrameSnapshot:
@@ -210,7 +213,7 @@ class Physics2D(Engine, KeyboardHandler):
         self.scenario.do_your_thing()
         self.scenario.compute_render_info()
 
-    def _add_health_bars(
+    def _add_status_bars(
         self,
         data: list[list[str]],
         frame: FrameSnapshot,
@@ -218,7 +221,51 @@ class Physics2D(Engine, KeyboardHandler):
         """since health bars are a pre-constructed string, we add them after rendering the scenario data"""
 
         for health_bar in frame.health_bars:
-            apply_hp_bar_to_screen(data, health_bar)
+            apply_status_bar_to_screen(data, health_bar)
+
+        # Add player health bars:
+        x_res, _ = self.get_resolution()
+        weapon = self.player.get_curr_weapon()
+        thruster = self.player.get_curr_thruster()
+
+        # pos_1 = int(y_res / 2 - 6)
+        # pos_2 = int(y_res / 2 - 4)
+        # pos_3 = int(y_res / 2 - 2)
+        pos_1 = 1
+        pos_2 = 3
+        pos_3 = 5
+        x_start = x_res - PLAYER_STATUS_BARS_LENGTH - 1
+
+        zipped_stuff = [
+            (pos_1, self.player, RGB(0, 255, 0), RGB(255, 0, 0)),
+            (pos_2, weapon, weapon.color, RGB(0, 0, 0)),
+            (
+                pos_3,
+                thruster,
+                thruster.player_theme.color,
+                RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
+            ),
+        ]
+        for y, entity, color, color_empty in zipped_stuff:
+            try:
+                apply_status_bar_to_screen(
+                    data,
+                    HealthBarSnapshot(
+                        x_start=x_start,
+                        y=y,
+                        pixels=get_status_bar_as_list(
+                            entity,
+                            num_bars=PLAYER_STATUS_BARS_LENGTH,
+                            color_full=color,
+                            color_empty=color_empty,
+                            with_special_chars=False,
+                        ),
+                        with_special_chars=False,
+                    ),
+                    status_bar_intensity=STATUS_BAR_INTENSITY,
+                )
+            except Exception as e:
+                pass
 
         return data
 

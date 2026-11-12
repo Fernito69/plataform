@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from physics2d.entities.enemy import Enemy
     from physics2d.entities.equipment.thruster import Thruster
+    from physics2d.entities.equipment.weapon import Weapon
     from physics2d.entities.player_blob import PlayerBlob
 
 # _LEFT_BRACKET = colored(
@@ -29,18 +30,32 @@ if TYPE_CHECKING:
 
 
 # TODO: this is hacky, do better
-def _get_values(entity: "Enemy | PlayerBlob | Thruster") -> tuple[float | None, float | None]:
+def _get_values(
+    entity: "Enemy | PlayerBlob | Thruster | Weapon",
+) -> tuple[float | None, float | None]:
     from physics2d.entities.equipment.thruster import Thruster
+    from physics2d.entities.equipment.weapon import Weapon
 
-    curr_value: float | None = entity.health if not isinstance(entity, Thruster) else entity.fuel
-    # Full fuel == 1
-    initial_value: float | None = entity._initial_health if not isinstance(entity, Thruster) else 1
+    curr_value: float | None
+    initial_value: float | None
+
+    if isinstance(entity, Weapon):
+        curr_value = entity._ammo
+        initial_value = entity._max_ammo
+
+    elif isinstance(entity, Thruster):
+        curr_value = entity.fuel
+        initial_value = 1
+
+    else:
+        curr_value = entity.health
+        initial_value = entity._initial_health
 
     return curr_value, initial_value
 
 
 def get_status_bar_str(
-    entity: "Enemy | PlayerBlob | Thruster",
+    entity: "Enemy | PlayerBlob | Thruster | Weapon",
     num_bars=_DEFAULT_NUM_HEALTH_BARS,
     with_special_chars: bool = True,
     special_charset_index: int = 0,
@@ -75,7 +90,7 @@ def get_status_bar_str(
 
 
 def get_status_bar_as_list(
-    entity: "Enemy | PlayerBlob | Thruster",
+    entity: "Enemy | PlayerBlob | Thruster | Weapon",
     num_bars=_DEFAULT_NUM_HEALTH_BARS,
     with_special_chars: bool = True,
     special_charset_index: int = 0,
@@ -124,7 +139,7 @@ _HEALTH_BAR_STEPS: list[str] = [
 
 
 def _get_middle_char(
-    entity: "Enemy | PlayerBlob | Thruster",
+    entity: "Enemy | PlayerBlob | Thruster | Weapon",
     num_bars: int,
     num_full_bars: int,
     num_empty_bars: int,
@@ -173,7 +188,11 @@ def _get_middle_char(
     return middle_bar
 
 
-def apply_hp_bar_to_screen(data: list[list[str]], health_bar: HealthBarSnapshot) -> None:
+def apply_status_bar_to_screen(
+    data: list[list[str]],
+    health_bar: HealthBarSnapshot,
+    status_bar_intensity: float = 0.4,
+) -> None:
     for x_idx, x in enumerate(
         range(health_bar.x_start, health_bar.x_start + len(health_bar.pixels))
     ):
@@ -183,13 +202,12 @@ def apply_hp_bar_to_screen(data: list[list[str]], health_bar: HealthBarSnapshot)
             _health_bar_color = extract_bg_color_from_string(_new_pixel)
             _color = extract_color_from_string(data[health_bar.y][x])
             _bg_color = extract_bg_color_from_string(data[health_bar.y][x])
-            _hp_bar_intensity = 0.4
 
             _new_pixel = colored(
                 LOWER_SUBPIXEL_CHAR,
-                color=(_hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _color),
+                color=(status_bar_intensity * _health_bar_color + (1 - status_bar_intensity) * _color),
                 bg_color=(
-                    _hp_bar_intensity * _health_bar_color + (1 - _hp_bar_intensity) * _bg_color
+                    status_bar_intensity * _health_bar_color + (1 - status_bar_intensity) * _bg_color
                 ),
             )
 

@@ -7,7 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
-from physics2d.entities.utils import apply_hp_bar_to_screen, get_status_bar_as_list
+from physics2d.entities.utils import apply_status_bar_to_screen, get_status_bar_as_list
 from physics2d.model.frame import HealthBarSnapshot
 from physics2d.shape.factories.explosion import enemy_explosion, get_smoke_generator
 from physics2d.shape.model.shared import TransitionType
@@ -153,7 +153,7 @@ class Enemy(PhysicsEntity):
         snapshot = self.get_hp_bar_snapshot(with_special_chars)
 
         if snapshot:
-            apply_hp_bar_to_screen(data, snapshot)
+            apply_status_bar_to_screen(data, snapshot)
 
     def get_hp_bar_snapshot(
         self,
