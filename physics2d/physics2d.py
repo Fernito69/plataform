@@ -237,35 +237,34 @@ class Physics2D(Engine, KeyboardHandler):
         x_start = x_res - PLAYER_STATUS_BARS_LENGTH - 1
 
         zipped_stuff = [
-            (pos_1, self.player, RGB(0, 255, 0), RGB(255, 0, 0)),
-            (pos_2, weapon, weapon.color, RGB(0, 0, 0)),
+            (pos_1, self.player, RGB(0, 255, 0), RGB(255, 0, 0), "HEALTH"),
+            (pos_2, weapon, weapon._original_color, RGB(0, 0, 0), "AMMO"),
             (
                 pos_3,
                 thruster,
                 thruster.player_theme.color,
                 RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
+                "FUEL",
             ),
         ]
-        for y, entity, color, color_empty in zipped_stuff:
-            try:
-                apply_status_bar_to_screen(
-                    data,
-                    HealthBarSnapshot(
-                        x_start=x_start,
-                        y=y,
-                        pixels=get_status_bar_as_list(
-                            entity,
-                            num_bars=PLAYER_STATUS_BARS_LENGTH,
-                            color_full=color,
-                            color_empty=color_empty,
-                            with_special_chars=False,
-                        ),
+        for y, entity, color, color_empty, title in zipped_stuff:
+            apply_status_bar_to_screen(
+                data,
+                HealthBarSnapshot(
+                    x_start=x_start,
+                    y=y,
+                    pixels=get_status_bar_as_list(
+                        entity,
+                        num_bars=PLAYER_STATUS_BARS_LENGTH,
+                        color_full=color,
+                        color_empty=color_empty,
                         with_special_chars=False,
                     ),
-                    status_bar_intensity=STATUS_BAR_INTENSITY,
-                )
-            except Exception as e:
-                pass
+                    with_special_chars=False,
+                ),
+                status_bar_intensity=STATUS_BAR_INTENSITY,
+                title=title,
+            )
 
         return data
 

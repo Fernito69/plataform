@@ -7,6 +7,7 @@ from utils import colored, extract_bg_color_from_string, extract_color_from_stri
 _GREEN = RGB(0, 255, 0)
 _RED = RGB(255, 0, 0)
 _DEFAULT_NUM_HEALTH_BARS = 10
+_STATUS_BAR_TITLE_COLOR = RGB(255, 255, 255)
 
 from typing import TYPE_CHECKING
 
@@ -192,6 +193,7 @@ def apply_status_bar_to_screen(
     data: list[list[str]],
     health_bar: HealthBarSnapshot,
     status_bar_intensity: float = 0.4,
+    title: str = "",
 ) -> None:
     for x_idx, x in enumerate(
         range(health_bar.x_start, health_bar.x_start + len(health_bar.pixels))
@@ -205,10 +207,28 @@ def apply_status_bar_to_screen(
 
             _new_pixel = colored(
                 LOWER_SUBPIXEL_CHAR,
-                color=(status_bar_intensity * _health_bar_color + (1 - status_bar_intensity) * _color),
+                color=(
+                    status_bar_intensity * _health_bar_color + (1 - status_bar_intensity) * _color
+                ),
                 bg_color=(
-                    status_bar_intensity * _health_bar_color + (1 - status_bar_intensity) * _bg_color
+                    status_bar_intensity * _health_bar_color
+                    + (1 - status_bar_intensity) * _bg_color
                 ),
             )
 
         data[health_bar.y][x] = _new_pixel
+
+    if title:
+        for x_idx, char in enumerate(title):
+            x = health_bar.x_start - (len(title) - x_idx) - 1
+            if x < 0:
+                continue
+
+            _color = extract_color_from_string(data[health_bar.y][x])
+            _bg_color = extract_bg_color_from_string(data[health_bar.y][x])
+
+            data[health_bar.y][x] = colored(
+                char,
+                color=_STATUS_BAR_TITLE_COLOR,
+                bg_color=_color.get_gradient(_bg_color),
+            )
