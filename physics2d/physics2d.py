@@ -238,12 +238,12 @@ class Physics2D(Engine, KeyboardHandler):
 
         zipped_stuff = [
             (pos_1, self.player, RGB(0, 255, 0), RGB(255, 0, 0), "HEALTH"),
-            (pos_2, weapon, weapon._original_color, RGB(0, 0, 0), "AMMO"),
+            (pos_2, weapon, weapon._original_color, RGB(50, 50, 50), "AMMO"),
             (
                 pos_3,
                 thruster,
                 thruster.player_theme.color,
-                RGB(0, 30, 0).get_gradient(RGB(30, 0, 0), 1 - thruster.fuel),
+                RGB(0, 60, 0).get_gradient(RGB(60, 0, 0), 1 - thruster.fuel),
                 "FUEL",
             ),
         ]

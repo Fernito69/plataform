@@ -7,7 +7,7 @@ from utils import colored, extract_bg_color_from_string, extract_color_from_stri
 _GREEN = RGB(0, 255, 0)
 _RED = RGB(255, 0, 0)
 _DEFAULT_NUM_HEALTH_BARS = 10
-_STATUS_BAR_TITLE_COLOR = RGB(255, 255, 255)
+_STATUS_BAR_TITLE_COLOR = RGB(255, 255, 127)
 
 from typing import TYPE_CHECKING
 
