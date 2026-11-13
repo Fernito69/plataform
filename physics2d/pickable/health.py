@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.pickable.base import Pickable
-from physics2d.shape.factories.text import Text
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
+from physics2d.shape.text import Text
 from utils import random_offset
 
 if TYPE_CHECKING:
@@ -78,6 +78,7 @@ class HealthPickup(Pickable):
             position=position,
             particle_generator=_particles(_HEALTH_COLOR, size),
             extra_shapes=text.generate("+"),
+            pickup_message=f"+{amount}",
         )
 
     def _grant_player_something(self) -> None:

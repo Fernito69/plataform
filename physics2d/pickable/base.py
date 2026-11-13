@@ -2,9 +2,10 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.theme import Theme
+from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
+from physics2d.shape.particle.text_particle import TextParticle
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -15,6 +16,9 @@ class Pickable(PhysicsEntity):
     engine: "Physics2D"
     _particle_generator: ParticleGenerator | None
     extra_shapes: list["Shape"]
+
+    pickup_message: str | None
+    pickup_message_color: RGB
 
     def __init__(
         self,
@@ -41,8 +45,12 @@ class Pickable(PhysicsEntity):
         y_elliptical_oscillation_frequency: float | None = None,
         particle_generator: ParticleGenerator | None = None,
         extra_shapes: list["Shape"] = [],
+        pickup_message: str | None = None,
+        pickup_message_color: RGB | None = None,
     ) -> None:
         self.engine = engine
+        self.pickup_message = pickup_message
+        self.pickup_message_color = pickup_message_color or theme.color or RGB()
 
         super().__init__(
             engine=engine,
@@ -84,9 +92,31 @@ class Pickable(PhysicsEntity):
     def _pick_up(self) -> None:
         self._grant_player_something()
         self._pick_up_effect()
+        self._show_pickup_message()
+
         self.engine.scenario.pickables = [
             p for p in self.engine.scenario.pickables if p is not self
         ]
+
+    def _show_pickup_message(self) -> None:
+        if not self.pickup_message:
+            return
+
+        text = TextParticle(
+            engine=self.engine,
+            position=self.position,
+            text=self.pickup_message,
+            initial_color=self.pickup_message_color.get_gradient(RGB(255, 255, 255)),
+            # ending_color=self.pickup_message_color.copy(opacity=0.1),
+            ending_color=0.5 * self.pickup_message_color,
+            thickness=1,
+            thickness_gradient_threshold=0.1,
+            life_time=int(self.size * 7),
+            scale_factor=0.1,
+            final_scale_factor=self.size / 7,
+            initial_velocity=VectorF(0.2, 0.2),
+        )
+        self.engine.scenario.fg_shapes[0:0] = [text]
 
     @abstractmethod
     def _grant_player_something(self) -> None: ...

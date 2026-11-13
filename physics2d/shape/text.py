@@ -2,18 +2,20 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
+from physics2d.model.shared import BoundingBox, RenderInfo
+from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
-    from physics2d.shape.base import Shape
 
 
-class Text:
+class Text(Shape):
     def __init__(
         self,
         engine: "Physics2D",
         position: PointF,
+        text: str = "",
         scale_factor: float = 1,
         text_color: RGB = RGB(),
         thickness: float = 1,
@@ -22,6 +24,17 @@ class Text:
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
     ):
+        super().__init__(
+            engine=engine,
+            # TODO: do properly
+            center_of_mass=PointF(0, 0),
+            name=text,
+            density=1,
+            volume=1,
+            is_collideable=False,
+        )
+
+        self.text = text
         self.theme = Theme(text_color)
         self.position = position
         self.engine = engine
@@ -33,16 +46,35 @@ class Text:
         self.pulsate_amplitude = pulsate_amplitude
 
     def _get_char_height(self) -> float:
-        is_lowercase = self._text == self._text.lower()
+        is_lowercase = self.text == self.text.lower()
         return self.scale_factor * (
             LOWERCASE_CHAR_HEIGHT if is_lowercase else UPPERCASE_CHAR_HEIGHT
         )
 
+    def get_render_info(self) -> list[RenderInfo]:
+        return [info for shape in self.generate(text=self.text) for info in shape.get_render_info()]
+
+    def _apply_movement(self) -> None:
+        if not any(a != 0 for a in self.velocity):
+            return
+
+        self.position += self.velocity
+
+    def do_your_thing(self) -> None:
+        self._apply_movement()
+
+    def get_bounding_box(self) -> BoundingBox | None:
+        min_x, max_y, _ = self.position
+
+        return BoundingBox(
+            min_x=min_x,
+            max_y=max_y,
+            max_x=min_x * self.scale_factor * len(self.text),
+            min_y=max_y - self.scale_factor,
+        )
+
     def _get_char_width(self) -> float:
         return CHAR_WIDTH * self.scale_factor
-
-    """"""
-    _text: str
 
     def generate(
         self,
@@ -51,7 +83,7 @@ class Text:
         extra_offset: PointF = PointF(0, 0),
     ) -> list["Shape"]:
         shapes: list["Shape"] = []
-        self._text = text
+        self.text = text
 
         for char_idx, char in enumerate(text):
             if _char_vertex_compendium.get(char, None) is not None:

@@ -114,7 +114,7 @@ class LineParticle(Particle, Line):
             self.theme.color = self.initial_color.get_gradient(self.ending_color, factor)
 
     ####################################################
-    # TODO: test this with DeathRay
+    # TODO: test this with DeathRay, but first FINISH IMPLEMENTING
     _curr_step_idx: int = -1
     _thickness_at_start: float | None = None
 
