@@ -227,7 +227,7 @@ def color_test(
             engine=engine,
             origin=PointF(-20, -20),
             bitmap=_bitmap,
-            initial_velocity=PointF(0.01, 0.005).as_vector(),
+            initial_velocity=PointF(0.01, 0).as_vector(),
         )
     ]
     pickables: list["Pickable"] = [

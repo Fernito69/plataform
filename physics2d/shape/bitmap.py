@@ -124,6 +124,10 @@ class Bitmap(Shape):
                 )
                 q4_color = BLACK if y_idx < 1 or out_of_range else self.bitmap[y_idx - 1][x_idx]
 
+                # self._engine.game._display.debug_log(
+                #     f"quadrants = {q1_contrib + q2_contrib + q3_contrib + q4_contrib}"
+                # )
+
                 # TODO: STUPID; do better
                 factor = (
                     q1_contrib * (1 if q1_color != BLACK else 0)
@@ -131,13 +135,13 @@ class Bitmap(Shape):
                     + q3_contrib * (1 if q3_color != BLACK else 0)
                     + q4_contrib * (1 if q4_color != BLACK else 0)
                 )
-                distance_to_pixel_center = 1 - factor
+                distance_to_pixel_center = 0
                 pixel_color = (
                     q1_contrib * (q1_color or BLACK)
                     + q2_contrib * (q2_color or BLACK)
                     + q3_contrib * (q3_color or BLACK)
                     + q4_contrib * (q4_color or BLACK)
-                ).with_intensity(factor)
+                )
 
                 render_info.append(
                     RenderInfo(
