@@ -139,9 +139,9 @@ class HomingMissilesLauncherPickup(Pickable):
             **_build_init_params(
                 engine=engine,
                 position=position,
-                letter="h",
+                letter="H",
                 color=HOMING_MISSILE_LAUNCHER_COLOR,
-                pickup_message=f"Homing{BR}Missiles{BR}Launcher!",
+                pickup_message=f"Homing{BR}Missile{BR}Launcher!",
             )
         )
 
