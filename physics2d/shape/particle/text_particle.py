@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
+from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.base import Particle
 from physics2d.shape.text import Text
 
@@ -33,6 +34,7 @@ class TextParticle(Text, Particle):
         pulsate_amplitude: float = 0,
         final_thickness: float | None = None,
         final_scale_factor: float | None = None,
+        changes_exponentially: bool = False,
     ):
         self.text = text
 
@@ -72,12 +74,16 @@ class TextParticle(Text, Particle):
         self.initial_thickness = thickness
 
         self.floating_multi = floating_multi
+        self.size_change_type = (
+            TransitionType.EXPONENTIAL if changes_exponentially else TransitionType.LINEAR
+        )
         Particle.__init__(
             self,
             initial_color=initial_color,
             ending_color=ending_color,
             life_time=life_time,
             floating_multi=floating_multi,
+            size_change_type=self.size_change_type,
         )
 
     def do_your_thing(self) -> None:
@@ -96,7 +102,7 @@ class TextParticle(Text, Particle):
         ):
             return
 
-        elapsed_factor = 1 - self.life_time / self._original_life_time
+        elapsed_factor = 1 - (self.life_time / self._original_life_time)
         remaining_factor = 1 - elapsed_factor
 
         self.life_time -= 1
@@ -118,9 +124,10 @@ class TextParticle(Text, Particle):
                 )
 
         if self.final_scale_factor is not None:
+            exponent = 2 if self.size_change_type == TransitionType.EXPONENTIAL else 1
+            factor = elapsed_factor * exponent
             self.scale_factor = (
-                self.initial_scale_factor * remaining_factor
-                + self.final_scale_factor * elapsed_factor
+                self.initial_scale_factor * (1 - factor) + self.final_scale_factor * factor
             )
 
         if self.final_thickness is not None:

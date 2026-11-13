@@ -8,8 +8,11 @@ from model.theme import Theme
 class TransitionType(StrEnum):
     LINEAR_DECREASE = auto()
     EXPONENTIAL_DECREASE = auto()
-    NONE = auto()
     LINEAR_INCREASE = auto()
+    # TODO: decommission the ones above according to the message
+    NONE = auto()
+    EXPONENTIAL = auto()
+    LINEAR = auto()
 
 
 @dataclass

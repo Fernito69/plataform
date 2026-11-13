@@ -98,6 +98,7 @@ class HealthPickup(Pickable):
                 particle_generator=_particles(_HEALTH_COLOR, round(self.size * 2)),
             )
         )
+        self._show_pickup_message(initial_color=RGB(120, 255, 120))
 
 
 #############################################################

@@ -36,6 +36,8 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.shape.base import Shape
 
+TEXT_SCALE_FACTOR = 0.8
+
 
 class ShotgunPickup(Pickable):
     def __init__(
@@ -61,6 +63,7 @@ class ShotgunPickup(Pickable):
             self,
             color=SHOTGUN_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 #############################################################
@@ -90,6 +93,7 @@ class HeavyRocketLauncherPickup(Pickable):
             self,
             color=HEAVY_ROCKET_LAUNCHER_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 #############################################################
@@ -119,6 +123,7 @@ class MicroMissilesLauncherPickup(Pickable):
             self,
             color=MICROMISSILES_LAUNCHER_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 #############################################################
@@ -148,6 +153,7 @@ class HomingMissilesLauncherPickup(Pickable):
             self,
             color=HOMING_MISSILE_LAUNCHER_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 class RocketLauncherPickup(Pickable):
@@ -174,6 +180,7 @@ class RocketLauncherPickup(Pickable):
             self,
             color=ROCKET_LAUNCHER_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 class ZapperPickup(Pickable):
@@ -200,6 +207,7 @@ class ZapperPickup(Pickable):
             self,
             color=ZAPPER_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 class LightningGunPickup(Pickable):
@@ -226,6 +234,7 @@ class LightningGunPickup(Pickable):
             self,
             color=LIGHTNING_GUN_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 class HeavyMachineGunPickup(Pickable):
@@ -252,6 +261,7 @@ class HeavyMachineGunPickup(Pickable):
             self,
             color=HEAVY_MACHINE_GUN_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 class BFGPickup(Pickable):
@@ -279,6 +289,7 @@ class BFGPickup(Pickable):
             self,
             color=BFG_COLOR,
         )
+        self._show_pickup_message(final_scale_factor=TEXT_SCALE_FACTOR)
 
 
 #############################################################
@@ -356,7 +367,7 @@ def _get_pick_up_effect(pickup: Pickable, color: RGB) -> None:
             particle_generator=lambda _e, _s: _e.scenario.bg_shapes.append(
                 CircularParticle(
                     origin=_s.center + VectorF.random_vector(pickup.size),
-                    size=0.8 + random_offset(),
+                    size=TEXT_SCALE_FACTOR + random_offset(),
                     initial_color=color,
                     ending_color=color.copy(opacity=0.1),
                     life_time=10,

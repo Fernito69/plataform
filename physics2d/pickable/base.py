@@ -92,29 +92,40 @@ class Pickable(PhysicsEntity):
     def _pick_up(self) -> None:
         self._grant_player_something()
         self._pick_up_effect()
-        self._show_pickup_message()
 
         self.engine.scenario.pickables = [
             p for p in self.engine.scenario.pickables if p is not self
         ]
 
-    def _show_pickup_message(self) -> None:
+    def _show_pickup_message(
+        self,
+        life_time: int | None = None,
+        final_scale_factor: float | None = None,
+        initial_color: RGB | None = None,
+        ending_color: RGB | None = None,
+    ) -> None:
         if not self.pickup_message:
             return
+
+        scale_factor = final_scale_factor or (self.size / 7)
+        life_time = life_time or int(self.size * 7)
+        initial_color = initial_color or 1.5 * self.pickup_message_color
+        ending_color = ending_color or self.pickup_message_color.copy(opacity=0.01)
 
         text = TextParticle(
             engine=self.engine,
             position=self.position,
             text=self.pickup_message,
-            initial_color=self.pickup_message_color.get_gradient(RGB(255, 255, 255)),
-            # ending_color=self.pickup_message_color.copy(opacity=0.1),
-            ending_color=0.5 * self.pickup_message_color,
+            initial_color=initial_color,
+            ending_color=ending_color,
+            # ending_color=.4*self.pickup_message_color,
             thickness=1,
-            thickness_gradient_threshold=0.1,
-            life_time=int(self.size * 7),
-            scale_factor=0.1,
-            final_scale_factor=self.size / 7,
-            initial_velocity=VectorF(0.2, 0.2),
+            # thickness_gradient_threshold=0.1,
+            life_time=life_time,
+            scale_factor=scale_factor / 3,
+            final_scale_factor=scale_factor,
+            initial_velocity=VectorF(0.2, 0.3),
+            changes_exponentially=True,
         )
         self.engine.scenario.fg_shapes[0:0] = [text]
 
