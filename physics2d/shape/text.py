@@ -34,6 +34,7 @@ class Text(Shape):
             is_collideable=False,
         )
 
+        # TODO: implement multiple lines!!!
         self.text = text
         self.theme = Theme(text_color)
         self.position = position
@@ -52,7 +53,11 @@ class Text(Shape):
         )
 
     def get_render_info(self) -> list[RenderInfo]:
-        return [info for shape in self.generate(text=self.text) for info in shape.get_render_info()]
+        return [
+            info
+            for shape in self.generate_shapes(text=self.text)
+            for info in shape.get_render_info()
+        ]
 
     def _apply_movement(self) -> None:
         if not any(a != 0 for a in self.velocity):
@@ -76,7 +81,7 @@ class Text(Shape):
     def _get_char_width(self) -> float:
         return CHAR_WIDTH * self.scale_factor
 
-    def generate(
+    def generate_shapes(
         self,
         text: str,
         offset_by_char_height: bool = True,

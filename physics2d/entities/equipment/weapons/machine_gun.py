@@ -1,4 +1,3 @@
-from random import random
 from typing import TYPE_CHECKING
 
 from model.base import VectorF
@@ -66,7 +65,7 @@ class HeavyMachineGun(Weapon):
         )
 
     def _spend_ammo(self) -> None:
-        self._ammo -= self._ammo_per_gametick
+        self._ammo = max(0, self._ammo - self._ammo_per_gametick)
 
     def secondary_fire(self) -> None:
         ...
@@ -100,9 +99,9 @@ def gatling_bullets(
             initial_velocity=velocity,
             size=0.4,
             size_change_type=TransitionType.NONE,
-            initial_color=RGB(255 - random() * 80, 255 - random() * 60, 0, 1),
-            ending_color=RGB(30, 30, 30, 1),
-            life_time=50,
+            initial_color=RGB(255, 255, 160),
+            ending_color=RGB(127, 0, 0),
+            life_time=20,
             damage=_DAMAGE,
             explosion_generator=bullet_ricochet,
             offset_from_origin=VectorF(factor, random_offset() * 4).rotate_2d(angle),
@@ -224,17 +223,17 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     direction = source.get_aiming_direction()
     fire_1 = CircularParticle(
         origin=source.center + (_offset + 1) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(1.2 * source.velocity),
+        initial_velocity=source.velocity + direction,
         size=_base_size + 2,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=_fire_1_color,
         ending_color=RGB(150, 120, 30, intensity=1),
-        life_time=5,
+        life_time=7,
         engine=engine,
     )
     fire_2 = CircularParticle(
         origin=source.center + (_offset + 6) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(1.4 * source.velocity),
+        initial_velocity=(source.velocity + 2 * direction),
         size=_base_size + 1.5,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -243,12 +242,12 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             20,
         ),
         ending_color=RGB(150, 90, 30, intensity=1),
-        life_time=5,
+        life_time=7,
         engine=engine,
     )
     fire_3 = CircularParticle(
         origin=source.center + (_offset + 11) * direction + 2 * VectorF.random_offset_vector(),
-        initial_velocity=(1.7 * source.velocity),
+        initial_velocity=(source.velocity + 3 * direction),
         size=_base_size,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(
@@ -258,11 +257,11 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
         ),
         engine=engine,
         ending_color=RGB(120, 60, 20, intensity=1),
-        life_time=5,
+        life_time=6,
     )
     fire_4 = CircularParticle(
         origin=source.center + (_offset + 14) * direction + 2 * VectorF.random_offset_vector(),
-        initial_velocity=(2 * source.velocity),
+        initial_velocity=(source.velocity + 4 * direction),
         size=_base_size * 0.75,
         size_change_type=TransitionType.LINEAR_DECREASE,
         initial_color=RGB(
@@ -271,18 +270,18 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
             10,
         ),
         ending_color=RGB(100, 40, 10, intensity=1),
-        life_time=4,
+        life_time=6,
         engine=engine,
         floating_multi=0.5,
     )
     fire_white = CircularParticle(
         origin=source.center + (_offset) * direction + VectorF.random_offset_vector(),
-        initial_velocity=(2.3 * source.velocity),
+        initial_velocity=(source.velocity + 5 * direction),
         size=_base_size + 1,
         size_change_type=TransitionType.EXPONENTIAL_DECREASE,
         initial_color=RGB(255, 200, 255, 1),
         ending_color=RGB(200, 150, 200, 1),
-        life_time=4,
+        life_time=5,
         engine=engine,
     )
 
@@ -303,4 +302,4 @@ def heavy_machine_gun_nozzle(engine: "Physics2D", source: "PhysicsEntity") -> No
     )
     sparks.append(spark)
 
-    engine.scenario.fg_shapes.extend(sparks + [fire_white, fire_1, fire_2, fire_3, fire_4])
+    engine.scenario.fg_shapes.extend([*sparks, fire_white, fire_1, fire_2, fire_3, fire_4])

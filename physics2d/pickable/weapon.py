@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from model.base import PointF, VectorF
-from model.theme import RGB, Theme
+from model.theme import BR, RGB, Theme
 from physics2d.constants import (
     BFG_COLOR,
     HEAVY_MACHINE_GUN_COLOR,
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.shape.base import Shape
 
-TEXT_SCALE_FACTOR = 0.8
+TEXT_SCALE_FACTOR = 1
 
 
 class ShotgunPickup(Pickable):
@@ -81,7 +81,7 @@ class HeavyRocketLauncherPickup(Pickable):
                 position=position,
                 letter="H",
                 color=HEAVY_ROCKET_LAUNCHER_COLOR,
-                pickup_message="Heavy Rocket Launcher!",
+                pickup_message=f"Heavy{BR}Rocket{BR}Launcher!",
             )
         )
 
@@ -111,7 +111,7 @@ class MicroMissilesLauncherPickup(Pickable):
                 position=position,
                 letter="m",
                 color=MICROMISSILES_LAUNCHER_COLOR,
-                pickup_message="Micro-Missiles Launcher!",
+                pickup_message=f"Micro{BR}Missiles{BR}Launcher!",
             )
         )
 
@@ -141,7 +141,7 @@ class HomingMissilesLauncherPickup(Pickable):
                 position=position,
                 letter="h",
                 color=HOMING_MISSILE_LAUNCHER_COLOR,
-                pickup_message="Homing Missiles Launcher!",
+                pickup_message=f"Homing{BR}Missiles{BR}Launcher!",
             )
         )
 
@@ -168,7 +168,7 @@ class RocketLauncherPickup(Pickable):
                 position=position,
                 letter="r",
                 color=ROCKET_LAUNCHER_COLOR,
-                pickup_message="Rocket Launcher!",
+                pickup_message=f"Rocket{BR}Launcher!",
             )
         )
 
@@ -222,7 +222,7 @@ class LightningGunPickup(Pickable):
                 position=position,
                 letter="L",
                 color=LIGHTNING_GUN_COLOR,
-                pickup_message="Lightning Gun!",
+                pickup_message=f"Lightning{BR}Gun!",
             )
         )
 
@@ -249,7 +249,7 @@ class HeavyMachineGunPickup(Pickable):
                 position=position,
                 letter="M",
                 color=HEAVY_MACHINE_GUN_COLOR,
-                pickup_message="Heavy Machine Gun!",
+                pickup_message=f"Heavy{BR}Machine{BR}Gun!",
             )
         )
 
@@ -325,7 +325,7 @@ def _build_init_params(
         "size": size,
         "position": position,
         "particle_generator": _weapon_pickup_flame(color),
-        "extra_shapes": text.generate(letter),
+        "extra_shapes": text.generate_shapes(letter),
         "pickup_message": pickup_message,
         "pickup_message_color": color,
     }

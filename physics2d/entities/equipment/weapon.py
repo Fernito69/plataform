@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+from constants import ALMOST_ZERO
 from model.theme import RGB
 from physics2d.entities.model.shared import ParticleGenerator
 
@@ -88,7 +89,9 @@ class Weapon:
         self._ammo = min(self._ammo + ammo, self._max_ammo)
 
     def get_life_time_ellapsed_ratio(self) -> float:
-        return (self._refractory_limit - self._engine.scenario.now()) / self._refractory_period
+        return (self._refractory_limit - self._engine.scenario.now()) / (
+            self._refractory_period or ALMOST_ZERO
+        )
 
     def _handle_color(self) -> None:
         if not self.can_shoot():

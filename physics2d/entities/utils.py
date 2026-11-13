@@ -132,7 +132,7 @@ def get_status_bar_as_list(
     return health_bar_list
 
 
-_HEALTH_BAR_STEPS: list[str] = [
+_STATUS_BAR_STEPS: list[str] = [
     "▉▊▋▌▍▎▏",
     "▇▆▅▄▃▂▁",
     "▙▚▖",
@@ -154,15 +154,15 @@ def _get_middle_char(
     if curr_value is None or not initial_value:
         return ""
 
-    _health_per_bar = initial_value / num_bars
-    _middle_bar_portion = _health_per_bar - (curr_value % _health_per_bar)
-    _health_bar_steps = _HEALTH_BAR_STEPS[special_charset_index]
+    _amount_per_bar = initial_value / num_bars
+    _middle_bar_portion = _amount_per_bar - (curr_value % _amount_per_bar)
+    _status_bar_step_set = _STATUS_BAR_STEPS[special_charset_index]
 
-    step_index = math.floor(_middle_bar_portion / (_health_per_bar / len(_health_bar_steps)))
+    step_index = math.floor(_middle_bar_portion / (_amount_per_bar / len(_status_bar_step_set)))
 
     _char = (
-        _health_bar_steps[step_index]
-        if with_special_chars and step_index < len(_health_bar_steps)
+        _status_bar_step_set[step_index]
+        if with_special_chars and step_index < len(_status_bar_step_set)
         else EMPTY_SPACE
     )
 
@@ -179,7 +179,7 @@ def _get_middle_char(
                 bg_color=color_full.get_gradient(
                     color_empty,
                     _middle_bar_portion,
-                    _health_per_bar,
+                    _amount_per_bar,
                 ),
             )
         )

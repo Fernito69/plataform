@@ -77,7 +77,7 @@ class HealthPickup(Pickable):
             size=size,
             position=position,
             particle_generator=_particles(_HEALTH_COLOR, size),
-            extra_shapes=text.generate("+"),
+            extra_shapes=text.generate_shapes("+"),
             pickup_message=f"+{amount}",
         )
 

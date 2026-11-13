@@ -124,8 +124,8 @@ class TextParticle(Text, Particle):
                 )
 
         if self.final_scale_factor is not None:
-            exponent = 2 if self.size_change_type == TransitionType.EXPONENTIAL else 1
-            factor = elapsed_factor * exponent
+            exponent = 0.5 if self.size_change_type == TransitionType.EXPONENTIAL else 1
+            factor = elapsed_factor**exponent
             self.scale_factor = (
                 self.initial_scale_factor * (1 - factor) + self.final_scale_factor * factor
             )
