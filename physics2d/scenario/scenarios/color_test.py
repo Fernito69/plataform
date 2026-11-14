@@ -227,7 +227,7 @@ def color_test(
             engine=engine,
             origin=PointF(-20, -20),
             bitmap=_bitmap,
-            initial_velocity=PointF(0.01, 0).as_vector(),
+            initial_velocity=PointF(0.01, 0.02).as_vector(),
         )
     ]
     pickables: list["Pickable"] = [
@@ -269,8 +269,9 @@ b = RGB(0, 0, 255)
 B = RGB(0, 0, 127)
 g = RGB(0, 255, 0)
 G = RGB(0, 127, 0)
+P = R.get_gradient(B)
 
-
+# WINDOWS SYMBOL
 # _bitmap: list[list[RGB | None]] = [
 #     [R, R, r, y, Y, Y],
 #     [R, r, r, y, y, Y],
@@ -280,11 +281,25 @@ G = RGB(0, 127, 0)
 #     [G, G, g, b, B, B],
 # ]
 
+# # RED THINGIE
+# _bitmap: list[list[RGB | None]] = [
+#     [R, R, R, R, R, R],
+#     [r, r, r, r, r, R],
+#     [r, r, r, r, r, R],
+#     [r, r, r, r, r, R],
+#     [r, r, r, r, r, R],
+#     [r, r, r, r, r, R],
+# ]
+
+
+# SMILIE
 _bitmap: list[list[RGB | None]] = [
-    [R, R, R, R, R, R],
-    [r, r, r, r, r, R],
-    [r, r, r, r, r, R],
-    [r, r, r, r, r, R],
-    [r, r, r, r, r, R],
-    [r, r, r, r, r, R],
+    [R, r, r, r, r, r, r, r, R],
+    [r, r, r, B, B, B, r, r, r],
+    [r, r, B, r, r, r, B, r, r],
+    [r, B, r, r, r, r, r, B, r],
+    [r, r, b, r, r, r, b, r, r],
+    [r, b, B, b, r, b, B, b, r],
+    [r, r, b, r, r, r, b, r, r],
+    [R, r, r, r, r, r, r, r, R],
 ]
