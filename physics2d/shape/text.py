@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from constants import PI
 from model.base import PointF, VectorF
 from model.theme import RGB, Theme
 from physics2d.model.shared import BoundingBox, RenderInfo
@@ -23,6 +24,8 @@ class Text(Shape):
         initial_velocity: VectorF = VectorF(0, 0),
         pulsate_freq: float = 0,
         pulsate_amplitude: float = 0,
+        angle: float = 0,
+        initial_angular_velocity: float = 0,
     ):
         super().__init__(
             engine=engine,
@@ -32,10 +35,14 @@ class Text(Shape):
             density=1,
             volume=1,
             is_collideable=False,
+            angle=angle,
+            initial_angular_velocity=initial_angular_velocity,
         )
 
         # TODO: implement multiple lines!!!
         self.text = text
+        self.angle = angle
+        self.angular_velocity = initial_angular_velocity
         self.theme = Theme(text_color)
         self.position = position
         self.engine = engine
@@ -60,10 +67,20 @@ class Text(Shape):
         ]
 
     def _apply_movement(self) -> None:
+        self._rotate()
+
         if not any(a != 0 for a in self.velocity):
             return
 
         self.position += self.velocity
+        self._update_center_of_mass()
+
+    def _rotate(self) -> None:
+        # assume center of gravity as the rotation point
+        if not self.angular_velocity:
+            return
+
+        self.angle = (self.angle + self.angular_velocity) % (2 * PI)
 
     def do_your_thing(self) -> None:
         self._apply_movement()
@@ -76,6 +93,16 @@ class Text(Shape):
             max_y=max_y,
             max_x=min_x * self.scale_factor * len(self.text),
             min_y=max_y - self.scale_factor,
+        )
+
+    def _update_center_of_mass(self) -> None:
+        box = self.get_bounding_box()
+        if not box:
+            return
+
+        self.center_of_mass = PointF(
+            x=(box.min_x + box.max_x) / 2,
+            y=(box.min_y + box.max_y) / 2,
         )
 
     def _get_char_width(self) -> float:
@@ -144,11 +171,15 @@ class Text(Shape):
                 y=self._get_char_height() / 2,
             )
 
+        point1 = _char_initial_position + self.scale_factor * points[0]
+        point2 = _char_initial_position + self.scale_factor * points[1]
+
+        if self.angle:
+            point1 = point1.rotate_2d(self.angle, self.position)
+            point2 = point2.rotate_2d(self.angle, self.position)
+
         return Line(
-            points=(
-                _char_initial_position + self.scale_factor * points[0],
-                _char_initial_position + self.scale_factor * points[1],
-            ),
+            points=(point1, point2),
             engine=self.engine,
             theme=self.theme,
             thickness=self.thickness,

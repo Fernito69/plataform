@@ -35,6 +35,8 @@ class TextParticle(Text, Particle):
         final_thickness: float | None = None,
         final_scale_factor: float | None = None,
         changes_exponentially: bool = False,
+        initial_angular_velocity: float = 0,
+        angle: float = 0,
     ):
         self.text = text
 
@@ -50,6 +52,8 @@ class TextParticle(Text, Particle):
             pulsate_amplitude=pulsate_amplitude,
             pulsate_freq=pulsate_freq,
             text=text,
+            initial_angular_velocity=initial_angular_velocity,
+            angle=angle,
         )
         self._engine = engine
         self.theme = Theme(initial_color)
@@ -63,6 +67,8 @@ class TextParticle(Text, Particle):
         self.velocity = initial_velocity
         self.pulsate_freq = pulsate_freq
         self.pulsate_amplitude = pulsate_amplitude
+        self.angle = angle
+        self.initial_angular_velocity = initial_angular_velocity
 
         # Particle
         self.life_time = life_time

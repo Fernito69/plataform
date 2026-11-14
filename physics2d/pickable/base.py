@@ -133,6 +133,7 @@ class Pickable(PhysicsEntity):
                 final_scale_factor=scale_factor,
                 initial_velocity=0.2 * self.engine.player.velocity.rotate_2d(PI / 4),
                 changes_exponentially=True,
+                initial_angular_velocity=0.01,
             )
             self.engine.scenario.fg_shapes[0:0] = [text]
 
