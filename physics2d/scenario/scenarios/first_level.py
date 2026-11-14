@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from model.base import PointF
+from model.theme import BR, RGB, Theme
 from physics2d.entities.enemy import Enemy
 
 # from physics2d.entities.spawner_entity import SpawnerEntity
@@ -28,6 +29,7 @@ from physics2d.model.shared import BackgroundGenerator
 from physics2d.scenario.model import Event, Milestone
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
+from physics2d.shape.line import Line
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -66,7 +68,21 @@ def first_level(
         # ),
     ]
 
-    solid_pieces: list[Shape] = []
+    solid_pieces: list[Shape] = [
+        Line(
+            points=points,
+            theme=Theme(color=RGB(255, 255, 255)),
+            thickness=3,
+            engine=engine,
+        )
+        for points in [
+            (PointF(-100, 100), PointF(100, 100)),
+            (PointF(100, 100), PointF(100, -100)),
+            (PointF(100, -100), PointF(-100, -100)),
+            (PointF(-100, -100), PointF(-100, 100)),
+        ]
+    ]
+
     pickables: list["Pickable"] = [
         # ShotgunPickup(engine=engine, position=PointF(0, -20)),
         # RocketLauncherPickup(engine=engine, position=PointF(40, -20)),
@@ -85,43 +101,60 @@ def first_level(
     ]
 
     timeline: list[Milestone] = [
+        ##### WAVE 1 #####
         Milestone(
             game_tick=1,
             events=[
                 Event(
-                    spawner=wave_started_text("WAVE 1, prepare!"),
+                    spawner=wave_started_text("WAVE 1"),
                     positions=[PointF(0, 50)],
                 ),
                 Event(
-                    spawner=machine_gun_enemy_spawner,
-                    positions=[
-                        PointF(50, 0),
-                        PointF(50, 50),
-                        PointF(50, -50),
-                        PointF(-50, 0),
-                        PointF(-50, 50),
-                        PointF(-50, -50),
-                    ],
-                ),
-                Event(
                     spawner=shotgun_pickup_spawner,
-                    positions=[PointF(25, 25)],
+                    positions=[PointF(25, 0)],
                 ),
             ],
         ),
         Milestone(
-            game_tick=500,
+            game_tick=20,
             events=[
                 Event(
-                    spawner=wave_started_text("WAVE 2, prepare!"),
-                    positions=[PointF(0, 50)],
+                    spawner=wave_started_text(
+                        "Prepare URANUS for battle!",
+                        subtitle=True,
+                    ),
+                    positions=[PointF(0, 30)],
                 ),
+            ],
+        ),
+        *[
+            Milestone(
+                game_tick=100 + idx * 5,
+                events=[
+                    Event(
+                        spawner=machine_gun_enemy_spawner,
+                        positions=[position],
+                    ),
+                ],
+            )
+            for idx, position in enumerate(
+                [
+                    PointF(50, 50),
+                    PointF(50, 0),
+                    PointF(50, -50),
+                    PointF(-50, -50),
+                    PointF(-50, 0),
+                    PointF(-50, 50),
+                ]
+            )
+        ],
+        ##### WAVE 2 #####
+        Milestone(
+            game_tick=450,
+            events=[
                 Event(
-                    spawner=super_rocket_enemy_spawner,
-                    positions=[
-                        PointF(50, 0),
-                        PointF(-50, 0),
-                    ],
+                    spawner=wave_started_text(f"WAVE 2{BR}Boss ahead!"),
+                    positions=[PointF(0, 50)],
                 ),
                 Event(
                     spawner=rocket_launcher_pickup_spawner,
@@ -130,6 +163,18 @@ def first_level(
                 Event(
                     spawner=health_spawner(500),
                     positions=[PointF(0, -25)],
+                ),
+            ],
+        ),
+        Milestone(
+            game_tick=600,
+            events=[
+                Event(
+                    spawner=super_rocket_enemy_spawner,
+                    positions=[
+                        PointF(50, 0),
+                        PointF(-50, 0),
+                    ],
                 ),
             ],
         ),

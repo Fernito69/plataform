@@ -5,6 +5,7 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.spawner import Spawner
 from physics2d.entities.spawners.utils import get_position
 from physics2d.pickable.weapon import RocketLauncherPickup, ShotgunPickup, WeaponPickup
+from physics2d.shape.factories.effects import teleport_in_particles
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -22,6 +23,7 @@ def health_spawner(amount: int) -> Spawner:
             amount=amount,
         )
         engine.scenario.pickables.append(pickup)
+        teleport_in_particles(engine, pickup)
 
     return _s
 
@@ -36,6 +38,7 @@ def _get_weapon_spawner(
 ) -> None:
     pickup = Weapon(engine=engine, position=get_position(source))
     engine.scenario.pickables.append(pickup)
+    teleport_in_particles(engine, pickup)
 
 
 def shotgun_pickup_spawner(engine: "Physics2D", source: PhysicsEntity | PointF) -> None:

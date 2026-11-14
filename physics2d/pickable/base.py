@@ -113,6 +113,7 @@ class Pickable(PhysicsEntity):
         initial_color = initial_color or 1.5 * self.pickup_message_color
         ending_color = ending_color or self.pickup_message_color.copy(opacity=0.01)
 
+        # TODO: this should be somehow a Text/TextParticle thing, right?
         for row_idx, row_text in enumerate(self.pickup_message.split(BR)):
             row_height_plus_sep = 8 + 2
             text = TextParticle(

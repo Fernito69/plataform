@@ -14,7 +14,6 @@ from physics2d.pickable.base import Pickable
 from physics2d.scenario.background import Background
 from physics2d.scenario.model import Event, Milestone
 from physics2d.shape.base import Shape
-from physics2d.shape.factories.effects import teleport_in_particles
 from physics2d.shape.particle.base import Particle
 from utils import random_offset
 
@@ -322,17 +321,15 @@ class Scenario:
         curr_gametick = self.now()
 
         if curr_gametick in self._grouped_timeline_events:
-            _ = [
-                (event.spawner(self.engine, position), teleport_in_particles(self.engine, position))
-                for event in self._grouped_timeline_events[curr_gametick]
-                for position in event.positions
-            ]
+            for event in self._grouped_timeline_events[curr_gametick]:
+                for position in event.positions:
+                    event.spawner(self.engine, position)
 
     def _compute_grouped_timeline_events(self) -> None:
         self._grouped_timeline_events = {}
 
-        for slice in self.timeline:
-            if self._grouped_timeline_events.get(slice.game_tick):
-                self._grouped_timeline_events[slice.game_tick] += slice.events
+        for milestone in self.timeline:
+            if self._grouped_timeline_events.get(milestone.game_tick):
+                self._grouped_timeline_events[milestone.game_tick] += milestone.events
             else:
-                self._grouped_timeline_events[slice.game_tick] = slice.events
+                self._grouped_timeline_events[milestone.game_tick] = milestone.events

@@ -84,14 +84,21 @@ class Text(Shape):
         self._rotate()
 
     def get_bounding_box(self) -> BoundingBox | None:
-        min_x, max_y, _ = self.position
-
+        # TODO: fix this!
         return BoundingBox(
-            min_x=min_x,
-            max_y=max_y,
-            max_x=min_x * self.scale_factor * len(self.text),
-            min_y=max_y - self.scale_factor,
+            min_x=-1000,
+            max_y=+1000,
+            max_x=1000,
+            min_y=-100,
         )
+
+        min_x, max_y, _ = self.position
+        # return BoundingBox(
+        #     min_x=min_x,
+        #     max_y=max_y,
+        #     max_x=min_x * self.scale_factor * len(self.text),
+        #     min_y=max_y - self.scale_factor,
+        # )
 
     def _update_center_of_mass(self) -> None:
         box = self.get_bounding_box()
