@@ -628,7 +628,7 @@ def rocket_explosion(
         engine=engine,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
-        initial_color=RGB(255, 255, 255, 1, opacity=1),
+        initial_color=RGB(255, 255, 255, 1, opacity=0.5),
         ending_color=RGB(255, 255, 255, 1, opacity=0),
         life_time=15,
     )
@@ -829,7 +829,7 @@ def bfg_explosion(
         engine=engine,
         size_change_type=TransitionType.LINEAR_INCREASE,
         final_radius=blast_radius / 1.75,
-        initial_color=RGB(255, 255, 255, 1, opacity=1),
+        initial_color=RGB(255, 255, 255, 1, opacity=0.5),
         ending_color=RGB(255, 255, 255, 1, opacity=0),
         life_time=15,
     )

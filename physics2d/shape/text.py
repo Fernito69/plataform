@@ -67,8 +67,6 @@ class Text(Shape):
         ]
 
     def _apply_movement(self) -> None:
-        self._rotate()
-
         if not any(a != 0 for a in self.velocity):
             return
 
@@ -76,7 +74,6 @@ class Text(Shape):
         self._update_center_of_mass()
 
     def _rotate(self) -> None:
-        # assume center of gravity as the rotation point
         if not self.angular_velocity:
             return
 
@@ -84,6 +81,7 @@ class Text(Shape):
 
     def do_your_thing(self) -> None:
         self._apply_movement()
+        self._rotate()
 
     def get_bounding_box(self) -> BoundingBox | None:
         min_x, max_y, _ = self.position
