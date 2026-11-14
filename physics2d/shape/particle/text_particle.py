@@ -9,6 +9,8 @@ from physics2d.shape.text import Text
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
 
+# TODO: allow text to appear absolutely positioned
+
 
 class TextParticle(Text, Particle):
     initial_thickness: float

@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemies.stalking_enemies.machinegun_enemy import MachineGunEnemy
@@ -11,11 +12,11 @@ if TYPE_CHECKING:
 
 def super_rocket_enemy_spawner(
     engine: "Physics2D",
-    source: PhysicsEntity,
+    source: PhysicsEntity | PointF,
 ) -> None:
     enemy = SuperRocketEnemy(
         size=15,
-        position=source.position,
+        position=source if isinstance(source, PointF) else source.position,
         theme=Theme(color=RGB(90, 90, 100)),
         engine=engine,
         color_gradient_exponent=0.1,
@@ -28,12 +29,12 @@ def super_rocket_enemy_spawner(
 
 def machine_gun_enemy_spawner(
     engine: "Physics2D",
-    source: PhysicsEntity,
+    source: PhysicsEntity | PointF,
 ) -> None:
     enemy = MachineGunEnemy(
         size=10,
         health=150,
-        position=source.position,
+        position=source if isinstance(source, PointF) else source.position,
         theme=Theme(color=RGB(190, 90, 100)),
         secondary_theme=Theme(color=RGB(90, 0, 0)),
         engine=engine,

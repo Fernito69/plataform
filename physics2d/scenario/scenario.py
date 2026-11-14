@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING, Literal
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
@@ -12,7 +12,9 @@ from physics2d.entities.three_dee_enemy import ThreeDeeEnemy
 from physics2d.model.shared import BackgroundGenerator, RenderInfo
 from physics2d.pickable.base import Pickable
 from physics2d.scenario.background import Background
+from physics2d.scenario.model import Event, Milestone
 from physics2d.shape.base import Shape
+from physics2d.shape.factories.effects import teleport_in_particles
 from physics2d.shape.particle.base import Particle
 from utils import random_offset
 
@@ -39,6 +41,8 @@ type Layer = Literal["fg", "bg", "solid"]
 
 class Scenario:
     name: str
+
+    timeline: list[Milestone]
 
     background: Background
 
@@ -80,7 +84,9 @@ class Scenario:
         overlay_shapes: list[Shape] = [],
         three_dee_enemies: list[ThreeDeeEnemy] = [],
         pickables: list[Pickable] = [],
+        timeline: list[Milestone] = [],
     ):
+        self._game_tick = 0
         self.name = name
         self.engine = engine
         self.enemies = enemies
@@ -90,6 +96,7 @@ class Scenario:
         self.three_dee_enemies = three_dee_enemies
         self.overlay_shapes = overlay_shapes
         self.pickables = pickables
+        self.timeline = timeline
 
         for p in self.solid_shapes:
             p.is_collideable = True
@@ -104,10 +111,12 @@ class Scenario:
         self.enemy_projectiles = []
 
         self.background = background_gen(engine)
+        self._compute_grouped_timeline_events()
 
     def do_your_thing(self) -> None:
         self.player.do_your_thing()
         self.crosshair.do_your_thing()
+        self._handle_timeline()
 
         for entity in chain(
             self.fg_shapes,
@@ -131,10 +140,13 @@ class Scenario:
         player_initial_position: PointF,
     ) -> None:
         self.player = player
-        _delta = (player_initial_position - self.player.position).as_vector()
+        _delta: VectorF = (player_initial_position - self.player.position).as_vector()
         self.player._move_by(_delta)
         self.engine.screen_corner += _delta
-        self._game_tick = 0
+
+    def center_screen(self) -> None:
+        x_res, y_res = self.engine.get_resolution()
+        self.engine.screen_corner = self.player.position - VectorF(x_res / 2, y_res / 2)
 
     def _particle_lifetime_cleanup(self) -> None:
         def _remove_dead_particles(arr: list[Shape]) -> list[Shape] | None:
@@ -299,3 +311,28 @@ class Scenario:
             self.fg_shapes.append(entity)
         else:
             self.bg_shapes.append(entity)
+
+    #######################################
+    _grouped_timeline_events: dict[int, list[Event]]
+
+    def _handle_timeline(self) -> None:
+        if len(self.timeline) == 0:
+            return
+
+        curr_gametick = self.now()
+
+        if curr_gametick in self._grouped_timeline_events:
+            _ = [
+                (event.spawner(self.engine, position), teleport_in_particles(self.engine, position))
+                for event in self._grouped_timeline_events[curr_gametick]
+                for position in event.positions
+            ]
+
+    def _compute_grouped_timeline_events(self) -> None:
+        self._grouped_timeline_events = {}
+
+        for slice in self.timeline:
+            if self._grouped_timeline_events.get(slice.game_tick):
+                self._grouped_timeline_events[slice.game_tick] += slice.events
+            else:
+                self._grouped_timeline_events[slice.game_tick] = slice.events

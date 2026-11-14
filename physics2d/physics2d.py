@@ -107,6 +107,7 @@ class Physics2D(Engine, KeyboardHandler):
         self.player.set_scenario(self.scenario)
         self.player._curr_weapon_index = _curr_weapon_idx
         self.player._curr_thruster_index = _curr_thruster_idx
+        self.scenario.center_screen()
 
     def init_screen_buffer(self) -> None:
         res = self._display.get_resolution()

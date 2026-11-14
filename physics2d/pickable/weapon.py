@@ -377,3 +377,17 @@ def _get_pick_up_effect(pickup: Pickable, color: RGB) -> None:
             ),
         )
     )
+
+
+# TODO: I don't like this solution, make a parent class
+WeaponPickup = (
+    ShotgunPickup
+    | HeavyMachineGunPickup
+    | ZapperPickup
+    | LightningGunPickup
+    | HeavyRocketLauncherPickup
+    | HomingMissilesLauncherPickup
+    | MicroMissilesLauncherPickup
+    | RocketLauncherPickup
+    | BFGPickup
+)

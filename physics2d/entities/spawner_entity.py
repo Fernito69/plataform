@@ -5,9 +5,7 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.shared import ParticleGenerator
 from physics2d.entities.model.spawner import Spawner
-from physics2d.shape.model.shared import TransitionType
-from physics2d.shape.particle.circular_particle import CircularParticle
-from utils import random_offset
+from physics2d.shape.factories.effects import teleport_in_particles
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -121,62 +119,3 @@ class SpawnerEntity(PhysicsEntity):
 
 
 #####################################################################################################################################
-
-
-def teleport_in_particles(
-    engine: "Physics2D",
-    source: "PhysicsEntity",
-    size: float = 10,
-) -> None:
-    pieces: list[Shape] = []
-
-    _initial_color = RGB(80, 255, 80)
-
-    shockwave = CircularParticle(
-        engine=engine,
-        origin=source.center,
-        size=size,
-        size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-        initial_color=_initial_color,
-        ending_color=_initial_color.copy(opacity=0),
-        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-        life_time=15,
-    )
-    pieces.append(shockwave)
-
-    shockwave = CircularParticle(
-        engine=engine,
-        origin=source.center,
-        size=0,
-        final_radius=size,
-        size_change_type=TransitionType.LINEAR_INCREASE,
-        initial_color=RGB(255, 255, 255),
-        ending_color=RGB(255, 255, 255, opacity=0),
-        ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-        life_time=15,
-    )
-    pieces.append(shockwave)
-
-    for _ in range(15):
-        # little particles doing particle stuff
-        sonic_challa = CircularParticle(
-            origin=(source.center - source.velocity)
-            - VectorF(x=random_offset(), y=random_offset()),
-            initial_velocity=(
-                -0.4
-                * VectorF(
-                    x=source.velocity.x + random_offset(), y=source.velocity.y + random_offset()
-                )
-            ),
-            size=4,
-            size_change_type=TransitionType.EXPONENTIAL_DECREASE,
-            initial_color=_initial_color,
-            ending_color=_initial_color.copy(opacity=0),
-            ending_color_fade_type=TransitionType.LINEAR_DECREASE,
-            life_time=25,
-            floating_multi=5,
-            engine=engine,
-        )
-        pieces.append(sonic_challa)
-
-    engine.scenario.bg_shapes[0:0] = pieces

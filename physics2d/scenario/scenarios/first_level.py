@@ -2,21 +2,30 @@ from typing import TYPE_CHECKING
 
 from model.base import PointF
 from physics2d.entities.enemy import Enemy
-from physics2d.entities.spawner_entity import SpawnerEntity
+
+# from physics2d.entities.spawner_entity import SpawnerEntity
 from physics2d.entities.spawners.enemy import machine_gun_enemy_spawner, super_rocket_enemy_spawner
-from physics2d.model.shared import BackgroundGenerator
-from physics2d.pickable.health import HealthPickup
-from physics2d.pickable.weapon import (
-    BFGPickup,
-    HeavyMachineGunPickup,
-    HeavyRocketLauncherPickup,
-    HomingMissilesLauncherPickup,
-    LightningGunPickup,
-    MicroMissilesLauncherPickup,
-    RocketLauncherPickup,
-    ShotgunPickup,
-    ZapperPickup,
+from physics2d.entities.spawners.item import (
+    health_spawner,
+    rocket_launcher_pickup_spawner,
+    shotgun_pickup_spawner,
 )
+from physics2d.entities.spawners.text import wave_started_text
+from physics2d.model.shared import BackgroundGenerator
+
+# from physics2d.pickable.health import HealthPickup
+# from physics2d.pickable.weapon import (
+#     BFGPickup,
+#     HeavyMachineGunPickup,
+#     HeavyRocketLauncherPickup,
+#     HomingMissilesLauncherPickup,
+#     LightningGunPickup,
+#     MicroMissilesLauncherPickup,
+#     RocketLauncherPickup,
+#     ShotgunPickup,
+#     ZapperPickup,
+# )
+from physics2d.scenario.model import Event, Milestone
 from physics2d.scenario.scenario import Scenario
 from physics2d.shape.base import Shape
 
@@ -38,41 +47,92 @@ def first_level(
 
     # TODO: we are adding it as shapes, but maybe SpawnerEntity should be Enemy
     bg_pieces: list[Shape] = [
-        SpawnerEntity(
-            engine=engine,
-            spawn_interval=200,
-            total_num_spawns=2,
-            position=PointF(75, 75),
-            spawner=super_rocket_enemy_spawner,
-            initial_delay=150,
-            spawn_effect_size=15,
-        ),
-        SpawnerEntity(
-            engine=engine,
-            spawn_interval=80,
-            total_num_spawns=5,
-            spawn_effect_size=10,
-            position=PointF(100, 100),
-            spawner=machine_gun_enemy_spawner,
-        ),
+        # SpawnerEntity(
+        #     engine=engine,
+        #     spawn_interval=200,
+        #     total_num_spawns=2,
+        #     position=PointF(75, 75),
+        #     spawner=super_rocket_enemy_spawner,
+        #     initial_delay=150,
+        #     spawn_effect_size=15,
+        # ),
+        # SpawnerEntity(
+        #     engine=engine,
+        #     spawn_interval=80,
+        #     total_num_spawns=5,
+        #     spawn_effect_size=10,
+        #     position=PointF(100, 100),
+        #     spawner=machine_gun_enemy_spawner,
+        # ),
     ]
 
     solid_pieces: list[Shape] = []
     pickables: list["Pickable"] = [
-        ShotgunPickup(engine=engine, position=PointF(0, -20)),
-        RocketLauncherPickup(engine=engine, position=PointF(40, -20)),
-        MicroMissilesLauncherPickup(engine=engine, position=PointF(80, -20)),
-        HomingMissilesLauncherPickup(engine=engine, position=PointF(120, -20)),
-        HeavyRocketLauncherPickup(engine=engine, position=PointF(160, -20)),
-        LightningGunPickup(engine=engine, position=PointF(200, -20)),
-        HeavyMachineGunPickup(engine=engine, position=PointF(240, -20)),
-        ZapperPickup(engine=engine, position=PointF(280, -20)),
-        BFGPickup(engine=engine, position=PointF(300, -20)),
-        ###
-        HealthPickup(engine=engine, position=PointF(90, 20), amount=100),
-        HealthPickup(engine=engine, position=PointF(130, 20), amount=200),
-        HealthPickup(engine=engine, position=PointF(170, 20), amount=500),
-        HealthPickup(engine=engine, position=PointF(210, 20), amount=1000),
+        # ShotgunPickup(engine=engine, position=PointF(0, -20)),
+        # RocketLauncherPickup(engine=engine, position=PointF(40, -20)),
+        # MicroMissilesLauncherPickup(engine=engine, position=PointF(80, -20)),
+        # HomingMissilesLauncherPickup(engine=engine, position=PointF(120, -20)),
+        # HeavyRocketLauncherPickup(engine=engine, position=PointF(160, -20)),
+        # LightningGunPickup(engine=engine, position=PointF(200, -20)),
+        # HeavyMachineGunPickup(engine=engine, position=PointF(240, -20)),
+        # ZapperPickup(engine=engine, position=PointF(280, -20)),
+        # BFGPickup(engine=engine, position=PointF(300, -20)),
+        # ###
+        # HealthPickup(engine=engine, position=PointF(90, 20), amount=100),
+        # HealthPickup(engine=engine, position=PointF(130, 20), amount=200),
+        # HealthPickup(engine=engine, position=PointF(170, 20), amount=500),
+        # HealthPickup(engine=engine, position=PointF(210, 20), amount=1000),
+    ]
+
+    timeline: list[Milestone] = [
+        Milestone(
+            game_tick=1,
+            events=[
+                Event(
+                    spawner=wave_started_text("WAVE 1, prepare!"),
+                    positions=[PointF(0, 50)],
+                ),
+                Event(
+                    spawner=machine_gun_enemy_spawner,
+                    positions=[
+                        PointF(50, 0),
+                        PointF(50, 50),
+                        PointF(50, -50),
+                        PointF(-50, 0),
+                        PointF(-50, 50),
+                        PointF(-50, -50),
+                    ],
+                ),
+                Event(
+                    spawner=shotgun_pickup_spawner,
+                    positions=[PointF(25, 25)],
+                ),
+            ],
+        ),
+        Milestone(
+            game_tick=500,
+            events=[
+                Event(
+                    spawner=wave_started_text("WAVE 2, prepare!"),
+                    positions=[PointF(0, 50)],
+                ),
+                Event(
+                    spawner=super_rocket_enemy_spawner,
+                    positions=[
+                        PointF(50, 0),
+                        PointF(-50, 0),
+                    ],
+                ),
+                Event(
+                    spawner=rocket_launcher_pickup_spawner,
+                    positions=[PointF(-25, 25)],
+                ),
+                Event(
+                    spawner=health_spawner(500),
+                    positions=[PointF(0, -25)],
+                ),
+            ],
+        ),
     ]
 
     return Scenario(
@@ -87,4 +147,5 @@ def first_level(
         background_gen=background_gen,
         player_initial_position=_STARTING_POSITION,
         pickables=pickables,
+        timeline=timeline,
     )
