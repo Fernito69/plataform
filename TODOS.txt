@@ -1,0 +1,2 @@
+- Make enemies drop loot
+- Add triggers to Scenario - Timeline (e.g. kill monster, a weapon appears)

@@ -83,12 +83,17 @@ class Pickable(PhysicsEntity):
 
     def do_your_thing(self) -> None:
         super().do_your_thing()
+        self._slow_down_if_moving()
 
         for shape in self.extra_shapes:
             shape.do_your_thing()
 
         if self.engine.scenario.player.would_collide_with(self):
             self._pick_up()
+
+    def _slow_down_if_moving(self) -> None:
+        if self.velocity.x != 0 or self.velocity.y != 0:
+            self.velocity *= 0.9
 
     def _pick_up(self) -> None:
         self._grant_player_something()

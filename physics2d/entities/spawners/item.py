@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF
+from model.base import PointF, VectorF
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.spawner import Spawner
 from physics2d.entities.spawners.utils import get_position
@@ -15,12 +15,16 @@ from physics2d.pickable.health import HealthPickup
 # HEALTH
 
 
-def health_spawner(amount: int) -> Spawner:
+def health_spawner(
+    amount: int,
+    velocity: VectorF = VectorF(0, 0),
+) -> Spawner:
     def _s(engine: "Physics2D", source: PhysicsEntity | PointF) -> None:
         pickup = HealthPickup(
             engine=engine,
             position=get_position(source),
             amount=amount,
+            initial_velocity=velocity,
         )
         engine.scenario.pickables.append(pickup)
         teleport_in_particles(engine, pickup)

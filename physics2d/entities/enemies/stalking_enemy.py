@@ -5,6 +5,7 @@ from model.base import PointF
 from model.theme import Theme
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.model.shared import ParticleGenerator
+from physics2d.entities.model.spawner import Spawner
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -37,6 +38,7 @@ class StalkingEnemy(Enemy):
         min_distance_from_player: float = 60,
         min_distance_from_other_enemies: float = 20,
         show_health: bool = False,
+        spawner_on_death: Spawner | None = None,
     ):
         super().__init__(
             health=health,
@@ -53,6 +55,7 @@ class StalkingEnemy(Enemy):
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
             color_gradient_exponent_end=color_gradient_exponent_end,
             show_health=show_health,
+            spawner_on_death=spawner_on_death,
         )
         self._last_known_direction = self.velocity
         self._max_velocity = max_velocity

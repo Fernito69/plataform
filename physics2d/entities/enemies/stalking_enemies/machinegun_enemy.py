@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.entities.enemies.stalking_enemy import StalkingEnemy
+from physics2d.entities.model.spawner import Spawner
 from physics2d.shape.factories.projectile import get_bullet
 
 if TYPE_CHECKING:
@@ -38,6 +39,7 @@ class MachineGunEnemy(StalkingEnemy):
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
         show_health: bool = True,
+        spawner_on_death: Spawner | None = None,
     ):
         _machine_gun = get_bullet(
             is_enemy=True,
@@ -65,4 +67,5 @@ class MachineGunEnemy(StalkingEnemy):
             show_health=show_health,
             color_gradient_exponent_cycling_factor=color_gradient_exponent_cycling_factor,
             color_gradient_exponent_end=color_gradient_exponent_end,
+            spawner_on_death=spawner_on_death,
         )

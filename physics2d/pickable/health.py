@@ -51,6 +51,7 @@ class HealthPickup(Pickable):
         engine: "Physics2D",
         position: PointF,
         amount: int,
+        initial_velocity: VectorF = VectorF(0, 0),
     ) -> None:
         self._amount = amount
         size = amount**0.333
@@ -65,7 +66,7 @@ class HealthPickup(Pickable):
             thickness=thickness,
             pulsate_freq=0.5,
             pulsate_amplitude=0.3,
-            # initial_velocity=PointF(0.1, 0.12121221).as_vector(),
+            initial_velocity=initial_velocity,
         )
 
         super().__init__(

@@ -480,14 +480,17 @@ class Circunference(Shape):
         ):
             return False
 
+        """
+        # CASE: Ball x Ball
+        """
+
         # TODO: I know this is expensive and dumb, but let's see if it improves it
         # ranges = [0.1, 0.2, 0.4, 0.6, 0.8]
-        ranges = [0, -0.1]
+        ranges = [0, 0.1]
 
         for value in ranges:
             new_pos = (value * self.velocity) + self.center
 
-            # CASE: Ball x Ball
             if isinstance(colliding_shape, Circunference):
                 # if the distance between their centers is less than the sum of both radii, it means they would collide
                 if abs(new_pos - colliding_shape.center) <= self.radius + colliding_shape.radius:
@@ -517,41 +520,43 @@ class Circunference(Shape):
 
                     self.velocity = new_velocity
                     return True
+        """
+        # CASE: Line x Ball
+        """
+        if isinstance(colliding_shape, Line):
+            if (
+                colliding_shape.is_in_hitbox_area(self.center, self.radius)
+                and colliding_shape.get_distance_to_point(self.center)
+                < self.radius + colliding_shape.thickness
+            ):
+                line_angle = colliding_shape.as_vector().get_angle() % PI
+                self_angle = self.velocity.get_angle()
 
-            # CASE: Line x Ball
-            if isinstance(colliding_shape, Line):
-                if (
-                    colliding_shape.is_in_hitbox_area(self.center, self.radius)
-                    and colliding_shape.get_distance_to_point(self.center)
-                    < self.radius + colliding_shape.thickness
-                ):
-                    line_angle = colliding_shape.as_vector().get_angle() % PI
-                    self_angle = self.velocity.get_angle()
+                are_perpendicular: bool = round((line_angle - PI / 2) % PI, 2) == round(
+                    self_angle % PI, 2
+                )
 
-                    are_perpendicular: bool = round((line_angle - PI / 2) % PI, 2) == round(
-                        self_angle % PI, 2
+                if are_perpendicular:
+                    # TODO: add an elastic_transfer_factor
+                    new_velocity = -self.velocity
+                else:
+                    line_normal = line_angle + PI / 2
+                    new_velocity = self.velocity.rotate_2d(
+                        2 * (self.velocity.get_angle() - line_normal)
                     )
 
-                    if are_perpendicular:
-                        # TODO: add an elastic_transfer_factor
-                        new_velocity = -self.velocity
-                    else:
-                        line_normal = line_angle + PI / 2
-                        new_velocity = self.velocity.rotate_2d(
-                            2 * (self.velocity.get_angle() - line_normal)
-                        )
+                self.velocity = new_velocity
 
-                    self.velocity = new_velocity
+                # Safeguard for it to not get stuck
+                if colliding_shape.is_in_hitbox_area(self.center + new_velocity, self.radius):
+                    # move away from object
+                    # TODO: hacky, do well
+                    intersection = distance_from_line_to_point(
+                        colliding_shape.points, self.center
+                    ).intersection
+                    self.velocity += 0.2 * (self.center - intersection).as_vector()
 
-                    if colliding_shape.is_in_hitbox_area(self.center, self.radius):
-                        # move away from object
-                        # TODO: hacky, do well
-                        intersection = distance_from_line_to_point(
-                            colliding_shape.points, self.center
-                        ).intersection
-                        self.velocity += 0.2 * (self.center - intersection).as_vector()
-
-                    return True
+                return True
 
         # TODO: add the other shapes
         return False

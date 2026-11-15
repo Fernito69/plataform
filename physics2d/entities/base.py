@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class PhysicsEntity(Circunference):
+    id: int | None
+
     position: PointF
     velocity: VectorF
     extra_shapes: list["PhysicsEntity | Enemy | Shape"]
@@ -51,6 +53,7 @@ class PhysicsEntity(Circunference):
         x_elliptical_oscillation_frequency: float | None = None,
         y_elliptical_oscillation_frequency: float | None = None,
         color_cycling_factor: float = 0,
+        id: int | None = None,
     ):
         super().__init__(
             center=position,
@@ -77,6 +80,7 @@ class PhysicsEntity(Circunference):
             y_elliptical_oscillation_frequency=y_elliptical_oscillation_frequency,
             color_cycling_factor=color_cycling_factor,
         )
+        self.id = id
         self._engine = engine
         self.position = position
         self.extra_shapes = extra_shapes

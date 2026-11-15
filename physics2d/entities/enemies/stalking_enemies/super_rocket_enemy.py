@@ -7,6 +7,7 @@ from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemies.stalking_enemy import StalkingEnemy
 from physics2d.entities.enemy import Enemy
+from physics2d.entities.model.spawner import Spawner
 from physics2d.shape.factories.projectile import get_rocket
 from physics2d.shape.model.shared import TransitionType
 from physics2d.shape.particle.circular_particle import CircularParticle
@@ -56,6 +57,7 @@ class SuperRocketEnemy(StalkingEnemy):
         aggressivity: float = _AGGRESSIVITY,
         max_velocity: float = _MAX_VELOCITY,
         show_health: bool = True,
+        spawner_on_death: Spawner | None = None,
     ):
         super().__init__(
             health=health,
@@ -75,6 +77,7 @@ class SuperRocketEnemy(StalkingEnemy):
             aggressivity=aggressivity,
             projectile_generator=None,
             show_health=show_health,
+            spawner_on_death=spawner_on_death,
         )
         self._last_known_direction = self.velocity
 

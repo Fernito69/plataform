@@ -72,7 +72,8 @@ def first_level(
         Line(
             points=points,
             theme=Theme(color=RGB(255, 255, 255)),
-            thickness=3,
+            secondary_theme=Theme(color=RGB(127, 0, 255)),
+            thickness=4,
             engine=engine,
         )
         for points in [
