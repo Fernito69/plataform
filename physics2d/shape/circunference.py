@@ -498,8 +498,6 @@ class Circunference(Shape):
                     # TODO: Ideally it's the reflection angle at the point of collision, but this works for now
                     # TODO: Fix the logic of this energy transfer
                     denominator = self.weight + colliding_shape.weight
-                    # normal_at_collision = (self.center, colliding_shape.center)
-                    # only the vel. component parallel to the normal of the collision point
 
                     # TODO: energy transfer should consider kinetic energy e = m*v^2
                     self_transfer_factor = colliding_shape.weight / denominator
@@ -513,20 +511,9 @@ class Circunference(Shape):
                         1 - elastic_transfer_factor
                     )
 
-                    # raise NotImplementedError(
-                    #     f"NAME: {self.name}, self factor: {self_transfer_factor}, other factor: {other_shape_transfer_factor}"
-                    # )
-                    # new_velocity = (
-                    #     (-self.velocity * other_shape_transfer_factor)
-                    #     + (colliding_shape.velocity * other_shape_transfer_factor)
-                    # ).as_vector()
                     new_velocity = (colliding_shape.velocity * self_transfer_factor) - (
                         self.velocity * elastic_transfer_factor
                     )
-
-                    # engine.display.debug_log(
-                    #     f"NAME: {self.name}, SELF CONTRI: {(-self.velocity * self_transfer_factor)}, OTHER CONTRI: {(colliding_shape.velocity * other_shape_transfer_factor)}",
-                    # )
 
                     self.velocity = new_velocity
                     return True
@@ -538,14 +525,8 @@ class Circunference(Shape):
                     and colliding_shape.get_distance_to_point(self.center)
                     < self.radius + colliding_shape.thickness
                 ):
-                    vel_magnitude = abs(self.velocity)
-
                     line_angle = colliding_shape.as_vector().get_angle() % PI
                     self_angle = self.velocity.get_angle()
-
-                    # self._engine._display.debug_log(
-                    #     f"LINE ANGLE: {int(line_angle * (180 / PI))}º; SELF_ANGLE: {int(self_angle * (180 / PI))}º"
-                    # )
 
                     are_perpendicular: bool = round((line_angle - PI / 2) % PI, 2) == round(
                         self_angle % PI, 2
@@ -555,7 +536,10 @@ class Circunference(Shape):
                         # TODO: add an elastic_transfer_factor
                         new_velocity = -self.velocity
                     else:
-                        new_velocity = -self.velocity
+                        line_normal = line_angle + PI / 2
+                        new_velocity = self.velocity.rotate_2d(
+                            2 * (self.velocity.get_angle() - line_normal)
+                        )
 
                     self.velocity = new_velocity
 
@@ -567,34 +551,6 @@ class Circunference(Shape):
                         ).intersection
                         self.velocity += 0.2 * (self.center - intersection).as_vector()
 
-                    return True
-
-                    # # TODO!!!!! Should be minus/plus double the difference between the normal and itself
-                    # angle_vel = get_line_angle(self.center, new_pos)
-                    # # angle_line = get_line_angle(*colliding_shape.points)
-                    # line_normal_angle = get_angle_from_slope(
-                    #     get_perpendicular_slope(*colliding_shape.points)
-                    # )
-                    # bounce_angle = 2 * line_normal_angle - angle_vel
-                    # # res_angle = angle_line + PI - angle_vel
-
-                    # # factor_x = -1 if self.velocity.x < 0 else 1
-                    # # factor_y = 1 if self.velocity.y < 0 else -1
-                    # factor_x = 1
-                    # factor_y = 1
-
-                    # new_velocity = abs(self.velocity) * VectorF(
-                    #     x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
-                    # )
-
-                    # def _get_angle(angle) -> int:
-                    #     return int(angle * 180 / PI)
-
-                    # # engine._display.debug_log(
-                    # #     f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
-                    # # )
-
-                    # self.velocity = new_velocity
                     return True
 
         # TODO: add the other shapes
