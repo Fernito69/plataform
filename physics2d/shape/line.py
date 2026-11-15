@@ -81,6 +81,9 @@ class Line(Shape):
             color_gradient_exponent=color_gradient_exponent,
         )
 
+    def as_vector(self) -> VectorF:
+        return (self.points[1] - self.points[0]).as_vector()
+
     def _update_center_of_mass(self) -> None:
         self.center_of_mass = PointF(
             (self.points[0].x + self.points[1].x) / 2,

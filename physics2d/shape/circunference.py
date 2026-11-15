@@ -8,7 +8,9 @@ from model.theme import RGB, Theme
 from physics2d.model.shared import BoundingBox, RenderInfo
 from physics2d.shape.base import Shape
 from physics2d.shape.line import Line
-from utils import get_angle_from_slope, get_line_angle, get_perpendicular_slope
+from utils import (
+    distance_from_line_to_point,
+)
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -536,32 +538,63 @@ class Circunference(Shape):
                     and colliding_shape.get_distance_to_point(self.center)
                     < self.radius + colliding_shape.thickness
                 ):
-                    # TODO!!!!! Should be minus/plus double the difference between the normal and itself
-                    angle_vel = get_line_angle(self.center, new_pos)
-                    # angle_line = get_line_angle(*colliding_shape.points)
-                    line_normal_angle = get_angle_from_slope(
-                        get_perpendicular_slope(*colliding_shape.points)
-                    )
-                    bounce_angle = 2 * line_normal_angle - angle_vel
-                    # res_angle = angle_line + PI - angle_vel
+                    vel_magnitude = abs(self.velocity)
 
-                    # factor_x = -1 if self.velocity.x < 0 else 1
-                    # factor_y = 1 if self.velocity.y < 0 else -1
-                    factor_x = 1
-                    factor_y = 1
+                    line_angle = colliding_shape.as_vector().get_angle() % PI
+                    self_angle = self.velocity.get_angle()
 
-                    new_velocity = abs(self.velocity) * VectorF(
-                        x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
-                    )
-
-                    def _get_angle(angle) -> int:
-                        return int(angle * 180 / PI)
-
-                    # engine._display.debug_log(
-                    #     f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
+                    # self._engine._display.debug_log(
+                    #     f"LINE ANGLE: {int(line_angle * (180 / PI))}º; SELF_ANGLE: {int(self_angle * (180 / PI))}º"
                     # )
 
+                    are_perpendicular: bool = round((line_angle - PI / 2) % PI, 2) == round(
+                        self_angle % PI, 2
+                    )
+
+                    if are_perpendicular:
+                        # TODO: add an elastic_transfer_factor
+                        new_velocity = -self.velocity
+                    else:
+                        new_velocity = -self.velocity
+
                     self.velocity = new_velocity
+
+                    if colliding_shape.is_in_hitbox_area(self.center, self.radius):
+                        # move away from object
+                        # TODO: hacky, do well
+                        intersection = distance_from_line_to_point(
+                            colliding_shape.points, self.center
+                        ).intersection
+                        self.velocity += 0.2 * (self.center - intersection).as_vector()
+
+                    return True
+
+                    # # TODO!!!!! Should be minus/plus double the difference between the normal and itself
+                    # angle_vel = get_line_angle(self.center, new_pos)
+                    # # angle_line = get_line_angle(*colliding_shape.points)
+                    # line_normal_angle = get_angle_from_slope(
+                    #     get_perpendicular_slope(*colliding_shape.points)
+                    # )
+                    # bounce_angle = 2 * line_normal_angle - angle_vel
+                    # # res_angle = angle_line + PI - angle_vel
+
+                    # # factor_x = -1 if self.velocity.x < 0 else 1
+                    # # factor_y = 1 if self.velocity.y < 0 else -1
+                    # factor_x = 1
+                    # factor_y = 1
+
+                    # new_velocity = abs(self.velocity) * VectorF(
+                    #     x=factor_x * math.cos(bounce_angle), y=factor_y * math.sin(bounce_angle)
+                    # )
+
+                    # def _get_angle(angle) -> int:
+                    #     return int(angle * 180 / PI)
+
+                    # # engine._display.debug_log(
+                    # #     f"PREV VEL: {self.velocity}, NEW VEL: {new_velocity} - vel angle: {_get_angle(angle_vel)}, line normal: {_get_angle(line_normal_angle)}, res: {_get_angle(bounce_angle)}"
+                    # # )
+
+                    # self.velocity = new_velocity
                     return True
 
         # TODO: add the other shapes

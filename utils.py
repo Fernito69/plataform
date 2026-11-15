@@ -121,6 +121,7 @@ class DistanceFromLineToPointResponse:
     distance: float
     intersection: PointF
     slope: Slope
+    vector: VectorF
 
 
 def distance_from_line_to_point(
@@ -142,10 +143,12 @@ def distance_from_line_to_point(
         y_within_range: bool = max_y >= point.y >= min_y
 
         if not line_is_finite or y_within_range:
+            intersection = PointF(line_point_1.x, point.y)
             return DistanceFromLineToPointResponse(
                 distance=base_distance,
-                intersection=PointF(line_point_1.x, point.y),
+                intersection=intersection,
                 slope=original_m,
+                vector=(intersection - point).as_vector(),
             )
 
         highest_p, lowest_p = sorted([line_point_1, line_point_2], key=lambda p: -p.y)
@@ -158,6 +161,7 @@ def distance_from_line_to_point(
             distance=distance,
             intersection=intersection,
             slope=original_m,
+            vector=(intersection - point).as_vector(),
         )
 
     # edge case 2: when slope is 0! same as above
@@ -166,10 +170,12 @@ def distance_from_line_to_point(
         x_within_range: bool = max_x >= point.x >= min_x
 
         if not line_is_finite or x_within_range:
+            intersection = PointF(point.x, line_point_1.y)
             return DistanceFromLineToPointResponse(
                 distance=base_distance,
-                intersection=PointF(point.x, line_point_1.y),
+                intersection=intersection,
                 slope=original_m,
+                vector=(intersection - point).as_vector(),
             )
 
         rightmost_p, leftmost_p = sorted([line_point_1, line_point_2], key=lambda p: -p.x)
@@ -182,6 +188,7 @@ def distance_from_line_to_point(
             distance=distance,
             intersection=intersection,
             slope=original_m,
+            vector=(intersection - point).as_vector(),
         )
 
     # get the equation of the perpendicular line
@@ -200,12 +207,14 @@ def distance_from_line_to_point(
         new_y = max(min_y, min(max_y, new_y))
 
     intersection = PointF(new_x, new_y)
+    vector = (intersection - point).as_vector()
 
     # now get distance
     return DistanceFromLineToPointResponse(
-        distance=abs(point - intersection),
+        distance=abs(vector),
         intersection=intersection,
         slope=original_m,
+        vector=vector,
     )
 
 
