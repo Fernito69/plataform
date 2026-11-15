@@ -221,11 +221,13 @@ def apply_status_bar_to_screen(
     if title:
         for x_idx, char in enumerate(title):
             x = health_bar.x_start - (len(title) - x_idx) - 1
-            if x < 0:
+            
+            if x < 0 or x > len(data[health_bar.y]) - 1:
                 continue
-
-            _color = extract_color_from_string(data[health_bar.y][x])
-            _bg_color = extract_bg_color_from_string(data[health_bar.y][x])
+            
+            char = data[health_bar.y][x]
+            _color = extract_color_from_string(char)
+            _bg_color = extract_bg_color_from_string(char)
 
             data[health_bar.y][x] = colored(
                 char,

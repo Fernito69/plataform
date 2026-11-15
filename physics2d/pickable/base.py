@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
     from physics2d.shape.base import Shape
 
+SLOW_DOWN_FACTOR = 0.95
+
 
 class Pickable(PhysicsEntity):
     engine: "Physics2D"
@@ -93,7 +95,10 @@ class Pickable(PhysicsEntity):
 
     def _slow_down_if_moving(self) -> None:
         if self.velocity.x != 0 or self.velocity.y != 0:
-            self.velocity *= 0.9
+            self.velocity *= SLOW_DOWN_FACTOR
+
+            for shape in self.extra_shapes:
+                shape.velocity = self.velocity
 
     def _pick_up(self) -> None:
         self._grant_player_something()
@@ -131,9 +136,7 @@ class Pickable(PhysicsEntity):
                 text=row_text,
                 initial_color=initial_color,
                 ending_color=ending_color,
-                # ending_color=.4*self.pickup_message_color,
                 thickness=1,
-                # thickness_gradient_threshold=0.1,
                 life_time=life_time,
                 scale_factor=scale_factor / 1.7,
                 final_scale_factor=scale_factor,

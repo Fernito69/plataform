@@ -80,6 +80,7 @@ class HealthPickup(Pickable):
             particle_generator=_particles(_HEALTH_COLOR, size),
             extra_shapes=text.generate_shapes("+"),
             pickup_message=f"+{amount}",
+            initial_velocity=initial_velocity,
         )
 
     def _grant_player_something(self) -> None:
