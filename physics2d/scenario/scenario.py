@@ -163,7 +163,7 @@ class Scenario:
         _remove_dead_particles(self.solid_shapes)
         _remove_dead_particles(self.overlay_shapes)
 
-        for p in self.projectiles + self.enemy_projectiles:
+        for p in chain(self.projectiles, self.enemy_projectiles):
             if p.life_time is not None and p.life_time <= 0:
                 p.hit()
 

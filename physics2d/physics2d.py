@@ -84,6 +84,12 @@ class Physics2D(Engine, KeyboardHandler):
         # Shared with the Display, and owned by the Game -- see parallel.py.
         self._render_pool = render_pool
 
+    def get_curr_scenario(self) -> Scenario:
+        return self.scenarios[self.curr_scenario_index](
+            self,
+            self.backgrounds[self.curr_bg_index],
+        )
+
     def compute_render_info_batch(
         self,
         entities: list["RenderableEntity"],
@@ -96,14 +102,11 @@ class Physics2D(Engine, KeyboardHandler):
         return self._render_pool.map(lambda e: e.get_render_info(), entities)
 
     def init_player(self, scenario: Scenario | None = None) -> None:
-        self.player = self.game.player_blob
+        self.player = PlayerBlob(self)
         _curr_weapon_idx = self.player._curr_weapon_index if self.player else 0
         _curr_thruster_idx = self.player._curr_thruster_index if self.player else 0
 
-        self.scenario = scenario or self.scenarios[self.curr_scenario_index](
-            self,
-            self.backgrounds[self.curr_bg_index],
-        )
+        self.scenario = scenario or self.get_curr_scenario()
         self.player.set_scenario(self.scenario)
         self.player._curr_weapon_index = _curr_weapon_idx
         self.player._curr_thruster_index = _curr_thruster_idx
@@ -372,19 +375,23 @@ class Physics2D(Engine, KeyboardHandler):
 
     @on_key_press(MovementKeys.UP)
     def _move_screen_up(self):
-        self.screen_corner = (self.screen_corner + PointF(0, CAMERA_MOVEMENT_SPEED)).as_point()
+        ...
+        # self.screen_corner = (self.screen_corner + PointF(0, CAMERA_MOVEMENT_SPEED)).as_point()
 
     @on_key_press(MovementKeys.DOWN)
     def _move_screen_down(self):
-        self.screen_corner = (self.screen_corner + PointF(0, -CAMERA_MOVEMENT_SPEED)).as_point()
+        ...
+        # self.screen_corner = (self.screen_corner + PointF(0, -CAMERA_MOVEMENT_SPEED)).as_point()
 
     @on_key_press(MovementKeys.LEFT)
     def _move_screen_left(self):
-        self.screen_corner = (self.screen_corner + PointF(-CAMERA_MOVEMENT_SPEED, 0)).as_point()
+        ...
+        # self.screen_corner = (self.screen_corner + PointF(-CAMERA_MOVEMENT_SPEED, 0)).as_point()
 
     @on_key_press(MovementKeys.RIGHT)
     def _move_screen_right(self):
-        self.screen_corner = (self.screen_corner + PointF(CAMERA_MOVEMENT_SPEED, 0)).as_point()
+        ...
+        # self.screen_corner = (self.screen_corner + PointF(CAMERA_MOVEMENT_SPEED, 0)).as_point()
 
     @on_key_press(PhysicsKey.RESET_CAMERA)
     def _reset_camera(self):

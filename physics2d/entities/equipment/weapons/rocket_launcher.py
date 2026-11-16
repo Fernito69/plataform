@@ -145,7 +145,7 @@ def _rocket(engine: "Physics2D", source: "PhysicsEntity") -> None:
     _DAMAGE = 100
     _ROCKET_SPEED = 8
     _LIFE_TIME = 100
-    _BLAST_RADIUS = 20
+    _BLAST_RADIUS = 25
     _MAX_BLAST_DAMAGE = 100
     _SIZE = 1.2
 

@@ -113,6 +113,8 @@ class PlayerBlob(PhysicsEntity, Player):
         self.name = "PlayerBlob"
         self._color_gradient_exponent = _GRADIENT_EXPONENT
         self._curr_acceleration = VectorF(0, 0)
+        self._weapons = []
+        self._thrusters = []
 
     def do_your_thing(self) -> None:
         if self.health <= 0:

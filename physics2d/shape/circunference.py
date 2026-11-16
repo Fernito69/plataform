@@ -300,7 +300,10 @@ class Circunference(Shape):
                 )
             )
 
-        return range(math.floor(xs[0]), math.ceil(xs[1]) + 1)
+        x1 = self.center.x if isinstance(xs[0], complex) else xs[0]
+        x2 = self.center.x if isinstance(xs[1], complex) else xs[1]
+
+        return range(math.floor(x1), math.ceil(x2) + 1)
 
     def get_bounding_box(self) -> BoundingBox:
         # TODO: consider angle
