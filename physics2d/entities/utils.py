@@ -198,6 +198,9 @@ def apply_status_bar_to_screen(
     for x_idx, x in enumerate(
         range(health_bar.x_start, health_bar.x_start + len(health_bar.pixels))
     ):
+        if x < 0 or x > len(data[health_bar.y]) - 1:
+            continue
+
         _new_pixel = health_bar.pixels[x_idx]
 
         if not health_bar.with_special_chars:
@@ -221,10 +224,10 @@ def apply_status_bar_to_screen(
     if title:
         for x_idx, char in enumerate(title):
             x = health_bar.x_start - (len(title) - x_idx) - 1
-            
+
             if x < 0 or x > len(data[health_bar.y]) - 1:
                 continue
-            
+
             char = data[health_bar.y][x]
             _color = extract_color_from_string(char)
             _bg_color = extract_bg_color_from_string(char)

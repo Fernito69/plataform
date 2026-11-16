@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF, VectorF
+from model.base import PointF
 from model.theme import RGB, Theme
 from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.enemies.stalking_enemies.machinegun_enemy import MachineGunEnemy
@@ -27,10 +27,7 @@ def super_rocket_enemy_spawner(
         color_gradient_exponent_end=0.5,
         color_gradient_exponent_cycling_factor=4,
         secondary_theme=Theme(color=RGB(255, 20, 255)),
-        spawner_on_death=health_spawner(
-            amount=500,
-            velocity=VectorF.random_offset_vector(5),
-        ),
+        spawner_on_death=health_spawner(amount=250),
     )
     teleport_in_particles(engine, position)
     engine.scenario.enemies.append(enemy)
@@ -48,10 +45,6 @@ def machine_gun_enemy_spawner(
         theme=Theme(color=RGB(190, 90, 100)),
         secondary_theme=Theme(color=RGB(90, 0, 0)),
         engine=engine,
-        spawner_on_death=health_spawner(
-            amount=100,
-            velocity=VectorF.random_offset_vector(5),
-        ),
     )
     teleport_in_particles(engine, position)
     engine.scenario.enemies.append(enemy)

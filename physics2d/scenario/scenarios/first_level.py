@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from model.base import PointF, VectorF
+from model.base import PointF
 from model.theme import BR, RGB, Theme
 from physics2d.entities.enemy import Enemy
 
@@ -112,10 +112,6 @@ def first_level(
                 ),
                 Event(
                     spawner=shotgun_pickup_spawner,
-                    positions=[PointF(25, 0)],
-                ),
-                Event(
-                    spawner=health_spawner(500, velocity=VectorF(5, 0)),
                     positions=[PointF(25, 0)],
                 ),
             ],
