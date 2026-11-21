@@ -48,3 +48,8 @@ def machine_gun_enemy_spawner(
     )
     teleport_in_particles(engine, position)
     engine.scenario.enemies.append(enemy)
+
+
+"""
+Originally it meant to me the labyrinth in which I felt trapped, but wanted to resignify it as the labyrinth of life. Why black? Because that's life! Sometimes it might appear as if you were in a dead end from certain angle, until at some point something happens and new ways open (and also because that was part of the challenge withe the Misou black xd) which unexpectedly lead you to meeting amazing people like you. Thanks for existing!
+"""

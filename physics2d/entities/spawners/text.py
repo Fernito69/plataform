@@ -6,6 +6,7 @@ from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.model.spawner import Spawner
 from physics2d.entities.spawners.utils import get_position
 from physics2d.shape.particle.text_particle import TextParticle
+from physics2d.shape.text import LOWERCASE_CHAR_HEIGHT, SPACE_BETWEEN_CHARS, UPPERCASE_CHAR_HEIGHT
 
 if TYPE_CHECKING:
     from physics2d.physics2d import Physics2D
@@ -21,18 +22,27 @@ def text_spawner(
     thickness: int = 1,
     initial_velocity: VectorF = VectorF(0, 0),
     initial_angular_velocity: float = 0,
+    absolute_positioning: bool = True,
+    centered: bool = True,
 ) -> Spawner:
     def _s(engine: "Physics2D", source: PhysicsEntity | PointF) -> None:
+        CENTER_OFFSET = (
+            0.5 * VectorF(*engine.get_resolution())
+            if absolute_positioning and centered
+            else VectorF(0, 0)
+        )
 
-        # TODO: this should be somehow a Text/TextParticle thing, right?
+        # TODO: this should be somehow taken care of in Text/TextParticle, right?
         for row_idx, row_text in enumerate(text.split(BR)):
-            # TODO: import these as constants please!
-            char_height_plus_sep = (8 + 2) * scale_factor
-            char_width_plus_sep = (6 + 2) * scale_factor
-            position = get_position(source) - VectorF(
-                x=char_width_plus_sep * (len(row_text) / 2),
+            char_height_plus_sep = (UPPERCASE_CHAR_HEIGHT + SPACE_BETWEEN_CHARS) * scale_factor
+            char_width_plus_sep = (LOWERCASE_CHAR_HEIGHT + SPACE_BETWEEN_CHARS) * scale_factor
+
+            ROW_AND_TEXT_SIZE_OFFSET = VectorF(
+                x=(char_width_plus_sep * (len(row_text) / 2)) if centered else 0,
                 y=char_height_plus_sep * row_idx,
             )
+
+            position = get_position(source) - ROW_AND_TEXT_SIZE_OFFSET + CENTER_OFFSET
             _t = TextParticle(
                 engine=engine,
                 position=position,
@@ -47,7 +57,11 @@ def text_spawner(
                 changes_exponentially=True,
                 initial_angular_velocity=initial_angular_velocity,
             )
-            engine.scenario.fg_shapes[0:0] = [_t]
+
+            if absolute_positioning:
+                engine.scenario.overlay_shapes[0:0] = [_t]
+            else:
+                engine.scenario.fg_shapes[0:0] = [_t]
 
     return _s
 

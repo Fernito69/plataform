@@ -108,7 +108,7 @@ def first_level(
             events=[
                 Event(
                     spawner=wave_started_text("WAVE 1"),
-                    positions=[PointF(0, 50)],
+                    positions=[PointF(0, 10)],
                 ),
                 Event(
                     spawner=shotgun_pickup_spawner,
@@ -124,7 +124,7 @@ def first_level(
                         "Prepare URANUS for battle!",
                         subtitle=True,
                     ),
-                    positions=[PointF(0, 30)],
+                    positions=[PointF(0, -10)],
                 ),
             ],
         ),
@@ -155,7 +155,7 @@ def first_level(
             events=[
                 Event(
                     spawner=wave_started_text(f"WAVE 2{BR}Boss ahead!"),
-                    positions=[PointF(0, 50)],
+                    positions=[PointF(0, 10)],
                 ),
                 Event(
                     spawner=rocket_launcher_pickup_spawner,
