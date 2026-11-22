@@ -160,6 +160,12 @@ class VectorF(PointF):
 
     def get_angle(self) -> float:
         slope = self.get_slope()
+
+        # TODO: check why this hack is necessary
+        def _atan(slope: float) -> float:
+            a = math.atan(slope)
+            return a if self.x > 0 else a + PI
+
         return (
             PI / 2
             if slope == "+Inf"
@@ -167,7 +173,7 @@ class VectorF(PointF):
             if slope == "-Inf"
             else 0
             if slope == 0
-            else math.atan(slope)
+            else (_atan(slope))
         )
 
     @staticmethod

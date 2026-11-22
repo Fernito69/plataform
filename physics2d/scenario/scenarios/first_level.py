@@ -194,4 +194,5 @@ def first_level(
         player_initial_position=_STARTING_POSITION,
         pickables=pickables,
         timeline=timeline,
+        curr_objective_position=PointF(0, 0),
     )

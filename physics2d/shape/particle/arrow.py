@@ -20,7 +20,7 @@ class Arrow(Shape):
         self,
         engine: "Physics2D",
         position: PointF,
-        _type: ArrowType = "cool",
+        type: ArrowType = "cool",
         angle: float = 0,
         scale_factor: float = 1,
         color: RGB = RGB(),
@@ -43,7 +43,7 @@ class Arrow(Shape):
         )
 
         # TODO: implement multiple lines!!!
-        self._type = _type
+        self._type = type
         self.angle = angle
         self.angular_velocity = initial_angular_velocity
         self.theme = Theme(color)
@@ -150,6 +150,7 @@ ARROW_SIZE = 8
 _COOL_ARROW = [
     PointF(-4, 4),
     PointF(4, 0),
+    PointF(-4, -4),
 ]
 
 _REGULAR_ARROW_1 = [

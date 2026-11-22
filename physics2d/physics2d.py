@@ -162,27 +162,28 @@ class Physics2D(Engine, KeyboardHandler):
         point_or_entity: PointF | PhysicsEntity,
         grace_margin: int = 0,
     ) -> bool:
-        X_RES, Y_RES = self.get_resolution()
+        # X_RES, Y_RES = self.get_resolution()
 
-        # curr visible rectangle
-        x_min = self.screen_corner.x - grace_margin
-        x_max = self.screen_corner.x + X_RES + grace_margin
-        y_min = self.screen_corner.y - grace_margin
-        y_max = self.screen_corner.y + Y_RES + grace_margin
+        # # curr visible rectangle
+        # # x_min = self.screen_corner.x - grace_margin
+        # # x_max = self.screen_corner.x + X_RES + grace_margin
+        # # y_min = self.screen_corner.y - grace_margin
+        # # y_max = self.screen_corner.y + Y_RES + grace_margin
+        vp = self.get_viewport(grace_margin)
 
         if isinstance(point_or_entity, PhysicsEntity):
             return (
-                point_or_entity.position.x + point_or_entity.radius >= x_min
-                or point_or_entity.position.x - point_or_entity.radius < x_max
-                or point_or_entity.position.y + point_or_entity.radius >= y_min
-                or point_or_entity.position.y - point_or_entity.radius < y_max
+                point_or_entity.position.x + point_or_entity.radius >= vp.min_x
+                or point_or_entity.position.x - point_or_entity.radius < vp.max_x
+                or point_or_entity.position.y + point_or_entity.radius >= vp.min_y
+                or point_or_entity.position.y - point_or_entity.radius < vp.max_y
             )
 
         return (
-            point_or_entity.x >= x_min
-            and point_or_entity.x < x_max
-            and point_or_entity.y >= y_min
-            and point_or_entity.y < y_max
+            point_or_entity.x >= vp.min_x
+            and point_or_entity.x < vp.max_x
+            and point_or_entity.y >= vp.min_y
+            and point_or_entity.y < vp.max_y
         )
 
     def get_viewport(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
@@ -193,6 +194,13 @@ class Physics2D(Engine, KeyboardHandler):
             min_y=self.screen_corner.y - grace_margin,
             max_x=self.screen_corner.x + X_RES + grace_margin,
             max_y=self.screen_corner.y + Y_RES + grace_margin,
+        )
+
+    def get_screen_center(self) -> PointF:
+        vp = self.get_viewport()
+        return PointF(
+            x=(vp.min_x + vp.max_x) / 2,
+            y=(vp.min_y + vp.max_y) / 2,
         )
 
     def get_screen_rect(self, grace_margin: float = CULLING_GRACE_MARGIN) -> BoundingBox:
