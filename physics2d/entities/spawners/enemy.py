@@ -31,6 +31,8 @@ def super_rocket_enemy_spawner(
     )
     teleport_in_particles(engine, position)
     engine.scenario.enemies.append(enemy)
+    # TODO: this is just a hardcoded test for now
+    engine.scenario.set_objective(enemy)
 
 
 def machine_gun_enemy_spawner(

@@ -77,10 +77,10 @@ def first_level(
             engine=engine,
         )
         for points in [
-            (PointF(-100, 100), PointF(100, 100)),
-            (PointF(100, 100), PointF(100, -100)),
-            (PointF(100, -100), PointF(-100, -100)),
-            (PointF(-100, -100), PointF(-100, 100)),
+            (PointF(-150, 150), PointF(150, 150)),
+            (PointF(150, 150), PointF(150, -150)),
+            (PointF(150, -150), PointF(-150, -150)),
+            (PointF(-150, -150), PointF(-150, 150)),
         ]
     ]
 
@@ -194,5 +194,5 @@ def first_level(
         player_initial_position=_STARTING_POSITION,
         pickables=pickables,
         timeline=timeline,
-        curr_objective_position=PointF(0, 0),
+        initial_objective=PointF(0, 0),
     )

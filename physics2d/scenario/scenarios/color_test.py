@@ -258,7 +258,7 @@ def color_test(
         player=engine.player,
         background_gen=background_gen,
         player_initial_position=_STARTING_POSITION,
-        curr_objective_position=PointF(0, 0),
+        initial_objective=PointF(0, 0),
     )
 
 

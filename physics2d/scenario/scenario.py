@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from model.base import PointF, VectorF
 from model.theme import RGB
 from physics2d.constants import DEFAULT_GRAVITY_ACCELERATION
+from physics2d.entities.base import PhysicsEntity
 from physics2d.entities.crosshair import Crosshair
 from physics2d.entities.enemy import Enemy
 from physics2d.entities.equipment.projectile import Projectile
@@ -20,7 +21,6 @@ from physics2d.shape.particle.base import Particle
 from utils import random_offset
 
 if TYPE_CHECKING:
-    from physics2d.entities.base import PhysicsEntity
     from physics2d.entities.equipment.projectile import Projectile
     from physics2d.physics2d import Physics2D
 
@@ -63,7 +63,7 @@ class Scenario:
     player: PlayerBlob
     crosshair: Crosshair
 
-    curr_objective_position: PointF | None
+    curr_objective: "PhysicsEntity | PointF | None"
     objective_arrow: Arrow | None
 
     enemies: list[Enemy]
@@ -89,7 +89,7 @@ class Scenario:
         three_dee_enemies: list[ThreeDeeEnemy] = [],
         pickables: list[Pickable] = [],
         timeline: list[Milestone] = [],
-        curr_objective_position: PointF | None = None,
+        initial_objective: "PointF | PhysicsEntity | None" = None,
     ):
         self._game_tick = 0
         self.name = name
@@ -102,7 +102,7 @@ class Scenario:
         self.overlay_shapes = overlay_shapes
         self.pickables = pickables
         self.timeline = timeline
-        self.curr_objective_position = curr_objective_position
+        self.curr_objective = initial_objective
         self.objective_arrow = None
 
         for p in self.solid_shapes:
@@ -120,10 +120,19 @@ class Scenario:
         self.background = background_gen(engine)
         self._compute_grouped_timeline_events()
 
+    def set_objective(self, objective: PhysicsEntity | PointF) -> None:
+        self.curr_objective = objective
+        # Resets it
+        self.objective_arrow = None
+
+    def remove_objective(self) -> None:
+        self.objective_arrow = None
+        self.curr_objective = None
+
     def do_your_thing(self) -> None:
         self.player.do_your_thing()
         self.crosshair.do_your_thing()
-        self._handle_objective_arrow()
+        self._handle_objective()
         self._handle_timeline()
 
         for entity in chain(
@@ -143,7 +152,7 @@ class Scenario:
         self._game_tick += 1
 
     def _ensure_objective_arrow(self) -> None:
-        if not self.curr_objective_position:
+        if not self.curr_objective:
             raise ValueError("self.curr_objective_position is missing")
 
         if not self.objective_arrow:
@@ -163,7 +172,13 @@ class Scenario:
             self.engine.scenario.overlay_shapes.append(self.objective_arrow)
 
     def _get_direction_to_objective(self) -> VectorF:
-        p1 = self.curr_objective_position or PointF(0, 0)
+        p1 = (
+            self.curr_objective.position
+            if isinstance(self.curr_objective, PhysicsEntity)
+            else self.curr_objective
+            if isinstance(self.curr_objective, PointF)
+            else PointF(0, 0)
+        )
         p2 = self.engine.get_screen_center()
         return (p1 - p2).as_vector()
 
@@ -172,9 +187,9 @@ class Scenario:
             s for s in self.engine.scenario.overlay_shapes if s is not self.objective_arrow
         ]
 
-    def _handle_objective_arrow(self) -> None:
-        if not self.curr_objective_position or (
-            self.curr_objective_position and self.engine.is_in_screen(self.curr_objective_position)
+    def _handle_objective(self) -> None:
+        if not self.curr_objective or (
+            self.curr_objective and self.engine.is_in_screen(self.curr_objective)
         ):
             return self._hide_objective_arrow()
 
