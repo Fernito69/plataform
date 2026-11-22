@@ -151,29 +151,33 @@ class Scenario:
         self._particle_lifetime_cleanup()
         self._game_tick += 1
 
+    def _build_objective_arrow(self) -> Arrow:
+        direction_to_objective: VectorF = self._get_direction_to_objective()
+        
+        return Arrow(
+            engine=self.engine,
+            color=_ARROW_COLOR,
+            position=0.5 * PointF(*self.engine.get_resolution()),
+            angle=direction_to_objective.get_angle(),
+            scale_factor=1,
+            thickness=1.5,
+            pulsate_amplitude=2,
+            pulsate_freq=0.5,
+        )
+
     def _ensure_objective_arrow(self) -> None:
         if not self.curr_objective:
             raise ValueError("self.curr_objective_position is missing")
 
         if not self.objective_arrow:
-            direction_to_objective: VectorF = self._get_direction_to_objective()
-            self.objective_arrow = Arrow(
-                engine=self.engine,
-                color=_ARROW_COLOR,
-                position=0.5 * PointF(*self.engine.get_resolution()),
-                angle=direction_to_objective.get_angle(),
-                scale_factor=1,
-                thickness=1.5,
-                pulsate_amplitude=2,
-                pulsate_freq=0.5,
-            )
+            self.objective_arrow = self._build_objective_arrow()
 
         if self.objective_arrow not in self.engine.scenario.overlay_shapes:
             self.engine.scenario.overlay_shapes.append(self.objective_arrow)
 
     def _get_direction_to_objective(self) -> VectorF:
         p1 = (
-            self.curr_objective.position
+            self.curr_objective.position - self.engine.screen_corner
             if isinstance(self.curr_objective, PhysicsEntity)
             else self.curr_objective
             if isinstance(self.curr_objective, PointF)
